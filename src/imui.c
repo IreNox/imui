@@ -57,7 +57,7 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 
 void ImUiDestroy( ImUiContext* imui )
 {
-	for( uintsize i = 0u; i < imui->surfaceCount; ++i )
+	for( uintsize i = 0u; i < imui->surfaceCapacity; ++i )
 	{
 		ImUiSurface* surface = &imui->surfaces[ i ];
 		ImUiMemoryFree( &imui->allocator, surface->windows );
@@ -90,14 +90,30 @@ ImUiFrame* ImUiBegin( ImUiContext* imui )
 
 void ImUiEnd( ImUiFrame* frame )
 {
-	ImUiDrawEndFrame( &frame->imui->draw );
+	ImUiContext* imui = frame->imui;
+
+	ImUiDrawEndFrame( &imui->draw );
+
+	for( uintsize i = 0u; i < imui->surfaceCount; ++i )
+	{
+		ImUiSurface* surface = &imui->surfaces[ i ];
+		surface->windowCount = 0u;
+	}
+	imui->surfaceCount = 0u;
+
+	for( ImUiWidgetChunk* chunk = imui->firstChunk; chunk != NULL; chunk = chunk->nextChunk )
+	{
+		chunk->usedCount = 0u;
+	}
+
+	ImUiStringPoolClear( &imui->strings );
 }
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale )
 {
 	ImUiContext* imui = frame->imui;
 
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY_ZERO( &imui->allocator, imui->surfaces, imui->surfaceCapacity, imui->surfaceCount + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, imui->surfaces, imui->surfaceCapacity, imui->surfaceCount + 1u ) )
 	{
 		return NULL;
 	}
@@ -147,7 +163,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 	ImUiContext* imui = surface->imui;
 
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY_ZERO( &imui->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
 	{
 		return NULL;
 	}
@@ -197,6 +213,7 @@ void ImUiInputEnd( ImUiContext* imui )
 
 static void ImUiWindowLayout( ImUiWindow* window )
 {
+	window->rootWidget->rectangle = ImUiRectangleCreate( 0.0f, 0.0f, window->rootWidget->maxSize.width, window->rootWidget->maxSize.height );
 	ImUiWidgetUpdateLayoutContext( window->rootWidget );
 
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )

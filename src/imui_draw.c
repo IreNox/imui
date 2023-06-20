@@ -30,7 +30,7 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 
 	const bool hasVertexFormat = vertexFormat->elementCount != 0u;
 	const uintsize vertexElementCount = hasVertexFormat ? vertexFormat->elementCount : 3u;
-	ImUiVertexElement* elements = IMUI_MEMORY_ARRAY_NEW( allocator, ImUiVertexElement, vertexFormat->elementCount );
+	ImUiVertexElement* elements = IMUI_MEMORY_ARRAY_NEW( allocator, ImUiVertexElement, vertexElementCount );
 	if( !elements  )
 	{
 		ImUiDrawDestruct( draw );
@@ -101,7 +101,7 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiHash id )
 		return i;
 	}
 
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY_ZERO( draw->allocator, draw->windows, draw->windowCapacity, draw->windowCount + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, draw->windows, draw->windowCapacity, draw->windowCount + 1u ) )
 	{
 		return IMUI_SIZE_MAX;
 	}
@@ -124,17 +124,13 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 		{
 			ImUiDrawFreeWindow( draw, window );
 
-			if( draw->windowCount > 1u )
-			{
-				*window = draw->windows[ draw->windowCount - 1u ];
-			}
-			draw->windowCount--;
-
+			IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( draw->windows, draw->windowCount, i );
 			i--;
 			continue;
 		}
 
-		window->used = false;
+		window->used			= false;
+		window->elementCount	= 0u;
 	}
 
 	for( uintsize i = 0; i < draw->surfaceCount; ++i )
@@ -145,17 +141,16 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 		{
 			ImUiDrawFreeSurface( draw, surface );
 
-			if( draw->surfaceCount > 1u )
-			{
-				*surface = draw->surfaces[ draw->surfaceCount - 1u ];
-			}
-			draw->surfaceCount--;
-
+			IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( draw->surfaces, draw->surfaceCount, i );
 			i--;
 			continue;
 		}
 
-		surface->used = false;
+		surface->used			= false;
+		surface->lastTopology	= ImUiDrawTopology_MAX;
+		surface->commandCount	= 0u;
+		surface->vertexCount	= 0u;
+		surface->indexCount		= 0u;
 	}
 }
 
@@ -176,7 +171,7 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 
 	if( !drawSurface )
 	{
-		if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY_ZERO( draw->allocator, draw->surfaces, draw->surfaceCapacity, draw->surfaceCount + 1u ) )
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, draw->surfaces, draw->surfaceCapacity, draw->surfaceCount + 1u ) )
 		{
 			return NULL;
 		}
@@ -277,7 +272,7 @@ static ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElement
 	ImUiDraw* draw = &widget->window->surface->imui->draw;
 	ImUiDrawWindowData* window = ImUiDrawGetWindow( draw, widget );
 
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY( draw->allocator, window->elements, window->elementCapacity, window->elementCount + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( draw->allocator, window->elements, window->elementCapacity, window->elementCount + 1u ) )
 	{
 		return NULL;
 	}
@@ -379,7 +374,7 @@ static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDr
 		}
 	}
 
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY_ZERO( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount + 1u ) )
 	{
 		return NULL;
 	}
@@ -396,7 +391,7 @@ static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDr
 static bool ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize vertexCount )
 {
 	const uintsize requiredSize = draw->vertexSize * (surface->vertexCount + vertexCount);
-	return IMUI_MEMORY_CHECK_ARRAY_CAPACITY( draw->allocator, surface->vertexData, surface->vertexDataCapacity, requiredSize );
+	return IMUI_MEMORY_ARRAY_CHECK_CAPACITY( draw->allocator, surface->vertexData, surface->vertexDataCapacity, requiredSize );
 }
 
 static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPosition position, ImUiColor color, ImUiPosition uv )
@@ -404,7 +399,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 	const uint32 vertexIndex = (uint32)surface->vertexCount;
 	surface->vertexCount++;
 
-	uint32 vertexOffset = 0u;
+	uintsize vertexOffset = 0u;
 	uint8* vertex = surface->vertexData + (draw->vertexSize * vertexIndex);
 	IMUI_ASSERT( vertex + draw->vertexSize <= surface->vertexData + surface->vertexDataCapacity );
 
@@ -628,7 +623,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 static void ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count )
 {
 	const uintsize requiredSize = surface->indexCount + count;
-	if( !IMUI_MEMORY_CHECK_ARRAY_CAPACITY( draw->allocator, surface->indices, surface->indicesCapacity, requiredSize ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( draw->allocator, surface->indices, surface->indicesCapacity, requiredSize ) )
 	{
 		return;
 	}

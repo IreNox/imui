@@ -35,6 +35,15 @@ void ImUiStringPoolDestruct( ImUiStringPool* stringPool )
 	stringPool->allocator	= NULL;
 }
 
+void ImUiStringPoolClear( ImUiStringPool* stringPool )
+{
+	for( ImUiStringPoolChunk* chunk = stringPool->firstChunk; chunk != NULL; chunk = chunk->nextChunk )
+	{
+		chunk->remainingSize += chunk->usedSize;
+		chunk->usedSize = 0u;
+	}
+}
+
 ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView string )
 {
 	ImUiStringPoolChunk* chunk;

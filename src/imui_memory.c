@@ -61,37 +61,65 @@ void ImUiMemoryFree( ImUiAllocator* allocator, const void* memory )
 	allocator->freeFunc( (void*)memory, allocator->userData );
 }
 
-bool ImUiMemoryCheckArrayCapacity( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero )
+bool ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero )
 {
-	if( *capacity > requiredCapacity )
+	if( *capacity >= requiredCapacity )
 	{
 		return true;
 	}
 
 	uintsize nextCapacity = *capacity;
+	if( nextCapacity < IMUI_DEFAULT_ARRAY_CAPACITY )
+	{
+		nextCapacity = IMUI_DEFAULT_ARRAY_CAPACITY;
+	}
 	while( nextCapacity < requiredCapacity )
 	{
 		nextCapacity <<= 1u;
-		if( nextCapacity < IMUI_DEFAULT_ARRAY_CAPACITY )
-		{
-			nextCapacity = IMUI_DEFAULT_ARRAY_CAPACITY;
-		}
 	}
 
 	const uintsize oldSize = *capacity * elementSize;
 	const uintsize newSize = nextCapacity * elementSize;
-	*memory = ImUiMemoryRealloc( allocator, *memory, oldSize, newSize );
-
-	if( *memory )
+	void* newMemory = ImUiMemoryRealloc( allocator, *memory, oldSize, newSize );
+	if( !newMemory )
 	{
-		if( zero )
-		{
-			uint8* data = (uint8*)*memory;
-			memset( data + oldSize, 0, newSize - oldSize );
-		}
-
-		*capacity = nextCapacity;
+		return false;
 	}
 
-	return *memory != NULL;
+	if( zero )
+	{
+		uint8* data = (uint8*)newMemory;
+		memset( data + oldSize, 0, newSize - oldSize );
+	}
+
+	*memory = newMemory;
+	*capacity = nextCapacity;
+	return true;
+}
+
+void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, uintsize elementIndex, uintsize elementSize, bool zero )
+{
+	IMUI_ASSERT( elementIndex < *arrayCount );
+
+	uint8* bytes = (uint8*)memory;
+	uint8* element = bytes + (elementIndex * elementSize);
+
+	if( *arrayCount > 1u &&
+		elementIndex != *arrayCount - 1u )
+	{
+		uint8* lastElement = bytes + ((*arrayCount - 1u) * elementSize);
+		memcpy( element, lastElement, elementSize );
+
+		if( zero )
+		{
+			memset( lastElement, 0, elementSize );
+		}
+	}
+	else if( zero &&
+		*arrayCount == 1u )
+	{
+		memset( element, 0, elementSize );
+	}
+
+	(*arrayCount)--;
 }
