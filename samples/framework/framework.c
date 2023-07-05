@@ -37,6 +37,8 @@ struct ImFrameworkContext
 	GLuint						vertexArray;
 	GLuint						vertexBuffer;
 	GLuint						elementBuffer;
+
+	GLuint						whiteTexture;
 };
 
 static bool ImFrameworkRendererInitialize( ImFrameworkContext* context );
@@ -56,6 +58,7 @@ int main( int argc, char* argv[] )
 
 	// Set flag to the new value.
 	_CrtSetDbgFlag( tmpFlag );
+	//_CrtSetBreakAlloc( 100 );
 
 	ImFrameworkContext context;
 
@@ -268,6 +271,13 @@ static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )
 	glVertexAttribPointer( attributeTexCoord, 2, GL_FLOAT, GL_FALSE, vertexSize, (void*)vertexUvOffset );
 	glVertexAttribPointer( attributeColor, 4, GL_FLOAT, GL_FALSE, vertexSize, (void*)vertexColorOffset );
 
+	glGenTextures( 1, &context->whiteTexture );
+	glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	const uint32 data = 0xffffffffu;
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data );
+
 	return true;
 }
 
@@ -294,6 +304,12 @@ static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShader
 
 static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
 {
+	if( context->whiteTexture != 0u )
+	{
+		glDeleteTextures( 1u, &context->whiteTexture );
+		context->whiteTexture = 0u;
+	}
+
 	if( context->vertexArray != 0u )
 	{
 		glDeleteVertexArrays( 1, &context->vertexArray );
@@ -393,7 +409,7 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		//ImApcontextTexture* pTexture = (ImApcontextTexture*)pCommand->texture.ptr;
 		//if( pTexture == NULL )
 		//{
-			glBindTexture( GL_TEXTURE_2D, 0 );
+			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
 		//}
 		//else
 		//{
@@ -401,10 +417,10 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		//}
 
 		//glScissor(
-		//	(GLint)(pCommand->clip_rect.x),
-		//	(GLint)((height - (GLint)(pCommand->clip_rect.y + pCommand->clip_rect.h))),
-		//	(GLint)(pCommand->clip_rect.w),
-		//	(GLint)(pCommand->clip_rect.h)
+		//	(GLint)(pCommand->clipRect.position.x),
+		//	(GLint)((height - (GLint)(pCommand->clipRect.position.y + pCommand->clipRect.size.height))),
+		//	(GLint)(pCommand->clipRect.size.width),
+		//	(GLint)(pCommand->clipRect.size.height)
 		//);
 
 		glDrawArrays( GL_TRIANGLES, (GLint)pCommand->offset, (GLsizei)pCommand->count );

@@ -18,15 +18,26 @@ ImUiStringView ImUiStringViewCreate( const char* str )
 	return string;
 }
 
-ImUiHash ImUiHashCreate( const uint8_t* data, size_t dataSize, ImUiHash seed )
+bool ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 )
+{
+	if( string1.length != string2.length )
+	{
+		return false;
+	}
+
+	return memcmp( string1.data, string2.data, string1.length ) == 0u;
+}
+
+ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 {
 	// Murmur3
 	uint32 hash = seed;
 	uint32_t dataPart;
+	const uint8* bytes = data;
 	for( size_t i = dataSize >> 2; i; --i )
 	{
-		memcpy( &dataPart, data, sizeof( uint32 ) );
-		data += sizeof( uint32 );
+		memcpy( &dataPart, bytes, sizeof( uint32 ) );
+		bytes += sizeof( uint32 );
 
 		uint32 scramble = dataPart * 0xcc9e2d51;
 		scramble = (scramble << 15) | (scramble >> 17);
@@ -41,7 +52,7 @@ ImUiHash ImUiHashCreate( const uint8_t* data, size_t dataSize, ImUiHash seed )
 	for( size_t i = dataSize & 3; i; --i )
 	{
 		dataPart <<= 8;
-		dataPart |= data[ i - 1 ];
+		dataPart |= bytes[ i - 1 ];
 	}
 
 	uint32 scramble = dataPart * 0xcc9e2d51;
@@ -61,7 +72,7 @@ ImUiHash ImUiHashCreate( const uint8_t* data, size_t dataSize, ImUiHash seed )
 
 ImUiHash ImUiHashString( ImUiStringView string, ImUiHash seed )
 {
-	return ImUiHashCreate( (const uint8*)string.data, string.length, seed );
+	return ImUiHashCreate( string.data, string.length, seed );
 }
 
 ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )

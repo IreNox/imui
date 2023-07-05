@@ -9,6 +9,8 @@
 
 struct ImUiSurface
 {
+	bool			inUse;
+
 	ImUiContext*	imui;
 
 	ImUiStringView	name;
@@ -23,6 +25,8 @@ struct ImUiSurface
 
 struct ImUiWindow
 {
+	bool			inUse;
+
 	ImUiContext*	imui;
 	ImUiSurface*	surface;
 
@@ -34,6 +38,9 @@ struct ImUiWindow
 	uintsize		drawIndex;
 
 	ImUiWidget*		rootWidget;
+	ImUiWidget*		lastFrameRootWidget;
+	ImUiWidget*		currentWidget;
+	ImUiWidget*		lastFrameCurrentWidget;
 };
 
 typedef struct ImUiWidgetLayoutContext ImUiWidgetLayoutContext;
@@ -58,8 +65,8 @@ struct ImUiWidget
 	ImUiWidget*				firstChild;
 	ImUiWidget*				lastChild;
 
-	ImUiId					id;
 	ImUiHash				hash;
+	ImUiId					id;
 	ImUiStringView			name;
 
 	ImUiThickness			margin;
@@ -105,5 +112,6 @@ struct ImUiContext
 
 	ImUiWidget			defaultWidget;
 	ImUiWidgetChunk*	firstChunk;
-	ImUiWidgetChunk*	lastChunk;
+	ImUiWidgetChunk*	firstLastFrameChunk;
+	ImUiWidgetChunk*	firstFreeChunk;
 };

@@ -9,11 +9,13 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	//ImUiDraw
 
-	ImUiWidget* widget = ImUiWidgetCreate( ImUiWindowGetRootWidget( window ) );
+	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetMargin( widget, ImUiThicknessCreateAll( 50.0f ) );
 	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 300.0f, 100.0f ) );
 
 	ImUiDrawRectangleColor( widget, ImUiWidgetGetRectangle( widget ), ImUiColorCreateWhite( 1.0f ) );
+
+	ImUiWidgetEnd( widget );
 
 	ImUiWindowEnd( window );
 }

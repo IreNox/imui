@@ -38,3 +38,9 @@ typedef size_t		uintsize;
 #endif
 
 #define IMUI_ARRAY_COUNT( arr ) (sizeof( arr ) / sizeof( *(arr) ))
+
+#if defined( __GNUC__ ) || defined( __clang__ )
+#	define IMUI_OFFSETOF( type, member )	__builtin_offsetof( type, member )
+#else
+#	define IMUI_OFFSETOF( type, member )	((size_t)(&((type*)0)->member))
+#endif

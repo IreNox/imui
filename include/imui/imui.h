@@ -136,6 +136,7 @@ struct ImUiDrawCommand
 {
 	ImUiDrawTopology		topology;
 	void*					texture;
+	//ImUiRectangle			clipRect;
 	size_t					offset;				// index offset if index buffer is used otherwise vertex offset
 	size_t					count;				// same as offset but count
 };
@@ -272,15 +273,14 @@ float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRectangle rectangle, uint32_t zOrder );
 void						ImUiWindowEnd( ImUiWindow* window );
 
-ImUiWidget*					ImUiWindowGetRootWidget( ImUiWindow* window );
-
 //////////////////////////////////////////////////////////////////////////
 // Widget - todo
 // see imui_widget.c
 
-ImUiWidget*					ImUiWidgetCreate( ImUiWidget* parent );
-ImUiWidget*					ImUiWidgetCreateId( ImUiWidget* parent, ImUiId id );
-ImUiWidget*					ImUiWidgetCreateNamed( ImUiWidget* parent, ImUiStringView name );
+ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
+ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
+ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
+void						ImUiWidgetEnd( ImUiWidget* widget );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
 void						ImUiWidgetSetLayout( ImUiWidget* widget, ImUiLayout layout );
@@ -500,8 +500,9 @@ bool							ImUiInputHasMouseButtonReleased( ImUiInput* input, ImUiInputMouseButt
 // see imui_helper.c
 
 ImUiStringView					ImUiStringViewCreate( const char* str );
+bool							ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
 
-ImUiHash						ImUiHashCreate( const uint8_t* data, size_t dataSize, ImUiHash seed );
+ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed );
 ImUiHash						ImUiHashString( ImUiStringView string, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
 

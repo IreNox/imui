@@ -8,34 +8,18 @@
 
 ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 {
-	if( imui->firstChunk == NULL )
+	if( imui->firstChunk == NULL ||
+		imui->firstChunk->usedCount == IMUI_DEFAULT_WIDGET_CHUNK_SIZE )
 	{
-		imui->firstChunk = IMUI_MEMORY_NEW( &imui->allocator, ImUiWidgetChunk );
-		if( imui->firstChunk == NULL )
+		if( imui->firstFreeChunk )
 		{
-			return NULL;
-		}
+			ImUiWidgetChunk* newChunk = imui->firstFreeChunk;
+			IMUI_ASSERT( newChunk->usedCount == 0u );
 
-		IMUI_ASSERT( imui->lastChunk == NULL );
-		imui->lastChunk = imui->firstChunk;
+			imui->firstFreeChunk = newChunk->nextChunk;
 
-		imui->firstChunk->nextChunk	= NULL;
-		imui->firstChunk->usedCount	= 0u;
-	}
-	else if( imui->firstChunk->usedCount == IMUI_DEFAULT_WIDGET_CHUNK_SIZE )
-	{
-		ImUiWidgetChunk* nextChunk = imui->firstChunk->nextChunk;
-		if( nextChunk != NULL &&
-			nextChunk->usedCount < IMUI_DEFAULT_WIDGET_CHUNK_SIZE )
-		{
-			IMUI_ASSERT( nextChunk != imui->lastChunk );
-
-			imui->firstChunk->nextChunk = NULL;
-
-			imui->lastChunk->nextChunk = imui->firstChunk;
-			imui->lastChunk = imui->firstChunk;
-
-			imui->firstChunk = nextChunk;
+			newChunk->nextChunk	= imui->firstChunk;
+			imui->firstChunk = newChunk;
 		}
 		else
 		{
@@ -60,18 +44,31 @@ ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 	return widget;
 }
 
-ImUiWidget* ImUiWidgetCreate( ImUiWidget* parent )
+ImUiWidget* ImUiWidgetBegin( ImUiWindow* window )
 {
-	IMUI_ASSERT( parent != NULL );
+	ImUiId id = 0u;
+	if( window->currentWidget->lastChild )
+	{
+		id = window->currentWidget->lastChild->id + 1u;
+	}
 
-	ImUiWidget* widget = ImUiWidgetAlloc( parent->window->imui );
+	return ImUiWidgetBeginId( window, id );
+}
+
+ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
+{
+	IMUI_ASSERT( window );
+
+	ImUiWidget* widget = ImUiWidgetAlloc( window->imui );
 	if( widget == NULL )
 	{
 		return NULL;
 	}
 
-	widget->window	= parent->window;
+	ImUiWidget* parent = window->currentWidget;
+	widget->window	= window;
 	widget->parent	= parent;
+	widget->id		= id;
 
 	if( parent->firstChild == NULL )
 	{
@@ -86,34 +83,53 @@ ImUiWidget* ImUiWidgetCreate( ImUiWidget* parent )
 		parent->lastChild = widget;
 	}
 
+	window->currentWidget = widget;
+
+	if( window->lastFrameCurrentWidget )
+	{
+		ImUiWidget* lastFrameWidget = window->lastFrameCurrentWidget->firstChild;
+		for( ; lastFrameWidget != NULL; lastFrameWidget = lastFrameWidget->nextSibling )
+		{
+			if( lastFrameWidget->id != widget->id )
+			{
+				continue;
+			}
+
+			break;
+		}
+
+		window->lastFrameCurrentWidget = lastFrameWidget;
+		if( lastFrameWidget )
+		{
+			widget->layoutContext	= lastFrameWidget->layoutContext;
+			widget->rectangle		= lastFrameWidget->rectangle;
+		}
+	}
+
 	return widget;
 }
 
-ImUiWidget* ImUiWidgetCreateId( ImUiWidget* parent, ImUiId id )
+ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name )
 {
-	ImUiWidget* widget = ImUiWidgetCreate( parent );
+	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( name, 0u ) );
 	if( widget == NULL )
 	{
 		return NULL;
 	}
 
-	widget->id = id;
+	widget->name = ImUiStringPoolAdd( &window->imui->strings, name );
 
 	return widget;
 }
 
-ImUiWidget* ImUiWidgetCreateNamed( ImUiWidget* parent, ImUiStringView name )
+void ImUiWidgetEnd( ImUiWidget* widget )
 {
-	ImUiWidget* widget = ImUiWidgetCreate( parent );
-	if( widget == NULL )
-	{
-		return NULL;
-	}
+	IMUI_ASSERT( widget == widget->window->currentWidget );
 
-	widget->id		= ImUiHashString( name, 0u );
-	widget->name	= ImUiStringPoolAdd( &parent->window->imui->strings, name );
+	widget->hash = ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rectangle ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u );
 
-	return widget;
+	widget->window->currentWidget = widget->parent;
+	widget->window->lastFrameCurrentWidget = widget->parent;
 }
 
 ImUiLayout ImUiWidgetGetLayout( const ImUiWidget* widget )

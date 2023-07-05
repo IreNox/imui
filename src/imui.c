@@ -64,8 +64,21 @@ void ImUiDestroy( ImUiContext* imui )
 	}
 	ImUiMemoryFree( &imui->allocator, imui->surfaces );
 
-	ImUiWidgetChunk* pChunk = imui->firstChunk;
-	while( pChunk )
+	for( ImUiWidgetChunk* pChunk = imui->firstChunk; pChunk != NULL; )
+	{
+		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		ImUiMemoryFree( &imui->allocator, pChunk );
+		pChunk = pNextChunk;
+	}
+
+	for( ImUiWidgetChunk* pChunk = imui->firstLastFrameChunk; pChunk != NULL; )
+	{
+		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		ImUiMemoryFree( &imui->allocator, pChunk );
+		pChunk = pNextChunk;
+	}
+
+	for( ImUiWidgetChunk* pChunk = imui->firstFreeChunk; pChunk != NULL; )
 	{
 		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
 		ImUiMemoryFree( &imui->allocator, pChunk );
@@ -94,37 +107,89 @@ void ImUiEnd( ImUiFrame* frame )
 
 	ImUiDrawEndFrame( &imui->draw );
 
-	for( uintsize i = 0u; i < imui->surfaceCount; ++i )
+	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		ImUiSurface* surface = &imui->surfaces[ i ];
-		surface->windowCount = 0u;
-	}
-	imui->surfaceCount = 0u;
+		ImUiSurface* surface = &imui->surfaces[ surfaceIndex ];
+		if( !surface->inUse )
+		{
+			ImUiMemoryFree( &imui->allocator, surface->windows );
 
-	for( ImUiWidgetChunk* chunk = imui->firstChunk; chunk != NULL; chunk = chunk->nextChunk )
+			IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( imui->surfaces, imui->surfaceCount, surfaceIndex );
+
+			surfaceIndex--;
+			continue;
+		}
+
+		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
+		{
+			ImUiWindow* window = &surface->windows[ windowIndex ];
+			if( !window->inUse )
+			{
+				IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( surface->windows, surface->windowCount, windowIndex );
+
+				windowIndex--;
+				continue;
+			}
+
+			window->inUse = false;
+		}
+
+		surface->inUse = false;
+	}
+
+	ImUiWidgetChunk* lastFreeChunk = NULL;
+	for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
 	{
 		chunk->usedCount = 0u;
+
+		lastFreeChunk = chunk;
 	}
 
-	ImUiStringPoolClear( &imui->strings );
+	if( lastFreeChunk )
+	{
+		lastFreeChunk->nextChunk = imui->firstFreeChunk;
+	}
+	imui->firstFreeChunk = imui->firstLastFrameChunk;
+
+	imui->firstLastFrameChunk	= imui->firstChunk;
+	imui->firstChunk			= NULL;
+
+	//ImUiStringPoolClear( &imui->strings );
 }
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale )
 {
 	ImUiContext* imui = frame->imui;
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, imui->surfaces, imui->surfaceCapacity, imui->surfaceCount + 1u ) )
+	ImUiSurface* surface = NULL;
+	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		return NULL;
+		if( !ImUiStringViewIsEquals( imui->surfaces[ surfaceIndex ].name, name ) )
+		{
+			continue;
+		}
+
+		surface = &imui->surfaces[ surfaceIndex ];
+		IMUI_ASSERT( !surface->inUse && "Surface name must be unique" );
+		break;
 	}
 
-	ImUiSurface* surface = &imui->surfaces[ imui->surfaceCount ];
-	imui->surfaceCount++;
+	if( !surface )
+	{
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, imui->surfaces, imui->surfaceCapacity, imui->surfaceCount + 1u ) )
+		{
+			return NULL;
+		}
 
-	surface->imui			= imui;
-	surface->name			= ImUiStringPoolAdd( &imui->strings, name );
-	surface->size			= size;
-	surface->dpiScale		= dpiScale;
+		surface = &imui->surfaces[ imui->surfaceCount ];
+		imui->surfaceCount++;
+	}
+
+	surface->inUse		= true;
+	surface->imui		= imui;
+	surface->name		= ImUiStringPoolAdd( &imui->strings, name );
+	surface->size		= size;
+	surface->dpiScale	= dpiScale;
 
 	return surface;
 }
@@ -163,21 +228,38 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 	ImUiContext* imui = surface->imui;
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+	ImUiWindow* window = NULL;
+	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
-		return NULL;
+		if( !ImUiStringViewIsEquals( surface->windows[ windowIndex ].name, name ) )
+		{
+			continue;
+		}
+
+		window = &surface->windows[ windowIndex ];
+		IMUI_ASSERT( !window->inUse && "Window name must be unique" );
+		break;
 	}
 
-	ImUiWindow* window = &surface->windows[ surface->windowCount ];
-	surface->windowCount++;
+	if( !window )
+	{
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( &imui->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+		{
+			return NULL;
+		}
 
-	window->imui			= imui;
-	window->surface			= surface;
-	window->name			= ImUiStringPoolAdd( &imui->strings, name );
-	window->hash			= ImUiHashString( name, 0 );
-	window->rectangle		= rectangle;
-	window->zOrder			= zOrder;
-	window->drawIndex		= ImUiDrawRegisterWindow( &imui->draw, window->hash );
+		window = &surface->windows[ surface->windowCount ];
+		surface->windowCount++;
+	}
+
+	window->inUse		= true;
+	window->imui		= imui;
+	window->surface		= surface;
+	window->name		= ImUiStringPoolAdd( &imui->strings, name );
+	window->hash		= ImUiHashString( name, 0 );
+	window->rectangle	= rectangle;
+	window->zOrder		= zOrder;
+	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->hash );
 
 	ImUiWidget* rootWidget = ImUiWidgetAlloc( imui );
 	rootWidget->window		= window;
@@ -185,19 +267,18 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 	rootWidget->hash		= ImUiHashString( window->name, 0u );
 	ImUiWidgetSetFixedSize( rootWidget, rectangle.size );
 
-	window->rootWidget		= rootWidget;
+	window->lastFrameRootWidget		= window->rootWidget;
+	window->lastFrameCurrentWidget	= window->rootWidget;
 
+	window->rootWidget		= rootWidget;
+	window->currentWidget	= window->rootWidget;
 	return window;
 }
 
 void ImUiWindowEnd( ImUiWindow* window )
 {
+	ImUiWidgetEnd( window->rootWidget );
 	ImUiWindowLayout( window );
-}
-
-ImUiWidget* ImUiWindowGetRootWidget( ImUiWindow* window )
-{
-	return window->rootWidget;
 }
 
 ImUiInput* ImUiInputBegin( ImUiContext* imui )
@@ -208,7 +289,6 @@ ImUiInput* ImUiInputBegin( ImUiContext* imui )
 
 void ImUiInputEnd( ImUiContext* imui )
 {
-
 }
 
 static void ImUiWindowLayout( ImUiWindow* window )

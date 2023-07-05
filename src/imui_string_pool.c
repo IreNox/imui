@@ -14,6 +14,12 @@ struct ImUiStringPoolChunk
 	char					data[ 1u ];
 };
 
+struct ImUiStringPoolKey
+{
+	ImUiHash				stringHash;
+	ImUiStringView			string;
+};
+
 void ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator )
 {
 	stringPool->allocator	= allocator;
@@ -22,6 +28,11 @@ void ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocat
 
 void ImUiStringPoolDestruct( ImUiStringPool* stringPool )
 {
+	ImUiMemoryFree( stringPool->allocator, stringPool->keys );
+	stringPool->keys		= NULL;
+	stringPool->keyCount	= 0u;
+	stringPool->keyCapacity	= 0u;
+
 	ImUiStringPoolChunk* chunk = stringPool->firstChunk;
 	ImUiStringPoolChunk* nextChunk = NULL;
 	while( chunk )
@@ -46,6 +57,15 @@ void ImUiStringPoolClear( ImUiStringPool* stringPool )
 
 ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView string )
 {
+	IMUI_ASSERT( string.length <= ((size_t)-1) >> 1u ); // use upper bit as used flag
+
+	const ImUiHash stringHash = ImUiHashString( string, 0u );
+	ImUiStringView result = ImUiStringPoolFindByHash( stringPool, stringHash );
+	if( result.data )
+	{
+		return result;
+	}
+
 	ImUiStringPoolChunk* chunk;
 	if( stringPool->firstChunk == NULL ||
 		string.length >= stringPool->firstChunk->remainingSize )
@@ -59,7 +79,6 @@ ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView str
 		chunk = (ImUiStringPoolChunk*)ImUiMemoryAlloc( stringPool->allocator, sizeof( ImUiStringPoolChunk ) + size );
 		if( !chunk )
 		{
-			const ImUiStringView result = { NULL, 0u };
 			return result;
 		}
 
@@ -81,6 +100,38 @@ ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView str
 	chunk->usedSize += string.length + 1u;
 	chunk->remainingSize -= string.length + 1u;
 
-	const ImUiStringView result = { target, string.length };
+	result.data		= target;
+	result.length	= string.length;
+
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( stringPool->allocator, stringPool->keys, stringPool->keyCapacity, stringPool->keyCount + 1u ) )
+	{
+		return result;
+	}
+
+	ImUiStringPoolKey* key = &stringPool->keys[ stringPool->keyCount ];
+	stringPool->keyCount++;
+
+	key->stringHash	= stringHash;
+	key->string		= result;
+
+	return result;
+}
+
+ImUiStringView ImUiStringPoolFindByHash( ImUiStringPool* stringPool, ImUiHash stringHash )
+{
+	ImUiStringView result = { NULL, 0u };
+	for( size_t i = 0u; i < stringPool->keyCount; ++i )
+	{
+		ImUiStringPoolKey* key = &stringPool->keys[ i ];
+		if( key->stringHash != stringHash )
+		{
+			continue;
+		}
+
+		result.data		= key->string.data;
+		result.length	= key->string.length; // TODO: &~(((size_t)-1) >> 1u);
+		return result;
+	}
+
 	return result;
 }
