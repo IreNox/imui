@@ -66,6 +66,7 @@ struct ImUiWidget
 	ImUiWidget*				lastChild;
 
 	ImUiHash				hash;
+	ImUiHash				lastFrameHash;
 	ImUiId					id;
 	ImUiStringView			name;
 

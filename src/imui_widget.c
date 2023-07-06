@@ -101,6 +101,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 		window->lastFrameCurrentWidget = lastFrameWidget;
 		if( lastFrameWidget )
 		{
+			widget->lastFrameHash	= lastFrameWidget->hash;
 			widget->layoutContext	= lastFrameWidget->layoutContext;
 			widget->rectangle		= lastFrameWidget->rectangle;
 		}
@@ -127,6 +128,17 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	IMUI_ASSERT( widget == widget->window->currentWidget );
 
 	widget->hash = ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rectangle ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u );
+
+	if( widget->parent )
+	{
+		widget->parent->hash = ImUiHashMix( widget->parent->hash, widget->hash );
+
+		if( widget->window->lastFrameCurrentWidget &&
+			widget->lastFrameHash != widget->hash )
+		{
+			widget->layoutContext = widget->window->imui->defaultWidget.layoutContext;
+		}
+	}
 
 	widget->window->currentWidget = widget->parent;
 	widget->window->lastFrameCurrentWidget = widget->parent;
