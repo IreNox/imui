@@ -80,21 +80,27 @@ ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )
 	return hash1 ^ hash2;
 }
 
+ImUiAlignment ImUiAlignmentCreate( ImUiHorizontalAlignment horizintal, ImUiVerticalAlignment vertical )
+{
+	const ImUiAlignment align = { horizintal, vertical };
+	return align;
+}
+
 ImUiPosition ImUiPositionCreate( float x, float y )
 {
-	const ImUiPosition pos ={ x, y };
+	const ImUiPosition pos = { x, y };
 	return pos;
 }
 
 ImUiPosition ImUiPositionAdd( ImUiPosition pos, float x, float y )
 {
-	const ImUiPosition result ={ pos.x + x, pos.y + y };
+	const ImUiPosition result = { pos.x + x, pos.y + y };
 	return result;
 }
 
 ImUiPosition ImUiPositionAddPos( ImUiPosition pos, ImUiPosition add )
 {
-	const ImUiPosition result ={ pos.x + add.x, pos.y + add.y };
+	const ImUiPosition result = { pos.x + add.x, pos.y + add.y };
 	return result;
 }
 
@@ -106,67 +112,97 @@ ImUiSize ImUiSizeCreate( float width, float height )
 
 ImUiSize ImUiSizeAdd( ImUiSize size, float width, float height )
 {
-	const ImUiSize result ={ size.width + width, size.height + height };
+	const ImUiSize result = { size.width + width, size.height + height };
 	return result;
 }
 
 ImUiSize ImUiSizeAddSize( ImUiSize size, ImUiSize add )
 {
-	const ImUiSize result ={ size.width + add.width, size.height + add.height };
+	const ImUiSize result = { size.width + add.width, size.height + add.height };
 	return result;
 }
 
 ImUiSize ImUiSizeSub( ImUiSize size, float width, float height )
 {
-	const ImUiSize result ={ size.width - width, size.height - height };
+	const ImUiSize result = { size.width - width, size.height - height };
 	return result;
 }
 
 ImUiSize ImUiSizeSubSize( ImUiSize size, ImUiSize sub )
 {
-	const ImUiSize result ={ size.width - sub.width, size.height - sub.height };
+	const ImUiSize result = { size.width - sub.width, size.height - sub.height };
+	return result;
+}
+
+ImUiSize ImUiSizeLerp( ImUiSize a, ImUiSize b, float t )
+{
+	const ImUiSize result =
+	{
+		a.width + ((b.width - a.width) * t),
+		a.height + ((b.height - a.height) * t)
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT )
+{
+	const ImUiSize result =
+	{
+		a.width + ((b.width - a.width) * widthT),
+		a.height + ((b.height - a.height) * heightT)
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness )
+{
+	const ImUiSize result =
+	{
+		size.width - (thickness.left + thickness.right),
+		size.height - (thickness.top + thickness.bottom)
+	};
 	return result;
 }
 
 ImUiThickness ImUiThicknessCreate( float top, float left, float bottom, float right )
 {
-	const ImUiThickness thickness ={ top, left, bottom, right };
+	const ImUiThickness thickness = { top, left, bottom, right };
 	return thickness;
 }
 
 ImUiThickness ImUiThicknessCreateAll( float all )
 {
-	const ImUiThickness thickness ={ all, all, all, all };
+	const ImUiThickness thickness = { all, all, all, all };
 	return thickness;
 }
 
 ImUiThickness ImUiThicknessCreateVerticalHorizontal( float vertical, float horizontal )
 {
-	const ImUiThickness thickness ={ vertical, horizontal, vertical, horizontal };
+	const ImUiThickness thickness = { vertical, horizontal, vertical, horizontal };
 	return thickness;
 }
 
 ImUiRectangle ImUiRectangleCreate( float x, float y, float width, float height )
 {
-	const ImUiRectangle rect ={ { x, y }, { width, height } };
+	const ImUiRectangle rect = { { x, y }, { width, height } };
 	return rect;
 }
 
 ImUiRectangle ImUiRectangleCreatePos( ImUiPosition pos, float width, float height )
 {
-	const ImUiRectangle rect ={ pos, { width, height } };
+	const ImUiRectangle rect = { pos, { width, height } };
 	return rect;
 }
 
 ImUiRectangle ImUiRectangleCreateSize( float x, float y, ImUiSize size )
 {
-	const ImUiRectangle rect ={ { x, y }, size };
+	const ImUiRectangle rect = { { x, y }, size };
 	return rect;
 }
 
 ImUiRectangle ImUiRectangleCreatePosSize( ImUiPosition pos, ImUiSize size )
 {
-	const ImUiRectangle rect ={ pos, size };
+	const ImUiRectangle rect = { pos, size };
 	return rect;
 }
 
@@ -174,7 +210,7 @@ ImUiRectangle ImUiRectangleCreateCenter( float x, float y, float width, float he
 {
 	const float halfWidth	= width * 0.5f;
 	const float halfHeight	= height * 0.5f;
-	const ImUiRectangle rect ={ { x - halfWidth, y - halfHeight }, { width, height } };
+	const ImUiRectangle rect = { { x - halfWidth, y - halfHeight }, { width, height } };
 	return rect;
 }
 

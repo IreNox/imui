@@ -37,6 +37,9 @@ typedef size_t		uintsize;
 #	define IMUI_ASSERT( exp )
 #endif
 
+#define IMUI_MIN( a, b ) ((a) < (b) ? (a) : (b))
+#define IMUI_MAX( a, b ) ((a) > (b) ? (a) : (b))
+
 #define IMUI_ARRAY_COUNT( arr ) (sizeof( arr ) / sizeof( *(arr) ))
 
 #if defined( __GNUC__ ) || defined( __clang__ )

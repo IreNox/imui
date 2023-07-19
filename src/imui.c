@@ -3,11 +3,35 @@
 #include "imui_draw.h"
 #include "imui_internal.h"
 #include "imui_memory.h"
-#include "imui_widget.h"
+
+#include <string.h>
 
 static void			ImUiWindowLayout( ImUiWindow* window );
-static void			ImUiWindowLayoutWidget( ImUiWindow* window, ImUiWidget* widget, const ImUiRectangle* minInnerRect, const ImUiRectangle* maxInnerRect );
+
+static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
 static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget );
+static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
+static void			ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
+static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
+static void			ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
+static void			ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
+
+static const ImUiWidget IMUI_DEFAULT_WIDGET =
+{
+	.maxSize = {
+		.width = IMUI_FLOAT_MAX,
+		.height = IMUI_FLOAT_MAX
+	}
+};
+
+static const ImUiWidgetLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
+{
+	0
+	/*.childrenMinSize = {
+		.width = IMUI_FLOAT_MAX,
+		.height = IMUI_FLOAT_MAX
+	}*/
+};
 
 ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 {
@@ -42,15 +66,6 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 	ImUiInputConstruct( &imui->input, &imui->allocator );
 	ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType );
 	ImUiStringPoolConstruct( &imui->strings, &imui->allocator );
-
-	const ImUiWidget defaultWidget =
-	{
-		.maxSize = {
-			.width = IMUI_FLOAT_MAX,
-			.height = IMUI_FLOAT_MAX
-		}
-	};
-	imui->defaultWidget = defaultWidget;
 
 	return imui;
 }
@@ -294,23 +309,54 @@ void ImUiInputEnd( ImUiContext* imui )
 static void ImUiWindowLayout( ImUiWindow* window )
 {
 	window->rootWidget->rectangle = ImUiRectangleCreate( 0.0f, 0.0f, window->rootWidget->maxSize.width, window->rootWidget->maxSize.height );
-	ImUiWidgetUpdateLayoutContext( window->rootWidget );
 
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
-		ImUiWindowLayoutWidget( window, widget, &widget->rectangle, &widget->rectangle );
+		ImUiWidgetUpdateLayoutContext( widget );
+	}
+
+	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
+	{
+		ImUiWidgetLayout( widget, &window->rootWidget->rectangle );
 	}
 }
 
-static void ImUiWindowLayoutWidget( ImUiWindow* window, ImUiWidget* widget, const ImUiRectangle* minInnerRect, const ImUiRectangle* maxInnerRect )
+static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 {
-	ImUiWidgetUpdateLayoutContext( widget ); // , &childrenMinSize, &childrenMaxSize, &childrenPrefSize );
+	if( imui->firstChunk == NULL ||
+		imui->firstChunk->usedCount == IMUI_DEFAULT_WIDGET_CHUNK_SIZE )
+	{
+		if( imui->firstFreeChunk )
+		{
+			ImUiWidgetChunk* newChunk = imui->firstFreeChunk;
+			IMUI_ASSERT( newChunk->usedCount == 0u );
 
-	//ImUiRectangle minRect = ImUiRectangleShrinkThickness( *minInnerRect, widget->margin );
-	//ImUiRectangle maxRect = ImUiRectangleShrinkThickness( *maxInnerRect, widget->margin );
+			imui->firstFreeChunk = newChunk->nextChunk;
 
-	widget->rectangle.position	= ImUiPositionAdd( widget->parent->rectangle.position, widget->margin.left, widget->margin.top );
-	widget->rectangle.size		= ImUiSizeSub( widget->parent->rectangle.size, widget->margin.left + widget->margin.right, widget->margin.top + widget->margin.bottom );
+			newChunk->nextChunk	= imui->firstChunk;
+			imui->firstChunk = newChunk;
+		}
+		else
+		{
+			ImUiWidgetChunk* newChunk = IMUI_MEMORY_NEW( &imui->allocator, ImUiWidgetChunk );
+			if( newChunk == NULL )
+			{
+				return NULL;
+			}
+
+			newChunk->nextChunk	= imui->firstChunk;
+			newChunk->usedCount	= 0u;
+
+			imui->firstChunk = newChunk;
+		}
+	}
+
+	ImUiWidget* widget = &imui->firstChunk->data[ imui->firstChunk->usedCount ];
+	imui->firstChunk->usedCount++;
+
+	*widget = IMUI_DEFAULT_WIDGET;
+
+	return widget;
 }
 
 static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget )
@@ -318,12 +364,334 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget )
 	ImUiWidgetLayoutContext* context		= &widget->layoutContext;
 	ImUiWidgetLayoutContext* parentContext	= &widget->parent->layoutContext;
 
-	if( !widget->firstChild )
+	parentContext->childrenStretch.width	+= widget->stretch.width;
+	parentContext->childrenStretch.height	+= widget->stretch.height;
+
+	for( ImUiWidget* childidget = widget->firstChild; childidget != NULL; childidget = childidget->nextSibling )
 	{
-		context->minInnerRect	= ImUiRectangleShrinkThickness( parentContext->minInnerRect, widget->margin );
+		ImUiWidgetUpdateLayoutContext( childidget );
+	}
+
+	switch( widget->parent->layout )
+	{
+	case ImUiLayout_Stack:
+	case ImUiLayout_Scroll:
+		parentContext->childrenMinSize.width	= IMUI_MAX( parentContext->childrenMinSize.width, widget->minSize.width );
+		parentContext->childrenMinSize.height	= IMUI_MAX( parentContext->childrenMinSize.height, widget->minSize.height );
+		parentContext->childrenMaxSize.width	= IMUI_MAX( parentContext->childrenMaxSize.width, widget->maxSize.width );
+		parentContext->childrenMaxSize.height	= IMUI_MAX( parentContext->childrenMaxSize.height, widget->maxSize.height );
+		break;
+
+	case ImUiLayout_Horizontal:
+		break;
+
+	case ImUiLayout_Vertical:
+		break;
+
+	case ImUiLayout_Grid:
+		break;
+	}
+
+	//if( !widget->firstChild )
+	//{
+	//	context->minInnerRect	= ImUiRectangleShrinkThickness( parentContext->minInnerRect, widget->margin );
+	//}
+	//else
+	//{
+
+	//}
+
+}
+
+
+static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
+{
+	switch( widget->layout )
+	{
+	case ImUiLayout_Stack:
+	case ImUiLayout_Scroll:
+		ImUiWidgetLayoutStackScroll( widget, parentInnerRect );
+		break;
+
+	case ImUiLayout_Horizontal:
+		break;
+
+	case ImUiLayout_Vertical:
+		break;
+
+	case ImUiLayout_Grid:
+		break;
+	}
+
+	const ImUiRectangle innerRect = ImUiRectangleShrinkThickness( widget->rectangle, widget->padding );
+	for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+	{
+		ImUiWidgetLayout( childWidget, &innerRect );
+	}
+}
+
+static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
+{
+	const float factorWidth			= IMUI_MIN( widget->stretch.width, 1.0f );
+	const float factorHeight		= IMUI_MIN( widget->stretch.height, 1.0f );
+	const ImUiSize maxSize			= ImUiSizeShrinkThickness( parentInnerRect->size, widget->margin );
+	const ImUiSize size				= ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight );
+
+	ImUiPosition position;
+	switch( widget->alignment.horizontal )
+	{
+	case ImUiHorizintalAlignment_Left:
+		position.x = parentInnerRect->position.x + widget->margin.left;
+		break;
+	case ImUiHorizintalAlignment_Center:
+		position.x = parentInnerRect->position.x + (parentInnerRect->size.width * 0.5f) - (size.width * 0.5f);
+		break;
+
+	case ImUiHorizintalAlignment_Right:
+		position.x = (parentInnerRect->position.x + parentInnerRect->size.width) - (widget->margin.left + size.width);
+		break;
+	}
+	switch( widget->alignment.vertical )
+	{
+	case ImUiVerticalAlignment_Top:
+		position.y = parentInnerRect->position.y + widget->margin.top;
+		break;
+	case ImUiVerticalAlignment_Center:
+		position.y = parentInnerRect->position.y + (parentInnerRect->size.height * 0.5f) - (size.height * 0.5f);
+		break;
+
+	case ImUiVerticalAlignment_Bottom:
+		position.y = (parentInnerRect->position.y + parentInnerRect->size.height) - (widget->margin.top + size.height);
+		break;
+	}
+
+	widget->rectangle.position	= position;  //ImUiPositionAdd( widget->parent->rectangle.position, widget->margin.left, widget->margin.top );
+	widget->rectangle.size		= size;		 //ImUiSizeSub( widget->parent->rectangle.size, widget->margin.left + widget->margin.right, widget->margin.top + widget->margin.bottom );
+}
+
+static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
+{
+
+}
+
+static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
+{
+
+}
+
+static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
+{
+
+}
+
+ImUiWidget* ImUiWidgetBegin( ImUiWindow* window )
+{
+	ImUiId id = 0u;
+	if( window->currentWidget->lastChild )
+	{
+		id = window->currentWidget->lastChild->id + 1u;
+	}
+
+	return ImUiWidgetBeginId( window, id );
+}
+
+ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
+{
+	IMUI_ASSERT( window );
+
+	ImUiWidget* widget = ImUiWidgetAlloc( window->imui );
+	if( widget == NULL )
+	{
+		return NULL;
+	}
+
+	ImUiWidget* parent = window->currentWidget;
+	widget->window	= window;
+	widget->parent	= parent;
+	widget->id		= id;
+
+	if( parent->firstChild == NULL )
+	{
+		parent->firstChild = widget;
+		parent->lastChild = widget;
 	}
 	else
 	{
+		widget->previousSibling = parent->lastChild;
+		parent->lastChild->nextSibling = widget;
 
+		parent->lastChild = widget;
 	}
+
+	window->currentWidget = widget;
+
+	if( window->lastFrameCurrentWidget )
+	{
+		ImUiWidget* lastFrameWidget = window->lastFrameCurrentWidget->firstChild;
+		for( ; lastFrameWidget != NULL; lastFrameWidget = lastFrameWidget->nextSibling )
+		{
+			if( lastFrameWidget->id != widget->id )
+			{
+				continue;
+			}
+
+			break;
+		}
+
+		window->lastFrameCurrentWidget = lastFrameWidget;
+		if( lastFrameWidget )
+		{
+			widget->lastFrameHash	= lastFrameWidget->hash;
+			widget->layoutContext	= lastFrameWidget->layoutContext;
+			widget->rectangle		= lastFrameWidget->rectangle;
+		}
+	}
+
+	return widget;
+}
+
+ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name )
+{
+	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( name, 0u ) );
+	if( widget == NULL )
+	{
+		return NULL;
+	}
+
+	widget->name = ImUiStringPoolAdd( &window->imui->strings, name );
+
+	return widget;
+}
+
+void ImUiWidgetEnd( ImUiWidget* widget )
+{
+	IMUI_ASSERT( widget == widget->window->currentWidget );
+
+	widget->hash = ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rectangle ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u );
+
+	if( widget->parent )
+	{
+		widget->parent->hash = ImUiHashMix( widget->parent->hash, widget->hash );
+
+		if( widget->window->lastFrameCurrentWidget &&
+			widget->lastFrameHash != widget->hash )
+		{
+			widget->layoutContext = IMUI_DEFAULT_LAYOUT_CONTEXT;
+		}
+	}
+
+	widget->window->currentWidget = widget->parent;
+	if( widget->window->lastFrameCurrentWidget )
+	{
+		widget->window->lastFrameCurrentWidget = widget->window->lastFrameCurrentWidget->parent;
+	}
+}
+
+ImUiLayout ImUiWidgetGetLayout( const ImUiWidget* widget )
+{
+	return widget->layout;
+}
+
+void ImUiWidgetSetStackLayout( ImUiWidget* widget )
+{
+	widget->layout = ImUiLayout_Stack;
+}
+
+void ImUiWidgetSetScrollLayout( ImUiWidget* widget, ImUiPosition offset )
+{
+	widget->layout = ImUiLayout_Scroll;
+}
+
+ImUiThickness ImUiWidgetGetMargin( const ImUiWidget* widget )
+{
+	return widget->margin;
+}
+
+void ImUiWidgetSetMargin( ImUiWidget* widget, ImUiThickness margin )
+{
+	widget->margin = margin;
+}
+
+ImUiThickness ImUiWidgetGetPadding( const ImUiWidget* widget )
+{
+	return widget->padding;
+}
+
+void ImUiWidgetSetPadding( ImUiWidget* widget, ImUiThickness padding )
+{
+	widget->padding = padding;
+}
+
+ImUiSize ImUiWidgetGetMinSize( const ImUiWidget* widget )
+{
+	return widget->minSize;
+}
+
+void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
+{
+	widget->minSize = size;
+}
+
+ImUiSize ImUiWidgetGetMaxSize( const ImUiWidget* widget )
+{
+	return widget->maxSize;
+}
+
+void ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size )
+{
+	widget->maxSize = size;
+}
+
+ImUiSize ImUiWidgetGetPrefSize( const ImUiWidget* widget )
+{
+	return widget->prefSize;
+}
+
+void ImUiWidgetSetPrefSize( ImUiWidget* widget, ImUiSize size )
+{
+	widget->prefSize = size;
+}
+
+void ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size )
+{
+	widget->minSize		= size;
+	widget->maxSize		= size;
+	widget->prefSize	= size;
+}
+
+ImUiSize ImUiWidgetGetStretch( const ImUiWidget* widget )
+{
+	return widget->stretch;
+}
+
+void ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch )
+{
+	IMUI_ASSERT( stretch.width >= 0.0f );
+	IMUI_ASSERT( stretch.height >= 0.0f );
+	widget->stretch = stretch;
+}
+
+ImUiAlignment ImUiWidgetGetAlignment( const ImUiWidget* widget )
+{
+	return widget->alignment;
+}
+
+void ImUiWidgetSetAlignment( ImUiWidget* widget, ImUiAlignment alignment )
+{
+	widget->alignment = alignment;
+}
+
+void ImUiWidgetSetHorizintalAlignment( ImUiWidget* widget, ImUiHorizontalAlignment alignment )
+{
+	widget->alignment.horizontal = alignment;
+}
+
+void ImUiWidgetSetVerticalAlignment( ImUiWidget* widget, ImUiVerticalAlignment alignment )
+{
+	widget->alignment.vertical = alignment;
+}
+
+ImUiRectangle ImUiWidgetGetRectangle( const ImUiWidget* widget )
+{
+	return widget->rectangle;
 }

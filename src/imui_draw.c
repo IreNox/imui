@@ -224,9 +224,9 @@ void ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor c
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, void* texture )
+void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
 	rectData->rect		= rect;
 	rectData->uv.u0		= 0.0f;
@@ -235,9 +235,9 @@ void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, void* tex
 	rectData->uv.v1		= 1.0f;
 }
 
-void ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, void* texture, ImUiTextureCooridinate uv )
+void ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
 	rectData->rect		= rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );

@@ -46,12 +46,11 @@ struct ImUiWindow
 typedef struct ImUiWidgetLayoutContext ImUiWidgetLayoutContext;
 struct ImUiWidgetLayoutContext
 {
-	ImUiRectangle	minInnerRect;
-	ImUiRectangle	maxInnerRect;
+	//ImUiRectangle	minInnerRect;
+	//ImUiRectangle	maxInnerRect;
 	ImUiSize		childrenStretch;
 	ImUiSize		childrenMinSize;
 	ImUiSize		childrenMaxSize;
-	ImUiSize		childrenPrefSize;
 };
 
 struct ImUiWidget
@@ -99,20 +98,19 @@ struct ImUiWidgetChunk
 
 struct ImUiContext
 {
-	ImUiAllocator		allocator;
+	ImUiAllocator			allocator;
 
-	ImUiInput			input;
-	ImUiDraw			draw;
-	ImUiStringPool		strings;
+	ImUiInput				input;
+	ImUiDraw				draw;
+	ImUiStringPool			strings;
 
-	ImUiFrame			frame;
+	ImUiFrame				frame;
 
-	ImUiSurface*		surfaces;
-	uintsize			surfaceCapacity;
-	uintsize			surfaceCount;
+	ImUiSurface*			surfaces;
+	uintsize				surfaceCapacity;
+	uintsize				surfaceCount;
 
-	ImUiWidget			defaultWidget;
-	ImUiWidgetChunk*	firstChunk;
-	ImUiWidgetChunk*	firstLastFrameChunk;
-	ImUiWidgetChunk*	firstFreeChunk;
+	ImUiWidgetChunk*		firstChunk;
+	ImUiWidgetChunk*		firstLastFrameChunk;
+	ImUiWidgetChunk*		firstFreeChunk;
 };
