@@ -48,9 +48,34 @@ struct ImUiWidgetLayoutContext
 {
 	//ImUiRectangle	minInnerRect;
 	//ImUiRectangle	maxInnerRect;
+	size_t			childCount;
 	ImUiSize		childrenStretch;
+	ImUiSize		childrenMaxStretch;
 	ImUiSize		childrenMinSize;
 	ImUiSize		childrenMaxSize;
+};
+
+struct ImUiLayoutScrollData
+{
+	ImUiPosition	offset;
+};
+
+struct ImUiLayoutHorizontalVerticalData
+{
+	float			spacing;
+};
+
+struct ImUiLayoutGridData
+{
+	size_t			columnCount;
+};
+
+typedef union ImUiLayoutData ImUiLayoutData;
+union ImUiLayoutData
+{
+	struct ImUiLayoutScrollData				scroll;
+	struct ImUiLayoutHorizontalVerticalData	horizintalVertical;
+	struct ImUiLayoutGridData				grid;
 };
 
 struct ImUiWidget
@@ -80,7 +105,7 @@ struct ImUiWidget
 	ImUiPosition			offset;
 
 	ImUiLayout				layout;
-	ImUiSize				layoutSpacing;
+	ImUiLayoutData			layoutData;
 
 	ImUiAlignment			alignment;
 

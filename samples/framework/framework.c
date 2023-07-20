@@ -357,7 +357,7 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 	SDL_GetWindowSize( context->window, &width, &height );
 	glViewport( 0, 0,  width, height );
 
-	const float color[ 4u ] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	const float color[ 4u ] = { 0.01f, 0.2f, 0.7f, 1.0f };
 	glClearColor( color[ 0u ], color[ 1u ], color[ 2u ], color[ 3u ] );
 	glClear( GL_COLOR_BUFFER_BIT );
 

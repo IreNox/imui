@@ -289,11 +289,13 @@ ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
-void						ImUiWidgetSetStackLayout( ImUiWidget* widget );							// default
-void						ImUiWidgetSetScrollLayout( ImUiWidget* widget, ImUiPosition offset );
-void						ImUiWidgetSetHorizontalLayout( ImUiWidget* widget );
-void						ImUiWidgetSetVericalLayout( ImUiWidget* widget );
-void						ImUiWidgetSetGridLayout( ImUiWidget* widget, size_t columnCount );
+void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
+void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPosition offset );
+void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
+void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
+void						ImUiWidgetSetLayoutVerical( ImUiWidget* widget );
+void						ImUiWidgetSetLayoutVericalSpacing( ImUiWidget* widget, float spacing );
+void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
 
 ImUiThickness				ImUiWidgetGetMargin( const ImUiWidget* widget );
 void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiThickness margin );
