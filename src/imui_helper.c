@@ -110,6 +110,24 @@ ImUiSize ImUiSizeCreate( float width, float height )
 	return size;
 }
 
+ImUiSize ImUiSizeCreateOne()
+{
+	const ImUiSize size = { 1.0f, 1.0f };
+	return size;
+}
+
+ImUiSize ImUiSizeCreateZero()
+{
+	const ImUiSize size = { 0.0f, 0.0f };
+	return size;
+}
+
+ImUiSize ImUiSizeCreateAll( float value )
+{
+	const ImUiSize size = { value, value };
+	return size;
+}
+
 ImUiSize ImUiSizeAdd( ImUiSize size, float width, float height )
 {
 	const ImUiSize result = { size.width + width, size.height + height };
@@ -150,6 +168,26 @@ ImUiSize ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT )
 	{
 		a.width + ((b.width - a.width) * widthT),
 		a.height + ((b.height - a.height) * heightT)
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeMin( ImUiSize a, ImUiSize b )
+{
+	const ImUiSize result =
+	{
+		IMUI_MIN( a.width, b.width ),
+		IMUI_MIN( a.height, b.height )
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeMax( ImUiSize a, ImUiSize b )
+{
+	const ImUiSize result =
+	{
+		IMUI_MAX( a.width, b.width ),
+		IMUI_MAX( a.height, b.height )
 	};
 	return result;
 }

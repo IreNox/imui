@@ -294,7 +294,7 @@ void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPosition offset );
 void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutVerical( ImUiWidget* widget );
-void						ImUiWidgetSetLayoutVericalSpacing( ImUiWidget* widget, float spacing );
+void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
 
 ImUiThickness				ImUiWidgetGetMargin( const ImUiWidget* widget );
@@ -306,8 +306,6 @@ ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
 ImUiSize					ImUiWidgetGetMaxSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size );
-ImUiSize					ImUiWidgetGetPrefSize( const ImUiWidget* widget );
-void						ImUiWidgetSetPrefSize( ImUiWidget* widget, ImUiSize size );
 void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
 
 ImUiSize					ImUiWidgetGetStretch( const ImUiWidget* widget );
@@ -528,12 +526,17 @@ ImUiPosition					ImUiPositionSubPos( ImUiPosition pos, ImUiPosition add );
 ImUiPosition					ImUiPositionScale( ImUiPosition pos, float factor );
 
 ImUiSize						ImUiSizeCreate( float width, float height );
+ImUiSize						ImUiSizeCreateOne();
+ImUiSize						ImUiSizeCreateZero();
+ImUiSize						ImUiSizeCreateAll( float value );
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
 ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeSubSize( ImUiSize size, ImUiSize sub );
 ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
 ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
+ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
+ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness );
 
 ImUiThickness					ImUiThicknessCreate( float top, float left, float bottom, float right );

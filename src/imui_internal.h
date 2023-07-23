@@ -99,7 +99,6 @@ struct ImUiWidget
 
 	ImUiSize				minSize;
 	ImUiSize				maxSize;
-	ImUiSize				prefSize;
 
 	ImUiSize				stretch;
 	ImUiPosition			offset;

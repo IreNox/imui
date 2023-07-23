@@ -13,9 +13,24 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	//ImUiDraw
 
+	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+	ImUiWidgetSetMargin( hLayout, ImUiThicknessCreateAll( 50.0f ) );
+	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 50.0f );
+
+	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 50.0f );
+
+
 	HwStack( window );
 	HwHorizontal( window );
+
+	ImUiWidgetEnd( vLayout );
+
 	HwVertical( window );
+
+	ImUiWidgetEnd( hLayout );
 
 	ImUiWindowEnd( window );
 }
@@ -23,9 +38,10 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 static HwStack( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "stack" ) );
-	ImUiWidgetSetMargin( widget, ImUiThicknessCreateAll( 50.0f ) );
+	//ImUiWidgetSetMargin( widget, ImUiThicknessCreateAll( 50.0f ) );
 	ImUiWidgetSetPadding( widget, ImUiThicknessCreateAll( 20.0f ) );
-	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 400.0f, 150.0f ) );
+	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
+	//ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 400.0f, 150.0f ) );
 
 	ImUiDrawRectangleColor( widget, ImUiWidgetGetRectangle( widget ), ImUiColorCreateWhite( 1.0f ) );
 
@@ -68,9 +84,10 @@ static HwStack( ImUiWindow* window )
 static HwHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "horizontal" ) );
-	ImUiWidgetSetMargin( widget, ImUiThicknessCreate( 250.0f, 50.0f, 0.0f, 0.0f ) );
+	//ImUiWidgetSetMargin( widget, ImUiThicknessCreate( 250.0f, 50.0f, 0.0f, 0.0f ) );
 	ImUiWidgetSetPadding( widget, ImUiThicknessCreateAll( 20.0f ) );
-	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 400.0f, 150.0f ) );
+	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
+	//ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 400.0f, 150.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( widget, 10.0f );
 
 	ImUiDrawRectangleColor( widget, ImUiWidgetGetRectangle( widget ), ImUiColorCreateWhite( 1.0f ) );
@@ -113,10 +130,11 @@ static HwHorizontal( ImUiWindow* window )
 static HwVertical( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vertical" ) );
-	ImUiWidgetSetMargin( widget, ImUiThicknessCreate( 50.0f, 500.0f, 0.0f, 0.0f ) );
+	//ImUiWidgetSetMargin( widget, ImUiThicknessCreate( 50.0f, 500.0f, 0.0f, 0.0f ) );
 	ImUiWidgetSetPadding( widget, ImUiThicknessCreateAll( 20.0f ) );
-	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 150.0f, 400.0f ) );
-	ImUiWidgetSetLayoutVericalSpacing( widget, 10.0f );
+	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
+	//ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( 150.0f, 400.0f ) );
+	ImUiWidgetSetLayoutVerticalSpacing( widget, 10.0f );
 
 	ImUiDrawRectangleColor( widget, ImUiWidgetGetRectangle( widget ), ImUiColorCreateWhite( 1.0f ) );
 

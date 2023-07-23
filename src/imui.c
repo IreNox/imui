@@ -16,21 +16,25 @@ static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangl
 static void			ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
 static void			ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
 
+static const ImUiWidgetLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
+{
+	.childrenMaxStretch =
+	{
+		.width = 1.0f,
+		.height = 1.0f
+	}
+	/*.childrenMinSize = {
+		.width = IMUI_FLOAT_MAX,
+		.height = IMUI_FLOAT_MAX
+	}*/
+};
+
 static const ImUiWidget IMUI_DEFAULT_WIDGET =
 {
 	.maxSize = {
 		.width = IMUI_FLOAT_MAX,
 		.height = IMUI_FLOAT_MAX
 	}
-};
-
-static const ImUiWidgetLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
-{
-	0
-	/*.childrenMinSize = {
-		.width = IMUI_FLOAT_MAX,
-		.height = IMUI_FLOAT_MAX
-	}*/
 };
 
 ImUiContext* ImUiCreate( const ImUiParameters* parameters )
@@ -411,7 +415,6 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 
 }
 
-
 static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
 {
 	switch( widget->parent->layout )
@@ -443,9 +446,9 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRectangle* parentInn
 
 static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
 {
-	const float factorWidth			= IMUI_MIN( widget->stretch.width, 1.0f );
-	const float factorHeight		= IMUI_MIN( widget->stretch.height, 1.0f );
-	const ImUiSize maxSize			= ImUiSizeShrinkThickness( parentInnerRect->size, widget->margin );
+	const float factorWidth			= IMUI_MIN( widget->stretch.width, widget->parent->layoutContext.childrenMaxStretch.width );
+	const float factorHeight		= IMUI_MIN( widget->stretch.height, widget->parent->layoutContext.childrenMaxStretch.height );
+	const ImUiSize maxSize			= ImUiSizeMax( ImUiSizeShrinkThickness( parentInnerRect->size, widget->margin ), ImUiSizeCreateZero() );
 	const ImUiSize size				= ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPosition position;
@@ -482,11 +485,11 @@ static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle
 
 static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
 {
-	const float factorWidth			= widget->stretch.width / widget->parent->layoutContext.childrenStretch.width;
-	const float factorHeight		= widget->stretch.height / widget->parent->layoutContext.childrenMaxStretch.height;
+	const float factorWidth			= widget->parent->layoutContext.childrenStretch.width ? widget->stretch.width / widget->parent->layoutContext.childrenStretch.width : 0.0f;
+	const float factorHeight		= widget->parent->layoutContext.childrenMaxStretch.height ? widget->stretch.height / widget->parent->layoutContext.childrenMaxStretch.height : 0.0f;
 	const float extraWidth			= widget->parent->layoutData.horizintalVertical.spacing * (widget->parent->layoutContext.childCount - 1u);
 	const ImUiSize maxSize			= ImUiSizeSub( parentInnerRect->size, extraWidth, 0.0f );
-	const ImUiSize size				= ImUiSizeShrinkThickness( ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight ), widget->margin );
+	const ImUiSize size				= ImUiSizeMax( ImUiSizeShrinkThickness( ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight ), widget->margin ), ImUiSizeCreateZero() );
 
 	ImUiPosition position;
 	if( widget->previousSibling )
@@ -517,11 +520,11 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangle*
 
 static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRectangle* parentInnerRect )
 {
-	const float factorWidth			= widget->stretch.width / widget->parent->layoutContext.childrenMaxStretch.width;
-	const float factorHeight		= widget->stretch.height / widget->parent->layoutContext.childrenStretch.height;
+	const float factorWidth			= widget->parent->layoutContext.childrenMaxStretch.width ? widget->stretch.width / widget->parent->layoutContext.childrenMaxStretch.width : 0.0f;
+	const float factorHeight		= widget->parent->layoutContext.childrenStretch.height ? widget->stretch.height / widget->parent->layoutContext.childrenStretch.height : 0.0f;
 	const float extraHeight			= widget->parent->layoutData.horizintalVertical.spacing * (widget->parent->layoutContext.childCount - 1u);
 	const ImUiSize maxSize			= ImUiSizeSub( parentInnerRect->size, 0.0f, extraHeight );
-	const ImUiSize size				= ImUiSizeShrinkThickness( ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight ), widget->margin );
+	const ImUiSize size				= ImUiSizeMax( ImUiSizeShrinkThickness( ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight ), widget->margin ), ImUiSizeCreateZero() );
 
 	ImUiPosition position;
 	switch( widget->alignment.horizontal )
@@ -650,13 +653,13 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	if( widget->parent )
 	{
 		widget->parent->hash = ImUiHashMix( widget->parent->hash, widget->hash );
+	}
 
-		if( widget->window->lastFrameCurrentWidget &&
-			widget->lastFrameHash != widget->hash )
-		{
-			widget->layoutContext	= IMUI_DEFAULT_LAYOUT_CONTEXT;
-			widget->lastFrameHash	= 0u;
-		}
+	if( !widget->window->lastFrameCurrentWidget ||
+		widget->lastFrameHash != widget->hash )
+	{
+		widget->layoutContext	= IMUI_DEFAULT_LAYOUT_CONTEXT;
+		widget->lastFrameHash	= 0u;
 	}
 
 	widget->window->currentWidget = widget->parent;
@@ -700,7 +703,7 @@ void ImUiWidgetSetLayoutVerical( ImUiWidget* widget )
 	widget->layoutData.horizintalVertical.spacing	= 0.0f;
 }
 
-void ImUiWidgetSetLayoutVericalSpacing( ImUiWidget* widget, float spacing )
+void ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing )
 {
 	widget->layout									= ImUiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
@@ -733,6 +736,7 @@ ImUiSize ImUiWidgetGetMinSize( const ImUiWidget* widget )
 
 void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
 {
+	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
 	widget->minSize = size;
 }
 
@@ -743,24 +747,15 @@ ImUiSize ImUiWidgetGetMaxSize( const ImUiWidget* widget )
 
 void ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size )
 {
+	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
 	widget->maxSize = size;
-}
-
-ImUiSize ImUiWidgetGetPrefSize( const ImUiWidget* widget )
-{
-	return widget->prefSize;
-}
-
-void ImUiWidgetSetPrefSize( ImUiWidget* widget, ImUiSize size )
-{
-	widget->prefSize = size;
 }
 
 void ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size )
 {
-	widget->minSize		= size;
-	widget->maxSize		= size;
-	widget->prefSize	= size;
+	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
+	widget->minSize = size;
+	widget->maxSize = size;
 }
 
 ImUiSize ImUiWidgetGetStretch( const ImUiWidget* widget )
@@ -770,8 +765,7 @@ ImUiSize ImUiWidgetGetStretch( const ImUiWidget* widget )
 
 void ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch )
 {
-	IMUI_ASSERT( stretch.width >= 0.0f );
-	IMUI_ASSERT( stretch.height >= 0.0f );
+	IMUI_ASSERT( stretch.width >= 0.0f && stretch.height >= 0.0f );
 	widget->stretch = stretch;
 }
 

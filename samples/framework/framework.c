@@ -25,6 +25,8 @@ typedef struct ImFrameworkContext ImFrameworkContext;
 struct ImFrameworkContext
 {
 	SDL_Window*					window;
+	int							windowWidth;
+	int							windowHeight;
 	SDL_GLContext				glContext;
 
 	GLuint						vertexShader;
@@ -68,7 +70,7 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-	context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL );
+	context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
 	if( context.window == NULL)
 	{
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to create Window.", NULL );
@@ -156,8 +158,10 @@ int main( int argc, char* argv[] )
 		}
 		ImUiInputEnd( imui );
 
+		SDL_GetWindowSize( context.window, &context.windowWidth, &context.windowHeight );
+
 		ImUiFrame* frame = ImUiBegin( imui );
-		ImUiSurface* surface = ImUiSurfaceBegin( frame, ImUiStringViewCreate( "main" ), ImUiSizeCreate( 1280, 720 ), 1.0f );
+		ImUiSurface* surface = ImUiSurfaceBegin( frame, ImUiStringViewCreate( "main" ), ImUiSizeCreate( (float)context.windowWidth, (float)context.windowHeight ), 1.0f );
 
 		ImUiFrameworkTick( surface );
 
@@ -200,9 +204,12 @@ static const char s_fragmentShader[] =
 	"in vec2 vtfUV;\n"
 	"in vec4 vtfColor;\n"
 	"out vec4 OutColor;\n"
+	//"float rand(float n){ return fract(sin(n) * 43758.5453123); }\n"
+	//"float noise( float p ){ float fl = floor( p ); float fc = fract( p ); return mix( rand( fl ), rand( fl + 1.0 ), fc ); }\n"
 	"void main(){\n"
-	"	vec4 texColor = texture(Texture, vtfUV.xy);"
+	"	vec4 texColor = texture(Texture, vtfUV.xy);\n"
 	"	OutColor = vtfColor * texColor;\n"
+	//"	OutColor.xyz += vec3( noise( gl_FragCoord.x ) + noise( gl_FragCoord.y ) ) / 2;\n"
 	"}\n";
 
 static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )
@@ -352,10 +359,7 @@ static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
 
 static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDrawData* drawData )
 {
-	int width;
-	int height;
-	SDL_GetWindowSize( context->window, &width, &height );
-	glViewport( 0, 0,  width, height );
+	glViewport( 0, 0, context->windowWidth, context->windowHeight );
 
 	const float color[ 4u ] = { 0.01f, 0.2f, 0.7f, 1.0f };
 	glClearColor( color[ 0u ], color[ 1u ], color[ 2u ], color[ 3u ] );
@@ -374,10 +378,10 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 	glUniform1i( context->programUniformTexture, 0 );
 
 	const GLfloat projectionMatrix[ 4 ][ 4 ] ={
-		{  2.0f / width,	0.0f,			 0.0f,	0.0f },
-		{  0.0f,			-2.0f / height,	 0.0f,	0.0f },
-		{  0.0f,			0.0f,			-1.0f,	0.0f },
-		{ -1.0f,			1.0f,			 0.0f,	1.0f }
+		{  2.0f / context->windowWidth,	 0.0f,							 0.0f,	0.0f },
+		{  0.0f,						-2.0f / context->windowHeight,	 0.0f,	0.0f },
+		{  0.0f,						 0.0f,							-1.0f,	0.0f },
+		{ -1.0f,						 1.0f,							 0.0f,	1.0f }
 	};
 	glUniformMatrix4fv( context->programUniformProjection, 1, GL_FALSE, &projectionMatrix[ 0u ][ 0u ] );
 
