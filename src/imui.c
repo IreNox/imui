@@ -9,7 +9,7 @@
 static void			ImUiWindowLayout( ImUiWindow* window );
 
 static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
-static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget );
+static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update );
 static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
 static void			ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
 static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRectangle* parentInnerRect );
@@ -312,7 +312,7 @@ static void ImUiWindowLayout( ImUiWindow* window )
 
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
-		ImUiWidgetUpdateLayoutContext( widget );
+		ImUiWidgetUpdateLayoutContext( widget, false );
 	}
 
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
@@ -359,9 +359,9 @@ static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 	return widget;
 }
 
-static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget )
+static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 {
-	if( widget->hash == widget->lastFrameHash )
+	if( widget->hash == widget->lastFrameHash && !update )
 	{
 		return;
 	}
@@ -377,7 +377,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget )
 
 	for( ImUiWidget* childidget = widget->firstChild; childidget != NULL; childidget = childidget->nextSibling )
 	{
-		ImUiWidgetUpdateLayoutContext( childidget );
+		ImUiWidgetUpdateLayoutContext( childidget, true );
 	}
 
 	switch( widget->parent->layout )
@@ -580,6 +580,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 	widget->window	= window;
 	widget->parent	= parent;
 	widget->id		= id;
+	widget->hash	= 0u;
 
 	if( parent->firstChild == NULL )
 	{
@@ -623,7 +624,13 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 
 ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name )
 {
-	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( name, 0u ) );
+	ImUiId id = ImUiHashString( name, 0u );
+	if( window->currentWidget->lastChild )
+	{
+		id += window->currentWidget->lastChild->id + 1u;
+	}
+
+	ImUiWidget* widget = ImUiWidgetBeginId( window, id );
 	if( widget == NULL )
 	{
 		return NULL;
@@ -638,7 +645,7 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 {
 	IMUI_ASSERT( widget == widget->window->currentWidget );
 
-	widget->hash = ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rectangle ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u );
+	widget->hash = ImUiHashMix( widget->hash, ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rectangle ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u ) );
 
 	if( widget->parent )
 	{
@@ -647,7 +654,8 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 		if( widget->window->lastFrameCurrentWidget &&
 			widget->lastFrameHash != widget->hash )
 		{
-			widget->layoutContext = IMUI_DEFAULT_LAYOUT_CONTEXT;
+			widget->layoutContext	= IMUI_DEFAULT_LAYOUT_CONTEXT;
+			widget->lastFrameHash	= 0u;
 		}
 	}
 
