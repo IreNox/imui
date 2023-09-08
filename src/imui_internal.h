@@ -4,7 +4,7 @@
 
 #include "imui_draw.h"
 #include "imui_input.h"
-#include "imui_string_pool.h"
+#include "imui_helpers.h"
 #include "imui_types.h"
 
 struct ImUiSurface
@@ -48,11 +48,11 @@ struct ImUiWidgetLayoutContext
 {
 	//ImUiRectangle	minInnerRect;
 	//ImUiRectangle	maxInnerRect;
+	ImUiSize		minOuterSize;
 	size_t			childCount;
 	ImUiSize		childrenStretch;
 	ImUiSize		childrenMaxStretch;
 	ImUiSize		childrenMinSize;
-	ImUiSize		childrenMaxSize;
 };
 
 struct ImUiLayoutScrollData

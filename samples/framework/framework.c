@@ -104,7 +104,8 @@ int main( int argc, char* argv[] )
 	ImUiParameters parameters = { 0 };
 	ImUiContext* imui = ImUiCreate( &parameters );
 
-	bool running = true;
+	const bool init = ImUiFrameworkInitialize( imui );
+	bool running = init;
 	while( running )
 	{
 		ImUiInput* input = ImUiInputBegin( imui );
@@ -172,6 +173,11 @@ int main( int argc, char* argv[] )
 		ImUiEnd( frame );
 
 		SDL_GL_SwapWindow( context.window );
+	}
+
+	if( init )
+	{
+		ImUiFrameworkShutdown( imui );
 	}
 
 	ImUiDestroy( imui );
@@ -410,15 +416,15 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		const ImUiDrawCommand* pCommand = &drawData->commands[ i ];
 		IMUI_ASSERT( pCommand->count >= 0u );
 
-		//ImApcontextTexture* pTexture = (ImApcontextTexture*)pCommand->texture.ptr;
-		//if( pTexture == NULL )
-		//{
+		GLuint texture = (GLuint)pCommand->texture;
+		if( texture == 0u )
+		{
 			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
-		//}
-		//else
-		//{
-		//	glBindTexture( GL_TEXTURE_2D, pTexture->texture );
-		//}
+		}
+		else
+		{
+			glBindTexture( GL_TEXTURE_2D, texture );
+		}
 
 		//glScissor(
 		//	(GLint)(pCommand->clipRect.position.x),
@@ -438,4 +444,21 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 	glBindVertexArray( 0 );
 	glDisable( GL_BLEND );
 	glDisable( GL_SCISSOR_TEST );
+}
+
+uint32_t ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height )
+{
+	GLuint textureHandle = 0u;
+	glGenTextures( 1, &textureHandle );
+	glBindTexture( GL_TEXTURE_2D, textureHandle );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, textureData );
+
+	return textureHandle;
+}
+
+void ImUiFrameworkTextureDestroy( uint32_t textureHandle )
+{
+	glDeleteTextures( 1u, &textureHandle );
 }

@@ -8,7 +8,7 @@ ImUiStringView ImUiStringViewCreate( const char* str )
 {
 	if( str == NULL )
 	{
-		const ImUiStringView string ={ NULL, 0u };
+		const ImUiStringView string = { NULL, 0u };
 		return string;
 	}
 
@@ -33,7 +33,7 @@ ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 	// Murmur3
 	uint32 hash = seed;
 	uint32_t dataPart;
-	const uint8* bytes = data;
+	const uint8* bytes = (const uint8*)data;
 	for( size_t i = dataSize >> 2; i; --i )
 	{
 		memcpy( &dataPart, bytes, sizeof( uint32 ) );
@@ -198,6 +198,16 @@ ImUiSize ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness )
 	{
 		size.width - (thickness.left + thickness.right),
 		size.height - (thickness.top + thickness.bottom)
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeExpandThickness( ImUiSize size, ImUiThickness thickness )
+{
+	const ImUiSize result =
+	{
+		size.width + thickness.left + thickness.right,
+		size.height + thickness.top + thickness.bottom
 	};
 	return result;
 }

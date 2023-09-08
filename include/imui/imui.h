@@ -328,6 +328,7 @@ void						ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUi
 void						ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv );
 void						ImUiDrawRectangleTextureColor( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color );
 void						ImUiDrawRectangleTextureColorUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
+void						ImUiDrawRectangleText( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -474,6 +475,7 @@ enum ImUiInputModifier
 };
 
 // Push
+
 ImUiInput*						ImUiInputBegin( ImUiContext* imui );
 void							ImUiInputEnd( ImUiContext* imui );
 
@@ -491,6 +493,7 @@ void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, f
 void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta );
 
 // Read
+
 uint32_t						ImUiInputGetKeyModifiers( ImUiInput* input );	// returns ImUiInputModifier
 bool							ImUiInputIsKeyDown( ImUiInput* input, ImUiInputKey key );
 bool							ImUiInputIsKeyUp( ImUiInput* input, ImUiInputKey key );
@@ -506,8 +509,52 @@ bool							ImUiInputHasMouseButtonPressed( ImUiInput* input, ImUiInputMouseButto
 bool							ImUiInputHasMouseButtonReleased( ImUiInput* input, ImUiInputMouseButton button );
 
 //////////////////////////////////////////////////////////////////////////
+// Font
+// see imui_font.c
+
+typedef struct ImUiFont ImUiFont;
+typedef struct ImUiFontTrueTypeData ImUiFontTrueTypeData;
+typedef struct ImUiFontTrueTypeImage ImUiFontTrueTypeImage;
+
+typedef struct ImUiFontCodepoint ImUiFontCodepoint;
+struct ImUiFontCodepoint
+{
+	uint32_t					codepoint;
+	uint32_t					width;
+	uint32_t					height;
+	float						ascentOffset;
+	ImUiTextureCooridinate		uv;
+};
+
+typedef struct ImUiFontParameters ImUiFontParameters;
+struct ImUiFontParameters
+{
+	ImUiTexture					texture;
+	const ImUiFontCodepoint*	codepoints;
+	size_t						codepointCount;
+};
+
+ImUiFont*						ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters );
+ImUiFont*						ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiTexture texture );
+void							ImUiFontDestroy( ImUiContext* imui, ImUiFont* font );
+
+ImUiFontTrueTypeData*			ImUiFontTrueTypeDataCreate( ImUiContext* imui, const void* data, size_t dataSize  ); // data must stay valid
+ImUiFontTrueTypeData*			ImUiFontTrueTypeDataCreateCopy( ImUiContext* imui, const void* data, size_t dataSize ); // data copied into an internal buffer
+void							ImUiFontTrueTypeDataDestroy( ImUiFontTrueTypeData* ttf );
+bool							ImUiFontTrueTypeDataAddCodepoints( ImUiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount );
+bool							ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint );
+void							ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight );
+ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height );
+
+void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
+
+//////////////////////////////////////////////////////////////////////////
+// Text
+// see imui_text.c
+
+//////////////////////////////////////////////////////////////////////////
 // Data Type Functions
-// see imui_helper.c
+// see imui_data_types.c
 
 ImUiStringView					ImUiStringViewCreate( const char* str );
 bool							ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
@@ -538,6 +585,7 @@ ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT
 ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness );
+ImUiSize						ImUiSizeExpandThickness( ImUiSize size, ImUiThickness thickness );
 
 ImUiThickness					ImUiThicknessCreate( float top, float left, float bottom, float right );
 ImUiThickness					ImUiThicknessCreateAll( float all );
