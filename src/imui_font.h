@@ -1,3 +1,5 @@
+#pragma once
+
 #include "imui/imui.h"
 
 #include "imui_types.h"
@@ -9,5 +11,5 @@ struct ImUiFont
 	ImUiFontCodepoint*	codepoints;
 	uintsize			codepointCount;
 
-	ImUiHashTable		codepointMap;
+	ImUiHashMap			codepointMap;
 };

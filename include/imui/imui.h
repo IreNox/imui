@@ -557,6 +557,7 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 // see imui_data_types.c
 
 ImUiStringView					ImUiStringViewCreate( const char* str );
+ImUiStringView					ImUiStringViewCreateEmpty();
 bool							ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
 
 ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed );

@@ -416,7 +416,7 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		const ImUiDrawCommand* pCommand = &drawData->commands[ i ];
 		IMUI_ASSERT( pCommand->count >= 0u );
 
-		GLuint texture = (GLuint)pCommand->texture;
+		GLuint texture = (GLuint)(size_t)pCommand->texture;
 		if( texture == 0u )
 		{
 			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );

@@ -28,6 +28,25 @@ struct ImUiFontTrueTypeImage
 	ImUiFontParameters	parameters;
 };
 
+typedef struct ImUiFontCodepointMapEntry ImUiFontCodepointMapEntry;
+struct ImUiFontCodepointMapEntry
+{
+	const ImUiFontCodepoint*	codepoints;
+};
+
+static ImUiHash ImUiFontCodepointHash( const void* entry )
+{
+	const ImUiFontCodepoint* codepoint = *(const ImUiFontCodepoint**)entry;
+	return codepoint->codepoint;
+}
+
+static bool ImUiFontCodepointIsKeyEquals( const void* lhs, const void* rhs )
+{
+	const ImUiFontCodepoint* lhsCp = *(const ImUiFontCodepoint**)lhs;
+	const ImUiFontCodepoint* rhsCp = *(const ImUiFontCodepoint**)rhs;
+	return lhsCp->codepoint == rhsCp->codepoint;
+}
+
 ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters )
 {
 	ImUiFont* font = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImUiFont );
@@ -48,7 +67,7 @@ ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameter
 
 	memcpy( font->codepoints, parameters->codepoints, sizeof( *parameters->codepoints ) * parameters->codepointCount );
 
-	if( !ImUiHashTableCreateStatic( &imui->allocator, &font->codepointMap, font->codepoints, sizeof( *font->codepoints ), parameters->codepointCount, 0u, sizeof( uint32 ) ) )
+	if( !ImUiHashMapConstructStaticPointer( &font->codepointMap, &imui->allocator, font->codepoints, sizeof( *font->codepoints ), parameters->codepointCount, ImUiFontCodepointHash, ImUiFontCodepointIsKeyEquals ) )
 	{
 		ImUiFontDestroy( imui, font );
 		return NULL;
@@ -70,7 +89,7 @@ ImUiFont* ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfI
 
 void ImUiFontDestroy( ImUiContext* imui, ImUiFont* font )
 {
-	ImUiHashTableDestroy( &font->codepointMap );
+	ImUiHashMapDestruct( &font->codepointMap );
 	ImUiMemoryFree( &imui->allocator, font->codepoints );
 	ImUiMemoryFree( &imui->allocator, font );
 }

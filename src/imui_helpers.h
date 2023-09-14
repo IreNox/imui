@@ -4,30 +4,66 @@
 #include "imui_types.h"
 
 typedef struct ImUiAllocator ImUiAllocator;
-typedef struct ImUiStringPoolChunk ImUiStringPoolChunk;
-typedef struct ImUiStringPoolKey ImUiStringPoolKey;
 
-typedef struct ImUiHashTable ImUiHashTable;
-struct ImUiHashTable
+typedef struct ImUiChunkedPoolChunk ImUiChunkedPoolChunk;
+typedef struct ImUiChunkedPoolFreeElement ImUiChunkedPoolFreeElement;
+typedef struct ImUiChunkedPool ImUiChunkedPool;
+struct ImUiChunkedPool
 {
-	ImUiAllocator*			allocator;
-	uint32*					indices;
-	uint8*					keys;
-	uintsize				keyCount;
-	uintsize				keyCapacity;
+	ImUiAllocator*				allocator;
+	uintsize					elementSize;
+	uintsize					chunkSize;
+	uint32						chunkBits;
 
-	uintsize				keyOffset;
-	uintsize				keySize;
+	ImUiChunkedPoolChunk**		chunks;
+	uintsize					chunkCount;
+	uintsize					chunkCapacity;
+
+	ImUiChunkedPoolFreeElement*	firstFreeElement;
 };
 
-bool			ImUiHashTableCreateSize( ImUiAllocator* allocator, ImUiHashTable* hashTable, uintsize keyOffset, uintsize keySize, uintsize initialSize );
-bool			ImUiHashTableCreateStatic( ImUiAllocator* allocator, ImUiHashTable* hashTable, const void* data, uintsize elementSize, uintsize elementCount, uintsize keyOffset, uintsize keySize );
-void			ImUiHashTableDestroy( ImUiHashTable* hashTable );
+bool			ImUiChunkedPoolConstruct( ImUiChunkedPool* pool, ImUiAllocator* allocator, uintsize elementSize, uintsize chunkSize );
+void			ImUiChunkedPoolDestruct( ImUiChunkedPool* pool );
 
-const uint32*	ImUiHashTableFind( ImUiHashTable* hashTable, const void* element );
+void*			ImUiChunkedPoolAllocate( ImUiChunkedPool* pool );
+void			ImUiChunkedPoolFree( ImUiChunkedPool* pool, void* element );
 
-bool			ImUiHashTableInsert( ImUiHashTable* hashTable, const void* element, uint32 index );
-bool			ImUiHashTableRemove( ImUiHashTable* hashTable, const void* element );
+typedef ImUiHash(*ImUiHashMapEntryHashFunc)( const void* entry );
+typedef bool(*ImUiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
+
+typedef struct ImUiHashMap ImUiHashMap;
+struct ImUiHashMap
+{
+	ImUiAllocator*				allocator;
+
+	uint64*						entriesInUse;
+	uint8*						entries;
+	uintsize					entryCount;
+	uintsize					entryCapacity;
+
+	uintsize					entrySize;
+	ImUiHashMapEntryHashFunc	entryHashFunc;
+	ImUiHashMapIsKeyEqualsFunc	entryKeyEqualsFunc;
+};
+
+bool			ImUiHashMapConstructSize( ImUiHashMap* hashMap, ImUiAllocator* allocator, uintsize entrySize, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc, uintsize initialSize );
+bool			ImUiHashMapConstructStatic( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
+bool			ImUiHashMapConstructStaticPointer( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
+void			ImUiHashMapDestruct( ImUiHashMap* hashMap );
+
+void*			ImUiHashMapFind( ImUiHashMap* hashMap, const void* entry );
+
+void*			ImUiHashMapInsert( ImUiHashMap* hashMap, const void* entry );
+void*			ImUiHashMapInsertNew( ImUiHashMap* hashMap, const void* entry, bool* isNew );
+bool			ImUiHashMapRemove( ImUiHashMap* hashMap, const void* entry );
+
+uintsize		ImUiHashMapFindFirstIndex( ImUiHashMap* hashMap );
+uintsize		ImUiHashMapFindNextIndex( ImUiHashMap* hashMap, uintsize entry );
+
+void*			ImUiHashMapGetEntry( ImUiHashMap* hashMap, uintsize index );
+
+typedef struct ImUiStringPoolChunk ImUiStringPoolChunk;
+typedef struct ImUiStringPoolKey ImUiStringPoolKey;
 
 typedef struct ImUiStringPool ImUiStringPool;
 struct ImUiStringPool
@@ -35,17 +71,14 @@ struct ImUiStringPool
 	ImUiAllocator*			allocator;
 	ImUiStringPoolChunk*	firstChunk;
 
-	ImUiHashTable			map;
-	ImUiStringPoolKey*		keys;
-	uintsize				keyCount;
-	uintsize				keyCapacity;
+	ImUiHashMap			keyMap;
 };
 
-void						ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator );
+bool						ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator );
 void						ImUiStringPoolDestruct( ImUiStringPool* stringPool );
 
 void						ImUiStringPoolClear( ImUiStringPool* stringPool );
 
 ImUiStringView				ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView string );
-ImUiStringView				ImUiStringPoolFindByHash( ImUiStringPool* stringPool, ImUiHash stringHash );
+const ImUiStringView*		ImUiStringPoolFind( ImUiStringPool* stringPool, ImUiStringView string );
 

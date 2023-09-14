@@ -5,15 +5,99 @@
 
 #include <string.h>
 
-static const void* ImUiHashTableGetKey( ImUiHashTable* hashTable, const void* element )
+
+//////////////////////////////////////////////////////////////////////////
+// Chunked Pool
+
+struct ImUiChunkedPoolChunk
 {
-	const uint8* data = (const uint8*)element;
-	return data + hashTable->keyOffset;
+	uintsize	remainingElements;
+	uint8		data[ 1u ];
+};
+
+struct ImUiChunkedPoolFreeElement
+{
+	ImUiChunkedPoolFreeElement*	nextElement;
+};
+
+bool ImUiChunkedPoolConstruct( ImUiChunkedPool* pool, ImUiAllocator* allocator, uintsize elementSize, uintsize chunkSize )
+{
+	IMUI_ASSERT( (chunkSize & (chunkSize - 1u)) == chunkSize ); // chunkSize must be power of 2
+	IMUI_ASSERT( elementSize >= sizeof( ImUiChunkedPoolFreeElement ) );
+
+	pool->allocator			= allocator;
+	pool->elementSize		= elementSize;
+	pool->chunkSize			= chunkSize;
+	pool->chunks			= NULL;
+	pool->chunkCount		= 0u;
+	pool->chunkCapacity		= 0u;
+	pool->firstFreeElement	= NULL;
+
+	return true;
 }
 
-bool ImUiHashTableCreateSize( ImUiAllocator* allocator, ImUiHashTable* hashTable, uintsize keyOffset, uintsize keySize, uintsize initialSize )
+void ImUiChunkedPoolDestruct( ImUiChunkedPool* pool )
+{
+	for( uintsize i = 0; i < pool->chunkCount; ++i )
+	{
+		ImUiMemoryFree( pool->allocator, pool->chunks[ i ] );
+	}
+	ImUiMemoryFree( pool->allocator, pool->chunks );
+
+	pool->chunks		= NULL;
+	pool->chunkCount	= 0u;
+	pool->chunkCapacity	= 0u;
+	pool->allocator		= NULL;
+}
+
+void* ImUiChunkedPoolAllocate( ImUiChunkedPool* pool )
+{
+	if( pool->firstFreeElement )
+	{
+		ImUiChunkedPoolFreeElement* freeElement = pool->firstFreeElement;
+		pool->firstFreeElement = freeElement->nextElement;
+
+		return freeElement;
+	}
+
+	ImUiChunkedPoolChunk* chunk = NULL;
+	if( pool->chunks == NULL ||
+		pool->chunks[ pool->chunkCount - 1u ]->remainingElements == 0u )
+	{
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( pool->allocator, pool->chunks, pool->chunkCapacity, pool->chunkCount + 1u ) )
+		{
+			return NULL;
+		}
+
+		chunk = (ImUiChunkedPoolChunk*)ImUiMemoryAlloc( pool->allocator, sizeof( ImUiChunkedPoolChunk ) + (pool->elementSize * pool->chunkSize) );
+		chunk->remainingElements = pool->chunkSize;
+	}
+	else
+	{
+		chunk = pool->chunks[ pool->chunkCount - 1u ];
+	}
+
+	const uintsize elementIndex = pool->chunkSize - chunk->remainingElements;
+	chunk->remainingElements--;
+
+	return &chunk->data[ elementIndex * pool->elementSize ];
+}
+
+void ImUiChunkedPoolFree( ImUiChunkedPool* pool, void* element )
+{
+	ImUiChunkedPoolFreeElement* freeElement = (ImUiChunkedPoolFreeElement*)element;
+	freeElement->nextElement = pool->firstFreeElement;
+
+	pool->firstFreeElement = freeElement;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// HashMap
+
+bool ImUiHashMapConstructSize( ImUiHashMap* hashMap, ImUiAllocator* allocator, uintsize entrySize, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc, uintsize initialSize )
 {
 	// round up to next power of 2
+	initialSize = IMUI_MAX( initialSize, 2u );
 	initialSize--;
 	initialSize |= initialSize >> 1;
 	initialSize |= initialSize >> 2;
@@ -22,198 +106,305 @@ bool ImUiHashTableCreateSize( ImUiAllocator* allocator, ImUiHashTable* hashTable
 	initialSize |= initialSize >> 16;
 	initialSize++;
 
-	hashTable->allocator	= allocator;
-	hashTable->indices		= IMUI_MEMORY_ARRAY_NEW_ZERO( allocator, uint32, initialSize );
-	hashTable->keys			= (uint8*)ImUiMemoryAlloc( allocator, initialSize * keySize );
-	hashTable->keyCount		= 0u;
-	hashTable->keyCapacity	= initialSize;
-	hashTable->keyOffset	= keyOffset;
-	hashTable->keySize		= keySize;
+	const uintsize entriesInUseCount = (initialSize + 64u - 1) & (0 - 64u);
 
-	if( !hashTable->indices || !hashTable->keys )
+	hashMap->allocator			= allocator;
+	hashMap->entriesInUse		= IMUI_MEMORY_ARRAY_NEW_ZERO( allocator, uint64, entriesInUseCount );
+	hashMap->entries			= (uint8*)ImUiMemoryAlloc( allocator, entrySize * initialSize );
+	hashMap->entryCount			= 0u;
+	hashMap->entryCapacity		= initialSize;
+	hashMap->entrySize			= entrySize;
+	hashMap->entryHashFunc		= entryHashFunc;
+	hashMap->entryKeyEqualsFunc	= entryKeyEqualsFunc;
+
+	if( !hashMap->entriesInUse || !hashMap->entries )
 	{
-		ImUiHashTableDestroy( hashTable );
+		ImUiHashMapDestruct( hashMap );
 		return false;
 	}
 
 	return true;
 }
 
-bool ImUiHashTableCreateStatic( ImUiAllocator* allocator, ImUiHashTable* hashTable, const void* data, uintsize elementSize, uintsize elementCount, uintsize keyOffset, uintsize keySize )
+bool ImUiHashMapConstructStatic( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc )
 {
-	if( !ImUiHashTableCreateSize( allocator, hashTable, keyOffset, keySize, elementCount * 2u ) )
+	if( !ImUiHashMapConstructSize( hashMap, allocator, entrySize, entryHashFunc, entryKeyEqualsFunc, entryCount * 2u ) )
 	{
 		return false;
 	}
 
 	const uint8* element = (const uint8*)data;
-	for( uint32 i = 0; i < elementCount; ++i )
+	for( uint32 i = 0; i < entryCount; ++i )
 	{
-		if( !ImUiHashTableInsert( hashTable, element, i ) )
+		if( !ImUiHashMapInsert( hashMap, element ) )
 		{
-			ImUiHashTableDestroy( hashTable );
+			ImUiHashMapDestruct( hashMap );
 			return false;
 		}
 
-		element += elementSize;
+		element += entrySize;
 	}
 
 	return true;
 }
 
-void ImUiHashTableDestroy( ImUiHashTable* hashTable )
+bool ImUiHashMapConstructStaticPointer( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc )
 {
-	ImUiMemoryFree( hashTable->allocator, hashTable->indices );
-	ImUiMemoryFree( hashTable->allocator, hashTable->keys );
+	if( !ImUiHashMapConstructSize( hashMap, allocator, sizeof( void* ), entryHashFunc, entryKeyEqualsFunc, entryCount * 2u) )
+	{
+		return false;
+	}
 
-	hashTable->indices		= NULL;
-	hashTable->keys			= NULL;
-	hashTable->keyCapacity	= 0u;
-	hashTable->allocator	= NULL;
+	const uint8* element = (const uint8*)data;
+	for( uint32 i = 0; i < entryCount; ++i )
+	{
+		if( !ImUiHashMapInsert( hashMap, &element ) )
+		{
+			ImUiHashMapDestruct( hashMap );
+			return false;
+		}
+
+		element += entrySize;
+	}
+
+	return true;
 }
 
-static uint32* ImUiHashTableFindInternal( ImUiHashTable* hashTable, const void* element )
+void ImUiHashMapDestruct( ImUiHashMap* hashMap )
 {
-	uint32 hashSeed = 0u;
-	const void* key = ImUiHashTableGetKey( hashTable, element );
-	while( true )
-	{
-		const ImUiHash hash = ImUiHashCreate( key, hashTable->keySize, hashSeed );
-		const uintsize index = hash & (hashTable->keyCapacity - 1u);
+	ImUiMemoryFree( hashMap->allocator, hashMap->entriesInUse );
+	ImUiMemoryFree( hashMap->allocator, hashMap->entries );
 
-		uint32* mapIndex = &hashTable->indices[ index ];
-		if( (*mapIndex & 0x80000000) == 0u )
+	hashMap->entriesInUse			= NULL;
+	hashMap->entries			= NULL;
+	hashMap->entryCount			= 0u;
+	hashMap->entryCapacity		= 0u;
+	hashMap->entrySize			= 0u;
+	hashMap->entryHashFunc		= NULL;
+	hashMap->entryKeyEqualsFunc	= NULL;
+	hashMap->allocator			= NULL;
+}
+
+static uintsize ImUiHashMapFindInternal( ImUiHashMap* hashMap, const void* entry )
+{
+	for( uint32 hashOffset = 0u; hashOffset < 4u; ++hashOffset )
+	{
+		const ImUiHash hash = hashMap->entryHashFunc( entry );
+		const uintsize index = (hash + hashOffset) & (hashMap->entryCapacity - 1u);
+
+		uint64* mapEntryInUse = &hashMap->entriesInUse[ index >> 6u ];
+		const uint64 mapEntryInUseMask = 1ull << (index & 0x3fu);
+		if( (*mapEntryInUse & mapEntryInUseMask) == 0u )
 		{
 			break;
 		}
 
-		const uint8* mapKey = &hashTable->keys[ index * hashTable->keySize ];
-		if( memcmp( mapKey, key, hashTable->keySize ) == 0 )
+		uint8* mapEntry = &hashMap->entries[ index * hashMap->entrySize ];
+		if( hashMap->entryKeyEqualsFunc( mapEntry, entry ) )
 		{
-			return mapIndex;
+			return index;
 		}
 
-		hashSeed++;
+		hashOffset++;
+	}
+
+	return IMUI_SIZE_MAX;
+}
+
+static bool ImUiHashMapGrow( ImUiHashMap* hashMap )
+{
+	const uintsize nextCapacity = hashMap->entryCapacity << 1u;
+
+	uint64* newEntriesInUse = IMUI_MEMORY_ARRAY_NEW_ZERO( hashMap->allocator, uint64, nextCapacity >> 6u );
+	uint8* newEntries = (uint8*)ImUiMemoryAlloc( hashMap->allocator, nextCapacity * hashMap->entrySize );
+	if( !newEntriesInUse || !newEntries )
+	{
+		return false;
+	}
+
+	for( uintsize mapIndex = 0; mapIndex < hashMap->entryCapacity; ++mapIndex )
+	{
+		const uint64* mapEntryInUse = &hashMap->entriesInUse[ mapIndex >> 6u ];
+		const uint64 mapEntryInUseMask = 1ull << (mapIndex & 0x3fu);
+		if( (*mapEntryInUse & mapEntryInUseMask) == 0u )
+		{
+			continue;
+		}
+
+		const uint8* mapEntry = &hashMap->entries[ mapIndex * hashMap->entrySize ];
+		const ImUiHash hash = hashMap->entryHashFunc( mapEntry );
+
+		uint32 hashOffset = 0;
+		for( ; hashOffset < 4u; ++hashOffset )
+		{
+			const uintsize newIndex = (hash + hashOffset) & (nextCapacity - 1u);
+
+			uint64* newEntryInUse = &newEntriesInUse[ newIndex >> 6u ];
+			const uint64 newEntryInUseMask = 1ull << (newIndex & 0x3fu);
+			if( (*newEntriesInUse & newEntryInUseMask) != 0u )
+			{
+				continue;
+			}
+
+			*newEntryInUse |= newEntryInUseMask;
+
+			uint8* newEntry = &newEntries[ newIndex * hashMap->entrySize ];
+			memcpy( newEntry, mapEntry, hashMap->entrySize );
+			break;
+		}
+
+		if( hashOffset >= 4u )
+		{
+			ImUiMemoryFree( hashMap->allocator, newEntriesInUse );
+			ImUiMemoryFree( hashMap->allocator, newEntries );
+			return false;
+		}
+	}
+
+	ImUiMemoryFree( hashMap->allocator, hashMap->entriesInUse );
+	ImUiMemoryFree( hashMap->allocator, hashMap->entries );
+
+	hashMap->entriesInUse	= newEntriesInUse;
+	hashMap->entries		= newEntries;
+	hashMap->entryCapacity	= nextCapacity;
+
+	return true;
+}
+
+void* ImUiHashMapFind( ImUiHashMap* hashMap, const void* entry )
+{
+	const uintsize index = ImUiHashMapFindInternal( hashMap, entry );
+	if( index >= hashMap->entryCapacity )
+	{
+		return NULL;
+	}
+
+	return &hashMap->entries[ index * hashMap->entrySize ];
+}
+
+void* ImUiHashMapInsert( ImUiHashMap* hashMap, const void* entry )
+{
+	return ImUiHashMapInsertNew( hashMap, entry, NULL );
+}
+
+void* ImUiHashMapInsertNew( ImUiHashMap* hashMap, const void* entry, bool* isNew )
+{
+	uint32 hashOffset = 0;
+	while( true )
+	{
+		const ImUiHash hash = hashMap->entryHashFunc( entry );
+		const uint32 index = (hash + hashOffset) & (hashMap->entryCapacity - 1u);
+
+		uint8* mapEntry = &hashMap->entries[ index * hashMap->entrySize ];
+
+		uint64* mapEntryInUse = &hashMap->entriesInUse[ index >> 6u ];
+		const uint64 mapEntryInUseMask = 1ull << (index & 0x3fu);
+		if( (*mapEntryInUse & mapEntryInUseMask) == 0u )
+		{
+			*mapEntryInUse |= mapEntryInUseMask;
+
+			memcpy( mapEntry, entry, hashMap->entrySize );
+
+			hashMap->entryCount++;
+
+			if( isNew )
+			{
+				*isNew = true;
+			}
+
+			return mapEntry;
+		}
+
+		if( hashMap->entryKeyEqualsFunc( mapEntry, entry ) )
+		{
+			if( isNew )
+			{
+				*isNew = false;
+			}
+
+			return mapEntry;
+		}
+
+		hashOffset++;
+		if( hashOffset >= 4u &&
+			!ImUiHashMapGrow( hashMap ) )
+		{
+			break;
+		}
 	}
 
 	return NULL;
 }
 
-static bool ImUiHashTableGrow( ImUiHashTable* hashTable )
+bool ImUiHashMapRemove( ImUiHashMap* hashMap, const void* entry )
 {
-	const uintsize nextCapacity = hashTable->keyCapacity << 1u;
-
-	uint32* newIndices = IMUI_MEMORY_ARRAY_NEW_ZERO( hashTable->allocator, uint32, nextCapacity );
-	uint8* newKeys = (uint8*)ImUiMemoryAlloc( hashTable->allocator, nextCapacity * hashTable->keySize );
-	if( !newIndices || !newKeys )
+	const uintsize index = ImUiHashMapFindInternal( hashMap, entry );
+	if( index >= hashMap->entryCapacity )
 	{
 		return false;
 	}
 
-	const uint32* mapIndex = hashTable->indices;
-	for( uintsize i = 0; i < hashTable->keyCapacity; ++i, ++mapIndex )
-	{
-		if( (*mapIndex & 0x80000000) == 0u )
-		{
-			continue;
-		}
+	uint64* mapEntryInUse = &hashMap->entriesInUse[ index >> 6u ];
+	const uint64 mapEntryInUseMask = 1ull << (index & 0x3fu);
 
-		uint32 hashSeed = 0;
-		const uint8* mapKey = &hashTable->keys[ i * hashTable->keySize ];
-		for( ; hashSeed < 4u; ++hashSeed )
-		{
-			const ImUiHash hash = ImUiHashCreate( mapKey, hashTable->keySize, hashSeed );
-			const uintsize index = hash & (nextCapacity - 1u);
-
-			uint32* newIndex = &newIndices[ index ];
-			uint8* newKey = &newKeys[ index * hashTable->keySize ];
-
-			if( *mapIndex & 0x80000000 )
-			{
-				continue;
-			}
-
-			*newIndex = *mapIndex;
-			memcpy( newKey, mapKey, hashTable->keySize );
-			break;
-		}
-
-		if( hashSeed >= 4u )
-		{
-			ImUiMemoryFree( hashTable->allocator, newIndices );
-			ImUiMemoryFree( hashTable->allocator, newKeys );
-			return false;
-		}
-	}
-
-	ImUiMemoryFree( hashTable->allocator, hashTable->indices );
-	ImUiMemoryFree( hashTable->allocator, hashTable->keys );
-
-	hashTable->indices		= newIndices;
-	hashTable->keys			= newKeys;
-	hashTable->keyCapacity	= nextCapacity;
+	*mapEntryInUse &= ~mapEntryInUseMask;
+	hashMap->entryCount--;
 
 	return true;
 }
 
-const uint32* ImUiHashTableFind( ImUiHashTable* hashTable, const void* element )
+uintsize ImUiHashMapFindFirstIndex( ImUiHashMap* hashMap )
 {
-	return ImUiHashTableFindInternal( hashTable, element );
-}
-
-bool ImUiHashTableInsert( ImUiHashTable* hashTable, const void* element, uint32 index )
-{
-	IMUI_ASSERT( (index & 0x8000000) == 0u );
-
-	uint32 hashSeed = 0u;
-	const void* key = ImUiHashTableGetKey( hashTable, element );
-	while( true )
+	const uint64* mapEntryInUse = hashMap->entriesInUse;
+	uint64 mapEntryInUseMask = 1u;
+	for( uintsize mapIndex = 0u; mapIndex < hashMap->entryCapacity; ++mapIndex )
 	{
-		const ImUiHash hash = ImUiHashCreate( key, hashTable->keySize, hashSeed );
-		const uint32 index = hash & (hashTable->keyCapacity - 1u);
-
-		uint32* mapIndex = &hashTable->indices[ index ];
-		uint8* mapKey = &hashTable->keys[ index * hashTable->keySize ];
-
-		if( (*mapIndex & 0x80000000) == 0u )
+		if( *mapEntryInUse & mapEntryInUseMask )
 		{
-			*mapIndex = index | 0x80000000;
-			memcpy( mapKey, key, hashTable->keySize );
-
-			hashTable->keyCount++;
-			return true;
+			return mapIndex;
 		}
 
-		if( memcmp( mapKey, key, hashTable->keySize ) == 0 )
+		mapEntryInUseMask <<= 1u;
+		if( mapEntryInUseMask == 0u )
 		{
-			return true;
-		}
-
-		hashSeed++;
-		if( hashSeed > 4u )
-		{
-			if( !ImUiHashTableGrow( hashTable ) )
-			{
-				return false;
-			}
+			mapEntryInUse++;
+			mapEntryInUseMask = 1u;
 		}
 	}
 
-	return false;
+	return IMUI_SIZE_MAX;
 }
 
-bool ImUiHashTableRemove( ImUiHashTable* hashTable, const void* element )
+uintsize ImUiHashMapFindNextIndex( ImUiHashMap* hashMap, uintsize mapIndex )
 {
-	uint32* mapIndex = ImUiHashTableFindInternal( hashTable, element );
-	if( !mapIndex )
+	const uint64* mapEntryInUse = &hashMap->entriesInUse[ mapIndex >> 6u ];
+	uint64 mapEntryInUseMask = 1ull << (mapIndex & 0x3fu);
+
+	for( ; mapIndex < hashMap->entryCapacity; ++mapIndex )
 	{
-		return false;
+		if( *mapEntryInUse & mapEntryInUseMask )
+		{
+			return mapIndex;
+		}
+
+		mapEntryInUseMask <<= 1u;
+		if( mapEntryInUseMask == 0u )
+		{
+			mapEntryInUse++;
+			mapEntryInUseMask = 1u;
+		}
 	}
 
-	*mapIndex = 0u;
-	hashTable->keyCount--;
-	return true;
+	return IMUI_SIZE_MAX;
 }
+
+void* ImUiHashMapGetEntry( ImUiHashMap* hashMap, uintsize index )
+{
+	return &hashMap->entries[ index * hashMap->entrySize ];
+}
+
+//////////////////////////////////////////////////////////////////////////
+// String Pool
 
 struct ImUiStringPoolChunk
 {
@@ -224,24 +415,50 @@ struct ImUiStringPoolChunk
 	char					data[ 1u ];
 };
 
-struct ImUiStringPoolKey
+static ImUiHash ImUiStringPoolHash( const void* entry )
 {
-	ImUiHash				stringHash;
-	ImUiStringView			string;
-};
+	const ImUiStringView* string = (const ImUiStringView*)entry;
+	return ImUiHashString( *string, 0u );
+}
 
-void ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator )
+static bool ImUiStringPoolIsKeyEquals( const void* lhs, const void* rhs )
+{
+	const ImUiStringView* lhsString = (const ImUiStringView*)lhs;
+	const ImUiStringView* rhsString = (const ImUiStringView*)rhs;
+
+	if( lhsString->length != rhsString->length )
+	{
+		return false;
+	}
+	else if( lhsString->length == 0u )
+	{
+		return true;
+	}
+	else if( lhsString->data[ 0u ] != rhsString->data[ 0u ] )
+	{
+		return false;
+	}
+
+	return memcmp( lhsString->data, rhsString->data, lhsString->length ) == 0;
+}
+
+bool ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator )
 {
 	stringPool->allocator	= allocator;
 	stringPool->firstChunk	= NULL;
+
+	if( !ImUiHashMapConstructSize( &stringPool->keyMap, allocator, sizeof( ImUiStringView ), ImUiStringPoolHash, ImUiStringPoolIsKeyEquals, 64u ) )
+	{
+		ImUiStringPoolDestruct( stringPool );
+		return false;
+	}
+
+	return true;
 }
 
 void ImUiStringPoolDestruct( ImUiStringPool* stringPool )
 {
-	ImUiMemoryFree( stringPool->allocator, stringPool->keys );
-	stringPool->keys		= NULL;
-	stringPool->keyCount	= 0u;
-	stringPool->keyCapacity	= 0u;
+	ImUiHashMapDestruct( &stringPool->keyMap );
 
 	ImUiStringPoolChunk* chunk = stringPool->firstChunk;
 	ImUiStringPoolChunk* nextChunk = NULL;
@@ -267,13 +484,15 @@ void ImUiStringPoolClear( ImUiStringPool* stringPool )
 
 ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView string )
 {
-	IMUI_ASSERT( string.length <= ((size_t)-1) >> 1u ); // use upper bit as used flag
-
-	const ImUiHash stringHash = ImUiHashString( string, 0u );
-	ImUiStringView result = ImUiStringPoolFindByHash( stringPool, stringHash );
-	if( result.data )
+	bool isNew;
+	ImUiStringView* mapEntry = (ImUiStringView*)ImUiHashMapInsertNew( &stringPool->keyMap, &string, &isNew );
+	if( !mapEntry )
 	{
-		return result;
+		return ImUiStringViewCreateEmpty();
+	}
+	else if( !isNew )
+	{
+		return *mapEntry;
 	}
 
 	ImUiStringPoolChunk* chunk;
@@ -289,7 +508,7 @@ ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView str
 		chunk = (ImUiStringPoolChunk*)ImUiMemoryAlloc( stringPool->allocator, sizeof( ImUiStringPoolChunk ) + size );
 		if( !chunk )
 		{
-			return result;
+			return ImUiStringViewCreateEmpty();
 		}
 
 		chunk->nextChunk		= stringPool->firstChunk;
@@ -310,38 +529,13 @@ ImUiStringView ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView str
 	chunk->usedSize += string.length + 1u;
 	chunk->remainingSize -= string.length + 1u;
 
-	result.data		= target;
-	result.length	= string.length;
+	mapEntry->data		= target;
+	mapEntry->length	= string.length;
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( stringPool->allocator, stringPool->keys, stringPool->keyCapacity, stringPool->keyCount + 1u ) )
-	{
-		return result;
-	}
-
-	ImUiStringPoolKey* key = &stringPool->keys[ stringPool->keyCount ];
-	stringPool->keyCount++;
-
-	key->stringHash	= stringHash;
-	key->string		= result;
-
-	return result;
+	return *mapEntry;
 }
 
-ImUiStringView ImUiStringPoolFindByHash( ImUiStringPool* stringPool, ImUiHash stringHash )
+const ImUiStringView* ImUiStringPoolFind( ImUiStringPool* stringPool, ImUiStringView string )
 {
-	ImUiStringView result = { NULL, 0u };
-	for( size_t i = 0u; i < stringPool->keyCount; ++i )
-	{
-		ImUiStringPoolKey* key = &stringPool->keys[ i ];
-		if( key->stringHash != stringHash )
-		{
-			continue;
-		}
-
-		result.data		= key->string.data;
-		result.length	= key->string.length; // TODO: &~(((size_t)-1) >> 1u);
-		return result;
-	}
-
-	return result;
+	return (const ImUiStringView*)ImUiHashMapFind( &stringPool->keyMap, &string );
 }

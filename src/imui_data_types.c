@@ -18,6 +18,14 @@ ImUiStringView ImUiStringViewCreate( const char* str )
 	return string;
 }
 
+ImUiStringView ImUiStringViewCreateEmpty()
+{
+	ImUiStringView string;
+	string.data		= NULL;
+	string.length	= 0u;
+	return string;
+}
+
 bool ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 )
 {
 	if( string1.length != string2.length )
