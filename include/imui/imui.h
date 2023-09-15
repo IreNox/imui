@@ -479,6 +479,14 @@ enum ImUiInputModifier
 	ImUiInputModifier_RightAlt		= 1u << 5u
 };
 
+typedef struct ImUiInputWidgetState ImUiInputWidgetState;
+struct ImUiInputWidgetState
+{
+	bool						isMouseOver;
+	bool						isMouseDown;
+	bool						hasMouseReleased;
+};
+
 // Push
 
 ImUiInput*						ImUiInputBegin( ImUiContext* imui );
@@ -499,19 +507,21 @@ void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelt
 
 // Read
 
-uint32_t						ImUiInputGetKeyModifiers( ImUiInput* input );	// returns ImUiInputModifier
-bool							ImUiInputIsKeyDown( ImUiInput* input, ImUiInputKey key );
-bool							ImUiInputIsKeyUp( ImUiInput* input, ImUiInputKey key );
-bool							ImUiInputHasKeyPressed( ImUiInput* input, ImUiInputKey key );
-bool							ImUiInputHasKeyReleased( ImUiInput* input, ImUiInputKey key );
-ImUiInputKey					ImUiInputGetKeyRepeate( ImUiInput* input, size_t index );
-size_t							ImUiInputGetKeyRepeateCount( ImUiInput* input );
+uint32_t						ImUiInputGetKeyModifiers( ImUiContext* imui );	// returns ImUiInputModifier
+bool							ImUiInputIsKeyDown( ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputIsKeyUp( ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
+ImUiInputKey					ImUiInputGetKeyRepeate( ImUiContext* imui, size_t index );
+size_t							ImUiInputGetKeyRepeateCount( ImUiContext* imui );
 
-bool							ImUiInputIsMouseInRectangle( ImUiInput* input, ImUiRectangle rectangle );
-bool							ImUiInputIsMouseButtonDown( ImUiInput* input, ImUiInputMouseButton button );
-bool							ImUiInputIsMouseButtonUp( ImUiInput* input, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonPressed( ImUiInput* input, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonReleased( ImUiInput* input, ImUiInputMouseButton button );
+bool							ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle );
+bool							ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton button );
+
+void							ImUiInputGetWidgetState( ImUiWidget* widget, ImUiInputWidgetState* target );
 
 //////////////////////////////////////////////////////////////////////////
 // Font
@@ -577,6 +587,7 @@ ImUiHash						ImUiHashString( ImUiStringView string, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
 
 ImUiAlignment					ImUiAlignmentCreate( ImUiHorizontalAlignment horizintal, ImUiVerticalAlignment vertical );
+ImUiAlignment					ImUiAlignmentCreateCenter();
 
 ImUiPosition					ImUiPositionCreate( float x, float y );
 ImUiPosition					ImUiPositionAdd( ImUiPosition pos, float x, float y );

@@ -94,6 +94,12 @@ ImUiAlignment ImUiAlignmentCreate( ImUiHorizontalAlignment horizintal, ImUiVerti
 	return align;
 }
 
+ImUiAlignment ImUiAlignmentCreateCenter()
+{
+	const ImUiAlignment align = { ImUiHorizintalAlignment_Center, ImUiVerticalAlignment_Center };
+	return align;
+}
+
 ImUiPosition ImUiPositionCreate( float x, float y )
 {
 	const ImUiPosition pos = { x, y };
@@ -297,10 +303,10 @@ ImUiRectangle ImUiRectangleShrinkThickness( ImUiRectangle rect, ImUiThickness th
 
 bool ImUiRectangleIncludesPosition( ImUiRectangle rect, ImUiPosition position )
 {
-	return rect.position.x >= position.x &&
-		rect.position.y >= position.y &&
-		rect.position.x + rect.size.width <= position.x &&
-		rect.position.y + rect.size.height <= position.y;
+	return position.x >= rect.position.x &&
+		position.y >= rect.position.y &&
+		position.x <= rect.position.x + rect.size.width &&
+		position.y <= rect.position.y + rect.size.height;
 }
 
 bool ImUiRectangleIntersectsRectangle( ImUiRectangle rect1, ImUiRectangle rect2 )

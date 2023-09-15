@@ -316,16 +316,6 @@ void ImUiWindowEnd( ImUiWindow* window )
 	ImUiWindowLayout( window );
 }
 
-ImUiInput* ImUiInputBegin( ImUiContext* imui )
-{
-	ImUiInputNextTick( &imui->input );
-	return &imui->input;
-}
-
-void ImUiInputEnd( ImUiContext* imui )
-{
-}
-
 static void ImUiWindowLayout( ImUiWindow* window )
 {
 	window->rootWidget->rectangle = ImUiRectangleCreate( 0.0f, 0.0f, window->rootWidget->maxSize.width, window->rootWidget->maxSize.height );

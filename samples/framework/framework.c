@@ -132,7 +132,7 @@ int main( int argc, char* argv[] )
 			case SDL_MOUSEMOTION:
 				{
 					const SDL_MouseMotionEvent* pMouseEvent = &sdlEvent.motion;
-					ImUiInputPushMouseMove( input, (float)pMouseEvent->x, (float)pMouseEvent->x );
+					ImUiInputPushMouseMove( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
 				}
 				break;
 

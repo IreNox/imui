@@ -1,5 +1,10 @@
 #include "imui_input.h"
 
+#include "imui_internal.h"
+#include "imui_memory.h"
+
+#include <string.h>
+
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state );
 static bool ImUiInputPushTextSize( ImUiInput* input, ImUiInputState* state, const char* text, uintsize size );
 
@@ -19,6 +24,16 @@ void ImUiInputNextTick( ImUiInput* input )
 	ImUiInputFreeText( input, &input->lastState );
 
 	input->lastState = input->currentState;
+}
+
+ImUiInput* ImUiInputBegin( ImUiContext* imui )
+{
+	ImUiInputNextTick( &imui->input );
+	return &imui->input;
+}
+
+void ImUiInputEnd( ImUiContext* imui )
+{
 }
 
 void ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key )
@@ -76,54 +91,63 @@ void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, flo
 	input->currentState.mouseScroll = ImUiPositionAddPos( input->currentState.mouseScroll, ImUiPositionCreate( horizontalDelta, verticalDelta ) );
 }
 
-uint32_t ImUiInputGetKeyModifiers( ImUiInput* input )
+uint32_t ImUiInputGetKeyModifiers( ImUiContext* imui )
 {
-	return input->currentState.keyModifiers;
+	return imui->input.currentState.keyModifiers;
 }
 
-bool ImUiInputIsKeyDown( ImUiInput* input, ImUiInputKey key )
+bool ImUiInputIsKeyDown( ImUiContext* imui, ImUiInputKey key )
 {
-	return input->currentState.keys[ key ];
+	return imui->input.currentState.keys[ key ];
 }
 
-bool ImUiInputIsKeyUp( ImUiInput* input, ImUiInputKey key )
+bool ImUiInputIsKeyUp( ImUiContext* imui, ImUiInputKey key )
 {
-	return !input->currentState.keys[ key ];
+	return !imui->input.currentState.keys[ key ];
 }
 
-bool ImUiInputHasKeyPressed( ImUiInput* input, ImUiInputKey key )
+bool ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key )
 {
-	return input->currentState.keys[ key ] && !input->lastState.keys[ key ];
+	return imui->input.currentState.keys[ key ] && !imui->input.lastState.keys[ key ];
 }
 
-bool ImUiInputHasKeyReleased( ImUiInput* input, ImUiInputKey key )
+bool ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key )
 {
-	return !input->currentState.keys[ key ] && input->lastState.keys[ key ];
+	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
-bool ImUiInputIsMouseInRectangle( ImUiInput* input, ImUiRectangle rectangle )
+bool ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle )
 {
-	return ImUiRectangleIncludesPosition( rectangle, input->currentState.mousePosition );
+	return ImUiRectangleIncludesPosition( rectangle, imui->input.currentState.mousePosition );
 }
 
-bool ImUiInputIsMouseButtonDown( ImUiInput* input, ImUiInputMouseButton button )
+bool ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button )
 {
-	return input->currentState.mouseButtons[ button ];
+	return imui->input.currentState.mouseButtons[ button ];
 }
 
-bool ImUiInputIsMouseButtonUp( ImUiInput* input, ImUiInputMouseButton button )
+bool ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button )
 {
-	return !input->currentState.mouseButtons[ button ];
+	return !imui->input.currentState.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonPressed( ImUiInput* input, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button )
 {
-	return input->currentState.mouseButtons[ button ] && !input->lastState.mouseButtons[ button ];;
+	return imui->input.currentState.mouseButtons[ button ] && !imui->input.lastState.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonReleased( ImUiInput* input, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton button )
 {
-	return !input->currentState.mouseButtons[ button ] && input->lastState.mouseButtons[ button ];;
+	return !imui->input.currentState.mouseButtons[ button ] && imui->input.lastState.mouseButtons[ button ];
+}
+
+void ImUiInputGetWidgetState( ImUiWidget* widget, ImUiInputWidgetState* target )
+{
+	ImUiInput* input = &widget->window->imui->input;
+
+	target->isMouseOver			= ImUiRectangleIncludesPosition( widget->rectangle, input->currentState.mousePosition );
+	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
+	target->hasMouseReleased	= target->isMouseOver && !input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] && input->lastState.mouseButtons[ ImUiInputMouseButton_Left ];
 }
 
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state )
@@ -148,7 +172,7 @@ static bool ImUiInputPushTextSize( ImUiInput* input, ImUiInputState* state, cons
 
 		if( state->textCapacity <= sizeof( state->text.buffer ) )
 		{
-			char* newText = ImUiMemoryAlloc( input->allocator, requiredCapacity );
+			char* newText = (char*)ImUiMemoryAlloc( input->allocator, requiredCapacity );
 			if( !newText )
 			{
 				return false;
@@ -162,7 +186,7 @@ static bool ImUiInputPushTextSize( ImUiInput* input, ImUiInputState* state, cons
 		}
 		else
 		{
-			char* newText = ImUiMemoryRealloc( input->allocator, state->text.pointer, state->textCapacity, requiredCapacity );
+			char* newText = (char*)ImUiMemoryRealloc( input->allocator, state->text.pointer, state->textCapacity, requiredCapacity );
 			if( !newText )
 			{
 				return false;
