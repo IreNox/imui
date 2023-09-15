@@ -184,6 +184,7 @@ void ImUiEnd( ImUiFrame* frame )
 	imui->firstChunk			= NULL;
 
 	//ImUiStringPoolClear( &imui->strings );
+	ImUiTextLayoutCacheFreeUnused( &imui->layoutCache );
 }
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale )

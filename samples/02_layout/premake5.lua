@@ -2,7 +2,7 @@
 
 add_module_include_path( ".." )
 
-local project = Project:new( "imapp_hello_world", ProjectTypes.WindowApplication )
+local project = Project:new( "imapp_layout", ProjectTypes.WindowApplication )
 
 project:add_files( 'src/*.c' )
 
