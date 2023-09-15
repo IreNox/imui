@@ -70,8 +70,14 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 	imui->allocator.internalData	= &imui->allocator;
 
 	ImUiInputConstruct( &imui->input, &imui->allocator );
-	ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType );
-	ImUiStringPoolConstruct( &imui->strings, &imui->allocator );
+
+	if( !ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType ) ||
+		!ImUiStringPoolConstruct( &imui->strings, &imui->allocator ) ||
+		!ImUiTextLayoutCacheConstruct( &imui->layoutCache, &imui->allocator ) )
+	{
+		ImUiDestroy( imui );
+		return NULL;
+	}
 
 	return imui;
 }
@@ -109,6 +115,7 @@ void ImUiDestroy( ImUiContext* imui )
 	ImUiInputDestruct( &imui->input );
 	ImUiDrawDestruct( &imui->draw );
 	ImUiStringPoolDestruct( &imui->strings );
+	ImUiTextLayoutCacheDestruct( &imui->layoutCache );
 
 	ImUiMemoryFree( &imui->allocator, imui );
 }
@@ -231,6 +238,11 @@ const ImUiDrawData* ImUiSurfaceEnd( ImUiSurface* surface )
 	}
 
 	return ImUiDrawGenerateSurfaceData( &surface->imui->draw, surface );
+}
+
+ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
+{
+	return surface->imui;
 }
 
 ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )

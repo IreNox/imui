@@ -22,7 +22,7 @@ struct ImUiChunkedPoolFreeElement
 
 bool ImUiChunkedPoolConstruct( ImUiChunkedPool* pool, ImUiAllocator* allocator, uintsize elementSize, uintsize chunkSize )
 {
-	IMUI_ASSERT( (chunkSize & (chunkSize - 1u)) == chunkSize ); // chunkSize must be power of 2
+	IMUI_ASSERT( (chunkSize & (chunkSize - 1u)) == 0u ); // chunkSize must be power of 2
 	IMUI_ASSERT( elementSize >= sizeof( ImUiChunkedPoolFreeElement ) );
 
 	pool->allocator			= allocator;
@@ -71,6 +71,9 @@ void* ImUiChunkedPoolAllocate( ImUiChunkedPool* pool )
 
 		chunk = (ImUiChunkedPoolChunk*)ImUiMemoryAlloc( pool->allocator, sizeof( ImUiChunkedPoolChunk ) + (pool->elementSize * pool->chunkSize) );
 		chunk->remainingElements = pool->chunkSize;
+
+		pool->chunks[ pool->chunkCount ] = chunk;
+		pool->chunkCount++;
 	}
 	else
 	{
@@ -204,8 +207,6 @@ static uintsize ImUiHashMapFindInternal( ImUiHashMap* hashMap, const void* entry
 		{
 			return index;
 		}
-
-		hashOffset++;
 	}
 
 	return IMUI_SIZE_MAX;

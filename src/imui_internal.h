@@ -6,6 +6,7 @@
 #include "imui_input.h"
 #include "imui_helpers.h"
 #include "imui_types.h"
+#include "imui_text.h"
 
 struct ImUiSurface
 {
@@ -127,6 +128,7 @@ struct ImUiContext
 	ImUiInput				input;
 	ImUiDraw				draw;
 	ImUiStringPool			strings;
+	ImUiTextLayoutCache		layoutCache;
 
 	ImUiFrame				frame;
 

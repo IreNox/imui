@@ -25,6 +25,7 @@ typedef struct ImUiWindow ImUiWindow;
 typedef struct ImUiWidget ImUiWidget;
 typedef struct ImUiInput ImUiInput;
 typedef struct ImUiDraw ImUiDraw;
+typedef struct ImUiTextLayout ImUiTextLayout;
 
 typedef uint32_t ImUiId;
 typedef uint32_t ImUiHash;
@@ -271,6 +272,7 @@ enum ImUiLayout
 ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale );
 const ImUiDrawData*			ImUiSurfaceEnd( ImUiSurface* surface );
 
+ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 
@@ -328,7 +330,7 @@ void						ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUi
 void						ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv );
 void						ImUiDrawRectangleTextureColor( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color );
 void						ImUiDrawRectangleTextureColorUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
-void						ImUiDrawRectangleText( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
+void						ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -520,8 +522,9 @@ typedef struct ImUiFontCodepoint ImUiFontCodepoint;
 struct ImUiFontCodepoint
 {
 	uint32_t					codepoint;
-	uint32_t					width;
-	uint32_t					height;
+	float						width;
+	float						height;
+	float						advance;
 	float						ascentOffset;
 	ImUiTextureCooridinate		uv;
 };
@@ -532,6 +535,8 @@ struct ImUiFontParameters
 	ImUiTexture					texture;
 	const ImUiFontCodepoint*	codepoints;
 	size_t						codepointCount;
+
+	float						lineGap;
 };
 
 ImUiFont*						ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters );
@@ -551,6 +556,8 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 //////////////////////////////////////////////////////////////////////////
 // Text
 // see imui_text.c
+
+ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text );
 
 //////////////////////////////////////////////////////////////////////////
 // Data Type Functions

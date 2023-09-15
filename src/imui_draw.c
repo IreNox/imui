@@ -1,6 +1,8 @@
 #include "imui_draw.h"
 
+#include "imui_font.h"
 #include "imui_memory.h"
+#include "imui_text.h"
 
 #include <string.h>
 
@@ -229,6 +231,7 @@ void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTextu
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
 	rectData->rect		= rect;
+	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv.u0		= 0.0f;
 	rectData->uv.v0		= 0.0f;
 	rectData->uv.u1		= 1.0f;
@@ -242,6 +245,15 @@ void ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTex
 	rectData->rect		= rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv		= uv;
+}
+
+void ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
+	struct ImUiDrawElementDataText* textData = &element->data.text;
+	textData->position	= position;
+	textData->color		= color;
+	textData->layout	= layout;
 }
 
 static void ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window )
@@ -357,6 +369,72 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			// todo
 		}
 		break;
+
+	case ImUiDrawElementType_Text:
+	{
+		const struct ImUiDrawElementDataText* textData = &element->data.text;
+
+		const float x = textData->position.x;
+		const float y = textData->position.y;
+		if( draw->useIndexBuffer )
+		{
+			ImUiDrawSurfacePreparePushVertices( draw, surface, 4u * textData->layout->glyphCount );
+
+			for( uintsize i = 0; i < textData->layout->glyphCount; ++i )
+			{
+				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
+
+				const ImUiPosition posTl = ImUiPositionCreate( x + glyph->position.x, y + glyph->position.y );
+				const ImUiPosition posTr = ImUiPositionCreate( posTl.x + glyph->size.width, posTl.y );
+				const ImUiPosition posBl = ImUiPositionCreate( posTl.x, posTl.y + glyph->size.height );
+				const ImUiPosition posBr = ImUiPositionCreate( posTr.x, posBl.y );
+				const ImUiPosition uvTl = ImUiPositionCreate( glyph->uv.u0, glyph->uv.v0 );
+				const ImUiPosition uvTr = ImUiPositionCreate( glyph->uv.u1, glyph->uv.v0 );
+				const ImUiPosition uvBl = ImUiPositionCreate( glyph->uv.u0, glyph->uv.v1 );
+				const ImUiPosition uvBr = ImUiPositionCreate( glyph->uv.u1, glyph->uv.v1 );
+
+				const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl, textData->color, uvTl );
+				const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posTr, textData->color, uvTr );
+				const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posBl, textData->color, uvBl );
+				const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr, textData->color, uvBr );
+
+				const uint32 vertexIndices[ 6u ] =
+				{
+					indexTl, indexTr, indexBl,
+					indexBl, indexTr, indexBr
+				};
+				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+			}
+		}
+		else
+		{
+			ImUiDrawSurfacePreparePushVertices( draw, surface, 6u * textData->layout->glyphCount );
+
+			for( uintsize i = 0; i < textData->layout->glyphCount; ++i )
+			{
+				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
+
+				const ImUiPosition posTl = ImUiPositionCreate( x + glyph->position.x, y + glyph->position.y );
+				const ImUiPosition posTr = ImUiPositionCreate( posTl.x + glyph->size.width, posTl.y );
+				const ImUiPosition posBl = ImUiPositionCreate( posTl.x, posTl.y + glyph->size.height );
+				const ImUiPosition posBr = ImUiPositionCreate( posTr.x, posBl.y );
+				const ImUiPosition uvTl = ImUiPositionCreate( glyph->uv.u0, glyph->uv.v0 );
+				const ImUiPosition uvTr = ImUiPositionCreate( glyph->uv.u1, glyph->uv.v0 );
+				const ImUiPosition uvBl = ImUiPositionCreate( glyph->uv.u0, glyph->uv.v1 );
+				const ImUiPosition uvBr = ImUiPositionCreate( glyph->uv.u1, glyph->uv.v1 );
+
+				ImUiDrawSurfacePushVertex( draw, surface, posTl, textData->color, uvTl );
+				ImUiDrawSurfacePushVertex( draw, surface, posTr, textData->color, uvTr );
+				ImUiDrawSurfacePushVertex( draw, surface, posBl, textData->color, uvBl );
+				ImUiDrawSurfacePushVertex( draw, surface, posBl, textData->color, uvBl );
+				ImUiDrawSurfacePushVertex( draw, surface, posTr, textData->color, uvTr );
+				ImUiDrawSurfacePushVertex( draw, surface, posBr, textData->color, uvBr );
+			}
+		}
+
+		elementCount = 6u * textData->layout->glyphCount;
+	}
+	break;
 	}
 
 	command->count += elementCount;

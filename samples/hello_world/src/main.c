@@ -1,23 +1,28 @@
-#include "../../framework/framework.h"
+﻿#include "../../framework/framework.h"
 
 #include "imui/imui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-static HwMinSizeHorizontal( ImUiWindow* window );
-static HwMinSizeVertical( ImUiWindow* window );
-static HwMinSizeElement( ImUiWindow* window );
+static void HwMinSizeHorizontal( ImUiWindow* window );
+static void HwMinSizeVertical( ImUiWindow* window );
+static void HwMinSizeElement( ImUiWindow* window );
 
-static HwStretchStack( ImUiWindow* window );
-static HwStretchHorizontal( ImUiWindow* window );
-static HwStretchVertical( ImUiWindow* window );
-static HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
+static void HwStretchStack( ImUiWindow* window );
+static void HwStretchHorizontal( ImUiWindow* window );
+static void HwStretchVertical( ImUiWindow* window );
+static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
 
+static ImUiTexture s_fontTexture;
 static ImUiFont* s_font = NULL;
 
 void ImUiFrameworkTick( ImUiSurface* surface )
 {
+	ImUiContext* imui = ImUiSurfaceGetContext( surface );
+
+	ImUiTextLayout* text = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ Ǯ" ) );
+
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
@@ -40,10 +45,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	ImUiWidgetEnd( hLayout );
 
+	ImUiDrawText( hLayout, ImUiPositionCreate( 15.0f, 15.0f ), text, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawRectangleColor( hLayout, ImUiRectangleCreate( 60.0f, 60.0f, s_fontTexture.size.width, s_fontTexture.size.height ), ImUiColorCreateBlack( 1.0f ) );
+	ImUiDrawRectangleTexture( hLayout, ImUiRectangleCreate( 60.0f, 60.0f, s_fontTexture.size.width, s_fontTexture.size.height ), s_fontTexture );
+
 	ImUiWindowEnd( window );
 }
 
-static HwMinSizeHorizontal( ImUiWindow* window )
+static void HwMinSizeHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "min_horizontal" ) );
 	ImUiWidgetSetPadding( layout, ImUiThicknessCreateAll( 20.0f ) );
@@ -58,12 +67,12 @@ static HwMinSizeHorizontal( ImUiWindow* window )
 	ImUiWidgetEnd( layout );
 }
 
-static HwMinSizeVertical( ImUiWindow* window )
+static void HwMinSizeVertical( ImUiWindow* window )
 {
 
 }
 
-static HwMinSizeElement( ImUiWindow* window )
+static void HwMinSizeElement( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetMargin( widget, ImUiThicknessCreateAll( 10.0f ) );
@@ -74,7 +83,7 @@ static HwMinSizeElement( ImUiWindow* window )
 	ImUiWidgetEnd( widget );
 }
 
-static HwStretchStack( ImUiWindow* window )
+static void HwStretchStack( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "stack" ) );
 	ImUiWidgetSetPadding( layout, ImUiThicknessCreateAll( 20.0f ) );
@@ -117,7 +126,7 @@ static HwStretchStack( ImUiWindow* window )
 	ImUiWidgetEnd( layout );
 }
 
-static HwStretchHorizontal( ImUiWindow* window )
+static void HwStretchHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "horizontal" ) );
 	ImUiWidgetSetPadding( layout, ImUiThicknessCreateAll( 20.0f ) );
@@ -131,7 +140,7 @@ static HwStretchHorizontal( ImUiWindow* window )
 	ImUiWidgetEnd( layout );
 }
 
-static HwStretchVertical( ImUiWindow* window )
+static void HwStretchVertical( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vertical" ) );
 	ImUiWidgetSetPadding( layout, ImUiThicknessCreateAll( 20.0f ) );
@@ -145,7 +154,7 @@ static HwStretchVertical( ImUiWindow* window )
 	ImUiWidgetEnd( layout );
 }
 
-static HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 )
+static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 )
 {
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
@@ -184,7 +193,7 @@ bool ImUiFrameworkInitialize( ImUiContext* imui )
 	uint8_t* fileData;
 	size_t fileSize;
 	{
-		FILE* file = fopen( "c:/windows/fonts/arialbd.ttf", "rb" );
+		FILE* file = fopen( "c:/windows/fonts/arial.ttf", "rb" );
 
 		fseek( file, 0, SEEK_END );
 		fpos_t fileSizeS;
@@ -199,19 +208,24 @@ bool ImUiFrameworkInitialize( ImUiContext* imui )
 
 	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( imui, fileData, fileSize );
 
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x21, 0x7e );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x590, 0x5ff );
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
 
 	uint32_t width;
 	uint32_t height;
-	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, 15.0f, &width, &height );
+	const float fontSize = 32.0f;
+	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
+	width = (width + 4u - 1u) & (0u - 4u);
+	height = (height + 4u - 1u) & (0u - 4u);
 
 	void* textureData = malloc( width * height );
-	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, 15.0f, textureData, width * height, width, height );
+	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
 
 	ImUiTexture texture;
 	texture.data = (void*)(uint64_t)ImUiFrameworkTextureCreate( textureData, width, height );
 	texture.size = ImUiSizeCreate( (float)width, (float)height );
+	s_fontTexture = texture;
 
 	free( textureData );
 

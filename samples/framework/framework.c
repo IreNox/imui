@@ -31,8 +31,10 @@ struct ImFrameworkContext
 
 	GLuint						vertexShader;
 	GLuint						fragmentShader;
+	GLuint						fragmentShaderFont;
 
 	GLuint						program;
+	GLuint						programFont;
 	GLint						programUniformProjection;
 	GLint						programUniformTexture;
 
@@ -218,46 +220,72 @@ static const char s_fragmentShader[] =
 	//"	OutColor.xyz += vec3( noise( gl_FragCoord.x ) + noise( gl_FragCoord.y ) ) / 2;\n"
 	"}\n";
 
+static const char s_fragmentShaderFont[] =
+	"#version 150\n"
+	"precision mediump float;\n"
+	"uniform sampler2D Texture;\n"
+	"in vec2 vtfUV;\n"
+	"in vec4 vtfColor;\n"
+	"out vec4 OutColor;\n"
+	"void main(){\n"
+	"	float charColor = texture(Texture, vtfUV.xy).r;\n"
+	"	OutColor = vtfColor * charColor;\n"
+	"}\n";
+
 static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )
 {
 	// Shader
-	context->vertexShader	= glCreateShader( GL_VERTEX_SHADER );
-	context->fragmentShader	= glCreateShader( GL_FRAGMENT_SHADER );
+	context->vertexShader		= glCreateShader( GL_VERTEX_SHADER );
+	context->fragmentShader		= glCreateShader( GL_FRAGMENT_SHADER );
+	context->fragmentShaderFont	= glCreateShader( GL_FRAGMENT_SHADER );
 	if( context->vertexShader == 0u ||
-		context->fragmentShader == 0u )
+		context->fragmentShader == 0u ||
+		context->fragmentShaderFont == 0u )
 	{
 		printf( "[renderer] Failed to create GL Shader.\n" );
 		return false;
 	}
 
 	if( !ImFrameworkRendererCompileShader( context->vertexShader, s_vertexShader ) ||
-		!ImFrameworkRendererCompileShader( context->fragmentShader, s_fragmentShader ) )
+		!ImFrameworkRendererCompileShader( context->fragmentShader, s_fragmentShader ) ||
+		!ImFrameworkRendererCompileShader( context->fragmentShaderFont, s_fragmentShaderFont ) )
 	{
 		printf( "[renderer] Failed to compile GL Shader.\n" );
 		return false;
 	}
 
 	context->program = glCreateProgram();
-	if( context->program == 0u )
+	context->programFont = glCreateProgram();
+	if( context->program == 0u ||
+		context->programFont == 0u )
 	{
 		printf( "[renderer] Failed to create GL Program.\n" );
 		return false;
 	}
 
-	GLint programStatus;
 	glAttachShader( context->program, context->vertexShader );
 	glAttachShader( context->program, context->fragmentShader );
 	glLinkProgram( context->program );
-	glGetProgramiv( context->program, GL_LINK_STATUS, &programStatus );
 
-	if( programStatus != GL_TRUE )
+	glAttachShader( context->programFont, context->vertexShader );
+	glAttachShader( context->programFont, context->fragmentShaderFont );
+	glLinkProgram( context->programFont );
+
+	bool ok = true;
+	GLint programStatus;
+	glGetProgramiv( context->program, GL_LINK_STATUS, &programStatus );
+	ok &= (programStatus == GL_TRUE);
+	glGetProgramiv( context->programFont, GL_LINK_STATUS, &programStatus );
+	ok &= (programStatus == GL_TRUE);
+
+	if( !ok )
 	{
 		printf( "[renderer] Failed to link GL Program.\n" );
 		return false;
 	}
 
 	context->programUniformProjection	= glGetUniformLocation( context->program, "ProjectionMatrix" );
-	context->programUniformTexture	= glGetUniformLocation( context->program, "Texture" );
+	context->programUniformTexture		= glGetUniformLocation( context->program, "Texture" );
 
 	// Buffer
 	const GLuint attributePosition	= (GLuint)glGetAttribLocation( context->program, "Position" );
@@ -350,6 +378,15 @@ static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
 		context->program = 0u;
 	}
 
+	if( context->programFont != 0u )
+	{
+		glDetachShader( context->programFont, context->fragmentShaderFont );
+		glDetachShader( context->programFont, context->vertexShader );
+		glDeleteProgram( context->programFont );
+
+		context->programFont = 0u;
+	}
+
 	if( context->vertexShader != 0u )
 	{
 		glDeleteShader( context->vertexShader );
@@ -360,6 +397,12 @@ static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
 	{
 		glDeleteShader( context->fragmentShader );
 		context->fragmentShader = 0u;
+	}
+
+	if( context->fragmentShaderFont != 0u )
+	{
+		glDeleteShader( context->fragmentShaderFont );
+		context->fragmentShaderFont = 0u;
 	}
 }
 
@@ -419,10 +462,14 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		GLuint texture = (GLuint)(size_t)pCommand->texture;
 		if( texture == 0u )
 		{
+			glUseProgram( context->program );
 			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
 		}
 		else
 		{
+			glUseProgram( context->programFont );
+			glUniform1i( context->programUniformTexture, 0 );
+			glUniformMatrix4fv( context->programUniformProjection, 1, GL_FALSE, &projectionMatrix[ 0u ][ 0u ] );
 			glBindTexture( GL_TEXTURE_2D, texture );
 		}
 

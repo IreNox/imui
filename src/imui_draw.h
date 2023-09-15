@@ -8,6 +8,7 @@ enum ImUiDrawElementType
 	ImUiDrawElementType_Line,
 	ImUiDrawElementType_Rectangle,
 	ImUiDrawElementType_Skin,
+	ImUiDrawElementType_Text,
 };
 
 struct ImUiDrawElementDataLine
@@ -24,11 +25,19 @@ struct ImUiDrawElementDataRectangle
 	ImUiTextureCooridinate	uv;
 };
 
+struct ImUiDrawElementDataText
+{
+	ImUiPosition			position;
+	ImUiColor				color;
+	ImUiTextLayout*			layout;
+};
+
 typedef union ImUiDrawElementData ImUiDrawElementData;
 union ImUiDrawElementData
 {
 	struct ImUiDrawElementDataLine		line;
 	struct ImUiDrawElementDataRectangle	rectangle;
+	struct ImUiDrawElementDataText		text;
 };
 
 typedef struct ImUiDrawElement ImUiDrawElement;

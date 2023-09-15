@@ -210,7 +210,7 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 	}
 
 	const float minSizeBase			= sqrtf( (float)x * lineHeight );
-	const float minSizeLines		= ceilf( minSizeBase / lineHeight );
+	const float minSizeLines		= ceilf( minSizeBase / lineHeight ) + 1u;
 	const uint32 minSize			= (uint32)minSizeLines * lineHeight;
 
 	*targetWidth = minSize;
@@ -236,19 +236,28 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 
 	const float scale = stbtt_ScaleForPixelHeight( &ttf->font, fontSizeInPixel );
 
-	int ascent;
-	stbtt_GetFontVMetrics( &ttf->font, &ascent, NULL, NULL );
+	float ascent;
+	float descent;
+	float lineGap;
+	{
+		int ascentI;
+		int descentI;
+		int lineGapI;
+		stbtt_GetFontVMetrics( &ttf->font, &ascentI, &descentI, &lineGapI );
+		ascent = scale * ascentI;
+		descent = scale * descentI;
+		lineGap = scale * lineGapI;
+	}
+	const float vHeight = ascent - descent;
 
-	uint32 x = 1;
-	uint32 y = 1;
-	uint32 lineHeight = 0;
+	uint32 x = 1u;
+	uint32 y = 1u;
+	uint32 lineHeight = 0u;
 	uint8* data = (uint8*)targetData;
 	for( uintsize i = 0; i < ttf->codepointCount; ++i )
 	{
 		const int codepoint = (int)ttf->codepoints[ i ];
 		ImUiFontCodepoint* targetCodepoint = &codepoints[ i ];
-
-		//const float x_shift = xpos - (float)floor( xpos );
 
 		int advance;
 		int lsb;
@@ -273,9 +282,10 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 		stbtt_MakeCodepointBitmap( &ttf->font, cpData, cpWidth, cpHeight, width, scale, scale, codepoint );
 
 		targetCodepoint->codepoint		= codepoint;
-		targetCodepoint->width			= cpWidth;
-		targetCodepoint->height			= cpHeight;
-		targetCodepoint->ascentOffset	= 0.0f;
+		targetCodepoint->width			= (float)cpWidth;
+		targetCodepoint->height			= (float)cpHeight;
+		targetCodepoint->advance		= scale * advance;
+		targetCodepoint->ascentOffset	= ascent + y0;
 		targetCodepoint->uv.u0			= (float)x / width;
 		targetCodepoint->uv.v0			= (float)y / height;
 		targetCodepoint->uv.u1			= (float)(x + cpWidth) / width;
@@ -284,6 +294,8 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 		x += cpWidth + 2u;
 		lineHeight = IMUI_MAX( lineHeight, cpHeight );
 	}
+
+	image->parameters.lineGap = lineGap;
 
 	return image;
 }

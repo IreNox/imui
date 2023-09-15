@@ -10,4 +10,6 @@ project:add_dependency( "framework" )
 
 project:add_external( "local://../.." )
 
+project:add_define( "_CRT_SECURE_NO_WARNINGS", "1" );
+
 finalize_default_solution( project )

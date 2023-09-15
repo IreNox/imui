@@ -5,6 +5,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef _MSC_VER
+#	include <intrin.h>
+#endif
+
 typedef uint8_t		uint8;
 typedef uint16_t	uint16;
 typedef uint32_t	uint32;
@@ -27,11 +31,14 @@ typedef size_t		uintsize;
 #ifndef IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE
 #	define IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE		4096u
 #endif
+#ifndef IMUI_DEFAULT_TEXT_LAYOUT_POOL_CHUNK_SIZE
+#	define IMUI_DEFAULT_TEXT_LAYOUT_POOL_CHUNK_SIZE	1024u
+#endif
 
 #define IMUI_FLOAT_MAX FLT_MAX
 #define IMUI_SIZE_MAX ((uintsize)-1)
 
-#ifndef NDEBUG
+#ifdef _DEBUG
 #	define IMUI_ASSERT( exp ) assert( exp )
 #else
 #	define IMUI_ASSERT( exp )
@@ -44,6 +51,8 @@ typedef size_t		uintsize;
 
 #if defined( __GNUC__ ) || defined( __clang__ )
 #	define IMUI_OFFSETOF( type, member )	__builtin_offsetof( type, member )
+#	define IMUI_COUNT_LEADING_ZEROS( val )	__builtin_clz( val )
 #else
 #	define IMUI_OFFSETOF( type, member )	((size_t)(&((type*)0)->member))
+#	define IMUI_COUNT_LEADING_ZEROS( val )	__lzcnt( val )
 #endif
