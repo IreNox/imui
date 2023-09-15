@@ -56,6 +56,13 @@ bool ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* al
 
 void ImUiTextLayoutCacheDestruct( ImUiTextLayoutCache* cache )
 {
+	for( uintsize i = ImUiHashMapFindFirstIndex( &cache->layoutMap ); i != IMUI_SIZE_MAX; i = ImUiHashMapFindNextIndex( &cache->layoutMap, i ) )
+	{
+		ImUiTextLayout* layout = *(ImUiTextLayout**)ImUiHashMapGetEntry( &cache->layoutMap, i );
+
+		ImUiMemoryFree( cache->allocator, layout->glyphs );
+	}
+
 	ImUiHashMapDestruct( &cache->layoutMap );
 	ImUiChunkedPoolDestruct( &cache->layoutPool );
 }

@@ -356,6 +356,11 @@ bool ImUiHashMapRemove( ImUiHashMap* hashMap, const void* entry )
 
 uintsize ImUiHashMapFindFirstIndex( ImUiHashMap* hashMap )
 {
+	if( hashMap->entryCount == 0u )
+	{
+		return IMUI_SIZE_MAX;
+	}
+
 	const uint64* mapEntryInUse = hashMap->entriesInUse;
 	uint64 mapEntryInUseMask = 1u;
 	for( uintsize mapIndex = 0u; mapIndex < hashMap->entryCapacity; ++mapIndex )
@@ -378,6 +383,8 @@ uintsize ImUiHashMapFindFirstIndex( ImUiHashMap* hashMap )
 
 uintsize ImUiHashMapFindNextIndex( ImUiHashMap* hashMap, uintsize mapIndex )
 {
+	++mapIndex;
+
 	const uint64* mapEntryInUse = &hashMap->entriesInUse[ mapIndex >> 6u ];
 	uint64 mapEntryInUseMask = 1ull << (mapIndex & 0x3fu);
 
