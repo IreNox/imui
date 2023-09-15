@@ -48,5 +48,3 @@ void					ImUiTextLayoutCacheFreeUnused( ImUiTextLayoutCache* cachce );
 
 ImUiTextLayout*			ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
 ImUiSize				ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
-
-ImUiSize				ImUiTextLayoutGetSize( const ImUiTextLayout* layout );

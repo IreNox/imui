@@ -5,6 +5,7 @@
 #include "imui_memory.h"
 
 #include <string.h>
+#include <math.h>
 
 static void			ImUiWindowLayout( ImUiWindow* window );
 
@@ -404,8 +405,8 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 	{
 	case ImUiLayout_Stack:
 	case ImUiLayout_Scroll:
-		//parentContext->childrenMinSize.width	= IMUI_MAX( parentContext->childrenMinSize.width, widget->minSize.width );
-		//parentContext->childrenMinSize.height	= IMUI_MAX( parentContext->childrenMinSize.height, widget->minSize.height );
+		parentContext->childrenMinSize.width	= IMUI_MAX( parentContext->childrenMinSize.width, widget->minSize.width );
+		parentContext->childrenMinSize.height	= IMUI_MAX( parentContext->childrenMinSize.height, widget->minSize.height );
 		//parentContext->childrenMaxSize.width	= IMUI_MAX( parentContext->childrenMaxSize.width, widget->maxSize.width );
 		//parentContext->childrenMaxSize.height	= IMUI_MAX( parentContext->childrenMaxSize.height, widget->maxSize.height );
 		break;
@@ -479,7 +480,7 @@ static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle
 	const float factorWidth			= IMUI_MIN( widget->stretch.width, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretch.height, widget->parent->layoutContext.childrenMaxStretch.height );
 	const ImUiSize maxSize			= ImUiSizeMax( ImUiSizeShrinkThickness( parentInnerRect->size, widget->margin ), ImUiSizeCreateZero() );
-	const ImUiSize size				= ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight );
+	ImUiSize size					= ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPosition position;
 	switch( widget->alignment.horizontal )
@@ -508,6 +509,12 @@ static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRectangle
 		position.y = (parentInnerRect->position.y + parentInnerRect->size.height) - (widget->margin.top + size.height);
 		break;
 	}
+
+	// ???
+	position.x	= floorf( position.x );
+	position.y	= floorf( position.y );
+	size.width	= ceilf( size.width );
+	size.height	= ceilf( size.height );
 
 	widget->rectangle.position	= position;
 	widget->rectangle.size		= size;
@@ -828,6 +835,16 @@ void ImUiWidgetSetHorizintalAlignment( ImUiWidget* widget, ImUiHorizontalAlignme
 void ImUiWidgetSetVerticalAlignment( ImUiWidget* widget, ImUiVerticalAlignment alignment )
 {
 	widget->alignment.vertical = alignment;
+}
+
+ImUiPosition ImUiWidgetGetPosition( const ImUiWidget* widget )
+{
+	return widget->rectangle.position;
+}
+
+ImUiSize ImUiWidgetGetSize( const ImUiWidget* widget )
+{
+	return widget->rectangle.size;
 }
 
 ImUiRectangle ImUiWidgetGetRectangle( const ImUiWidget* widget )

@@ -416,10 +416,8 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 
 	glEnable( GL_BLEND );
 	glBlendEquation( GL_FUNC_ADD );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 	glDisable( GL_CULL_FACE );
-
 	glDisable( GL_DEPTH_TEST );
 	//glEnable( GL_SCISSOR_TEST );
 
@@ -462,11 +460,15 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		GLuint texture = (GLuint)(size_t)pCommand->texture;
 		if( texture == 0u )
 		{
+			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
 			glUseProgram( context->program );
 			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
 		}
 		else
 		{
+			glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
+
 			glUseProgram( context->programFont );
 			glUniform1i( context->programUniformTexture, 0 );
 			glUniformMatrix4fv( context->programUniformProjection, 1, GL_FALSE, &projectionMatrix[ 0u ][ 0u ] );

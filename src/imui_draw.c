@@ -217,6 +217,15 @@ void ImUiDrawLine( ImUiWidget* widget, ImUiPosition p0, ImUiPosition p1, ImUiCol
 	lineData->color	= color;
 }
 
+void ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	rectData->rect		= widget->rectangle;
+	rectData->color		= color;
+	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
+}
+
 void ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );

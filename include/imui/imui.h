@@ -318,6 +318,8 @@ void						ImUiWidgetSetAlignment( ImUiWidget* widget, ImUiAlignment alignment );
 void						ImUiWidgetSetHorizintalAlignment( ImUiWidget* widget, ImUiHorizontalAlignment alignment );
 void						ImUiWidgetSetVerticalAlignment( ImUiWidget* widget, ImUiVerticalAlignment alignment );
 
+ImUiPosition				ImUiWidgetGetPosition( const ImUiWidget* widget );
+ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
 ImUiRectangle				ImUiWidgetGetRectangle( const ImUiWidget* widget );
 
 //////////////////////////////////////////////////////////////////////////
@@ -325,6 +327,7 @@ ImUiRectangle				ImUiWidgetGetRectangle( const ImUiWidget* widget );
 // see imui_draw.c
 
 void						ImUiDrawLine( ImUiWidget* widget, ImUiPosition p0, ImUiPosition p1, ImUiColor color );
+void						ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color );
 void						ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor color );
 void						ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture );
 void						ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv );
@@ -558,6 +561,8 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 // see imui_text.c
 
 ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text );
+
+ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
 
 //////////////////////////////////////////////////////////////////////////
 // Data Type Functions
