@@ -1,3 +1,4 @@
 /premake_tb*
 build/
+Emscripten/
 .vs/

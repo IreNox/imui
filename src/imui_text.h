@@ -2,6 +2,8 @@
 
 #include <imui/imui.h>
 
+#include "imui_helpers.h"
+
 typedef struct ImUiFont ImUiFont;
 
 typedef struct ImUiTextLayoutCache ImUiTextLayoutCache;

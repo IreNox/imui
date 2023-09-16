@@ -15,7 +15,7 @@ static ImUiDrawCommand*		ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiD
 static bool					ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize vertexCount );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPosition position, ImUiColor color, ImUiPosition uv );
 static void					ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
-static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexType type );
+static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
 bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVertexFormat* vertexFormat, ImUiVertexType vertexType )
 {
@@ -724,7 +724,7 @@ static void ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* sur
 	surface->indexCount += count;
 }
 
-static uintsize ImUiVertexElementTypeGetSize( ImUiVertexType type )
+static uintsize ImUiVertexElementTypeGetSize( ImUiVertexElementType type )
 {
 	switch( type )
 	{

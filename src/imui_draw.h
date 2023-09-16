@@ -1,5 +1,7 @@
 #pragma once
 
+#include "imui/imui.h"
+
 #include "imui_types.h"
 
 typedef enum ImUiDrawElementType ImUiDrawElementType;

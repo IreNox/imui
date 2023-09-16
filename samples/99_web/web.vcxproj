@@ -18,7 +18,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">
     <ConfigurationType>HTMLPage</ConfigurationType>
-    <EmscriptenDir>$(EMSDK)\upstream\emscripten</EmscriptenDir>
+    <EmscriptenDir>$(EMSDK)\upstream\emscripten\</EmscriptenDir>
     <PlatformToolset>emcc</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">
@@ -32,8 +32,54 @@
   <ImportGroup Label="Shared">
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">
+    <IncludePath>$(SolutionDir)..\..\include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SDL_THREADS_DISABLED;SDL_AUDIO_DISABLED;SDL_CPUINFO_DISABLED</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>GL</AdditionalDependencies>
+      <AdditionalOptions>-sFULL_ES3 -sUSE_SDL=2 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SDL_THREADS_DISABLED;SDL_AUDIO_DISABLED;SDL_CPUINFO_DISABLED</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>GL</AdditionalDependencies>
+      <AdditionalOptions>-sFULL_ES3 -sUSE_SDL=2 %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="..\..\src\imui.c" />
+    <ClCompile Include="..\..\src\imui_data_types.c" />
+    <ClCompile Include="..\..\src\imui_draw.c" />
+    <ClCompile Include="..\..\src\imui_font.c" />
+    <ClCompile Include="..\..\src\imui_helpers.c" />
+    <ClCompile Include="..\..\src\imui_input.c" />
+    <ClCompile Include="..\..\src\imui_memory.c" />
+    <ClCompile Include="..\..\src\imui_text.c" />
+    <ClCompile Include="..\framework\framework.c" />
+    <ClCompile Include="main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\imui\imui.h" />
+    <ClInclude Include="..\..\src\imui_draw.h" />
+    <ClInclude Include="..\..\src\imui_font.h" />
+    <ClInclude Include="..\..\src\imui_helpers.h" />
+    <ClInclude Include="..\..\src\imui_input.h" />
+    <ClInclude Include="..\..\src\imui_internal.h" />
+    <ClInclude Include="..\..\src\imui_memory.h" />
+    <ClInclude Include="..\..\src\imui_text.h" />
+    <ClInclude Include="..\..\src\imui_types.h" />
+    <ClInclude Include="..\..\src\stb_truetype.h" />
+    <ClInclude Include="..\framework\framework.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

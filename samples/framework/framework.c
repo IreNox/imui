@@ -3,23 +3,19 @@
 #include "imui/imui.h"
 
 #include <GL/glew.h>
-#include <SDL.h>
-#include <crtdbg.h>
+#include <SDL2/SDL.h>
+
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "../../src/imui_types.h"
+#ifdef _WIN32
+#	include <crtdbg.h>
+#elif defined( __EMSCRIPTEN__ )
+#	include <emscripten.h>
+#endif
 
-static ImUiInputKey s_inputKeyMapping[ SDL_NUM_SCANCODES ];
-static const ImUiInputMouseButton s_inputMouseButtonMapping[] =
-{
-	ImUiInputMouseButton_MAX,		// Invalid 0
-	ImUiInputMouseButton_Left,		// SDL_BUTTON_LEFT     1
-	ImUiInputMouseButton_Middle,	// SDL_BUTTON_MIDDLE   2
-	ImUiInputMouseButton_Right,		// SDL_BUTTON_RIGHT    3
-	ImUiInputMouseButton_X1,		// SDL_BUTTON_X1       4
-	ImUiInputMouseButton_X2			// SDL_BUTTON_X2       5
-};
+#include "../../src/imui_types.h"
 
 typedef struct ImFrameworkContext ImFrameworkContext;
 struct ImFrameworkContext
@@ -43,8 +39,25 @@ struct ImFrameworkContext
 	GLuint						elementBuffer;
 
 	GLuint						whiteTexture;
+
+	ImUiContext*				imui;
 };
 
+static ImFrameworkContext s_context;
+static bool s_running;
+
+static ImUiInputKey s_inputKeyMapping[ SDL_NUM_SCANCODES ];
+static const ImUiInputMouseButton s_inputMouseButtonMapping[] =
+{
+	ImUiInputMouseButton_MAX,		// Invalid 0
+	ImUiInputMouseButton_Left,		// SDL_BUTTON_LEFT     1
+	ImUiInputMouseButton_Middle,	// SDL_BUTTON_MIDDLE   2
+	ImUiInputMouseButton_Right,		// SDL_BUTTON_RIGHT    3
+	ImUiInputMouseButton_X1,		// SDL_BUTTON_X1       4
+	ImUiInputMouseButton_X2			// SDL_BUTTON_X2       5
+};
+
+static void ImFrameworkLoop();
 static bool ImFrameworkRendererInitialize( ImFrameworkContext* context );
 static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShaderCode );
 static void ImFrameworkRendererShutdown( ImFrameworkContext* context );
@@ -52,6 +65,7 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 
 int main( int argc, char* argv[] )
 {
+#ifdef _WIN32
 	int tmpFlag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
 
 	// Turn on leak-checking bit.
@@ -63,17 +77,16 @@ int main( int argc, char* argv[] )
 	// Set flag to the new value.
 	_CrtSetDbgFlag( tmpFlag );
 	//_CrtSetBreakAlloc( 100 );
+#endif
 
-	ImFrameworkContext context;
-
-	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0)
+	if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO /*| SDL_INIT_TIMER*/) < 0)
 	{
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize SDL.", NULL);
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize SDL.", NULL );
 		return 1;
 	}
 
-	context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
-	if( context.window == NULL)
+	s_context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
+	if( s_context.window == NULL)
 	{
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to create Window.", NULL );
 		return 1;
@@ -81,11 +94,16 @@ int main( int argc, char* argv[] )
 
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 0 );
+#ifdef __EMSCRIPTEN__
+	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES );
+#else
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY );
+#endif
 
-	context.glContext = SDL_GL_CreateContext( context.window );
-	if( context.glContext == NULL )
+	s_context.glContext = SDL_GL_CreateContext( s_context.window );
+	if( s_context.glContext == NULL )
 	{
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize OpenGL.", NULL );
 		return 1;
 	}
 
@@ -97,108 +115,126 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-	if( !ImFrameworkRendererInitialize( &context ) )
+	if( !ImFrameworkRendererInitialize( &s_context ) )
 	{
-		ImFrameworkRendererShutdown( &context );
+		ImFrameworkRendererShutdown( &s_context );
 		return 1;
 	}
 
 	ImUiParameters parameters = { 0 };
-	ImUiContext* imui = ImUiCreate( &parameters );
+	s_context.imui = ImUiCreate( &parameters );
 
-	const bool init = ImUiFrameworkInitialize( imui );
-	bool running = init;
+	const bool init = ImUiFrameworkInitialize( s_context.imui );
+
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop( ImFrameworkLoop, 0, 1 );
+#else
+	s_running = init;
 	while( running )
 	{
-		ImUiInput* input = ImUiInputBegin( imui );
-		SDL_Event sdlEvent;
-		while( SDL_PollEvent( &sdlEvent ) )
-		{
-			switch( sdlEvent.type )
-			{
-			case SDL_KEYDOWN:
-			case SDL_KEYUP:
-				{
-					const SDL_KeyboardEvent* pKeyEvent = &sdlEvent.key;
-
-					const ImUiInputKey mappedKey = s_inputKeyMapping[ pKeyEvent->keysym.scancode ];
-					if( mappedKey != ImUiInputKey_None )
-					{
-						(pKeyEvent->type == SDL_KEYDOWN ? ImUiInputPushKeyDown : ImUiInputPushKeyUp)( input, mappedKey );
-					}
-				}
-				break;
-
-			case SDL_MOUSEMOTION:
-				{
-					const SDL_MouseMotionEvent* pMouseEvent = &sdlEvent.motion;
-					ImUiInputPushMouseMove( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
-				}
-				break;
-
-			case SDL_MOUSEBUTTONUP:
-			case SDL_MOUSEBUTTONDOWN:
-				{
-					const SDL_MouseButtonEvent* pMouseEvent = &sdlEvent.button;
-					(pMouseEvent->type == SDL_MOUSEBUTTONDOWN ? ImUiInputPushMouseDown : ImUiInputPushMouseUp)( input, s_inputMouseButtonMapping[ pMouseEvent->button ] );
-				}
-				break;
-
-			case SDL_MOUSEWHEEL:
-				{
-					const SDL_MouseWheelEvent* pMouseEvent = &sdlEvent.wheel;
-					ImUiInputPushMouseScroll( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
-				}
-				break;
-
-			case SDL_QUIT:
-				running = false;
-				break;
-
-			default:
-				break;
-			}
-		}
-		ImUiInputEnd( imui );
-
-		SDL_GetWindowSize( context.window, &context.windowWidth, &context.windowHeight );
-
-		ImUiFrame* frame = ImUiBegin( imui );
-		ImUiSurface* surface = ImUiSurfaceBegin( frame, ImUiStringViewCreate( "main" ), ImUiSizeCreate( (float)context.windowWidth, (float)context.windowHeight ), 1.0f );
-
-		ImUiFrameworkTick( surface );
-
-		const ImUiDrawData* drawData = ImUiSurfaceEnd( surface );
-
-		ImFrameworkRendererDraw( &context, drawData );
-
-		ImUiEnd( frame );
-
-		SDL_GL_SwapWindow( context.window );
+		ImFrameworkLoop();
 	}
+#endif
 
 	if( init )
 	{
-		ImUiFrameworkShutdown( imui );
+		ImUiFrameworkShutdown( s_context.imui );
 	}
 
-	ImUiDestroy( imui );
-	ImFrameworkRendererShutdown( &context );
-	SDL_GL_DeleteContext( context.glContext );
-	SDL_DestroyWindow( context.window );
+	ImUiDestroy( s_context.imui );
+	s_context.imui = NULL;
+
+	ImFrameworkRendererShutdown( &s_context );
+	SDL_GL_DeleteContext( s_context.glContext );
+	SDL_DestroyWindow( s_context.window );
 	SDL_Quit();
 
 	return 0;
 }
 
+static void ImFrameworkLoop()
+{
+	printf( "Tick!\n" );
+
+	ImUiInput* input = ImUiInputBegin( s_context.imui );
+	SDL_Event sdlEvent;
+	while( SDL_PollEvent( &sdlEvent ) )
+	{
+		switch( sdlEvent.type )
+		{
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			{
+				const SDL_KeyboardEvent* pKeyEvent = &sdlEvent.key;
+
+				const ImUiInputKey mappedKey = s_inputKeyMapping[ pKeyEvent->keysym.scancode ];
+				if( mappedKey != ImUiInputKey_None )
+				{
+					(pKeyEvent->type == SDL_KEYDOWN ? ImUiInputPushKeyDown : ImUiInputPushKeyUp)(input, mappedKey);
+				}
+			}
+			break;
+
+		case SDL_MOUSEMOTION:
+			{
+				const SDL_MouseMotionEvent* pMouseEvent = &sdlEvent.motion;
+				ImUiInputPushMouseMove( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
+			}
+			break;
+
+		case SDL_MOUSEBUTTONUP:
+		case SDL_MOUSEBUTTONDOWN:
+			{
+				const SDL_MouseButtonEvent* pMouseEvent = &sdlEvent.button;
+				(pMouseEvent->type == SDL_MOUSEBUTTONDOWN ? ImUiInputPushMouseDown : ImUiInputPushMouseUp)(input, s_inputMouseButtonMapping[ pMouseEvent->button ]);
+			}
+			break;
+
+		case SDL_MOUSEWHEEL:
+			{
+				const SDL_MouseWheelEvent* pMouseEvent = &sdlEvent.wheel;
+				ImUiInputPushMouseScroll( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
+			}
+			break;
+
+		case SDL_QUIT:
+#ifdef __EMSCRIPTEN__
+			emscripten_cancel_main_loop();
+#else
+			s_running = false;
+#endif
+			break;
+
+		default:
+			break;
+		}
+	}
+	ImUiInputEnd( s_context.imui );
+
+	SDL_GetWindowSize( s_context.window, &s_context.windowWidth, &s_context.windowHeight );
+
+	ImUiFrame* frame = ImUiBegin( s_context.imui );
+	ImUiSurface* surface = ImUiSurfaceBegin( frame, ImUiStringViewCreate( "main" ), ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), 1.0f );
+
+	ImUiFrameworkTick( surface );
+
+	const ImUiDrawData* drawData = ImUiSurfaceEnd( surface );
+
+	ImFrameworkRendererDraw( &s_context, drawData );
+
+	ImUiEnd( frame );
+
+	SDL_GL_SwapWindow( s_context.window );
+}
+
 static const char s_vertexShader[] =
-	"#version 150\n"
+	"#version 100\n"
 	"uniform mat4 ProjectionMatrix;\n"
-	"in vec2 Position;\n"
-	"in vec2 TexCoord;\n"
-	"in vec4 Color;\n"
-	"out vec2 vtfUV;\n"
-	"out vec4 vtfColor;\n"
+	"attribute vec2 Position;\n"
+	"attribute vec2 TexCoord;\n"
+	"attribute vec4 Color;\n"
+	"varying vec2 vtfUV;\n"
+	"varying vec4 vtfColor;\n"
 	"void main() {\n"
 	"	vtfUV		= TexCoord;\n"
 	"	vtfColor	= Color;\n"
@@ -206,30 +242,30 @@ static const char s_vertexShader[] =
 	"}\n";
 
 static const char s_fragmentShader[] =
-	"#version 150\n"
+	"#version 100\n"
 	"precision mediump float;\n"
 	"uniform sampler2D Texture;\n"
-	"in vec2 vtfUV;\n"
-	"in vec4 vtfColor;\n"
-	"out vec4 OutColor;\n"
+	"varying vec2 vtfUV;\n"
+	"varying vec4 vtfColor;\n"
+	//"out vec4 OutColor;\n"
 	//"float rand(float n){ return fract(sin(n) * 43758.5453123); }\n"
 	//"float noise( float p ){ float fl = floor( p ); float fc = fract( p ); return mix( rand( fl ), rand( fl + 1.0 ), fc ); }\n"
 	"void main(){\n"
-	"	vec4 texColor = texture(Texture, vtfUV.xy);\n"
-	"	OutColor = vtfColor * texColor;\n"
+	"	vec4 texColor = texture2D(Texture, vtfUV.xy);\n"
+	"	gl_FragColor = vtfColor * texColor;\n"
 	//"	OutColor.xyz += vec3( noise( gl_FragCoord.x ) + noise( gl_FragCoord.y ) ) / 2;\n"
 	"}\n";
 
 static const char s_fragmentShaderFont[] =
-	"#version 150\n"
+	"#version 100\n"
 	"precision mediump float;\n"
 	"uniform sampler2D Texture;\n"
-	"in vec2 vtfUV;\n"
-	"in vec4 vtfColor;\n"
-	"out vec4 OutColor;\n"
+	"varying vec2 vtfUV;\n"
+	"varying vec4 vtfColor;\n"
+	//"out vec4 OutColor;\n"
 	"void main(){\n"
-	"	float charColor = texture(Texture, vtfUV.xy).r;\n"
-	"	OutColor = vtfColor * charColor;\n"
+	"	float charColor = texture2D(Texture, vtfUV.xy).r;\n"
+	"	gl_FragColor = vtfColor * charColor;\n"
 	"}\n";
 
 static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )

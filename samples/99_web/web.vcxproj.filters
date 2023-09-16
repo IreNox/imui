@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.c" />
+    <ClCompile Include="..\..\src\imui_memory.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_text.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_data_types.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_draw.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_font.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_helpers.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\imui_input.c">
+      <Filter>imui\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\framework\framework.c">
+      <Filter>framework</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="imui">
+      <UniqueIdentifier>{e641660b-b3e7-45be-8ebd-03686f34f2fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imui\include">
+      <UniqueIdentifier>{fa0d83d4-05f2-40ae-80f5-80446a74ea59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imui\src">
+      <UniqueIdentifier>{f17672bd-a135-4e4d-b4fe-4a6d760b26a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework">
+      <UniqueIdentifier>{b8fb7818-fe9c-4010-af2b-d23b52fbc8ee}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\imui\imui.h">
+      <Filter>imui\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_memory.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_text.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_types.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\stb_truetype.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_draw.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_font.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_helpers.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_input.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\imui_internal.h">
+      <Filter>imui\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\framework\framework.h">
+      <Filter>framework</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
