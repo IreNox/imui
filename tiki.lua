@@ -1,9 +1,6 @@
 -- imui
 
-tiki.use_sdl = (tiki.target_platform == Platforms.Windows)
-tiki.use_lib = false
-
-module.module_type = ModuleTypes.UnityCModule
+module.module_type = ModuleTypes.FilesModule
 
 module:add_include_dir( "include" )
 

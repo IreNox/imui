@@ -1,5 +1,7 @@
 local module = Module:new()
 
+module.module_type = ModuleTypes.FilesModule
+
 module:add_files( "*.h" )
 module:add_files( "*.c" )
 
@@ -9,6 +11,8 @@ if tiki.target_platform == Platforms.Windows then
 	module:add_external( "https://github.com/nigels-com/glew@2.2.0" )
 
 	module:add_library_file( "opengl32" )
+
+	module:add_define( "_CRT_SECURE_NO_WARNINGS", "1" );
 	
 	module.import_func = function( project, solution )
 		project:set_flag( "MultiProcessorCompile" )

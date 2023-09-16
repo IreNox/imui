@@ -60,11 +60,13 @@ sdl_modules = {
 	file		= { header = false,	source = true,	platforms = {} },
 	filesystem	= { header = false,	source = false,	platforms = {} },
 	haptic		= { header = true,	source = true,	platforms = {} },
-	hidapi		= { header = false,	source = false,	platforms = {} },
+	hidapi		= { header = true,	source = true,	platforms = {} },
 	joystick	= { header = true,	source = true,	platforms = {} },
 	libm		= { header = true,	source = true,	platforms = {} },
 	loadso		= { header = false,	source = false,	platforms = {} },
+	locale		= { header = true,	source = true,	platforms = {} },
 	main		= { header = false,	source = false,	platforms = {} },
+	misc		= { header = true,	source = true,	platforms = {} },
 	power		= { header = true,	source = true,	platforms = {} },
 	render		= { header = true,	source = true,	platforms = {} },
 	sensor		= { header = true,	source = true,	platforms = {} },
@@ -78,13 +80,14 @@ sdl_modules[ "audio" ].platforms[ Platforms.Windows ]		= { directsound = { heade
 sdl_modules[ "core" ].platforms[ Platforms.Windows ]		= { windows	= { header = true,	source = true } }
 sdl_modules[ "filesystem" ].platforms[ Platforms.Windows ]	= { windows	= { header = false,	source = true } }
 sdl_modules[ "haptic" ].platforms[ Platforms.Windows ]		= { windows	= { header = true,	source = true } }
-sdl_modules[ "hidapi" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
-sdl_modules[ "joystick" ].platforms[ Platforms.Windows ]	= { windows	= { header = true,	source = true }, hidapi = { header = true, source = true } }
+sdl_modules[ "joystick" ].platforms[ Platforms.Windows ]	= { windows	= { header = true,	source = true }, hidapi = { header = true, source = true }, virtual = { header = true, source = true } }
 sdl_modules[ "loadso" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
+sdl_modules[ "locale" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
 sdl_modules[ "main" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
+sdl_modules[ "misc" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
 sdl_modules[ "power" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
-sdl_modules[ "render" ].platforms[ Platforms.Windows ]		= { direct3d = { header = true, source = true }, opengl = { header = true, source = true }, opengles2 = { header = true, source = true }, software = { header = true, source = true } }
-sdl_modules[ "sensor" ].platforms[ Platforms.Windows ]		= { dummy	= { header = true,	source = true } }
+sdl_modules[ "render" ].platforms[ Platforms.Windows ]		= { direct3d = { header = true, source = true }, direct3d11 = { header = true, source = true }, direct3d12 = { header = true, source = true }, opengl = { header = true, source = true }, opengles2 = { header = true, source = true }, software = { header = true, source = true } }
+sdl_modules[ "sensor" ].platforms[ Platforms.Windows ]		= { windows	= { header = true,	source = true } }
 sdl_modules[ "thread" ].platforms[ Platforms.Windows ]		= { windows	= { header = true,	source = true } }
 sdl_modules[ "timer" ].platforms[ Platforms.Windows ]		= { windows	= { header = false,	source = true } }
 sdl_modules[ "video" ].platforms[ Platforms.Windows ]		= { windows	= { header = true,	source = true }, dummy = { header = true, source = true }, yuv2rgb = { header = true, source = true } }
@@ -93,8 +96,7 @@ sdl_modules[ "audio" ].platforms[ Platforms.Android ]		= { android = { header = 
 sdl_modules[ "core" ].platforms[ Platforms.Android ]		= { android	= { header = true,	source = true } }
 sdl_modules[ "filesystem" ].platforms[ Platforms.Android ]	= { android	= { header = false,	source = true } }
 sdl_modules[ "haptic" ].platforms[ Platforms.Android ]		= { android	= { header = false,	source = true } }
-sdl_modules[ "hidapi" ].platforms[ Platforms.Android ]		= { android	= { header = false,	source_cpp = true } }
-sdl_modules[ "joystick" ].platforms[ Platforms.Android ]	= { android	= { header = true,	source = true }, hidapi = { header = true, source = true } }
+sdl_modules[ "joystick" ].platforms[ Platforms.Android ]	= { android	= { header = true,	source = true }, hidapi = { header = true, source = true }, virtual = { header = true, source = true } }
 sdl_modules[ "loadso" ].platforms[ Platforms.Android ]		= { dlopen	= { header = false,	source = true } }
 sdl_modules[ "main" ].platforms[ Platforms.Android ]		= { android	= { header = false,	source = true } }
 sdl_modules[ "power" ].platforms[ Platforms.Android ]		= { android	= { header = false,	source = true } }

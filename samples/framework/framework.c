@@ -3,7 +3,11 @@
 #include "imui/imui.h"
 
 #include <GL/glew.h>
-#include <SDL2/SDL.h>
+#if defined( __EMSCRIPTEN__ )
+#	include <SDL2/SDL.h>
+#else
+#	include <SDL.h>
+#endif
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -130,7 +134,7 @@ int main( int argc, char* argv[] )
 	emscripten_set_main_loop( ImFrameworkLoop, 0, 1 );
 #else
 	s_running = init;
-	while( running )
+	while( s_running )
 	{
 		ImFrameworkLoop();
 	}

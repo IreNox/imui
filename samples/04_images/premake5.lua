@@ -1,8 +1,10 @@
--- samples/images
+-- samples/04_images
 
-local project = Project:new( "imapp_images", ProjectTypes.WindowApplication )
+local project = Project:new( ProjectTypes.WindowApplication )
 
 project:add_files( 'src/*.c' )
+
+project:add_dependency( "framework" )
 
 project:add_external( "local://../.." )
 
