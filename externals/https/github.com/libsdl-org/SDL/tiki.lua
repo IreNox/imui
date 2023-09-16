@@ -1,29 +1,33 @@
--- https/www.libsdl.org
+-- https://github.com/libsdl-org/SDL
 
+local repo_name = "libsdl-org/SDL"
 if tiki.external.version == "latest" then
-	-- TODO: extract from releases page
-	tiki.external.version = "2.0.12"
+	local response, result_code = http.get( "https://api.github.com/repos/" .. repo_name .. "/releases/latest" )
+	local response_json =  json.decode( response )
+
+	tiki.external.version = response_json.name
 end
 
--- url example: http://www.libsdl.org/release/SDL2-2.0.12.zip
+-- url example: https://github.com/libsdl-org/SDL/releases/download/release-2.28.3/SDL2-2.28.3.zip
 
+local release_name = "release-" .. tiki.external.version
 local version_name = "SDL2-" .. tiki.external.version
 local file_name = version_name .. ".zip"
 local download_path = path.join( tiki.external.export_path, file_name )
 
 if not os.isfile( download_path ) then
-	local download_url = "https://www.libsdl.org/release/" .. file_name
+	local download_url = "https://github.com/" .. repo_name .. "/releases/download/" .. release_name .. "/" .. file_name
 
 	print( "Download: " .. download_url )
 	local result_str, result_code = http.download( download_url, download_path )
 	if result_code ~= 200 then
 		os.remove( download_path )
-		throw( "SQLite download failed with error " .. result_code .. ": " .. result_str )
+		throw( "download of '" .. download_url .. "' failed with error " .. result_code .. ": " .. result_str )
 	end
 	
 	if not zip.extract( download_path, tiki.external.export_path ) then
 		os.remove( download_path )
-		throw( "Failed to extract SQLite" )
+		throw( "Failed to extract " .. download_path )
 	end
 end
 

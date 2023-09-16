@@ -1,18 +1,21 @@
--- https/glew.sourceforge.net/
+-- https://github.com/nigels-com/glew
 
+local repo_name = "nigels-com/glew"
 if tiki.external.version == "latest" then
-	-- TODO: extract from releases page
-	tiki.external.version = "2.1.0"
+	local response, result_code = http.get( "https://api.github.com/repos/" .. repo_name .. "/releases/latest" )
+	local response_json =  json.decode( response )
+
+	tiki.external.version = response_json.name
 end
 
--- url example: https://downloads.sourceforge.net/project/glew/glew/2.1.0/glew-2.1.0.zip
+-- url example: https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.zip
 
 local version_name = "glew-" .. tiki.external.version
 local file_name = version_name .. ".zip"
 local download_path = path.join( tiki.external.export_path, file_name )
 
 if not os.isfile( download_path ) then
-	local download_url = "https://downloads.sourceforge.net/project/glew/glew/" .. tiki.external.version .. "/" .. file_name
+	local download_url = "https://github.com/" .. repo_name .. "/releases/download/" .. version_name .. "/" .. file_name
 
 	print( "Download: " .. download_url )
 	local result_str, result_code = http.download( download_url, download_path )
@@ -23,7 +26,7 @@ if not os.isfile( download_path ) then
 	
 	if not zip.extract( download_path, tiki.external.export_path ) then
 		os.remove( download_path )
-		throw( "Failed to extract glew" )
+		throw( "Failed to extract " .. download_path )
 	end
 end
 
