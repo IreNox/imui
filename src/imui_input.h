@@ -12,9 +12,9 @@ union ImUiInputText
 typedef struct ImUiInputState ImUiInputState;
 struct ImUiInputState
 {
-	ImUiPosition	mousePosition;
+	ImUiPos	mousePos;
 	bool			mouseButtons[ ImUiInputMouseButton_MAX ];
-	ImUiPosition	mouseScroll;
+	ImUiPos	mouseScroll;
 
 	bool			keys[ ImUiInputKey_MAX ];
 	uint32_t		keyModifiers;

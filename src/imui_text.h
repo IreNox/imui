@@ -19,9 +19,9 @@ typedef struct ImUiTextGlyph ImUiTextGlyph;
 struct ImUiTextGlyph
 {
 	uint32					codepoint;
-	ImUiPosition			position;
+	ImUiPos			pos;
 	ImUiSize				size;
-	ImUiTextureCooridinate	uv;
+	ImUiTexCoord	uv;
 };
 
 typedef struct ImUiTextLayoutParameters ImUiTextLayoutParameters;

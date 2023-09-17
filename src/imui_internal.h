@@ -34,7 +34,7 @@ struct ImUiWindow
 	ImUiHash		hash;
 	ImUiStringView	name;
 
-	ImUiRectangle	rectangle;
+	ImUiRect	rectangle;
 	uint32			zOrder;
 	uintsize		drawIndex;
 
@@ -47,8 +47,8 @@ struct ImUiWindow
 typedef struct ImUiWidgetLayoutContext ImUiWidgetLayoutContext;
 struct ImUiWidgetLayoutContext
 {
-	//ImUiRectangle	minInnerRect;
-	//ImUiRectangle	maxInnerRect;
+	//ImUiRect	minInnerRect;
+	//ImUiRect	maxInnerRect;
 	ImUiSize		minOuterSize;
 	size_t			childCount;
 	ImUiSize		childrenStretch;
@@ -59,7 +59,7 @@ struct ImUiWidgetLayoutContext
 
 struct ImUiLayoutScrollData
 {
-	ImUiPosition	offset;
+	ImUiPos	offset;
 };
 
 struct ImUiLayoutHorizontalVerticalData
@@ -96,21 +96,21 @@ struct ImUiWidget
 	ImUiId					id;
 	ImUiStringView			name;
 
-	ImUiThickness			margin;
-	ImUiThickness			padding;
+	ImUiBorder			margin;
+	ImUiBorder			padding;
 
 	ImUiSize				minSize;
 	ImUiSize				maxSize;
 
 	ImUiSize				stretch;
-	ImUiPosition			offset;
+	ImUiPos			offset;
 
 	ImUiLayout				layout;
 	ImUiLayoutData			layoutData;
 
-	ImUiAlignment			alignment;
+	ImUiAlign			align;
 
-	ImUiRectangle			rectangle;
+	ImUiRect			rect;
 	ImUiWidgetLayoutContext	layoutContext;
 };
 

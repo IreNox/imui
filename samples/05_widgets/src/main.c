@@ -29,14 +29,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 #endif
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateZero() );
-	ImUiWidgetSetMargin( vLayout, ImUiThicknessCreateAll( 25.0f ) );
+	ImUiWidgetSetMargin( vLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	static bool checked[ 3u ] ={ false, true, false };
+	static bool checked[ 3u ] = { false, true, false };
 	{
 		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "buttons" ) );
 		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateHorizintal() );
@@ -91,7 +91,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetEnd( sliderLayout );
 	}
 
-	//ImUiDrawRectangleTexture( vLayout, ImUiRectangleCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
+	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
 
 	ImUiWidgetEnd( vLayout );
 
@@ -154,12 +154,12 @@ static void ImUiTestSetConfig()
 
 	config.font					= s_font;
 
-	config.buttonPadding		= ImUiThicknessCreateAll( 8.0f );
+	config.buttonPadding		= ImUiBorderCreateAll( 8.0f );
 
 	config.checkBoxSize			= ImUiSizeCreateAll( 20.0f );
 	config.checkBoxTextSpacing	= 5.0f;
 
-	config.sliderPadding		= ImUiThicknessCreateVerticalHorizontal( 8.0f, 0.0f );
+	config.sliderPadding		= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
 	config.sliderPivotSize		= 12.0f;
 	config.sliderHeight			= 20.0f;
 

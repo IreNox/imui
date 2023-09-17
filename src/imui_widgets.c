@@ -50,7 +50,7 @@ bool ImUiWidgetsButton( ImUiWindow* window, ImUiStringView text )
 bool ImUiWidgetsCheckBox( ImUiWindow* window, ImUiStringView text, bool* checked )
 {
 	ImUiWidget* checkBoxFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetPadding( checkBoxFrame, ImUiThicknessCreate( 0.0f, s_config.checkBoxSize.width + s_config.checkBoxTextSpacing, 0.0f, 0.0f ) );
+	ImUiWidgetSetPadding( checkBoxFrame, ImUiBorderCreate( 0.0f, s_config.checkBoxSize.width + s_config.checkBoxTextSpacing, 0.0f, 0.0f ) );
 	ImUiWidgetSetFixedHeight( checkBoxFrame, s_config.checkBoxSize.height );
 
 	ImUiInputWidgetState inputState;
@@ -66,7 +66,7 @@ bool ImUiWidgetsCheckBox( ImUiWindow* window, ImUiStringView text, bool* checked
 		color = s_config.colors[ *checked ? ImUiWidgetsColor_CheckBoxCheckedHover : ImUiWidgetsColor_CheckBoxHover ];
 	}
 
-	const ImUiRectangle rect = ImUiRectangleCreatePosSize( ImUiWidgetGetPosition( checkBoxFrame ), s_config.checkBoxSize );
+	const ImUiRect rect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBoxFrame ), s_config.checkBoxSize );
 	ImUiDrawSkinColor( checkBoxFrame, rect, s_config.skins[ *checked ? ImUiWidgetsSkin_CheckBoxChecked : ImUiWidgetsSkin_CheckBox ], color );
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( window );
@@ -74,7 +74,7 @@ bool ImUiWidgetsCheckBox( ImUiWindow* window, ImUiStringView text, bool* checked
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( checkBoxText, textSize );
-	ImUiWidgetSetVerticalAlignment( checkBoxText, ImUiVerticalAlignment_Center );
+	ImUiWidgetSetVAlign( checkBoxText, ImUiVAlign_Center );
 
 	if( layout )
 	{
@@ -131,12 +131,12 @@ bool ImUiWidgetsSliderMinMax( ImUiWindow* window, float* value, float min, float
 	ImUiWidget* sliderPivot = ImUiWidgetBegin( window );
 	ImUiWidgetSetFixedSize( sliderPivot, ImUiSizeCreate( s_config.sliderPivotSize, s_config.sliderHeight ) );
 
-	const ImUiRectangle sliderInnerRect = ImUiWidgetGetInnerRectangle( sliderFrame );
+	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( sliderFrame );
 	const float normalizedValue		= (*value - min) / (max - min);
 	const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.sliderPivotSize));
 	const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : sliderPivotX;;
 
-	ImUiWidgetSetMargin( sliderPivot, ImUiThicknessCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
+	ImUiWidgetSetMargin( sliderPivot, ImUiBorderCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
 
 	ImUiInputWidgetState inputState;
 	ImUiInputGetWidgetState( sliderPivot, &inputState );
@@ -155,8 +155,8 @@ bool ImUiWidgetsSliderMinMax( ImUiWindow* window, float* value, float min, float
 
 	if( frameInputState.isMouseDown )
 	{
-		const ImUiPosition mousePos		= ImUiInputGetMousePosition( imui );
-		const float mouseValueNorm		= (mousePos.x - sliderInnerRect.position.x) / (sliderInnerRect.size.width - s_config.sliderPivotSize);
+		const ImUiPos mousePos		= ImUiInputGetMousePos( imui );
+		const float mouseValueNorm		= (mousePos.x - sliderInnerRect.pos.x) / (sliderInnerRect.size.width - s_config.sliderPivotSize);
 		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
 		IMUI_ASSERT( mouseValueNormClamp >= 0.0f && mouseValueNormClamp <= 1.0f );
 		const float mouseValue			= (mouseValueNormClamp * (max - min)) + min;

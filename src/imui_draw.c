@@ -28,15 +28,6 @@ enum ImUiDrawSkinPointY
 	ImUiDrawSkinPointY_END = ImUiDrawSkinPointY_Bottom
 };
 
-//typedef struct ImUiDrawSkinRect ImUiDrawSkinRect;
-//struct ImUiDrawSkinRect
-//{
-//	ImUiPosition		posMin;
-//	ImUiPosition		posMax;
-//	ImUiPosition		uvMin;
-//	ImUiPosition		uvMax;
-//};
-
 static void					ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window );
 static void					ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface );
 static ImUiDrawWindowData*	ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget );
@@ -76,13 +67,13 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 	}
 	else
 	{
-		elements[ 0u ].alignment	= 1u;
+		elements[ 0u ].align	= 1u;
 		elements[ 0u ].type			= ImUiVertexElementType_Float2;
 		elements[ 0u ].semantic		= ImUiVertexElementSemantic_PositionScreenSpace;
-		elements[ 1u ].alignment	= 1u;
+		elements[ 1u ].align	= 1u;
 		elements[ 1u ].type			= ImUiVertexElementType_Float2;
 		elements[ 1u ].semantic		= ImUiVertexElementSemantic_TextureCoordinate;
-		elements[ 2u ].alignment	= 1u;
+		elements[ 2u ].align	= 1u;
 		elements[ 2u ].type			= ImUiVertexElementType_Float4;
 		elements[ 2u ].semantic		= ImUiVertexElementSemantic_Color;
 	}
@@ -94,7 +85,7 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 	{
 		const ImUiVertexElement* vertexElement = &elements[ i ];
 
-		draw->vertexSize = (draw->vertexSize + vertexElement->alignment - 1u) & (0u - vertexElement->alignment);
+		draw->vertexSize = (draw->vertexSize + vertexElement->align - 1u) & (0u - vertexElement->align);
 		draw->vertexSize += ImUiVertexElementTypeGetSize( vertexElement->type );
 	}
 
@@ -239,7 +230,7 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 	return &drawSurface->data;
 }
 
-void ImUiDrawLine( ImUiWidget* widget, ImUiPosition p0, ImUiPosition p1, ImUiColor color )
+void ImUiDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Line, NULL );
 	struct ImUiDrawElementDataLine* lineData = &element->data.line;
@@ -252,7 +243,7 @@ void ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
-	rectData->rect		= widget->rectangle;
+	rectData->rect		= widget->rect;
 	rectData->color		= color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
@@ -261,7 +252,7 @@ void ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
-	rectData->rect		= widget->rectangle;
+	rectData->rect		= widget->rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv.u0		= 0.0f;
 	rectData->uv.v0		= 0.0f;
@@ -273,7 +264,7 @@ void ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiCo
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
-	rectData->rect		= widget->rectangle;
+	rectData->rect		= widget->rect;
 	rectData->color		= color;
 	rectData->uv.u0		= 0.0f;
 	rectData->uv.v0		= 0.0f;
@@ -285,7 +276,7 @@ void ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
-	skinData->rect		= widget->rectangle;
+	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
 	skinData->texSize	= skin.texture.size;
@@ -296,7 +287,7 @@ void ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
-	skinData->rect		= widget->rectangle;
+	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
 	skinData->texSize	= skin.texture.size;
@@ -307,7 +298,7 @@ void ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
-	textData->position	= widget->rectangle.position;
+	textData->pos		= widget->rect.pos;
 	textData->color		= ImUiColorCreateWhite( 1.0f );
 	textData->layout	= layout;
 }
@@ -316,12 +307,12 @@ void ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiCo
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
-	textData->position	= widget->rectangle.position;
+	textData->pos		= widget->rect.pos;
 	textData->color		= color;
 	textData->layout	= layout;
 }
 
-void ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor color )
+void ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
@@ -330,7 +321,7 @@ void ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor c
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture )
+void ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
@@ -342,7 +333,7 @@ void ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTextu
 	rectData->uv.v1		= 1.0f;
 }
 
-void ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv )
+void ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
@@ -351,7 +342,7 @@ void ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTex
 	rectData->uv		= uv;
 }
 
-void ImUiDrawSkin( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin )
+void ImUiDrawSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
@@ -362,7 +353,7 @@ void ImUiDrawSkin( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin )
 	skinData->color		= ImUiColorCreateWhite( 1.0f );
 }
 
-void ImUiDrawSkinColor( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin, ImUiColor color )
+void ImUiDrawSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
@@ -373,20 +364,20 @@ void ImUiDrawSkinColor( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin, I
 	skinData->color		= color;
 }
 
-void ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout )
+void ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
-	textData->position	= position;
+	textData->pos		= pos;
 	textData->color		= ImUiColorCreateWhite( 1.0f );;
 	textData->layout	= layout;
 }
 
-void ImUiDrawTextColor( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color )
+void ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
-	textData->position	= position;
+	textData->pos		= pos;
 	textData->color		= color;
 	textData->layout	= layout;
 }
@@ -461,8 +452,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 		{
 			const struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
 
-			const ImUiPosition posTl = ImUiRectangleGetTopLeft( rectData->rect );
-			const ImUiPosition posBr = ImUiRectangleGetBottomRight( rectData->rect );
+			const ImUiPos posTl = ImUiRectGetTopLeft( rectData->rect );
+			const ImUiPos posBr = ImUiRectGetBottomRight( rectData->rect );
 			if( draw->useIndexBuffer )
 			{
 				ImUiDrawSurfacePreparePushVertices( draw, surface, 4u );
@@ -497,17 +488,17 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 		{
 			const struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 
-			ImUiThickness uvBorder = skinData->border;
+			ImUiBorder uvBorder = skinData->border;
 			uvBorder.top	/= skinData->texSize.height;
 			uvBorder.left	/= skinData->texSize.width;
 			uvBorder.bottom	/= skinData->texSize.height;
 			uvBorder.right	/= skinData->texSize.width;
 
-			const float xLeft			= skinData->rect.position.x;
+			const float xLeft			= skinData->rect.pos.x;
 			const float xCenterLeft		= xLeft + skinData->border.left;
 			const float xRight			= xLeft + skinData->rect.size.width;
 			const float xCenterRight	= xRight - skinData->border.right;
-			const float yTop			= skinData->rect.position.y;
+			const float yTop			= skinData->rect.pos.y;
 			const float yCenterTop		= yTop + skinData->border.top;
 			const float yBottom			= yTop + skinData->rect.size.height;
 			const float yCenterBottom	= yBottom - skinData->border.bottom;
@@ -567,15 +558,15 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 					{
 						const uintsize nextX = x + 1u;
 
-						const ImUiPosition posTl = ImUiPositionCreate( xPositions[ x ], yPositions[ y ] );
-						const ImUiPosition posBr = ImUiPositionCreate( xPositions[ nextX ], yPositions[ nextY ] );
+						const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
+						const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
 						if( posBr.x - posTl.x <= 0.0f ||
 							posBr.y - posTl.y <= 0.0f )
 						{
 							continue;
 						}
 
-						const ImUiTextureCooridinate uv =
+						const ImUiTexCoord uv =
 						{
 							uPositions[ x ], vPositions[ y ],
 							uPositions[ nextX ], vPositions[ nextY ]
@@ -612,15 +603,15 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 					{
 						const uintsize nextX = x + 1u;
 
-						const ImUiPosition posTl = ImUiPositionCreate( xPositions[ x ], yPositions[ y ] );
-						const ImUiPosition posBr = ImUiPositionCreate( xPositions[ nextX ], yPositions[ nextY ] );
+						const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
+						const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
 						if( posBr.x - posTl.x <= 0.0f ||
 							posBr.y - posTl.y <= 0.0f )
 						{
 							continue;
 						}
 
-						const ImUiTextureCooridinate uv =
+						const ImUiTexCoord uv =
 						{
 							uPositions[ x ], vPositions[ y ],
 							uPositions[ nextX ], vPositions[ nextY ]
@@ -644,8 +635,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	{
 		const struct ImUiDrawElementDataText* textData = &element->data.text;
 
-		const float x = textData->position.x;
-		const float y = textData->position.y;
+		const float x = textData->pos.x;
+		const float y = textData->pos.y;
 		if( draw->useIndexBuffer )
 		{
 			ImUiDrawSurfacePreparePushVertices( draw, surface, 4u * textData->layout->glyphCount );
@@ -654,8 +645,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			{
 				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
 
-				const ImUiPosition posTl = ImUiPositionCreate( x + glyph->position.x, y + glyph->position.y );
-				const ImUiPosition posBr = ImUiPositionCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
+				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
+				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
 
 				const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, glyph->uv.u0, glyph->uv.v0, textData->color );
 				const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, glyph->uv.u1, glyph->uv.v0, textData->color );
@@ -678,8 +669,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			{
 				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
 
-				const ImUiPosition posTl = ImUiPositionCreate( x + glyph->position.x, y + glyph->position.y );
-				const ImUiPosition posBr = ImUiPositionCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
+				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
+				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
 
 				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, glyph->uv.u0, glyph->uv.v0, textData->color );
 				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, glyph->uv.u1, glyph->uv.v0, textData->color );
@@ -743,7 +734,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 	{
 		const ImUiVertexElement* vertexElement = &draw->vertexFormat.elements[ i ];
 
-		vertexOffset = (vertexOffset + vertexElement->alignment - 1u) & (0u - vertexElement->alignment);
+		vertexOffset = (vertexOffset + vertexElement->align - 1u) & (0u - vertexElement->align);
 
 		uint8* elementData = vertex + vertexOffset;
 		switch( vertexElement->semantic )
@@ -806,7 +797,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 
 		case ImUiVertexElementSemantic_PositionClipSpace:
 			{
-				ImUiPosition clipSpacePosition =
+				ImUiPos clipSpacePosition =
 				{
 					-1.0f + (x / surface->surface->size.width),
 					 1.0f - (y / surface->surface->size.height),

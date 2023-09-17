@@ -47,12 +47,12 @@ struct ImUiWidgetsConfig
 
 	ImUiFont*		font;
 
-	ImUiThickness	buttonPadding;
+	ImUiBorder	buttonPadding;
 
 	ImUiSize		checkBoxSize;
 	float			checkBoxTextSpacing;
 
-	ImUiThickness	sliderPadding;
+	ImUiBorder	sliderPadding;
 	float			sliderHeight;
 	float			sliderPivotSize;
 };

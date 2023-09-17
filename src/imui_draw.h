@@ -15,32 +15,32 @@ enum ImUiDrawElementType
 
 struct ImUiDrawElementDataLine
 {
-	ImUiPosition	p0;
-	ImUiPosition	p1;
+	ImUiPos			p0;
+	ImUiPos			p1;
 	ImUiColor		color;
 };
 
 struct ImUiDrawElementDataRectangle
 {
-	ImUiRectangle			rect;
-	ImUiColor				color;
-	ImUiTextureCooridinate	uv;
+	ImUiRect		rect;
+	ImUiColor		color;
+	ImUiTexCoord	uv;
 };
 
 struct ImUiDrawElementDataSkin
 {
-	ImUiRectangle			rect;
-	ImUiThickness			border;
-	ImUiTextureCooridinate	uv;
-	ImUiSize				texSize;
-	ImUiColor				color;
+	ImUiRect		rect;
+	ImUiBorder		border;
+	ImUiTexCoord	uv;
+	ImUiSize		texSize;
+	ImUiColor		color;
 };
 
 struct ImUiDrawElementDataText
 {
-	ImUiPosition			position;
-	ImUiColor				color;
-	ImUiTextLayout*			layout;
+	ImUiPos			pos;
+	ImUiColor		color;
+	ImUiTextLayout*	layout;
 };
 
 typedef union ImUiDrawElementData ImUiDrawElementData;

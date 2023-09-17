@@ -109,7 +109,7 @@ bool ImUiHashMapConstructSize( ImUiHashMap* hashMap, ImUiAllocator* allocator, u
 	initialSize |= initialSize >> 16;
 	initialSize++;
 
-	const uintsize entriesInUseCount = (initialSize + 64u - 1) & (0 - 64u);
+	const uintsize entriesInUseCount = (initialSize + 64u - 1) & (0 - 64);
 
 	hashMap->allocator			= allocator;
 	hashMap->entriesInUse		= IMUI_MEMORY_ARRAY_NEW_ZERO( allocator, uint64, entriesInUseCount );

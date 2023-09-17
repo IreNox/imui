@@ -176,13 +176,13 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 		}
 
 		glyph->codepoint	= codepoint;
-		glyph->position		= ImUiPositionCreate( x, codepointInfo->ascentOffset );
+		glyph->pos			= ImUiPosCreate( x, codepointInfo->ascentOffset );
 		glyph->size			= ImUiSizeCreate( (float)codepointInfo->width, (float)codepointInfo->height );
 		glyph->uv			= codepointInfo->uv;
 
 		glyphIndex++;
 		x += codepointInfo->advance;
-		height = IMUI_MAX( height, glyph->position.y + glyph->size.height );
+		height = IMUI_MAX( height, glyph->pos.y + glyph->size.height );
 	}
 
 	layout->font		= parameters->font;

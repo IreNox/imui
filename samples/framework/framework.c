@@ -755,11 +755,11 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t siz
 
 	if( horizontal )
 	{
-		skin->border	= ImUiThicknessCreateVerticalHorizontal( 0.0f, radius );
+		skin->border	= ImUiBorderCreateHorizontalVertical( radius, 0.0f );
 	}
 	else
 	{
-		skin->border	= ImUiThicknessCreateAll( radius );
+		skin->border	= ImUiBorderCreateAll( radius );
 	}
 
 	return texture->data != NULL;

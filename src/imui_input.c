@@ -73,22 +73,22 @@ void ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button )
 
 void ImUiInputPushMouseMove( ImUiInput* input, float x, float y )
 {
-	input->currentState.mousePosition = ImUiPositionCreate( x, y );
+	input->currentState.mousePos = ImUiPosCreate( x, y );
 }
 
 void ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float deltaY )
 {
-	input->currentState.mousePosition = ImUiPositionAdd( input->currentState.mousePosition, deltaX, deltaY );
+	input->currentState.mousePos = ImUiPosAdd( input->currentState.mousePos, deltaX, deltaY );
 }
 
 void ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset )
 {
-	input->currentState.mouseScroll = ImUiPositionCreate( horizontalOffset, verticalOffset );
+	input->currentState.mouseScroll = ImUiPosCreate( horizontalOffset, verticalOffset );
 }
 
 void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta )
 {
-	input->currentState.mouseScroll = ImUiPositionAddPos( input->currentState.mouseScroll, ImUiPositionCreate( horizontalDelta, verticalDelta ) );
+	input->currentState.mouseScroll = ImUiPosAddPos( input->currentState.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
 uint32_t ImUiInputGetKeyModifiers( ImUiContext* imui )
@@ -116,14 +116,14 @@ bool ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key )
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
-ImUiPosition ImUiInputGetMousePosition( ImUiContext* imui )
+ImUiPos ImUiInputGetMousePos( ImUiContext* imui )
 {
-	return imui->input.currentState.mousePosition;
+	return imui->input.currentState.mousePos;
 }
 
-bool ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle )
+bool ImUiInputIsMouseInRect( ImUiContext* imui, ImUiRect rectangle )
 {
-	return ImUiRectangleIncludesPosition( rectangle, imui->input.currentState.mousePosition );
+	return ImUiRectIncludesPos( rectangle, imui->input.currentState.mousePos );
 }
 
 bool ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button )
@@ -150,7 +150,7 @@ void ImUiInputGetWidgetState( ImUiWidget* widget, ImUiInputWidgetState* target )
 {
 	ImUiInput* input = &widget->window->imui->input;
 
-	target->isMouseOver			= ImUiRectangleIncludesPosition( widget->rectangle, input->currentState.mousePosition );
+	target->isMouseOver			= ImUiRectIncludesPos( widget->rect, input->currentState.mousePos );
 	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
 	target->hasMouseReleased	= target->isMouseOver && !input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] && input->lastState.mouseButtons[ ImUiInputMouseButton_Left ];
 }

@@ -91,7 +91,7 @@ enum ImUiVertexElementSemantic
 typedef struct ImUiVertexElement ImUiVertexElement;
 struct ImUiVertexElement
 {
-	uint32_t					alignment;
+	uint32_t					align;
 	ImUiVertexElementType		type;
 	ImUiVertexElementSemantic	semantic;
 };
@@ -137,7 +137,7 @@ struct ImUiDrawCommand
 {
 	ImUiDrawTopology		topology;
 	void*					texture;
-	//ImUiRectangle			clipRect;
+	//ImUiRect				clipRect;
 	size_t					offset;				// index offset if index buffer is used otherwise vertex offset
 	size_t					count;				// same as offset but count
 };
@@ -180,8 +180,8 @@ struct ImUiColor
 	float					alpha;
 };
 
-typedef struct ImUiThickness ImUiThickness;
-struct ImUiThickness
+typedef struct ImUiBorder ImUiBorder;
+struct ImUiBorder
 {
 	float					top;
 	float					left;
@@ -189,31 +189,31 @@ struct ImUiThickness
 	float					right;
 };
 
-typedef enum ImUiHorizontalAlignment ImUiHorizontalAlignment;
-enum ImUiHorizontalAlignment
+typedef enum ImUiHAlign ImUiHAlign;
+enum ImUiHAlign
 {
-	ImUiHorizintalAlignment_Left,
-	ImUiHorizintalAlignment_Center,
-	ImUiHorizintalAlignment_Right
+	ImUiHAlign_Left,
+	ImUiHAlign_Center,
+	ImUiHAlign_Right
 };
 
-typedef enum ImUiVerticalAlignment ImUiVerticalAlignment;
-enum ImUiVerticalAlignment
+typedef enum ImUiVAlign ImUiVAlign;
+enum ImUiVAlign
 {
-	ImUiVerticalAlignment_Top,
-	ImUiVerticalAlignment_Center,
-	ImUiVerticalAlignment_Bottom
+	ImUiVAlign_Top,
+	ImUiVAlign_Center,
+	ImUiVAlign_Bottom
 };
 
-typedef struct ImUiAlignment ImUiAlignment;
-struct ImUiAlignment
+typedef struct ImUiAlign ImUiAlign;
+struct ImUiAlign
 {
-	ImUiHorizontalAlignment	horizontal;
-	ImUiVerticalAlignment	vertical;
+	ImUiHAlign				horizontal;
+	ImUiVAlign				vertical;
 };
 
-typedef struct ImUiPosition ImUiPosition;
-struct ImUiPosition
+typedef struct ImUiPos ImUiPos;
+struct ImUiPos
 {
 	float					x;
 	float					y;
@@ -226,15 +226,15 @@ struct ImUiSize
 	float					height;
 };
 
-typedef struct ImUiRectangle ImUiRectangle;
-struct ImUiRectangle
+typedef struct ImUiRect ImUiRect;
+struct ImUiRect
 {
-	ImUiPosition			position;
+	ImUiPos					pos;
 	ImUiSize				size;
 };
 
-typedef struct ImUiTextureCooridinate ImUiTextureCooridinate;
-struct ImUiTextureCooridinate
+typedef struct ImUiTexCoord ImUiTexCoord;
+struct ImUiTexCoord
 {
 	float					u0;
 	float					v0;
@@ -253,8 +253,8 @@ typedef struct ImUiSkin ImUiSkin;
 struct ImUiSkin
 {
 	ImUiTexture				texture;
-	ImUiThickness			border;
-	ImUiTextureCooridinate	uv;
+	ImUiBorder				border;
+	ImUiTexCoord			uv;
 };
 
 typedef enum ImUiLayout ImUiLayout;
@@ -280,7 +280,7 @@ float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 //////////////////////////////////////////////////////////////////////////
 // Window - A part of a Surface with z ordering
 
-ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRectangle rectangle, uint32_t zOrder );
+ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect rect, uint32_t zOrder );
 void						ImUiWindowEnd( ImUiWindow* window );
 
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
@@ -296,17 +296,17 @@ void						ImUiWidgetEnd( ImUiWidget* widget );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
 void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
-void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPosition offset );
+void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPos offset );
 void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutVerical( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
 
-ImUiThickness				ImUiWidgetGetMargin( const ImUiWidget* widget );
-void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiThickness margin );
-ImUiThickness				ImUiWidgetGetPadding( const ImUiWidget* widget );
-void						ImUiWidgetSetPadding( ImUiWidget* widget, ImUiThickness padding );
+ImUiBorder					ImUiWidgetGetMargin( const ImUiWidget* widget );
+void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin );
+ImUiBorder					ImUiWidgetGetPadding( const ImUiWidget* widget );
+void						ImUiWidgetSetPadding( ImUiWidget* widget, ImUiBorder padding );
 
 ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
@@ -320,22 +320,22 @@ void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
 ImUiSize					ImUiWidgetGetStretch( const ImUiWidget* widget );
 void						ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch );
 
-ImUiAlignment				ImUiWidgetGetAlignment( const ImUiWidget* widget );
-void						ImUiWidgetSetAlignment( ImUiWidget* widget, ImUiAlignment alignment );
-void						ImUiWidgetSetHorizintalAlignment( ImUiWidget* widget, ImUiHorizontalAlignment alignment );
-void						ImUiWidgetSetVerticalAlignment( ImUiWidget* widget, ImUiVerticalAlignment alignment );
+ImUiAlign					ImUiWidgetGetAlign( const ImUiWidget* widget );
+void						ImUiWidgetSetAlign( ImUiWidget* widget, ImUiAlign align );
+void						ImUiWidgetSetHAlign( ImUiWidget* widget, ImUiHAlign align );
+void						ImUiWidgetSetVAlign( ImUiWidget* widget, ImUiVAlign align );
 
-ImUiPosition				ImUiWidgetGetPosition( const ImUiWidget* widget );
+ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
-ImUiRectangle				ImUiWidgetGetRectangle( const ImUiWidget* widget );
+ImUiRect					ImUiWidgetGetRect( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetInnerSize( const ImUiWidget* widget );
-ImUiRectangle				ImUiWidgetGetInnerRectangle( const ImUiWidget* widget );
+ImUiRect					ImUiWidgetGetInnerRect( const ImUiWidget* widget );
 
 //////////////////////////////////////////////////////////////////////////
 // Widget Draw
 // see imui_draw.c
 
-void						ImUiDrawLine( ImUiWidget* widget, ImUiPosition p0, ImUiPosition p1, ImUiColor color );
+void						ImUiDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color );
 void						ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color );
 void						ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture );
 void						ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiColor color );
@@ -343,15 +343,15 @@ void						ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin );
 void						ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color );
 void						ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout );
 void						ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
-void						ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor color );
-void						ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture );
-void						ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv );
-void						ImUiDrawRectangleTextureColor( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color );
-void						ImUiDrawRectangleTextureColorUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
-void						ImUiDrawSkin( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin );
-void						ImUiDrawSkinColor( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin, ImUiColor color );
-void						ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout );
-void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color );
+void						ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color );
+void						ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture );
+void						ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv );
+void						ImUiDrawRectTextureColor( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color );
+void						ImUiDrawRectTextureColorUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color, ImUiTexCoord uv );
+void						ImUiDrawSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin );
+void						ImUiDrawSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color );
+void						ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout );
+void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout, ImUiColor color );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -533,8 +533,8 @@ bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
 ImUiInputKey					ImUiInputGetKeyRepeate( ImUiContext* imui, size_t index );
 size_t							ImUiInputGetKeyRepeateCount( ImUiContext* imui );
 
-ImUiPosition					ImUiInputGetMousePosition( ImUiContext* imui );
-bool							ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle );
+ImUiPos							ImUiInputGetMousePos( ImUiContext* imui );
+bool							ImUiInputIsMouseInRect( ImUiContext* imui, ImUiRect rect );
 bool							ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button );
@@ -558,7 +558,7 @@ struct ImUiFontCodepoint
 	float						height;
 	float						advance;
 	float						ascentOffset;
-	ImUiTextureCooridinate		uv;
+	ImUiTexCoord		uv;
 };
 
 typedef struct ImUiFontParameters ImUiFontParameters;
@@ -606,15 +606,15 @@ ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 ImUiHash						ImUiHashString( ImUiStringView string, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
 
-ImUiAlignment					ImUiAlignmentCreate( ImUiHorizontalAlignment horizintal, ImUiVerticalAlignment vertical );
-ImUiAlignment					ImUiAlignmentCreateCenter();
+ImUiAlign						ImUiAlignCreate( ImUiHAlign horizintal, ImUiVAlign vertical );
+ImUiAlign						ImUiAlignCreateCenter();
 
-ImUiPosition					ImUiPositionCreate( float x, float y );
-ImUiPosition					ImUiPositionAdd( ImUiPosition pos, float x, float y );
-ImUiPosition					ImUiPositionAddPos( ImUiPosition pos, ImUiPosition add );
-ImUiPosition					ImUiPositionSub( ImUiPosition pos, float x, float y );
-ImUiPosition					ImUiPositionSubPos( ImUiPosition pos, ImUiPosition sub );
-ImUiPosition					ImUiPositionScale( ImUiPosition pos, float factor );
+ImUiPos							ImUiPosCreate( float x, float y );
+ImUiPos							ImUiPosAdd( ImUiPos pos, float x, float y );
+ImUiPos							ImUiPosAddPos( ImUiPos pos, ImUiPos add );
+ImUiPos							ImUiPosSub( ImUiPos pos, float x, float y );
+ImUiPos							ImUiPosSubPos( ImUiPos pos, ImUiPos sub );
+ImUiPos							ImUiPosScale( ImUiPos pos, float factor );
 
 ImUiSize						ImUiSizeCreate( float width, float height );
 ImUiSize						ImUiSizeCreateAll( float value );
@@ -631,31 +631,31 @@ ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
 ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
 ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
-ImUiSize						ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness );
-ImUiSize						ImUiSizeExpandThickness( ImUiSize size, ImUiThickness thickness );
+ImUiSize						ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border );
+ImUiSize						ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border );
 
-ImUiThickness					ImUiThicknessCreate( float top, float left, float bottom, float right );
-ImUiThickness					ImUiThicknessCreateAll( float all );
-ImUiThickness					ImUiThicknessCreateVerticalHorizontal( float vertical, float horizontal );
-ImUiSize						ImUiThicknessGetMinSize( ImUiThickness thickness );
+ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
+ImUiBorder						ImUiBorderCreateAll( float all );
+ImUiBorder						ImUiBorderCreateHorizontalVertical( float horizontal, float vertical );
+ImUiSize						ImUiBorderGetMinSize( ImUiBorder border );
 
-ImUiRectangle					ImUiRectangleCreate( float x, float y, float width, float height );
-ImUiRectangle					ImUiRectangleCreatePos( ImUiPosition pos, float width, float height );
-ImUiRectangle					ImUiRectangleCreateSize( float x, float y, ImUiSize size );
-ImUiRectangle					ImUiRectangleCreatePosSize( ImUiPosition pos, ImUiSize size );
-ImUiRectangle					ImUiRectangleCreateCenter( float x, float y, float width, float height );
-ImUiRectangle					ImUiRectangleCreateCenterPos( ImUiPosition pos, float width, float height );
-ImUiRectangle					ImUiRectangleCreateCenterSize( float x, float y, ImUiSize size );
-ImUiRectangle					ImUiRectangleCreateCenterPosSize( ImUiPosition pos, ImUiSize size );
-ImUiRectangle					ImUiRectangleShrinkThickness( ImUiRectangle rect, ImUiThickness thickness );
-bool							ImUiRectangleIncludesPosition( ImUiRectangle rect, ImUiPosition position );
-bool							ImUiRectangleIntersectsRectangle( ImUiRectangle rect1, ImUiRectangle rect2 );
-ImUiPosition					ImUiRectangleGetTopLeft( ImUiRectangle rect );
-ImUiPosition					ImUiRectangleGetTopRight( ImUiRectangle rect );
-ImUiPosition					ImUiRectangleGetBottomLeft( ImUiRectangle rect );
-ImUiPosition					ImUiRectangleGetBottomRight( ImUiRectangle rect );
-float							ImUiRectangleGetRight( ImUiRectangle rect );
-float							ImUiRectangleGetBottom( ImUiRectangle rect );
+ImUiRect						ImUiRectCreate( float x, float y, float width, float height );
+ImUiRect						ImUiRectCreatePos( ImUiPos pos, float width, float height );
+ImUiRect						ImUiRectCreateSize( float x, float y, ImUiSize size );
+ImUiRect						ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size );
+ImUiRect						ImUiRectCreateCenter( float x, float y, float width, float height );
+ImUiRect						ImUiRectCreateCenterPos( ImUiPos pos, float width, float height );
+ImUiRect						ImUiRectCreateCenterSize( float x, float y, ImUiSize size );
+ImUiRect						ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size );
+ImUiRect						ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border );
+bool							ImUiRectIncludesPos( ImUiRect rect, ImUiPos pos );
+bool							ImUiRectIntersectsRect( ImUiRect rect1, ImUiRect rect2 );
+ImUiPos							ImUiRectGetTopLeft( ImUiRect rect );
+ImUiPos							ImUiRectGetTopRight( ImUiRect rect );
+ImUiPos							ImUiRectGetBottomLeft( ImUiRect rect );
+ImUiPos							ImUiRectGetBottomRight( ImUiRect rect );
+float							ImUiRectGetRight( ImUiRect rect );
+float							ImUiRectGetBottom( ImUiRect rect );
 
 ImUiColor						ImUiColorCreate( float red, float green, float blue, float alpha );
 ImUiColor						ImUiColorCreateBlack( float alpha );

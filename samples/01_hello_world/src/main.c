@@ -20,7 +20,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiTextLayout* text = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ" ) );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	const float timeSin = sinf( s_time / -2.0f ) * 0.5f + 0.5f;
 	const float timeCos = cosf( s_time / -2.0f ) * 0.5f + 0.5f;
@@ -56,14 +56,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hCenter" ) );
 			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
-			ImUiWidgetSetPadding( hCenter, ImUiThicknessCreateAll( 50.0f ) );
+			ImUiWidgetSetPadding( hCenter, ImUiBorderCreateAll( 50.0f ) );
 
 			ImUiDrawWidgetColor( hCenter, ImUiColorCreate( timeR, timeG, timeB, 1.0f ) );
 
 			ImUiWidget* centerText = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
 			ImUiWidgetSetFixedSize( centerText, ImUiTextLayoutGetSize( text ) );
 
-			ImUiDrawText( centerText, ImUiWidgetGetPosition( centerText ), text );
+			ImUiDrawText( centerText, ImUiWidgetGetPos( centerText ), text );
 
 			ImUiWidgetEnd( centerText );
 
@@ -90,53 +90,10 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 bool ImUiFrameworkInitialize( ImUiContext* imui )
 {
-	uint8_t* fileData;
-	size_t fileSize;
-	{
-		FILE* file = fopen( "c:/windows/fonts/arial.ttf", "rb" );
-
-		fseek( file, 0, SEEK_END );
-		fpos_t fileSizeS;
-		fgetpos( file, &fileSizeS );
-		fileSize = (size_t)fileSizeS;
-		fseek( file, 0, SEEK_SET );
-
-		fileData = (uint8_t*)malloc( fileSize );
-		fread( fileData, fileSize, 1, file );
-		fclose( file );
-	}
-
-	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( imui, fileData, fileSize );
-
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
-
-	uint32_t width;
-	uint32_t height;
-	const float fontSize = 32.0f;
-	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
-	width = (width + 4u - 1u) & (0 - 4);
-	height = (height + 4u - 1u) & (0 - 4);
-
-	void* textureData = malloc( width * height );
-	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
-
-	s_fontTexture.data = (void*)(uint64_t)ImUiFrameworkTextureCreate( textureData, width, height, true );
-	s_fontTexture.size = ImUiSizeCreate( (float)width, (float)height );
-
-	free( textureData );
-
-	s_font = ImUiFontCreateTrueType( imui, image, s_fontTexture );
-
-	ImUiFontTrueTypeDataDestroy( ttf );
-	free( fileData );
-	return true;
+	return ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 32.0f );
 }
 
 void ImUiFrameworkShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)s_fontTexture.data );
-
-	ImUiFontDestroy( imui, s_font );
+	ImUiFrameworkFontDestroy( &s_font, &s_fontTexture );
 }

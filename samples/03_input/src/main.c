@@ -12,17 +12,17 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
 	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
-	ImUiWidgetSetAlignment( cLayout, ImUiAlignmentCreateCenter() );
+	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
 
 	ImUiDrawWidgetColor( cLayout, ImUiColorCreateWhite( 1.0f ) );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
-	ImUiWidgetSetPadding( hLayout, ImUiThicknessCreateAll( 20.0f ) );
+	ImUiWidgetSetPadding( hLayout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );
 
 	for( size_t i = 0u; i < 5u; ++i )

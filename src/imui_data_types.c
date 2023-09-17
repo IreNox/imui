@@ -88,51 +88,51 @@ ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )
 	return hash1 ^ hash2;
 }
 
-ImUiAlignment ImUiAlignmentCreate( ImUiHorizontalAlignment horizintal, ImUiVerticalAlignment vertical )
+ImUiAlign ImUiAlignCreate( ImUiHAlign horizintal, ImUiVAlign vertical )
 {
-	const ImUiAlignment align = { horizintal, vertical };
+	const ImUiAlign align = { horizintal, vertical };
 	return align;
 }
 
-ImUiAlignment ImUiAlignmentCreateCenter()
+ImUiAlign ImUiAlignCreateCenter()
 {
-	const ImUiAlignment align = { ImUiHorizintalAlignment_Center, ImUiVerticalAlignment_Center };
+	const ImUiAlign align = { ImUiHAlign_Center, ImUiVAlign_Center };
 	return align;
 }
 
-ImUiPosition ImUiPositionCreate( float x, float y )
+ImUiPos ImUiPosCreate( float x, float y )
 {
-	const ImUiPosition pos = { x, y };
+	const ImUiPos pos = { x, y };
 	return pos;
 }
 
-ImUiPosition ImUiPositionAdd( ImUiPosition pos, float x, float y )
+ImUiPos ImUiPosAdd( ImUiPos pos, float x, float y )
 {
-	const ImUiPosition result = { pos.x + x, pos.y + y };
+	const ImUiPos result = { pos.x + x, pos.y + y };
 	return result;
 }
 
-ImUiPosition ImUiPositionAddPos( ImUiPosition pos, ImUiPosition add )
+ImUiPos ImUiPosAddPos( ImUiPos pos, ImUiPos add )
 {
-	const ImUiPosition result = { pos.x + add.x, pos.y + add.y };
+	const ImUiPos result = { pos.x + add.x, pos.y + add.y };
 	return result;
 }
 
-ImUiPosition ImUiPositionSub( ImUiPosition pos, float x, float y )
+ImUiPos ImUiPosSub( ImUiPos pos, float x, float y )
 {
-	const ImUiPosition result = { pos.x - x, pos.y - y };
+	const ImUiPos result = { pos.x - x, pos.y - y };
 	return result;
 }
 
-ImUiPosition ImUiPositionSubPos( ImUiPosition pos, ImUiPosition sub )
+ImUiPos ImUiPosSubPos( ImUiPos pos, ImUiPos sub )
 {
-	const ImUiPosition result = { pos.x + sub.x, pos.y + sub.y };
+	const ImUiPos result = { pos.x + sub.x, pos.y + sub.y };
 	return result;
 }
 
-ImUiPosition ImUiPositionScale( ImUiPosition pos, float factor )
+ImUiPos ImUiPosScale( ImUiPos pos, float factor )
 {
-	const ImUiPosition result = { pos.x * factor, pos.y * factor };
+	const ImUiPos result = { pos.x * factor, pos.y * factor };
 	return result;
 }
 
@@ -242,151 +242,151 @@ ImUiSize ImUiSizeMax( ImUiSize a, ImUiSize b )
 	return result;
 }
 
-ImUiSize ImUiSizeShrinkThickness( ImUiSize size, ImUiThickness thickness )
+ImUiSize ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border )
 {
 	const ImUiSize result =
 	{
-		size.width - (thickness.left + thickness.right),
-		size.height - (thickness.top + thickness.bottom)
+		size.width - (border.left + border.right),
+		size.height - (border.top + border.bottom)
 	};
 	return result;
 }
 
-ImUiSize ImUiSizeExpandThickness( ImUiSize size, ImUiThickness thickness )
+ImUiSize ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border )
 {
 	const ImUiSize result =
 	{
-		size.width + thickness.left + thickness.right,
-		size.height + thickness.top + thickness.bottom
+		size.width + border.left + border.right,
+		size.height + border.top + border.bottom
 	};
 	return result;
 }
 
-ImUiThickness ImUiThicknessCreate( float top, float left, float bottom, float right )
+ImUiBorder ImUiBorderCreate( float top, float left, float bottom, float right )
 {
-	const ImUiThickness thickness = { top, left, bottom, right };
-	return thickness;
-}
-
-ImUiThickness ImUiThicknessCreateAll( float all )
-{
-	const ImUiThickness thickness = { all, all, all, all };
-	return thickness;
-}
-
-ImUiThickness ImUiThicknessCreateVerticalHorizontal( float vertical, float horizontal )
-{
-	const ImUiThickness thickness = { vertical, horizontal, vertical, horizontal };
-	return thickness;
-}
-
-ImUiSize ImUiThicknessGetMinSize( ImUiThickness thickness )
-{
-	const ImUiSize result = { thickness.left + thickness.right, thickness.top + thickness.bottom };
+	const ImUiBorder result = { top, left, bottom, right };
 	return result;
 }
 
-ImUiRectangle ImUiRectangleCreate( float x, float y, float width, float height )
+ImUiBorder ImUiBorderCreateAll( float all )
 {
-	const ImUiRectangle rect = { { x, y }, { width, height } };
+	const ImUiBorder result = { all, all, all, all };
+	return result;
+}
+
+ImUiBorder ImUiBorderCreateHorizontalVertical( float horizontal, float vertical )
+{
+	const ImUiBorder result = { vertical, horizontal, vertical, horizontal };
+	return result;
+}
+
+ImUiSize ImUiBorderGetMinSize( ImUiBorder border )
+{
+	const ImUiSize result = { border.left + border.right, border.top + border.bottom };
+	return result;
+}
+
+ImUiRect ImUiRectCreate( float x, float y, float width, float height )
+{
+	const ImUiRect rect = { { x, y }, { width, height } };
 	return rect;
 }
 
-ImUiRectangle ImUiRectangleCreatePos( ImUiPosition pos, float width, float height )
+ImUiRect ImUiRectCreatePos( ImUiPos pos, float width, float height )
 {
-	const ImUiRectangle rect = { pos, { width, height } };
+	const ImUiRect rect = { pos, { width, height } };
 	return rect;
 }
 
-ImUiRectangle ImUiRectangleCreateSize( float x, float y, ImUiSize size )
+ImUiRect ImUiRectCreateSize( float x, float y, ImUiSize size )
 {
-	const ImUiRectangle rect = { { x, y }, size };
+	const ImUiRect rect = { { x, y }, size };
 	return rect;
 }
 
-ImUiRectangle ImUiRectangleCreatePosSize( ImUiPosition pos, ImUiSize size )
+ImUiRect ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size )
 {
-	const ImUiRectangle rect = { pos, size };
+	const ImUiRect rect = { pos, size };
 	return rect;
 }
 
-ImUiRectangle ImUiRectangleCreateCenter( float x, float y, float width, float height )
+ImUiRect ImUiRectCreateCenter( float x, float y, float width, float height )
 {
 	const float halfWidth	= width * 0.5f;
 	const float halfHeight	= height * 0.5f;
-	const ImUiRectangle rect = { { x - halfWidth, y - halfHeight }, { width, height } };
+	const ImUiRect rect = { { x - halfWidth, y - halfHeight }, { width, height } };
 	return rect;
 }
 
-ImUiRectangle ImUiRectangleCreateCenterPos( ImUiPosition pos, float width, float height )
+ImUiRect ImUiRectCreateCenterPos( ImUiPos pos, float width, float height )
 {
-	return ImUiRectangleCreateCenter( pos.x, pos.y, width, height );
+	return ImUiRectCreateCenter( pos.x, pos.y, width, height );
 }
 
-ImUiRectangle ImUiRectangleCreateCenterSize( float x, float y, ImUiSize size )
+ImUiRect ImUiRectCreateCenterSize( float x, float y, ImUiSize size )
 {
-	return ImUiRectangleCreateCenter( x, y, size.width, size.height );
+	return ImUiRectCreateCenter( x, y, size.width, size.height );
 }
 
-ImUiRectangle ImUiRectangleCreateCenterPosSize( ImUiPosition pos, ImUiSize size )
+ImUiRect ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size )
 {
-	return ImUiRectangleCreateCenter( pos.x, pos.y, size.width, size.height );
+	return ImUiRectCreateCenter( pos.x, pos.y, size.width, size.height );
 }
 
-ImUiRectangle ImUiRectangleShrinkThickness( ImUiRectangle rect, ImUiThickness thickness )
+ImUiRect ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border )
 {
-	const ImUiRectangle result =
+	const ImUiRect result =
 	{
-		{ rect.position.x + thickness.left, rect.position.y + thickness.top},
-		{ rect.size.width - thickness.left - thickness.right, rect.size.height - thickness.top - thickness.bottom }
+		{ rect.pos.x + border.left, rect.pos.y + border.top},
+		{ rect.size.width - border.left - border.right, rect.size.height - border.top - border.bottom }
 	};
 	return result;
 }
 
-bool ImUiRectangleIncludesPosition( ImUiRectangle rect, ImUiPosition position )
+bool ImUiRectIncludesPos( ImUiRect rect, ImUiPos pos )
 {
-	return position.x >= rect.position.x &&
-		position.y >= rect.position.y &&
-		position.x <= rect.position.x + rect.size.width &&
-		position.y <= rect.position.y + rect.size.height;
+	return pos.x >= rect.pos.x &&
+		pos.y >= rect.pos.y &&
+		pos.x <= rect.pos.x + rect.size.width &&
+		pos.y <= rect.pos.y + rect.size.height;
 }
 
-bool ImUiRectangleIntersectsRectangle( ImUiRectangle rect1, ImUiRectangle rect2 )
+bool ImUiRectIntersectsRect( ImUiRect rect1, ImUiRect rect2 )
 {
-	return rect2.position.y < rect1.position.y + rect1.size.height &&
-		rect2.position.y + rect2.size.height > rect1.position.y &&
-		rect2.position.x < rect1.position.x + rect1.size.width &&
-		rect2.position.x + rect2.size.width > rect1.position.x;
+	return rect2.pos.y < rect1.pos.y + rect1.size.height &&
+		rect2.pos.y + rect2.size.height > rect1.pos.y &&
+		rect2.pos.x < rect1.pos.x + rect1.size.width &&
+		rect2.pos.x + rect2.size.width > rect1.pos.x;
 }
 
-ImUiPosition ImUiRectangleGetTopLeft( ImUiRectangle rect )
+ImUiPos ImUiRectGetTopLeft( ImUiRect rect )
 {
-	return rect.position;
+	return rect.pos;
 }
 
-ImUiPosition ImUiRectangleGetTopRight( ImUiRectangle rect )
+ImUiPos ImUiRectGetTopRight( ImUiRect rect )
 {
-	return ImUiPositionAdd( rect.position, rect.size.width, 0.0f );
+	return ImUiPosAdd( rect.pos, rect.size.width, 0.0f );
 }
 
-ImUiPosition ImUiRectangleGetBottomLeft( ImUiRectangle rect )
+ImUiPos ImUiRectGetBottomLeft( ImUiRect rect )
 {
-	return ImUiPositionAdd( rect.position, 0.0f, rect.size.height );
+	return ImUiPosAdd( rect.pos, 0.0f, rect.size.height );
 }
 
-ImUiPosition ImUiRectangleGetBottomRight( ImUiRectangle rect )
+ImUiPos ImUiRectGetBottomRight( ImUiRect rect )
 {
-	return ImUiPositionAdd( rect.position, rect.size.width, rect.size.height );
+	return ImUiPosAdd( rect.pos, rect.size.width, rect.size.height );
 }
 
-float ImUiRectangleGetRight( ImUiRectangle rect )
+float ImUiRectGetRight( ImUiRect rect )
 {
-	return rect.position.x + rect.size.width;
+	return rect.pos.x + rect.size.width;
 }
 
-float ImUiRectangleGetBottom( ImUiRectangle rect )
+float ImUiRectGetBottom( ImUiRect rect )
 {
-	return rect.position.y + rect.size.height;
+	return rect.pos.y + rect.size.height;
 }
 
 ImUiColor ImUiColorCreate( float red, float green, float blue, float alpha )
