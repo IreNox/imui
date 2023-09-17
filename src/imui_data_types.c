@@ -118,6 +118,24 @@ ImUiPosition ImUiPositionAddPos( ImUiPosition pos, ImUiPosition add )
 	return result;
 }
 
+ImUiPosition ImUiPositionSub( ImUiPosition pos, float x, float y )
+{
+	const ImUiPosition result = { pos.x - x, pos.y - y };
+	return result;
+}
+
+ImUiPosition ImUiPositionSubPos( ImUiPosition pos, ImUiPosition sub )
+{
+	const ImUiPosition result = { pos.x + sub.x, pos.y + sub.y };
+	return result;
+}
+
+ImUiPosition ImUiPositionScale( ImUiPosition pos, float factor )
+{
+	const ImUiPosition result = { pos.x * factor, pos.y * factor };
+	return result;
+}
+
 ImUiSize ImUiSizeCreate( float width, float height )
 {
 	const ImUiSize size = { width, height };
@@ -163,6 +181,12 @@ ImUiSize ImUiSizeSub( ImUiSize size, float width, float height )
 ImUiSize ImUiSizeSubSize( ImUiSize size, ImUiSize sub )
 {
 	const ImUiSize result = { size.width - sub.width, size.height - sub.height };
+	return result;
+}
+
+ImUiSize ImUiSizeScale( ImUiSize size, float factor )
+{
+	const ImUiSize result = { size.width * factor, size.height * factor };
 	return result;
 }
 
@@ -242,6 +266,12 @@ ImUiThickness ImUiThicknessCreateVerticalHorizontal( float vertical, float horiz
 {
 	const ImUiThickness thickness = { vertical, horizontal, vertical, horizontal };
 	return thickness;
+}
+
+ImUiSize ImUiThicknessGetMinSize( ImUiThickness thickness )
+{
+	const ImUiSize result = { thickness.left + thickness.right, thickness.top + thickness.bottom };
+	return result;
 }
 
 ImUiRectangle ImUiRectangleCreate( float x, float y, float width, float height )
@@ -335,6 +365,16 @@ ImUiPosition ImUiRectangleGetBottomLeft( ImUiRectangle rect )
 ImUiPosition ImUiRectangleGetBottomRight( ImUiRectangle rect )
 {
 	return ImUiPositionAdd( rect.position, rect.size.width, rect.size.height );
+}
+
+float ImUiRectangleGetRight( ImUiRectangle rect )
+{
+	return rect.position.x + rect.size.width;
+}
+
+float ImUiRectangleGetBottom( ImUiRectangle rect )
+{
+	return rect.position.y + rect.size.height;
 }
 
 ImUiColor ImUiColorCreate( float red, float green, float blue, float alpha )

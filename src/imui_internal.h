@@ -54,6 +54,7 @@ struct ImUiWidgetLayoutContext
 	ImUiSize		childrenStretch;
 	ImUiSize		childrenMaxStretch;
 	ImUiSize		childrenMinSize;
+	ImUiSize		childrenMargin;
 };
 
 struct ImUiLayoutScrollData
