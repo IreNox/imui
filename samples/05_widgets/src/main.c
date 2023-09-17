@@ -8,15 +8,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static ImUiTexture	s_skinTexture	= { NULL };
-static ImUiTexture	s_fontTexture	= { NULL };
-static ImUiFont*	s_font			= NULL;
+static ImUiTexture	s_fontTexture		= { NULL };
+static ImUiFont*	s_font				= NULL;
+
+static ImUiSkin		s_skinRect			= { NULL };
+static ImUiTexture	s_skinRectTexture	= { NULL };
+static ImUiSkin		s_skinLine			= { NULL };
+static ImUiTexture	s_skinLineTexture	= { NULL };
 
 static void			ImUiTestSetConfig();
 
 void ImUiFrameworkTick( ImUiSurface* surface )
 {
+#if 0
+	ImUiFrameworkShutdown( ImUiSurfaceGetContext( surface ) );
+	ImUiFrameworkInitialize( ImUiSurfaceGetContext( surface ) );
+#endif
+#if 1
 	ImUiTestSetConfig();
+#endif
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
@@ -90,89 +100,20 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 bool ImUiFrameworkInitialize( ImUiContext* imui )
 {
-	uint8_t* fileData;
-	size_t fileSize;
+	if( !ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
 	{
-		FILE* file = fopen( "c:/windows/fonts/arial.ttf", "rb" );
-
-		fseek( file, 0, SEEK_END );
-		fpos_t fileSizeS;
-		fgetpos( file, &fileSizeS );
-		fileSize = (size_t)fileSizeS;
-		fseek( file, 0, SEEK_SET );
-
-		fileData = (uint8_t*)malloc( fileSize );
-		fread( fileData, fileSize, 1, file );
-		fclose( file );
+		return false;
 	}
 
-	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( imui, fileData, fileSize );
-
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
-
-	uint32_t width;
-	uint32_t height;
-	const float fontSize = 14.0f;
-	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
-	width = (width + 4u - 1u) & (0 - 4);
-	height = (height + 4u - 1u) & (0 - 4);
-
-	void* textureData = malloc( width * height );
-	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
-
-	s_fontTexture.data = ImUiFrameworkTextureCreate( textureData, width, height, true );
-	s_fontTexture.size = ImUiSizeCreate( (float)width, (float)height );
-
-	free( textureData );
-
-	s_font = ImUiFontCreateTrueType( imui, image, s_fontTexture );
-
-	ImUiFontTrueTypeDataDestroy( ttf );
-	free( fileData );
-
-	uint8_t skinData[ 32u * 32u * 4u ];
-	for( uint8_t y = 0u; y < 32u; ++y )
+	if( !ImUiFrameworkSkinCreate( &s_skinRect, &s_skinRectTexture, 32u, 8.0f, 128.0f, false ) )
 	{
-		const float v = y / 32.0f;
-
-		uint8_t* line = skinData + (y * 32u * 4u);
-		for( uint8_t x = 0u; x < 32u; ++x )
-		{
-			const float u = x / 32.0f;
-
-			static const float s_points[][ 2u ] =
-			{
-				{ 0.0f, 0.0f },
-				{ 1.0f, 0.0f },
-				{ 0.0f, 1.0f },
-				{ 1.0f, 1.0f }
-			};
-
-			float minDis = FLT_MAX;
-			for( uint8_t i = 0u; i < 4u; ++i )
-			{
-				const float udiff = u - s_points[ i ][ 0u ];
-				const float vdiff = v - s_points[ i ][ 1u ];
-
-				const float dis = sqrtf( (udiff * udiff) + (vdiff * vdiff) );
-				minDis = minDis < dis ? minDis : dis;
-			}
-
-			minDis *= 750.0f;
-			const uint8_t value = minDis > 255.0f ? 255u : (uint8_t)minDis;
-
-			uint8_t* pixel = line + (x * 4u);
-			pixel[ 0u ]		= value;
-			pixel[ 1u ]		= value;
-			pixel[ 2u ]		= value;
-			pixel[ 3u ]		= 0xffu;
-		}
+		return false;
 	}
 
-	s_skinTexture.data = ImUiFrameworkTextureCreate( skinData, 32u, 32u, false );
-	s_skinTexture.size = ImUiSizeCreate( 32.0f, 32.0f );
+	if( !ImUiFrameworkSkinCreate( &s_skinLine, &s_skinLineTexture, 32u, 6.0f, 64.0f, true ) )
+	{
+		return false;
+	}
 
 	ImUiTestSetConfig();
 
@@ -181,10 +122,9 @@ bool ImUiFrameworkInitialize( ImUiContext* imui )
 
 void ImUiFrameworkShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)s_skinTexture.data );
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)s_fontTexture.data );
-
-	ImUiFontDestroy( imui, s_font );
+	ImUiFrameworkFontDestroy( &s_font, &s_fontTexture );
+	ImUiFrameworkSkinDestroy( &s_skinRect, &s_skinRectTexture );
+	ImUiFrameworkSkinDestroy( &s_skinLine, &s_skinLineTexture );
 }
 
 static void ImUiTestSetConfig()
@@ -204,21 +144,13 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiWidgetsColor_SliderBackground ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
 	config.colors[ ImUiWidgetsColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
 	config.colors[ ImUiWidgetsColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_SliderPivotClicked ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiWidgetsColor_SliderPivotClicked ]		= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
 
-	ImUiSkin skin;
-	skin.texture	= s_skinTexture;
-	skin.border		= ImUiThicknessCreateAll( 6.0f );
-	skin.uv.u0		= 0.0f;
-	skin.uv.v0		= 0.0f;
-	skin.uv.u1		= 1.0f;
-	skin.uv.v1		= 1.0f;
-
-	config.skins[ ImUiWidgetsSkin_Button ]						= skin;
-	config.skins[ ImUiWidgetsSkin_CheckBox ]					= skin;
-	config.skins[ ImUiWidgetsSkin_CheckBoxChecked ]				= skin;
-	config.skins[ ImUiWidgetsSkin_SliderBackground ]			= skin;
-	config.skins[ ImUiWidgetsSkin_SliderPivot ]					= skin;
+	config.skins[ ImUiWidgetsSkin_Button ]						= s_skinRect;
+	config.skins[ ImUiWidgetsSkin_CheckBox ]					= s_skinRect;
+	config.skins[ ImUiWidgetsSkin_CheckBoxChecked ]				= s_skinRect;
+	config.skins[ ImUiWidgetsSkin_SliderBackground ]			= s_skinLine;
+	config.skins[ ImUiWidgetsSkin_SliderPivot ]					= s_skinRect;
 
 	config.font					= s_font;
 

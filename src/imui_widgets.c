@@ -35,7 +35,10 @@ bool ImUiWidgetsButton( ImUiWindow* window, ImUiStringView text )
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( buttonText, textSize );
 
-	ImUiDrawWidgetTextColor( buttonText, layout, s_config.colors[ ImUiWidgetsColor_ButtonText ] );
+	if( layout )
+	{
+		ImUiDrawWidgetTextColor( buttonText, layout, s_config.colors[ ImUiWidgetsColor_ButtonText ] );
+	}
 
 	ImUiWidgetEnd( buttonText );
 
@@ -73,7 +76,10 @@ bool ImUiWidgetsCheckBox( ImUiWindow* window, ImUiStringView text, bool* checked
 	ImUiWidgetSetFixedSize( checkBoxText, textSize );
 	ImUiWidgetSetVerticalAlignment( checkBoxText, ImUiVerticalAlignment_Center );
 
-	ImUiDrawWidgetTextColor( checkBoxText, layout, s_config.colors[ ImUiWidgetsColor_Text ] );
+	if( layout )
+	{
+		ImUiDrawWidgetTextColor( checkBoxText, layout, s_config.colors[ ImUiWidgetsColor_Text ] );
+	}
 
 	ImUiWidgetEnd( checkBoxText );
 
@@ -95,7 +101,10 @@ void ImUiWidgetsLabel( ImUiWindow* window, ImUiStringView text )
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( label, textSize );
 
-	ImUiDrawWidgetTextColor( label, layout, s_config.colors[ ImUiWidgetsColor_Text ] );
+	if( layout )
+	{
+		ImUiDrawWidgetTextColor( label, layout, s_config.colors[ ImUiWidgetsColor_Text ] );
+	}
 
 	ImUiWidgetEnd( label );
 }
@@ -133,7 +142,7 @@ bool ImUiWidgetsSliderMinMax( ImUiWindow* window, float* value, float min, float
 	ImUiInputGetWidgetState( sliderPivot, &inputState );
 
 	ImUiColor color = s_config.colors[ ImUiWidgetsColor_SliderPivot ];
-	if( inputState.isMouseDown )
+	if( frameInputState.isMouseDown )
 	{
 		color = s_config.colors[ ImUiWidgetsColor_SliderPivotClicked ];
 	}

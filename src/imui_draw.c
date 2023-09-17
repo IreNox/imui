@@ -569,6 +569,12 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 						const ImUiPosition posTl = ImUiPositionCreate( xPositions[ x ], yPositions[ y ] );
 						const ImUiPosition posBr = ImUiPositionCreate( xPositions[ nextX ], yPositions[ nextY ] );
+						if( posBr.x - posTl.x <= 0.0f ||
+							posBr.y - posTl.y <= 0.0f )
+						{
+							continue;
+						}
+
 						const ImUiTextureCooridinate uv =
 						{
 							uPositions[ x ], vPositions[ y ],
@@ -591,6 +597,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 				}
 
 				ImUiDrawSurfacePushIndices( draw, surface, indices, IMUI_ARRAY_COUNT( indices ) );
+
+				elementCount += 6u;
 			}
 			else
 			{
@@ -606,6 +614,12 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 						const ImUiPosition posTl = ImUiPositionCreate( xPositions[ x ], yPositions[ y ] );
 						const ImUiPosition posBr = ImUiPositionCreate( xPositions[ nextX ], yPositions[ nextY ] );
+						if( posBr.x - posTl.x <= 0.0f ||
+							posBr.y - posTl.y <= 0.0f )
+						{
+							continue;
+						}
+
 						const ImUiTextureCooridinate uv =
 						{
 							uPositions[ x ], vPositions[ y ],
@@ -618,11 +632,11 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 						ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, skinData->color );
 						ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, skinData->color );
 						ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, skinData->color );
+
+						elementCount += 6u;
 					}
 				}
 			}
-
-			elementCount = 54u;
 		}
 		break;
 

@@ -549,6 +549,12 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont )
 {
 	ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)malloc( sizeof( ImUiFrameworkTexture ) );
+	if( !texture )
+	{
+		return NULL;
+	}
+
+	texture->handle	= 0u;
 	texture->isFont = isFont;
 
 	glGenTextures( 1, &texture->handle );
@@ -564,4 +570,207 @@ void ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture )
 {
 	glDeleteTextures( 1u, &texture->handle );
 	free( texture );
+}
+
+bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char* fontFilename, float fontSize )
+{
+	uint8_t* fileData;
+	size_t fileSize;
+	{
+		FILE* file = fopen( fontFilename, "rb" );
+		if( !file )
+		{
+			return false;
+		}
+
+		fseek( file, 0, SEEK_END );
+		fpos_t fileSizeS;
+		fgetpos( file, &fileSizeS );
+		fileSize = (size_t)fileSizeS;
+		fseek( file, 0, SEEK_SET );
+
+		fileData = (uint8_t*)malloc( fileSize );
+		if( !fileData )
+		{
+			fclose( file );
+			return false;
+		}
+
+		fread( fileData, fileSize, 1, file );
+		fclose( file );
+	}
+
+	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( s_context.imui, fileData, fileSize );
+	if( !ttf )
+	{
+		free( fileData );
+		return false;
+	}
+
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
+	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
+
+	uint32_t width;
+	uint32_t height;
+	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
+	width = (width + 4u - 1u) & (0 - 4);
+	height = (height + 4u - 1u) & (0 - 4);
+
+	void* textureData = malloc( width * height );
+	if( !textureData )
+	{
+		ImUiFontTrueTypeDataDestroy( ttf );
+		free( fileData );
+		return false;
+	}
+
+	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
+	if( !image )
+	{
+		ImUiFontTrueTypeDataDestroy( ttf );
+		free( fileData );
+		return false;
+	}
+
+	texture->data = ImUiFrameworkTextureCreate( textureData, width, height, true );
+	texture->size = ImUiSizeCreate( (float)width, (float)height );
+
+	free( textureData );
+
+	if( !texture->data )
+	{
+		ImUiFontTrueTypeDataDestroy( ttf );
+		free( fileData );
+		return false;
+	}
+
+	*font = ImUiFontCreateTrueType( s_context.imui, image, *texture );
+
+	ImUiFontTrueTypeDataDestroy( ttf );
+	free( fileData );
+
+	return *font != NULL;
+}
+
+void ImUiFrameworkFontDestroy( ImUiFont** font, ImUiTexture* texture )
+{
+	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)texture->data );
+	ImUiFontDestroy( s_context.imui, *font );
+
+	texture->data = NULL;
+	*font = NULL;
+}
+
+bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t size, float radius, float factor, bool horizontal )
+{
+	uint8_t* skinData = malloc( size * size * 4u );
+	if( !skinData )
+	{
+		return false;
+	}
+
+	const float maxDistance = sqrtf( (radius * radius) + (radius * radius) );
+	const float halfSize = size * 0.5f;
+	const float halfRadius = radius * 0.5f;
+	for( size_t y = 0u; y < size; ++y )
+	{
+		const float v = y / (float)size;
+
+		uint8_t* line = skinData + (y * size * 4u);
+		for( size_t x = 0u; x < size; ++x )
+		{
+			uint8_t value;
+			if( horizontal )
+			{
+				float xFactor = 1.0f;
+				if( x < radius || x > size - radius )
+				{
+					const float xdiff = x - (x < radius ? radius : size - radius);
+					const float disNorm	= fabsf( xdiff ) / halfSize;
+
+					xFactor = 1.0f - (disNorm > 1.0f ? 1.0f : disNorm);
+				}
+
+				const float ydiff = y - halfSize;
+				const float disNorm	= fabsf( ydiff ) / (halfSize - halfRadius);
+
+				float dis = 1.0f - (disNorm > 1.0f ? 1.0f : disNorm);
+				dis *= radius * factor * xFactor;
+				value = dis > 255.0f ? 255u : (uint8_t)dis;
+			}
+			else
+			{
+				if( (x < radius || x > size - radius) &&
+					(y < radius || y > size - radius) )
+				{
+					const float points[][ 2u ] =
+					{
+						{ radius, radius },
+						{ size - radius - 0.5f, radius },
+						{ radius, size - radius - 0.5f },
+						{ size - radius - 0.5f, size - radius - 0.5f }
+					};
+
+					float minDis = FLT_MAX;
+					for( uint8_t i = 0u; i < 4u; ++i )
+					{
+						const float udiff = x - points[ i ][ 0u ];
+						const float vdiff = y - points[ i ][ 1u ];
+
+						const float disBase	= sqrtf( (udiff * udiff) + (vdiff * vdiff) );
+						const float disNorm	= disBase / maxDistance;
+						if( disNorm > 1.0f )
+						{
+							continue;
+						}
+
+						const float dis = 1.0f - disNorm;
+						minDis = minDis < dis ? minDis : dis;
+					}
+
+					minDis *= radius * factor;
+					value = minDis > 255.0f ? 255u : (uint8_t)minDis;
+				}
+				else
+				{
+					value = 255u;
+				}
+			}
+
+			uint8_t* pixel = line + (x * 4u);
+			pixel[ 0u ]		= 0xffu;
+			pixel[ 1u ]		= 0xffu;
+			pixel[ 2u ]		= 0xffu;
+			pixel[ 3u ]		= value;
+		}
+	}
+
+	texture->data = ImUiFrameworkTextureCreate( skinData, size, size, false );
+	texture->size = ImUiSizeCreate( (float)size, (float)size );
+
+	free( skinData );
+
+	skin->texture	= *texture;
+	skin->uv.u0		= 0.0f;
+	skin->uv.v0		= 0.0f;
+	skin->uv.u1		= 1.0f;
+	skin->uv.v1		= 1.0f;
+
+	if( horizontal )
+	{
+		skin->border	= ImUiThicknessCreateVerticalHorizontal( 0.0f, radius );
+	}
+	else
+	{
+		skin->border	= ImUiThicknessCreateAll( radius );
+	}
+
+	return texture->data != NULL;
+}
+
+void ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiTexture* texture )
+{
+	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)texture->data );
+	texture->data = NULL;
 }
