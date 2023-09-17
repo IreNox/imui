@@ -137,7 +137,7 @@ static void HwStretchHorizontal( ImUiWindow* window )
 
 	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
 
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	HwStretchElements( window, ImUiSizeCreate( 0.5f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
 	ImUiWidgetEnd( layout );
 }
@@ -151,7 +151,7 @@ static void HwStretchVertical( ImUiWindow* window )
 
 	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
 
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
 	ImUiWidgetEnd( layout );
 }

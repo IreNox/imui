@@ -22,13 +22,13 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectangleCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	const float timeSin = sinf( s_time / -2.0f );
-	const float timeCos = cosf( s_time / -2.0f );
+	const float timeSin = sinf( s_time / -2.0f ) * 0.5f + 0.5f;
+	const float timeCos = cosf( s_time / -2.0f ) * 0.5f + 0.5f;
 
-	const float timeLeft	= (timeSin < 0.0f ? -timeSin : 0.0f) + 1.0f;
-	const float timeRight	= (timeSin > 0.0f ? timeSin : 0.0f) + 1.0f;
-	const float timeTop		= (timeCos < 0.0f ? -timeCos : 0.0f) + 1.0f;
-	const float timeBottom	= (timeCos > 0.0f ? timeCos : 0.0f) + 1.0f;
+	const float timeLeft	= timeSin;
+	const float timeRight	= 1.0f - timeSin;
+	const float timeTop		= timeCos;
+	const float timeBottom	= 1.0f - timeCos;
 
 	const float timeR		= (timeSin * 0.5f) + 0.5f;
 	const float timeG		= (timeCos * 0.5f) + 0.5f;
@@ -63,7 +63,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 			ImUiWidget* centerText = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
 			ImUiWidgetSetFixedSize( centerText, ImUiTextLayoutGetSize( text ) );
 
-			ImUiDrawText( centerText, ImUiWidgetGetPosition( centerText ), text, ImUiColorCreateWhite( 1.0f ) );
+			ImUiDrawText( centerText, ImUiWidgetGetPosition( centerText ), text );
 
 			ImUiWidgetEnd( centerText );
 
@@ -116,20 +116,18 @@ bool ImUiFrameworkInitialize( ImUiContext* imui )
 	uint32_t height;
 	const float fontSize = 32.0f;
 	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
-	width = (width + 4u - 1u) & (0u - 4u);
-	height = (height + 4u - 1u) & (0u - 4u);
+	width = (width + 4u - 1u) & (0 - 4);
+	height = (height + 4u - 1u) & (0 - 4);
 
 	void* textureData = malloc( width * height );
 	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
 
-	ImUiTexture texture;
-	texture.data = (void*)(uint64_t)ImUiFrameworkTextureCreate( textureData, width, height );
-	texture.size = ImUiSizeCreate( (float)width, (float)height );
-	s_fontTexture = texture;
+	s_fontTexture.data = (void*)(uint64_t)ImUiFrameworkTextureCreate( textureData, width, height, true );
+	s_fontTexture.size = ImUiSizeCreate( (float)width, (float)height );
 
 	free( textureData );
 
-	s_font = ImUiFontCreateTrueType( imui, image, texture );
+	s_font = ImUiFontCreateTrueType( imui, image, s_fontTexture );
 
 	ImUiFontTrueTypeDataDestroy( ttf );
 	free( fileData );
@@ -138,5 +136,7 @@ bool ImUiFrameworkInitialize( ImUiContext* imui )
 
 void ImUiFrameworkShutdown( ImUiContext* imui )
 {
+	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)s_fontTexture.data );
+
 	ImUiFontDestroy( imui, s_font );
 }

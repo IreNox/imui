@@ -6,9 +6,11 @@
 typedef struct ImUiContext ImUiContext;
 typedef struct ImUiSurface ImUiSurface;
 
-bool		ImUiFrameworkInitialize( ImUiContext* imui );
-void		ImUiFrameworkShutdown( ImUiContext* imui );
-void		ImUiFrameworkTick( ImUiSurface* surface );
+typedef struct ImUiFrameworkTexture ImUiFrameworkTexture;
 
-uint32_t	ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height );
-void		ImUiFrameworkTextureDestroy( uint32_t textureHandle );
+bool					ImUiFrameworkInitialize( ImUiContext* imui );
+void					ImUiFrameworkShutdown( ImUiContext* imui );
+void					ImUiFrameworkTick( ImUiSurface* surface );
+
+ImUiFrameworkTexture*	ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont );
+void					ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture );

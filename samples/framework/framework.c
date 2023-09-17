@@ -21,8 +21,14 @@
 
 #include "../../src/imui_types.h"
 
-typedef struct ImFrameworkContext ImFrameworkContext;
-struct ImFrameworkContext
+struct ImUiFrameworkTexture
+{
+	GLuint						handle;
+	bool						isFont;
+};
+
+typedef struct ImUiFrameworkContext ImUiFrameworkContext;
+struct ImUiFrameworkContext
 {
 	SDL_Window*					window;
 	int							windowWidth;
@@ -42,12 +48,12 @@ struct ImFrameworkContext
 	GLuint						vertexBuffer;
 	GLuint						elementBuffer;
 
-	GLuint						whiteTexture;
+	ImUiFrameworkTexture			whiteTexture;
 
 	ImUiContext*				imui;
 };
 
-static ImFrameworkContext s_context;
+static ImUiFrameworkContext s_context;
 static bool s_running;
 
 static ImUiInputKey s_inputKeyMapping[ SDL_NUM_SCANCODES ];
@@ -62,10 +68,10 @@ static const ImUiInputMouseButton s_inputMouseButtonMapping[] =
 };
 
 static void ImFrameworkLoop();
-static bool ImFrameworkRendererInitialize( ImFrameworkContext* context );
+static bool ImFrameworkRendererInitialize( ImUiFrameworkContext* context );
 static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShaderCode );
-static void ImFrameworkRendererShutdown( ImFrameworkContext* context );
-static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDrawData* drawData );
+static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context );
+static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDrawData* drawData );
 
 int main( int argc, char* argv[] )
 {
@@ -89,7 +95,7 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-	s_context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
+	s_context.window = SDL_CreateWindow( "I'm Ui", SDL_WINDOWPOS_UNDEFINED_DISPLAY(2), SDL_WINDOWPOS_UNDEFINED_DISPLAY(2), 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 	if( s_context.window == NULL)
 	{
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to create Window.", NULL );
@@ -266,13 +272,12 @@ static const char s_fragmentShaderFont[] =
 	"uniform sampler2D Texture;\n"
 	"varying vec2 vtfUV;\n"
 	"varying vec4 vtfColor;\n"
-	//"out vec4 OutColor;\n"
 	"void main(){\n"
-	"	float charColor = texture2D(Texture, vtfUV.xy).r;\n"
-	"	gl_FragColor = vtfColor * charColor;\n"
+	"	vec4 fontChar = texture2D(Texture, vtfUV.xy);\n"
+	"	gl_FragColor = vtfColor * fontChar;\n"
 	"}\n";
 
-static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )
+static bool ImFrameworkRendererInitialize( ImUiFrameworkContext* context )
 {
 	// Shader
 	context->vertexShader		= glCreateShader( GL_VERTEX_SHADER );
@@ -352,8 +357,9 @@ static bool ImFrameworkRendererInitialize( ImFrameworkContext* context )
 	glVertexAttribPointer( attributeTexCoord, 2, GL_FLOAT, GL_FALSE, vertexSize, (void*)vertexUvOffset );
 	glVertexAttribPointer( attributeColor, 4, GL_FLOAT, GL_FALSE, vertexSize, (void*)vertexColorOffset );
 
-	glGenTextures( 1, &context->whiteTexture );
-	glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
+	context->whiteTexture.isFont = false;
+	glGenTextures( 1, &context->whiteTexture.handle );
+	glBindTexture( GL_TEXTURE_2D, context->whiteTexture.handle );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 	const uint32 data = 0xffffffffu;
@@ -383,12 +389,12 @@ static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShader
 	return true;
 }
 
-static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
+static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context )
 {
-	if( context->whiteTexture != 0u )
+	if( context->whiteTexture.handle != 0u )
 	{
-		glDeleteTextures( 1u, &context->whiteTexture );
-		context->whiteTexture = 0u;
+		glDeleteTextures( 1u, &context->whiteTexture.handle );
+		context->whiteTexture.handle = 0u;
 	}
 
 	if( context->vertexArray != 0u )
@@ -446,7 +452,7 @@ static void ImFrameworkRendererShutdown( ImFrameworkContext* context )
 	}
 }
 
-static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDrawData* drawData )
+static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDrawData* drawData )
 {
 	glViewport( 0, 0, context->windowWidth, context->windowHeight );
 
@@ -497,13 +503,17 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 		const ImUiDrawCommand* pCommand = &drawData->commands[ i ];
 		IMUI_ASSERT( pCommand->count >= 0u );
 
-		GLuint texture = (GLuint)(size_t)pCommand->texture;
-		if( texture == 0u )
+		ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)pCommand->texture;
+		if( !texture )
+		{
+			texture = &context->whiteTexture;
+		}
+
+		if( !texture->isFont )
 		{
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
 			glUseProgram( context->program );
-			glBindTexture( GL_TEXTURE_2D, context->whiteTexture );
 		}
 		else
 		{
@@ -512,8 +522,9 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 			glUseProgram( context->programFont );
 			glUniform1i( context->programUniformTexture, 0 );
 			glUniformMatrix4fv( context->programUniformProjection, 1, GL_FALSE, &projectionMatrix[ 0u ][ 0u ] );
-			glBindTexture( GL_TEXTURE_2D, texture );
 		}
+
+		glBindTexture( GL_TEXTURE_2D, texture->handle );
 
 		//glScissor(
 		//	(GLint)(pCommand->clipRect.position.x),
@@ -535,19 +546,22 @@ static void ImFrameworkRendererDraw( ImFrameworkContext* context, const ImUiDraw
 	glDisable( GL_SCISSOR_TEST );
 }
 
-uint32_t ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height )
+ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont )
 {
-	GLuint textureHandle = 0u;
-	glGenTextures( 1, &textureHandle );
-	glBindTexture( GL_TEXTURE_2D, textureHandle );
+	ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)malloc( sizeof( ImUiFrameworkTexture ) );
+	texture->isFont = isFont;
+
+	glGenTextures( 1, &texture->handle );
+	glBindTexture( GL_TEXTURE_2D, texture->handle );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, textureData );
+	glTexImage2D( GL_TEXTURE_2D, 0, isFont ? GL_INTENSITY8 : GL_RGBA8, width, height, 0, isFont ? GL_RED : GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 
-	return textureHandle;
+	return texture;
 }
 
-void ImUiFrameworkTextureDestroy( uint32_t textureHandle )
+void ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture )
 {
-	glDeleteTextures( 1u, &textureHandle );
+	glDeleteTextures( 1u, &texture->handle );
+	free( texture );
 }
