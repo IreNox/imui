@@ -117,8 +117,6 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-	SDL_GL_SetSwapInterval( 1 );
-
 	if( glewInit() != GLEW_OK )
 	{
 		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize GLEW.\n", NULL );
@@ -164,7 +162,7 @@ int main( int argc, char* argv[] )
 
 static void ImFrameworkLoop()
 {
-	printf( "Tick!\n" );
+	SDL_GL_SetSwapInterval( 1 );
 
 	ImUiInput* input = ImUiInputBegin( s_context.imui );
 	SDL_Event sdlEvent;
@@ -488,7 +486,7 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 
 	// upload
 	{
-		void* pVertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, drawData->vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
+		void* pVertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, drawData->vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
 		//void* pElementData = glMapBufferRange( GL_ELEMENT_ARRAY_BUFFER, 0, drawData->indexCount * 4u, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
 
 		memcpy( pVertexData, drawData->vertexData, drawData->vertexDataSize );
@@ -584,9 +582,7 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char*
 		}
 
 		fseek( file, 0, SEEK_END );
-		fpos_t fileSizeS;
-		fgetpos( file, &fileSizeS );
-		fileSize = (size_t)fileSizeS;
+		fileSize = ftell( file );
 		fseek( file, 0, SEEK_SET );
 
 		fileData = (uint8_t*)malloc( fileSize );
