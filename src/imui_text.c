@@ -80,6 +80,11 @@ ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStr
 	return ImUiTextLayoutCacheCreateLayout( &imui->layoutCache, &parameters );
 }
 
+ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text )
+{
+	return ImUiTextLayoutCreate( widget->window->imui, font, text );
+}
+
 ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters )
 {
 	bool isNew = false;
@@ -177,7 +182,7 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 
 		glyphIndex++;
 		x += codepointInfo->advance;
-		height = IMUI_MAX( height, glyph->size.height );
+		height = IMUI_MAX( height, glyph->position.y + glyph->size.height );
 	}
 
 	layout->font		= parameters->font;
@@ -204,5 +209,10 @@ ImUiSize ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const Im
 
 ImUiSize ImUiTextLayoutGetSize( const ImUiTextLayout* layout )
 {
+	if( !layout )
+	{
+		return ImUiSizeCreateZero();
+	}
+
 	return layout->size;
 }

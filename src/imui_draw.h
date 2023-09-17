@@ -27,6 +27,15 @@ struct ImUiDrawElementDataRectangle
 	ImUiTextureCooridinate	uv;
 };
 
+struct ImUiDrawElementDataSkin
+{
+	ImUiRectangle			rect;
+	ImUiThickness			border;
+	ImUiTextureCooridinate	uv;
+	ImUiSize				texSize;
+	ImUiColor				color;
+};
+
 struct ImUiDrawElementDataText
 {
 	ImUiPosition			position;
@@ -39,6 +48,7 @@ union ImUiDrawElementData
 {
 	struct ImUiDrawElementDataLine		line;
 	struct ImUiDrawElementDataRectangle	rectangle;
+	struct ImUiDrawElementDataSkin		skin;
 	struct ImUiDrawElementDataText		text;
 };
 

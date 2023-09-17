@@ -254,6 +254,7 @@ struct ImUiSkin
 {
 	ImUiTexture				texture;
 	ImUiThickness			border;
+	ImUiTextureCooridinate	uv;
 };
 
 typedef enum ImUiLayout ImUiLayout;
@@ -308,6 +309,9 @@ ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
 ImUiSize					ImUiWidgetGetMaxSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size );
+
+void						ImUiWidgetSetFixedWidth( ImUiWidget* widget, float value );
+void						ImUiWidgetSetFixedHeight( ImUiWidget* widget, float value );
 void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
 
 ImUiSize					ImUiWidgetGetStretch( const ImUiWidget* widget );
@@ -328,12 +332,21 @@ ImUiRectangle				ImUiWidgetGetRectangle( const ImUiWidget* widget );
 
 void						ImUiDrawLine( ImUiWidget* widget, ImUiPosition p0, ImUiPosition p1, ImUiColor color );
 void						ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color );
+void						ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture );
+void						ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiColor color );
+void						ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin );
+void						ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color );
+void						ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout );
+void						ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
 void						ImUiDrawRectangleColor( ImUiWidget* widget, ImUiRectangle rect, ImUiColor color );
 void						ImUiDrawRectangleTexture( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture );
 void						ImUiDrawRectangleTextureUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiTextureCooridinate uv );
 void						ImUiDrawRectangleTextureColor( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color );
 void						ImUiDrawRectangleTextureColorUv( ImUiWidget* widget, ImUiRectangle rect, ImUiTexture texture, ImUiColor color, ImUiTextureCooridinate uv );
-void						ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color );
+void						ImUiDrawSkin( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin );
+void						ImUiDrawSkinColor( ImUiWidget* widget, ImUiRectangle rect, ImUiSkin skin, ImUiColor color );
+void						ImUiDrawText( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout );
+void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPosition position, ImUiTextLayout* layout, ImUiColor color );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -571,6 +584,7 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 // see imui_text.c
 
 ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text );
+ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text );
 
 ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
 
@@ -593,7 +607,7 @@ ImUiPosition					ImUiPositionCreate( float x, float y );
 ImUiPosition					ImUiPositionAdd( ImUiPosition pos, float x, float y );
 ImUiPosition					ImUiPositionAddPos( ImUiPosition pos, ImUiPosition add );
 ImUiPosition					ImUiPositionSub( ImUiPosition pos, float x, float y );
-ImUiPosition					ImUiPositionSubPos( ImUiPosition pos, ImUiPosition add );
+ImUiPosition					ImUiPositionSubPos( ImUiPosition pos, ImUiPosition sub );
 ImUiPosition					ImUiPositionScale( ImUiPosition pos, float factor );
 
 ImUiSize						ImUiSizeCreate( float width, float height );
@@ -604,6 +618,7 @@ ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
 ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeSubSize( ImUiSize size, ImUiSize sub );
+ImUiSize						ImUiSizeScale( ImUiSize size, float factor );
 ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
 ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
 ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
@@ -614,6 +629,7 @@ ImUiSize						ImUiSizeExpandThickness( ImUiSize size, ImUiThickness thickness );
 ImUiThickness					ImUiThicknessCreate( float top, float left, float bottom, float right );
 ImUiThickness					ImUiThicknessCreateAll( float all );
 ImUiThickness					ImUiThicknessCreateVerticalHorizontal( float vertical, float horizontal );
+ImUiSize						ImUiThicknessGetMinSize( ImUiThickness thickness );
 
 ImUiRectangle					ImUiRectangleCreate( float x, float y, float width, float height );
 ImUiRectangle					ImUiRectangleCreatePos( ImUiPosition pos, float width, float height );
@@ -630,6 +646,8 @@ ImUiPosition					ImUiRectangleGetTopLeft( ImUiRectangle rect );
 ImUiPosition					ImUiRectangleGetTopRight( ImUiRectangle rect );
 ImUiPosition					ImUiRectangleGetBottomLeft( ImUiRectangle rect );
 ImUiPosition					ImUiRectangleGetBottomRight( ImUiRectangle rect );
+float							ImUiRectangleGetRight( ImUiRectangle rect );
+float							ImUiRectangleGetBottom( ImUiRectangle rect );
 
 ImUiColor						ImUiColorCreate( float red, float green, float blue, float alpha );
 ImUiColor						ImUiColorCreateBlack( float alpha );
