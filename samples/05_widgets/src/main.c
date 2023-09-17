@@ -26,24 +26,25 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWidgetSetMargin( vLayout, ImUiThicknessCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
+	static bool checked[ 3u ] ={ false, true, false };
 	{
 		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "buttons" ) );
-		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
 		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
 		{
-
+			checked[ 0u ] = !checked[ 0u ];
 		}
 
 		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
 		{
-
+			checked[ 1u ] = !checked[ 1u ];
 		}
 
 		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
 		{
-
+			checked[ 2u ] = !checked[ 2u ];
 		}
 
 		ImUiWidgetEnd( buttonsLayout );
@@ -51,15 +52,33 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	{
 		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "checks" ) );
-		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
-		static bool checked = false;
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 1" ), &checked );
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 2" ), &checked );
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 3" ), &checked );
+		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 1" ), &checked[ 0u ] );
+		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 2" ), &checked[ 1u ] );
+		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 3" ), &checked[ 2u ] );
+
+		char text[ 64u ];
+		snprintf( text, sizeof( text ), "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
+		ImUiWidgetsLabel( window, IMUI_STR( text ) );
 
 		ImUiWidgetEnd( checkLayout );
+	}
+
+	{
+		ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "sliders" ) );
+		ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreateHorizintal() );
+		ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
+
+		static float value = 2.5f;
+		ImUiWidgetsSliderMinMax( window, &value, 0.0f, 5.0f );
+
+		char text[ 64u ];
+		snprintf( text, sizeof( text ), "Value: %.2f", value );
+		ImUiWidgetsLabel( window, IMUI_STR( text ) );
+
+		ImUiWidgetEnd( sliderLayout );
 	}
 
 	//ImUiDrawRectangleTexture( vLayout, ImUiRectangleCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
@@ -182,6 +201,10 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiWidgetsColor_CheckBoxChecked ]			= ImUiColorCreate( 1.0f, 0.5f, 0.7f, 1.0f );
 	config.colors[ ImUiWidgetsColor_CheckBoxCheckedHover ]		= ImUiColorCreate( 1.0f, 0.7f, 0.9f, 1.0f );
 	config.colors[ ImUiWidgetsColor_CheckBoxCheckedClicked ]	= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiWidgetsColor_SliderBackground ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiWidgetsColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiWidgetsColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiWidgetsColor_SliderPivotClicked ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
 
 	ImUiSkin skin;
 	skin.texture	= s_skinTexture;
@@ -194,6 +217,8 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiWidgetsSkin_Button ]						= skin;
 	config.skins[ ImUiWidgetsSkin_CheckBox ]					= skin;
 	config.skins[ ImUiWidgetsSkin_CheckBoxChecked ]				= skin;
+	config.skins[ ImUiWidgetsSkin_SliderBackground ]			= skin;
+	config.skins[ ImUiWidgetsSkin_SliderPivot ]					= skin;
 
 	config.font					= s_font;
 
@@ -201,6 +226,10 @@ static void ImUiTestSetConfig()
 
 	config.checkBoxSize			= ImUiSizeCreateAll( 20.0f );
 	config.checkBoxTextSpacing	= 5.0f;
+
+	config.sliderPadding		= ImUiThicknessCreateVerticalHorizontal( 8.0f, 0.0f );
+	config.sliderPivotSize		= 12.0f;
+	config.sliderHeight			= 20.0f;
 
 	ImUiWidgetsSetConfig( &config );
 }

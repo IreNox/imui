@@ -283,6 +283,9 @@ float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRectangle rectangle, uint32_t zOrder );
 void						ImUiWindowEnd( ImUiWindow* window );
 
+ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
+ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
+
 //////////////////////////////////////////////////////////////////////////
 // Widget - todo
 
@@ -325,6 +328,8 @@ void						ImUiWidgetSetVerticalAlignment( ImUiWidget* widget, ImUiVerticalAlignm
 ImUiPosition				ImUiWidgetGetPosition( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
 ImUiRectangle				ImUiWidgetGetRectangle( const ImUiWidget* widget );
+ImUiSize					ImUiWidgetGetInnerSize( const ImUiWidget* widget );
+ImUiRectangle				ImUiWidgetGetInnerRectangle( const ImUiWidget* widget );
 
 //////////////////////////////////////////////////////////////////////////
 // Widget Draw
@@ -528,6 +533,7 @@ bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
 ImUiInputKey					ImUiInputGetKeyRepeate( ImUiContext* imui, size_t index );
 size_t							ImUiInputGetKeyRepeateCount( ImUiContext* imui );
 
+ImUiPosition					ImUiInputGetMousePosition( ImUiContext* imui );
 bool							ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle );
 bool							ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button );
@@ -611,9 +617,11 @@ ImUiPosition					ImUiPositionSubPos( ImUiPosition pos, ImUiPosition sub );
 ImUiPosition					ImUiPositionScale( ImUiPosition pos, float factor );
 
 ImUiSize						ImUiSizeCreate( float width, float height );
+ImUiSize						ImUiSizeCreateAll( float value );
 ImUiSize						ImUiSizeCreateOne();
 ImUiSize						ImUiSizeCreateZero();
-ImUiSize						ImUiSizeCreateAll( float value );
+ImUiSize						ImUiSizeCreateHorizintal();				// x = 1, y = 0
+ImUiSize						ImUiSizeCreateVertical();				// x = 0, y = 1
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
 ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );

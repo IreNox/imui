@@ -116,6 +116,11 @@ bool ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key )
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
+ImUiPosition ImUiInputGetMousePosition( ImUiContext* imui )
+{
+	return imui->input.currentState.mousePosition;
+}
+
 bool ImUiInputIsMouseInRectangle( ImUiContext* imui, ImUiRectangle rectangle )
 {
 	return ImUiRectangleIncludesPosition( rectangle, imui->input.currentState.mousePosition );

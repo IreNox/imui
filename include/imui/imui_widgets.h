@@ -19,6 +19,11 @@ enum ImUiWidgetsColor
 	ImUiWidgetsColor_CheckBoxCheckedHover,
 	ImUiWidgetsColor_CheckBoxCheckedClicked,
 
+	ImUiWidgetsColor_SliderBackground,
+	ImUiWidgetsColor_SliderPivot,
+	ImUiWidgetsColor_SliderPivotHover,
+	ImUiWidgetsColor_SliderPivotClicked,
+
 	ImUiWidgetsColor_MAX
 };
 
@@ -28,6 +33,8 @@ enum ImUiWidgetsSkin
 	ImUiWidgetsSkin_Button,
 	ImUiWidgetsSkin_CheckBox,
 	ImUiWidgetsSkin_CheckBoxChecked,
+	ImUiWidgetsSkin_SliderBackground,
+	ImUiWidgetsSkin_SliderPivot,
 
 	ImUiWidgetsSkin_MAX
 };
@@ -44,6 +51,10 @@ struct ImUiWidgetsConfig
 
 	ImUiSize		checkBoxSize;
 	float			checkBoxTextSpacing;
+
+	ImUiThickness	sliderPadding;
+	float			sliderHeight;
+	float			sliderPivotSize;
 };
 
 void			ImUiWidgetsSetConfig( const ImUiWidgetsConfig* config );
@@ -53,3 +64,6 @@ bool			ImUiWidgetsButton( ImUiWindow* window, ImUiStringView text );
 bool			ImUiWidgetsCheckBox( ImUiWindow* window, ImUiStringView text, bool* checked );
 
 void			ImUiWidgetsLabel( ImUiWindow* window, ImUiStringView text );
+
+bool			ImUiWidgetsSlider( ImUiWindow* window, float* value ); // value range is 0 to 1
+bool			ImUiWidgetsSliderMinMax (ImUiWindow* window, float* value, float min, float max);

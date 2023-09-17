@@ -142,6 +142,12 @@ ImUiSize ImUiSizeCreate( float width, float height )
 	return size;
 }
 
+ImUiSize ImUiSizeCreateAll( float value )
+{
+	const ImUiSize size ={ value, value };
+	return size;
+}
+
 ImUiSize ImUiSizeCreateOne()
 {
 	const ImUiSize size = { 1.0f, 1.0f };
@@ -154,9 +160,15 @@ ImUiSize ImUiSizeCreateZero()
 	return size;
 }
 
-ImUiSize ImUiSizeCreateAll( float value )
+ImUiSize ImUiSizeCreateHorizintal()
 {
-	const ImUiSize size = { value, value };
+	const ImUiSize size = { 1.0f, 0.0f };
+	return size;
+}
+
+ImUiSize ImUiSizeCreateVertical()
+{
+	const ImUiSize size = { 0.0f, 1.0f };
 	return size;
 }
 

@@ -1,5 +1,7 @@
 #include "imui/imui_widgets.h"
 
+#include "imui_types.h"
+
 static ImUiWidgetsConfig s_config;
 
 void ImUiWidgetsSetConfig( const ImUiWidgetsConfig* config )
@@ -96,4 +98,69 @@ void ImUiWidgetsLabel( ImUiWindow* window, ImUiStringView text )
 	ImUiDrawWidgetTextColor( label, layout, s_config.colors[ ImUiWidgetsColor_Text ] );
 
 	ImUiWidgetEnd( label );
+}
+
+bool ImUiWidgetsSlider( ImUiWindow* window, float* value )
+{
+	return ImUiWidgetsSliderMinMax( window, value, 0.0f, 1.0f );
+}
+
+bool ImUiWidgetsSliderMinMax( ImUiWindow* window, float* value, float min, float max )
+{
+	ImUiContext* imui = ImUiWindowGetContext( window );
+
+	ImUiWidget* sliderFrame = ImUiWidgetBegin( window );
+	ImUiWidgetSetStretch( sliderFrame, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetPadding( sliderFrame, s_config.sliderPadding );
+	ImUiWidgetSetFixedHeight( sliderFrame, s_config.sliderHeight );
+
+	ImUiInputWidgetState frameInputState;
+	ImUiInputGetWidgetState( sliderFrame, &frameInputState );
+
+	ImUiDrawWidgetSkinColor( sliderFrame, s_config.skins[ ImUiWidgetsSkin_SliderBackground ], s_config.colors[ ImUiWidgetsColor_SliderBackground ] );
+
+	ImUiWidget* sliderPivot = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedSize( sliderPivot, ImUiSizeCreate( s_config.sliderPivotSize, s_config.sliderHeight ) );
+
+	const ImUiRectangle sliderInnerRect = ImUiWidgetGetInnerRectangle( sliderFrame );
+	const float normalizedValue		= (*value - min) / (max - min);
+	const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.sliderPivotSize));
+	const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : sliderPivotX;;
+
+	ImUiWidgetSetMargin( sliderPivot, ImUiThicknessCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
+
+	ImUiInputWidgetState inputState;
+	ImUiInputGetWidgetState( sliderPivot, &inputState );
+
+	ImUiColor color = s_config.colors[ ImUiWidgetsColor_SliderPivot ];
+	if( inputState.isMouseDown )
+	{
+		color = s_config.colors[ ImUiWidgetsColor_SliderPivotClicked ];
+	}
+	else if( inputState.isMouseOver )
+	{
+		color = s_config.colors[ ImUiWidgetsColor_SliderPivotHover ];
+	}
+
+	bool changed = false;
+
+	if( frameInputState.isMouseDown )
+	{
+		const ImUiPosition mousePos		= ImUiInputGetMousePosition( imui );
+		const float mouseValueNorm		= (mousePos.x - sliderInnerRect.position.x) / (sliderInnerRect.size.width - s_config.sliderPivotSize);
+		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
+		IMUI_ASSERT( mouseValueNormClamp >= 0.0f && mouseValueNormClamp <= 1.0f );
+		const float mouseValue			= (mouseValueNormClamp * (max - min)) + min;
+
+		*value = mouseValue;
+		changed = true;
+	}
+
+	ImUiDrawWidgetSkinColor( sliderPivot, s_config.skins[ ImUiWidgetsSkin_SliderPivot ], color );
+
+	ImUiWidgetEnd( sliderPivot );
+
+	ImUiWidgetEnd( sliderFrame );
+
+	return changed;
 }
