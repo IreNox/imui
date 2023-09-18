@@ -44,7 +44,7 @@ struct ImUiStringView
 typedef struct ImUiAllocator ImUiAllocator;
 struct ImUiAllocator
 {
-	ImUiAllocatorMallocFunc		mallocFunc;
+	ImUiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
 	ImUiAllocatorReallocFunc	reallocFunc;	// can be NULL
 	ImUiAllocatorFreeFunc		freeFunc;
 	void*						userData;

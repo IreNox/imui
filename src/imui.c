@@ -52,14 +52,9 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 		allocator.userData		= NULL;
 		allocator.internalData	= NULL;
 	}
-	else if( allocator.reallocFunc == NULL )
-	{
-		allocator.reallocFunc	= ImUiMemoryPseudoRealloc;
-		allocator.internalData	= &allocator;
-	}
 	else
 	{
-		allocator.internalData	= NULL;
+		allocator.internalData	= allocator.userData;
 	}
 
 	ImUiContext* imui = IMUI_MEMORY_NEW_ZERO( &allocator, ImUiContext );
@@ -67,8 +62,13 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 	{
 		return NULL;
 	}
-	imui->allocator					= allocator;
-	imui->allocator.internalData	= &imui->allocator;
+
+	imui->allocator = allocator;
+	if( imui->allocator.reallocFunc == NULL )
+	{
+		allocator.reallocFunc	= ImUiMemoryPseudoRealloc;
+		allocator.internalData	= &imui->allocator;
+	}
 
 	ImUiInputConstruct( &imui->input, &imui->allocator );
 
