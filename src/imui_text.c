@@ -126,7 +126,7 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 	}
 
 	char* textData = (char*)&glyphs[ glyphCount ];
-	strcpy( textData, parameters->text.data );
+	memcpy( textData, parameters->text.data, parameters->text.length + 1u );
 
 	uintsize glyphIndex = 0u;
 	float x = 0.0f;
