@@ -31,7 +31,6 @@ jobs:
       working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022
       run: msbuild /m /p:Configuration=${{matrix.CONFIG}} /p:Platform=${{matrix.PLATFORM}} ${{matrix.PROJECT}}.sln
       
-    - name: Upload
     - uses: actions/upload-artifact@v3
       with:
         name: ${{matrix.PROJECT}}_${{matrix.CONFIG}}_${{matrix.PLATFORM}}.exe
