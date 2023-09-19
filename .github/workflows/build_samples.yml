@@ -30,7 +30,7 @@ jobs:
     - name: Build
       working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022
       env:
-        MSBUILD_PLATFORM: ${{matrix.PLATFORM == 'x86' && 'Win32' || ${{matrix.PLATFORM}}}}
+        MSBUILD_PLATFORM: ${{matrix.PLATFORM == 'x86' && 'Win32' || 'x64'}}
       run: msbuild /m /p:Configuration=${{matrix.CONFIG}} /p:Platform=${{env.MSBUILD_PLATFORM}} ${{matrix.PROJECT}}.sln
       
     - uses: actions/upload-artifact@v3
