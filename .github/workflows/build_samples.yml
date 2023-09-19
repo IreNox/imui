@@ -1,0 +1,31 @@
+name: "Build Samples"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        PROJECT: [01_hello_world, 02_layout, 03_input, 05_widgets]
+        CONFIG: [Debug, Release]
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Run tiki_build
+      working-directory: ${{env.GITHUB_WORKSPACE}}/samples/${{env.PROJECT}}
+      run: premake_tb --to=build/vs2022 vs2022
+
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}/samples/${{env.PROJECT}}
+      run: msbuild /m /p:Configuration=${{env.CONFIG}} ${{env.PROJECT}}.sln
