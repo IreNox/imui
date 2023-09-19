@@ -9,12 +9,8 @@
 static ImUiTexture s_fontTexture;
 static ImUiFont* s_font = NULL;
 
-static float s_time = 0.0f;
-
 void ImUiFrameworkTick( ImUiSurface* surface )
 {
-	s_time += (1.0f / 60.0f);
-
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
 	ImUiTextLayout* text = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ" ) );
@@ -22,8 +18,9 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	const float timeSin = sinf( s_time / -2.0f ) * 0.5f + 0.5f;
-	const float timeCos = cosf( s_time / -2.0f ) * 0.5f + 0.5f;
+	const float time	= ImUiWindowGetTime( window );
+	const float timeSin = sinf( time / -2.0f ) * 0.5f + 0.5f;
+	const float timeCos = cosf( time / -2.0f ) * 0.5f + 0.5f;
 
 	const float timeLeft	= timeSin;
 	const float timeRight	= 1.0f - timeSin;

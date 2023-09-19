@@ -20,12 +20,13 @@ extern "C"
 #endif
 
 typedef struct ImUiContext ImUiContext;
-typedef struct ImUiSurface ImUiSurface;
-typedef struct ImUiWindow ImUiWindow;
-typedef struct ImUiWidget ImUiWidget;
-typedef struct ImUiInput ImUiInput;
 typedef struct ImUiDraw ImUiDraw;
+typedef struct ImUiFrame ImUiFrame;
+typedef struct ImUiInput ImUiInput;
+typedef struct ImUiSurface ImUiSurface;
 typedef struct ImUiTextLayout ImUiTextLayout;
+typedef struct ImUiWidget ImUiWidget;
+typedef struct ImUiWindow ImUiWindow;
 
 typedef uint32_t ImUiId;
 typedef uint32_t ImUiHash;
@@ -33,13 +34,6 @@ typedef uint32_t ImUiHash;
 typedef void*(*ImUiAllocatorMallocFunc)(size_t size, void* userData);
 typedef void*(*ImUiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
 typedef void( *ImUiAllocatorFreeFunc )(void* memory, void* userData);
-
-typedef struct ImUiStringView ImUiStringView;
-struct ImUiStringView
-{
-	const char*					data;
-	size_t						length;
-};
 
 typedef struct ImUiAllocator ImUiAllocator;
 struct ImUiAllocator
@@ -55,6 +49,13 @@ struct ImUiAllocator
 	size_t						allocationSize;
 	size_t						maxAllocationSize;
 #endif
+};
+
+typedef struct ImUiStringView ImUiStringView;
+struct ImUiStringView
+{
+	const char*					data;
+	size_t						length;
 };
 
 typedef enum ImUiVertexElementType ImUiVertexElementType;
@@ -154,18 +155,10 @@ struct ImUiDrawData
 	size_t					commandCount;
 };
 
-typedef struct ImUiFrame ImUiFrame;
-struct ImUiFrame
-{
-	ImUiContext*			imui;
-	ImUiInput*				input;
-	ImUiDraw*				draw;
-};
-
 ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
 void						ImUiDestroy( ImUiContext* imui );
 
-ImUiFrame*					ImUiBegin( ImUiContext* imui );
+ImUiFrame*					ImUiBegin( ImUiContext* imui, float timeInSeconds );
 void						ImUiEnd( ImUiFrame* frame );
 
 //////////////////////////////////////////////////////////////////////////
@@ -286,13 +279,21 @@ void						ImUiWindowEnd( ImUiWindow* window );
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
 ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
+float						ImUiWindowGetTime( const ImUiWindow* window );
+
 //////////////////////////////////////////////////////////////////////////
 // Widget - todo
+
+typedef void(*ImUiStateDestructFunc)( void* state );
 
 ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
 ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
 ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
+
+void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size );
+void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew );
+void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
 void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
@@ -302,6 +303,8 @@ void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacin
 void						ImUiWidgetSetLayoutVerical( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
+
+float						ImUiWidgetGetTime( const ImUiWidget* widget );
 
 ImUiBorder					ImUiWidgetGetMargin( const ImUiWidget* widget );
 void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin );
@@ -599,6 +602,7 @@ ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
 // see imui_data_types.c
 
 ImUiStringView					ImUiStringViewCreate( const char* str );
+ImUiStringView					ImUiStringViewCreateLength( const char* str, size_t length );
 ImUiStringView					ImUiStringViewCreateEmpty();
 bool							ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
 

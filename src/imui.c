@@ -19,7 +19,7 @@ static void			ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentIn
 
 static ImUiSize		ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight );
 
-static const ImUiWidgetLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
+static const ImUiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
 {
 	.childrenMaxStretch =
 	{
@@ -92,6 +92,23 @@ void ImUiDestroy( ImUiContext* imui )
 	}
 	ImUiMemoryFree( &imui->allocator, imui->surfaces );
 
+	ImUiWidgetState* state = imui->firstState;
+	ImUiWidgetState* nextState = NULL;
+	while( state )
+	{
+		nextState = state->nextState;
+		ImUiMemoryFree( &imui->allocator, state );
+		state = nextState;
+	}
+
+	state = imui->firstUnusedState;
+	while( state )
+	{
+		nextState = state->nextState;
+		ImUiMemoryFree( &imui->allocator, state );
+		state = nextState;
+	}
+
 	for( ImUiWidgetChunk* pChunk = imui->firstChunk; pChunk != NULL; )
 	{
 		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
@@ -121,11 +138,10 @@ void ImUiDestroy( ImUiContext* imui )
 	ImUiMemoryFree( &imui->allocator, imui );
 }
 
-ImUiFrame* ImUiBegin( ImUiContext* imui )
+ImUiFrame* ImUiBegin( ImUiContext* imui, float timeInSeconds )
 {
-	imui->frame.imui	= imui;
-	imui->frame.input	= &imui->input;
-	imui->frame.draw	= &imui->draw;
+	imui->frame.imui			= imui;
+	imui->frame.timeInSeconds	= timeInSeconds;
 
 	return &imui->frame;
 }
@@ -136,6 +152,7 @@ void ImUiEnd( ImUiFrame* frame )
 
 	ImUiDrawEndFrame( &imui->draw );
 
+	// deleted unused surfaces and windows
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
 		ImUiSurface* surface = &imui->surfaces[ surfaceIndex ];
@@ -166,25 +183,41 @@ void ImUiEnd( ImUiFrame* frame )
 		surface->inUse = false;
 	}
 
-	ImUiWidgetChunk* lastFreeChunk = NULL;
-	for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
+	// clear last frame widget chunks
 	{
-		chunk->usedCount = 0u;
+		ImUiWidgetChunk* lastFreeChunk = NULL;
+		for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
+		{
+			chunk->usedCount = 0u;
 
-		lastFreeChunk = chunk;
+			lastFreeChunk = chunk;
+		}
+
+		if( lastFreeChunk )
+		{
+			lastFreeChunk->nextChunk = imui->firstFreeChunk;
+		}
+		imui->firstFreeChunk = imui->firstLastFrameChunk;
+
+		imui->firstLastFrameChunk	= imui->firstChunk;
+		imui->firstChunk			= NULL;
 	}
 
-	if( lastFreeChunk )
+	// free unused states
 	{
-		lastFreeChunk->nextChunk = imui->firstFreeChunk;
+		ImUiWidgetState* unusedState = imui->firstUnusedState;
+		ImUiWidgetState* nextUnusedState = NULL;
+		while( unusedState )
+		{
+			nextUnusedState = unusedState->nextState;
+			ImUiMemoryFree( &imui->allocator, unusedState );
+			unusedState = nextUnusedState;
+		}
+		imui->firstUnusedState	= imui->firstState;
+		imui->firstState		= NULL;
 	}
-	imui->firstFreeChunk = imui->firstLastFrameChunk;
 
-	imui->firstLastFrameChunk	= imui->firstChunk;
-	imui->firstChunk			= NULL;
-
-	//ImUiStringPoolClear( &imui->strings );
-	ImUiTextLayoutCacheFreeUnused( &imui->layoutCache );
+	ImUiTextLayoutCacheEndFrame( &imui->layoutCache );
 }
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale )
@@ -289,10 +322,11 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 	window->inUse		= true;
 	window->imui		= imui;
+	window->frame		= &imui->frame;
 	window->surface		= surface;
 	window->name		= ImUiStringPoolAdd( &imui->strings, name );
 	window->hash		= ImUiHashString( name, 0 );
-	window->rectangle	= rect;
+	window->rect		= rect;
 	window->zOrder		= zOrder;
 	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->hash );
 
@@ -307,7 +341,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 	if( window->lastFrameCurrentWidget )
 	{
-		rootWidget->lastFrameHash	= window->lastFrameRootWidget->hash;
+		rootWidget->lastFrameWidget	= window->lastFrameRootWidget;
 		rootWidget->layoutContext	= window->lastFrameRootWidget->layoutContext;
 	}
 
@@ -332,11 +366,16 @@ ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
 	return window->surface;
 }
 
+float ImUiWindowGetTime( const ImUiWindow* window )
+{
+	return window->frame->timeInSeconds;
+}
+
 static void ImUiWindowLayout( ImUiWindow* window )
 {
 	window->rootWidget->rect = ImUiRectCreate( 0.0f, 0.0f, window->rootWidget->maxSize.width, window->rootWidget->maxSize.height );
 
-	const bool update = window->rootWidget->hash != window->rootWidget->lastFrameHash;
+	const bool update = !window->rootWidget->lastFrameWidget || (window->rootWidget->hash != window->rootWidget->lastFrameWidget->hash);
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
 		ImUiWidgetUpdateLayoutContext( widget, update );
@@ -388,7 +427,7 @@ static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 
 static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 {
-	if( widget->hash == widget->lastFrameHash && !update )
+	if( !update && widget->lastFrameWidget && widget->hash == widget->lastFrameWidget->hash )
 	{
 		for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 		{
@@ -397,8 +436,8 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 		return;
 	}
 
-	ImUiWidgetLayoutContext* context		= &widget->layoutContext;
-	ImUiWidgetLayoutContext* parentContext	= &widget->parent->layoutContext;
+	ImUiLayoutContext* context			= &widget->layoutContext;
+	ImUiLayoutContext* parentContext	= &widget->parent->layoutContext;
 
 	*context = IMUI_DEFAULT_LAYOUT_CONTEXT;
 
@@ -530,7 +569,7 @@ static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRect* par
 
 static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
-	ImUiWidgetLayoutContext* parentContext = &widget->parent->layoutContext;
+	ImUiLayoutContext* parentContext = &widget->parent->layoutContext;
 
 	const float factorWidth			= parentContext->childrenStretch.width ? widget->stretch.width / parentContext->childrenStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenMaxStretch.height ? widget->stretch.height / parentContext->childrenMaxStretch.height : 0.0f;
@@ -539,9 +578,9 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
-	if( widget->previousSibling )
+	if( widget->prevSibling )
 	{
-		pos.x = widget->previousSibling->rect.pos.x + widget->previousSibling->rect.size.width + widget->previousSibling->margin.right + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left;
+		pos.x = widget->prevSibling->rect.pos.x + widget->prevSibling->rect.size.width + widget->prevSibling->margin.right + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left;
 	}
 	else
 	{
@@ -573,7 +612,7 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 
 static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
-	ImUiWidgetLayoutContext* parentContext = &widget->parent->layoutContext;
+	ImUiLayoutContext* parentContext = &widget->parent->layoutContext;
 
 	const float factorWidth			= parentContext->childrenMaxStretch.width ? widget->stretch.width / parentContext->childrenMaxStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenStretch.height ? widget->stretch.height / parentContext->childrenStretch.height : 0.0f;
@@ -595,9 +634,9 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 		pos.x = (parentInnerRect->pos.x + parentInnerRect->size.width) - (widget->margin.left + size.width);
 		break;
 	}
-	if( widget->previousSibling )
+	if( widget->prevSibling )
 	{
-		pos.y = widget->previousSibling->rect.pos.y + widget->previousSibling->rect.size.height + widget->previousSibling->margin.bottom + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left;
+		pos.y = widget->prevSibling->rect.pos.y + widget->prevSibling->rect.size.height + widget->prevSibling->margin.bottom + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left;
 	}
 	else
 	{
@@ -662,7 +701,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 	}
 	else
 	{
-		widget->previousSibling = parent->lastChild;
+		widget->prevSibling = parent->lastChild;
 		parent->lastChild->nextSibling = widget;
 
 		parent->lastChild = widget;
@@ -686,9 +725,9 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 		window->lastFrameCurrentWidget = lastFrameWidget;
 		if( lastFrameWidget )
 		{
-			widget->lastFrameHash	= lastFrameWidget->hash;
+			widget->lastFrameWidget	= lastFrameWidget;
 			widget->layoutContext	= lastFrameWidget->layoutContext;
-			widget->rect		= lastFrameWidget->rect;
+			widget->rect			= lastFrameWidget->rect;
 		}
 	}
 
@@ -732,6 +771,93 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	}
 }
 
+void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size )
+{
+	return ImUiWidgetAllocStateNewDestruct( widget, size, NULL, NULL );
+}
+
+void* ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew )
+{
+	return ImUiWidgetAllocStateNewDestruct( widget, size, isNew, NULL );
+}
+
+void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc )
+{
+	if( widget->state && widget->state->stateSize == size )
+	{
+		IMUI_ASSERT( widget->state->stateDestructFunc == destructFunc );
+
+		if( isNew )
+		{
+			*isNew = false;
+		}
+		return widget->state->data;
+	}
+	else if( widget->lastFrameWidget &&
+			 widget->lastFrameWidget->state &&
+			 widget->lastFrameWidget->state->stateSize == size )
+	{
+		IMUI_ASSERT( widget->lastFrameWidget->state->stateDestructFunc == destructFunc );
+
+		ImUiWidgetState* lastState = widget->lastFrameWidget->state;
+		if( lastState->prevState )
+		{
+			lastState->prevState->nextState = lastState->nextState;
+		}
+		else
+		{
+			IMUI_ASSERT( widget->window->imui->firstUnusedState == lastState );
+			widget->window->imui->firstUnusedState = lastState->nextState;
+		}
+
+		if( lastState->nextState )
+		{
+			lastState->nextState->prevState = lastState->prevState;
+		}
+
+		lastState->nextState = widget->window->imui->firstState;
+		lastState->prevState = NULL;
+
+		if( widget->window->imui->firstState )
+		{
+			widget->window->imui->firstState->prevState = lastState;
+		}
+		widget->window->imui->firstState = lastState;
+
+		widget->state = lastState;
+
+		if( isNew )
+		{
+			*isNew = false;
+		}
+		return widget->state->data;
+	}
+
+	ImUiWidgetState* newState = ImUiMemoryAllocZero( &widget->window->imui->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
+	if( !newState )
+	{
+		return NULL;
+	}
+
+	newState->nextState			= widget->window->imui->firstState;
+	newState->stateSize			= size;
+	newState->stateDestructFunc	= destructFunc;
+
+	if( widget->window->imui->firstState )
+	{
+		widget->window->imui->firstState->prevState = newState;
+	}
+	widget->window->imui->firstState = newState;
+
+	widget->state = newState;
+
+	if( isNew )
+	{
+		*isNew = true;
+	}
+	return widget->state->data;
+}
+
 ImUiLayout ImUiWidgetGetLayout( const ImUiWidget* widget )
 {
 	return widget->layout;
@@ -770,6 +896,11 @@ void ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing )
 {
 	widget->layout									= ImUiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
+}
+
+float ImUiWidgetGetTime( const ImUiWidget* widget )
+{
+	return widget->window->frame->timeInSeconds;
 }
 
 ImUiBorder ImUiWidgetGetMargin( const ImUiWidget* widget )

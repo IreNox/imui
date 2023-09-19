@@ -29,12 +29,13 @@ struct ImUiWindow
 	bool			inUse;
 
 	ImUiContext*	imui;
+	ImUiFrame*		frame;
 	ImUiSurface*	surface;
 
 	ImUiHash		hash;
 	ImUiStringView	name;
 
-	ImUiRect	rectangle;
+	ImUiRect		rect;
 	uint32			zOrder;
 	uintsize		drawIndex;
 
@@ -44,32 +45,31 @@ struct ImUiWindow
 	ImUiWidget*		lastFrameCurrentWidget;
 };
 
-typedef struct ImUiWidgetLayoutContext ImUiWidgetLayoutContext;
-struct ImUiWidgetLayoutContext
+typedef struct ImUiWidgetState ImUiWidgetState;
+struct ImUiWidgetState
 {
-	//ImUiRect	minInnerRect;
-	//ImUiRect	maxInnerRect;
-	ImUiSize		minOuterSize;
-	size_t			childCount;
-	ImUiSize		childrenStretch;
-	ImUiSize		childrenMaxStretch;
-	ImUiSize		childrenMinSize;
-	ImUiSize		childrenMargin;
+	ImUiWidgetState*		prevState;
+	ImUiWidgetState*		nextState;
+
+	uintsize				stateSize;
+	ImUiStateDestructFunc	stateDestructFunc;
+
+	uint8					data[ 1u ];
 };
 
 struct ImUiLayoutScrollData
 {
-	ImUiPos	offset;
+	ImUiPos									offset;
 };
 
 struct ImUiLayoutHorizontalVerticalData
 {
-	float			spacing;
+	float									spacing;
 };
 
 struct ImUiLayoutGridData
 {
-	size_t			columnCount;
+	size_t									columnCount;
 };
 
 typedef union ImUiLayoutData ImUiLayoutData;
@@ -80,46 +80,68 @@ union ImUiLayoutData
 	struct ImUiLayoutGridData				grid;
 };
 
+typedef struct ImUiLayoutContext ImUiLayoutContext;
+struct ImUiLayoutContext
+{
+	//ImUiRect		minInnerRect;
+	//ImUiRect		maxInnerRect;
+	ImUiSize		minOuterSize;
+	size_t			childCount;
+	ImUiSize		childrenStretch;
+	ImUiSize		childrenMaxStretch;
+	ImUiSize		childrenMinSize;
+	ImUiSize		childrenMargin;
+};
+
 struct ImUiWidget
 {
 	ImUiWindow*				window;
 	ImUiWidget*				parent;
 
-	ImUiWidget*				previousSibling;
+	ImUiWidget*				prevSibling;
 	ImUiWidget*				nextSibling;
 
 	ImUiWidget*				firstChild;
 	ImUiWidget*				lastChild;
 
 	ImUiHash				hash;
-	ImUiHash				lastFrameHash;
 	ImUiId					id;
 	ImUiStringView			name;
 
-	ImUiBorder			margin;
-	ImUiBorder			padding;
+	ImUiWidget*				lastFrameWidget;
+
+	ImUiWidgetState*		state;
+
+	ImUiBorder				margin;
+	ImUiBorder				padding;
 
 	ImUiSize				minSize;
 	ImUiSize				maxSize;
 
 	ImUiSize				stretch;
-	ImUiPos			offset;
+	ImUiPos					offset;
 
 	ImUiLayout				layout;
 	ImUiLayoutData			layoutData;
 
-	ImUiAlign			align;
+	ImUiAlign				align;
 
-	ImUiRect			rect;
-	ImUiWidgetLayoutContext	layoutContext;
+	ImUiRect				rect;
+	ImUiLayoutContext		layoutContext;
 };
 
 typedef struct ImUiWidgetChunk ImUiWidgetChunk;
 struct ImUiWidgetChunk
 {
-	ImUiWidgetChunk*	nextChunk;
-	ImUiWidget			data[ IMUI_DEFAULT_WIDGET_CHUNK_SIZE ];
-	uintsize			usedCount;
+	ImUiWidgetChunk*		nextChunk;
+	ImUiWidget				data[ IMUI_DEFAULT_WIDGET_CHUNK_SIZE ];
+	uintsize				usedCount;
+};
+
+struct ImUiFrame
+{
+	ImUiContext*			imui;
+	float					timeInSeconds;
 };
 
 struct ImUiContext
@@ -140,4 +162,7 @@ struct ImUiContext
 	ImUiWidgetChunk*		firstChunk;
 	ImUiWidgetChunk*		firstLastFrameChunk;
 	ImUiWidgetChunk*		firstFreeChunk;
+
+	ImUiWidgetState*		firstState;
+	ImUiWidgetState*		firstUnusedState;
 };

@@ -494,14 +494,18 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			uvBorder.bottom	/= skinData->texSize.height;
 			uvBorder.right	/= skinData->texSize.width;
 
+			const ImUiSize borderSize = ImUiBorderGetMinSize( skinData->border );
+			const float xScale = skinData->rect.size.width >= borderSize.width ? 1.0f : skinData->rect.size.width / borderSize.width;
+			const float yScale = skinData->rect.size.height >= borderSize.height ? 1.0f : skinData->rect.size.height / borderSize.height;
+
 			const float xLeft			= skinData->rect.pos.x;
-			const float xCenterLeft		= xLeft + skinData->border.left;
+			const float xCenterLeft		= xLeft + (skinData->border.left * xScale);
 			const float xRight			= xLeft + skinData->rect.size.width;
-			const float xCenterRight	= xRight - skinData->border.right;
+			const float xCenterRight	= xRight - (skinData->border.right * xScale);
 			const float yTop			= skinData->rect.pos.y;
-			const float yCenterTop		= yTop + skinData->border.top;
+			const float yCenterTop		= yTop + (skinData->border.top * yScale);
 			const float yBottom			= yTop + skinData->rect.size.height;
-			const float yCenterBottom	= yBottom - skinData->border.bottom;
+			const float yCenterBottom	= yBottom - (skinData->border.bottom * yScale);
 
 			const float uLeft			= skinData->uv.u0;
 			const float uCenterLeft		= uLeft + uvBorder.left;

@@ -18,6 +18,14 @@ ImUiStringView ImUiStringViewCreate( const char* str )
 	return string;
 }
 
+ImUiStringView ImUiStringViewCreateLength( const char* str, size_t length )
+{
+	ImUiStringView string;
+	string.data		= str;
+	string.length	= length;
+	return string;
+}
+
 ImUiStringView ImUiStringViewCreateEmpty()
 {
 	ImUiStringView string;
