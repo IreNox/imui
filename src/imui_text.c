@@ -43,8 +43,7 @@ bool ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* al
 {
 	cache->allocator = allocator;
 
-	if( !ImUiChunkedPoolConstruct( &cache->layoutPool, allocator, sizeof( ImUiTextLayout ), IMUI_DEFAULT_TEXT_LAYOUT_POOL_CHUNK_SIZE ) ||
-		!ImUiHashMapConstructSize( &cache->layoutMap, allocator, sizeof( ImUiTextLayout* ), ImUiTextLayoutCacheHash, ImUiTextLayoutCacheIsKeyEquals, 64u ) )
+	if( !ImUiHashMapConstructSize( &cache->layoutMap, allocator, sizeof( ImUiTextLayout* ), ImUiTextLayoutCacheHash, ImUiTextLayoutCacheIsKeyEquals, 64u ) )
 	{
 		ImUiTextLayoutCacheDestruct( cache );
 		return false;
@@ -55,20 +54,43 @@ bool ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* al
 
 void ImUiTextLayoutCacheDestruct( ImUiTextLayoutCache* cache )
 {
-	for( uintsize i = ImUiHashMapFindFirstIndex( &cache->layoutMap ); i != IMUI_SIZE_MAX; i = ImUiHashMapFindNextIndex( &cache->layoutMap, i ) )
+	ImUiTextLayout* layout = cache->firstLayout;
+	ImUiTextLayout* nextLayout = NULL;
+	while( layout )
 	{
-		ImUiTextLayout* layout = *(ImUiTextLayout**)ImUiHashMapGetEntry( &cache->layoutMap, i );
+		nextLayout = layout->nextLayout;
+		ImUiMemoryFree( cache->allocator, layout );
+		layout = nextLayout;
+	}
 
-		ImUiMemoryFree( cache->allocator, layout->glyphs );
+	layout = cache->firstUnusedLayout;
+	while( layout )
+	{
+		nextLayout = layout->nextLayout;
+		ImUiMemoryFree( cache->allocator, layout );
+		layout = nextLayout;
 	}
 
 	ImUiHashMapDestruct( &cache->layoutMap );
-	ImUiChunkedPoolDestruct( &cache->layoutPool );
 }
 
-void ImUiTextLayoutCacheFreeUnused( ImUiTextLayoutCache* cachce )
+void ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cache )
 {
+	ImUiTextLayout* unusedLayout = cache->firstUnusedLayout;
+	ImUiTextLayout* nextUnusedLayout = NULL;
+	while( unusedLayout )
+	{
+		nextUnusedLayout = unusedLayout->nextLayout;
 
+		const bool removed = ImUiHashMapRemove( &cache->layoutMap, &unusedLayout );
+		IMUI_ASSERT( removed );
+		ImUiMemoryFree( cache->allocator, unusedLayout );
+		unusedLayout = nextUnusedLayout;
+	}
+	cache->firstUnusedLayout	= cache->firstLayout;
+	cache->firstLayout			= NULL;
+
+	cache->frameIndex++;
 }
 
 ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text )
@@ -96,6 +118,36 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 
 	if( !isNew )
 	{
+		ImUiTextLayout* layout = *mapLayout;
+		if( layout->frameIndex != cache->frameIndex )
+		{
+			if( layout->prevLayout )
+			{
+				layout->prevLayout->nextLayout = layout->nextLayout;
+			}
+			else
+			{
+				IMUI_ASSERT( cache->firstUnusedLayout == layout );
+				cache->firstUnusedLayout = layout->nextLayout;
+			}
+
+			if( layout->nextLayout )
+			{
+				layout->nextLayout->prevLayout = layout->prevLayout;
+			}
+
+			layout->nextLayout = cache->firstLayout;
+			layout->prevLayout = NULL;
+
+			if( cache->firstLayout )
+			{
+				cache->firstLayout->prevLayout = layout;
+			}
+			cache->firstLayout = layout;
+
+			layout->frameIndex = cache->frameIndex;
+		}
+
 		return *mapLayout;
 	}
 
@@ -109,22 +161,15 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 		glyphCount++;
 	}
 
-	const uintsize extraMemorySize = parameters->text.length + 1u + (sizeof( ImUiTextGlyph ) * glyphCount);
-	ImUiTextGlyph* glyphs = (ImUiTextGlyph*)ImUiMemoryAlloc( cache->allocator, extraMemorySize );
-	if( !glyphs )
-	{
-		ImUiHashMapRemove( &cache->layoutMap, mapLayout );
-		return NULL;
-	}
-
-	ImUiTextLayout* layout = (ImUiTextLayout*)ImUiChunkedPoolAllocate( &cache->layoutPool );
+	const uintsize memorySize = sizeof( ImUiTextLayout ) + parameters->text.length + 1u + (sizeof( ImUiTextGlyph ) * glyphCount);
+	ImUiTextLayout* layout = (ImUiTextLayout*)ImUiMemoryAlloc( cache->allocator, memorySize );
 	if( !layout )
 	{
 		ImUiHashMapRemove( &cache->layoutMap, mapLayout );
-		ImUiMemoryFree( cache->allocator, glyphs );
 		return NULL;
 	}
 
+	ImUiTextGlyph* glyphs = (ImUiTextGlyph*)&layout[ 1u ];
 	char* textData = (char*)&glyphs[ glyphCount ];
 	memcpy( textData, parameters->text.data, parameters->text.length + 1u );
 
@@ -191,6 +236,16 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 	layout->glyphs		= glyphs;
 	layout->glyphCount	= glyphCount;
 	layout->size		= ImUiSizeCreate( x, height );
+	layout->frameIndex	= cache->frameIndex;
+
+	layout->prevLayout	= NULL;
+	layout->nextLayout	= cache->firstLayout;
+
+	if( cache->firstLayout )
+	{
+		cache->firstLayout->prevLayout = layout;
+	}
+	cache->firstLayout = layout;
 
 	*mapLayout = layout;
 	return layout;

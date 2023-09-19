@@ -5,29 +5,6 @@
 
 typedef struct ImUiAllocator ImUiAllocator;
 
-typedef struct ImUiChunkedPoolChunk ImUiChunkedPoolChunk;
-typedef struct ImUiChunkedPoolFreeElement ImUiChunkedPoolFreeElement;
-typedef struct ImUiChunkedPool ImUiChunkedPool;
-struct ImUiChunkedPool
-{
-	ImUiAllocator*				allocator;
-	uintsize					elementSize;
-	uintsize					chunkSize;
-	uint32						chunkBits;
-
-	ImUiChunkedPoolChunk**		chunks;
-	uintsize					chunkCount;
-	uintsize					chunkCapacity;
-
-	ImUiChunkedPoolFreeElement*	firstFreeElement;
-};
-
-bool			ImUiChunkedPoolConstruct( ImUiChunkedPool* pool, ImUiAllocator* allocator, uintsize elementSize, uintsize chunkSize );
-void			ImUiChunkedPoolDestruct( ImUiChunkedPool* pool );
-
-void*			ImUiChunkedPoolAllocate( ImUiChunkedPool* pool );
-void			ImUiChunkedPoolFree( ImUiChunkedPool* pool, void* element );
-
 typedef ImUiHash(*ImUiHashMapEntryHashFunc)( const void* entry );
 typedef bool(*ImUiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
 
@@ -71,7 +48,7 @@ struct ImUiStringPool
 	ImUiAllocator*			allocator;
 	ImUiStringPoolChunk*	firstChunk;
 
-	ImUiHashMap			keyMap;
+	ImUiHashMap				keyMap;
 };
 
 bool						ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator );

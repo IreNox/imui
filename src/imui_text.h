@@ -9,26 +9,30 @@ typedef struct ImUiFont ImUiFont;
 typedef struct ImUiTextLayoutCache ImUiTextLayoutCache;
 struct ImUiTextLayoutCache
 {
-	ImUiAllocator*		allocator;
+	ImUiAllocator*			allocator;
 
-	ImUiChunkedPool		layoutPool;
-	ImUiHashMap			layoutMap;
+	ImUiHashMap				layoutMap;
+
+	ImUiTextLayout*			firstLayout;
+	ImUiTextLayout*			firstUnusedLayout;
+
+	uint32					frameIndex;
 };
 
 typedef struct ImUiTextGlyph ImUiTextGlyph;
 struct ImUiTextGlyph
 {
 	uint32					codepoint;
-	ImUiPos			pos;
+	ImUiPos					pos;
 	ImUiSize				size;
-	ImUiTexCoord	uv;
+	ImUiTexCoord			uv;
 };
 
 typedef struct ImUiTextLayoutParameters ImUiTextLayoutParameters;
 struct ImUiTextLayoutParameters
 {
-	ImUiFont*			font;
-	ImUiStringView		text;
+	ImUiFont*				font;
+	ImUiStringView			text;
 };
 
 typedef struct ImUiTextLayout ImUiTextLayout;
@@ -37,16 +41,21 @@ struct ImUiTextLayout
 	ImUiFont*				font;
 	ImUiStringView			text;
 
+	ImUiTextLayout*			prevLayout;
+	ImUiTextLayout*			nextLayout;
+
 	const ImUiTextGlyph*	glyphs;
-	uintsize				glyphCount;
+	uint32					glyphCount;
+
+	uint32					frameIndex;
 
 	ImUiSize				size;
 };
 
-bool					ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* allocator );
-void					ImUiTextLayoutCacheDestruct( ImUiTextLayoutCache* cache );
+bool						ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* allocator );
+void						ImUiTextLayoutCacheDestruct( ImUiTextLayoutCache* cache );
 
-void					ImUiTextLayoutCacheFreeUnused( ImUiTextLayoutCache* cachce );
+void						ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cachce );
 
-ImUiTextLayout*			ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
-ImUiSize				ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
+ImUiTextLayout*				ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
+ImUiSize					ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
