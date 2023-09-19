@@ -304,8 +304,6 @@ float ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max )
 
 bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t textLength )
 {
-	ImUiContext* imui = ImUiWindowGetContext( window );
-
 	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( textEditFrame, ImUiSizeCreateHorizintal() );
 	ImUiWidgetSetPadding( textEditFrame, s_config.textEditPadding );

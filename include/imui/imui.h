@@ -282,7 +282,7 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 float						ImUiWindowGetTime( const ImUiWindow* window );
 
 //////////////////////////////////////////////////////////////////////////
-// Widget - todo
+// Widget - A layout element in the tree
 
 typedef void(*ImUiStateDestructFunc)( void* state );
 

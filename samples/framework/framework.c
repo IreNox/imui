@@ -671,8 +671,6 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t siz
 	const float halfRadius = radius * 0.5f;
 	for( size_t y = 0u; y < size; ++y )
 	{
-		const float v = y / (float)size;
-
 		uint8_t* line = skinData + (y * size * 4u);
 		for( size_t x = 0u; x < size; ++x )
 		{

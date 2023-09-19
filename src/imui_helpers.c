@@ -263,7 +263,7 @@ void* ImUiHashMapInsertNew( ImUiHashMap* hashMap, const void* entry, bool* isNew
 			}
 
 			hashOffset = 0u;
-			indexMask = hashMap->entryCapacity - 1u;
+			indexMask = (uint32)hashMap->entryCapacity - 1u;
 		}
 	}
 

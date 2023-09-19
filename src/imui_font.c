@@ -248,7 +248,6 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 		descent = scale * descentI;
 		lineGap = scale * lineGapI;
 	}
-	const float vHeight = ascent - descent;
 
 	uint32 x = 1u;
 	uint32 y = 1u;
