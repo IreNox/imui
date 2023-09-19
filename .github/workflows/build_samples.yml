@@ -1,4 +1,4 @@
-name: "Build Samples"
+name: Build Samples
 
 on:
   push:
@@ -16,6 +16,7 @@ jobs:
       matrix:
         PROJECT: [01_hello_world, 02_layout, 03_input, 05_widgets]
         CONFIG: [Debug, Release]
+        PLATFORM: [x86, x64]
     steps:
     - uses: actions/checkout@v3
 
@@ -28,4 +29,10 @@ jobs:
 
     - name: Build
       working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022
-      run: msbuild /m /p:Configuration=${{matrix.CONFIG}} ${{matrix.PROJECT}}.sln
+      run: msbuild /m /p:Configuration=${{matrix.CONFIG}} /p:Platform=${{matrix.PLATFORM}} ${{matrix.PROJECT}}.sln
+      
+    - name: Upload
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{matrix.PROJECT}}_${{matrix.CONFIG}}_${{matrix.PLATFORM}}.exe
+        path: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022/${{matrix.PLATFORM}}/${{matrix.CONFIG}}/${{matrix.PROJECT}}.exe
