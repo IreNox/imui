@@ -36,23 +36,29 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWidgetSetMargin( vLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	static bool checked[ 3u ] = { false, true, false };
+	bool isNewState;
+	bool* checked = (bool*)ImUiWidgetAllocStateNew( vLayout, sizeof( bool ) * 3u, &isNewState );
+	if( isNewState )
+	{
+		checked[ 1u ] = true;
+	}
+
 	{
 		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "buttons" ) );
 		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
-		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
+		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 1" ) ) )
 		{
 			checked[ 0u ] = !checked[ 0u ];
 		}
 
-		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
+		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 2" ) ) )
 		{
 			checked[ 1u ] = !checked[ 1u ];
 		}
 
-		if( ImUiWidgetsButton( window, IMUI_STR( "Button 1" ) ) )
+		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 3" ) ) )
 		{
 			checked[ 2u ] = !checked[ 2u ];
 		}
@@ -65,13 +71,13 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 1" ), &checked[ 0u ] );
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 2" ), &checked[ 1u ] );
-		ImUiWidgetsCheckBox( window, IMUI_STR( "Check 3" ), &checked[ 2u ] );
+		ImUiWidgetsCheckBox( window, &checked[ 0u ], IMUI_STR( "Check 1" ) );
+		ImUiWidgetsCheckBox( window, &checked[ 1u ], IMUI_STR( "Check 2" ) );
+		ImUiWidgetsCheckBox( window, &checked[ 2u ], IMUI_STR( "Check 3" ) );
 
-		char text[ 64u ];
-		snprintf( text, sizeof( text ), "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
-		ImUiWidgetsLabel( window, IMUI_STR( text ) );
+		ImUiWidgetsCheckBoxState( window, IMUI_STR( "Check State" ) );
+
+		ImUiWidgetsLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
 
 		ImUiWidgetEnd( checkLayout );
 	}
@@ -81,12 +87,15 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
-		static float value = 2.5f;
-		ImUiWidgetsSliderMinMax( window, &value, 0.0f, 5.0f );
+		static float value1 = 2.5f;
+		ImUiWidgetsSliderMinMax( window, &value1, 1.0f, 5.0f );
 
-		char text[ 64u ];
-		snprintf( text, sizeof( text ), "Value: %.2f", value );
-		ImUiWidgetsLabel( window, IMUI_STR( text ) );
+		const float value2 = ImUiWidgetsSliderStateMinMax( window, 1.0f, 5.0f );
+
+		ImUiWidgetsLabelFormat( window, "V1: %.2f, V2: %.2f", value1, value2 );
+
+		ImUiWidgetsProgressBarMinMax( window, value1, 0.0f, 5.0f );
+		ImUiWidgetsProgressBar( window, -1.0f );
 
 		ImUiWidgetEnd( sliderLayout );
 	}
@@ -145,12 +154,21 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiWidgetsColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
 	config.colors[ ImUiWidgetsColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
 	config.colors[ ImUiWidgetsColor_SliderPivotClicked ]		= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiWidgetsColor_TextEditBackground ]		= ImUiColorCreate( 0.7f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiWidgetsColor_TextEditText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiWidgetsColor_TextEditCursor ]			= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiWidgetsColor_TextEditSelection ]			= ImUiColorCreate( 0.5f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiWidgetsColor_ProgressBarBackground ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiWidgetsColor_ProgressBarProgress ]		= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
 
 	config.skins[ ImUiWidgetsSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiWidgetsSkin_CheckBox ]					= s_skinRect;
 	config.skins[ ImUiWidgetsSkin_CheckBoxChecked ]				= s_skinRect;
 	config.skins[ ImUiWidgetsSkin_SliderBackground ]			= s_skinLine;
 	config.skins[ ImUiWidgetsSkin_SliderPivot ]					= s_skinRect;
+	config.skins[ ImUiWidgetsSkin_TextEditBackground ]			= s_skinLine;
+	config.skins[ ImUiWidgetsSkin_ProgressBarBackground ]		= s_skinLine;
+	config.skins[ ImUiWidgetsSkin_ProgressBarProgress ]			= s_skinRect;
 
 	config.font					= s_font;
 
@@ -162,6 +180,14 @@ static void ImUiTestSetConfig()
 	config.sliderPadding		= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
 	config.sliderPivotSize		= 12.0f;
 	config.sliderHeight			= 20.0f;
+
+	config.textEditHeight		= 20.0f;
+	config.textEditPadding		= ImUiBorderCreateAll( 4.0f );
+	config.textEditCursorSize	= ImUiSizeCreate( 1.0f, 12.0f );
+	config.textEditBlinkTime	= 1.0f;
+
+	config.progressBarHeight	= 20.0f;
+	config.progressBarPadding	= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );
 
 	ImUiWidgetsSetConfig( &config );
 }
