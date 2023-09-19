@@ -23,9 +23,9 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Run tiki_build
-      working-directory: ${{env.GITHUB_WORKSPACE}}/samples/${{env.PROJECT}}
-      run: premake_tb --to=build/vs2022 vs2022
+      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}
+      run: ${{github.workspace}}/premake_tb.exe --to=build/vs2022 vs2022
 
     - name: Build
-      working-directory: ${{env.GITHUB_WORKSPACE}}/samples/${{env.PROJECT}}
-      run: msbuild /m /p:Configuration=${{env.CONFIG}} ${{env.PROJECT}}.sln
+      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}
+      run: msbuild /m /p:Configuration=${{matrix.CONFIG}} ${{matrix.PROJECT}}.sln
