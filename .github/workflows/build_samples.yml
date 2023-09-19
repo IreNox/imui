@@ -27,5 +27,5 @@ jobs:
       run: ${{github.workspace}}/premake_tb.exe --to=build/vs2022 vs2022
 
     - name: Build
-      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}
+      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022
       run: msbuild /m /p:Configuration=${{matrix.CONFIG}} ${{matrix.PROJECT}}.sln
