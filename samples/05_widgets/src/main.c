@@ -1,7 +1,7 @@
 ﻿#include "../../framework/framework.h"
 
 #include "imui/imui.h"
-#include "imui/imui_widgets.h"
+#include "imui/imui_toolbox.h"
 
 #include <float.h>
 #include <math.h>
@@ -48,17 +48,17 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
-		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 1" ) ) )
+		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 1" ) ) )
 		{
 			checked[ 0u ] = !checked[ 0u ];
 		}
 
-		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 2" ) ) )
+		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 2" ) ) )
 		{
 			checked[ 1u ] = !checked[ 1u ];
 		}
 
-		if( ImUiWidgetsButtonLabel( window, IMUI_STR( "Button 3" ) ) )
+		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 3" ) ) )
 		{
 			checked[ 2u ] = !checked[ 2u ];
 		}
@@ -71,13 +71,13 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizintal() );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
-		ImUiWidgetsCheckBox( window, &checked[ 0u ], IMUI_STR( "Check 1" ) );
-		ImUiWidgetsCheckBox( window, &checked[ 1u ], IMUI_STR( "Check 2" ) );
-		ImUiWidgetsCheckBox( window, &checked[ 2u ], IMUI_STR( "Check 3" ) );
+		ImUiToolboxCheckBox( window, &checked[ 0u ], IMUI_STR( "Check 1" ) );
+		ImUiToolboxCheckBox( window, &checked[ 1u ], IMUI_STR( "Check 2" ) );
+		ImUiToolboxCheckBox( window, &checked[ 2u ], IMUI_STR( "Check 3" ) );
 
-		ImUiWidgetsCheckBoxState( window, IMUI_STR( "Check State" ) );
+		ImUiToolboxCheckBoxState( window, IMUI_STR( "Check State" ) );
 
-		ImUiWidgetsLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
+		ImUiToolboxLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
 
 		ImUiWidgetEnd( checkLayout );
 	}
@@ -88,14 +88,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
 		static float value1 = 2.5f;
-		ImUiWidgetsSliderMinMax( window, &value1, 1.0f, 5.0f );
+		ImUiToolboxSliderMinMax( window, &value1, 1.0f, 5.0f );
 
-		const float value2 = ImUiWidgetsSliderStateMinMax( window, 1.0f, 5.0f );
+		const float value2 = ImUiToolboxSliderStateMinMax( window, 1.0f, 5.0f );
 
-		ImUiWidgetsLabelFormat( window, "V1: %.2f, V2: %.2f", value1, value2 );
+		ImUiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", value1, value2 );
 
-		ImUiWidgetsProgressBarMinMax( window, value1, 0.0f, 5.0f );
-		ImUiWidgetsProgressBar( window, -1.0f );
+		ImUiToolboxProgressBarMinMax( window, value1, 0.0f, 5.0f );
+		ImUiToolboxProgressBar( window, -1.0f );
 
 		ImUiWidgetEnd( sliderLayout );
 	}
@@ -138,37 +138,37 @@ void ImUiFrameworkShutdown( ImUiContext* imui )
 
 static void ImUiTestSetConfig()
 {
-	ImUiWidgetsConfig config;
-	config.colors[ ImUiWidgetsColor_Text ]						= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiWidgetsColor_Button ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiWidgetsColor_ButtonHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_ButtonClicked ]				= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_ButtonText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBox ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBoxHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBoxClicked ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBoxChecked ]			= ImUiColorCreate( 1.0f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBoxCheckedHover ]		= ImUiColorCreate( 1.0f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_CheckBoxCheckedClicked ]	= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_SliderBackground ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiWidgetsColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_SliderPivotClicked ]		= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_TextEditBackground ]		= ImUiColorCreate( 0.7f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiWidgetsColor_TextEditText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiWidgetsColor_TextEditCursor ]			= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiWidgetsColor_TextEditSelection ]			= ImUiColorCreate( 0.5f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiWidgetsColor_ProgressBarBackground ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiWidgetsColor_ProgressBarProgress ]		= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	ImUiToolboxConfig config;
+	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_Button ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonClicked ]				= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBox ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= ImUiColorCreate( 1.0f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= ImUiColorCreate( 1.0f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderBackground ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditBackground ]		= ImUiColorCreate( 0.7f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditCursor ]			= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditSelection ]			= ImUiColorCreate( 0.5f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_ProgressBarBackground ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
 
-	config.skins[ ImUiWidgetsSkin_Button ]						= s_skinRect;
-	config.skins[ ImUiWidgetsSkin_CheckBox ]					= s_skinRect;
-	config.skins[ ImUiWidgetsSkin_CheckBoxChecked ]				= s_skinRect;
-	config.skins[ ImUiWidgetsSkin_SliderBackground ]			= s_skinLine;
-	config.skins[ ImUiWidgetsSkin_SliderPivot ]					= s_skinRect;
-	config.skins[ ImUiWidgetsSkin_TextEditBackground ]			= s_skinLine;
-	config.skins[ ImUiWidgetsSkin_ProgressBarBackground ]		= s_skinLine;
-	config.skins[ ImUiWidgetsSkin_ProgressBarProgress ]			= s_skinRect;
+	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
+	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_skinRect;
+	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_skinLine;
+	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_skinLine;
+	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_skinLine;
+	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_skinRect;
 
 	config.font					= s_font;
 
@@ -189,5 +189,5 @@ static void ImUiTestSetConfig()
 	config.progressBarHeight	= 20.0f;
 	config.progressBarPadding	= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );
 
-	ImUiWidgetsSetConfig( &config );
+	ImUiToolboxSetConfig( &config );
 }
