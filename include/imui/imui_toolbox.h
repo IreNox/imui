@@ -2,6 +2,11 @@
 
 #include "imui.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 typedef enum ImUiToolboxColor ImUiToolboxColor;
 enum ImUiToolboxColor
 {
@@ -97,3 +102,7 @@ bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize
 
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
+
+#ifdef __cplusplus
+}
+#endif

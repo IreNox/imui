@@ -1,5 +1,10 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -23,3 +28,7 @@ void					ImUiFrameworkFontDestroy( ImUiFont** font, ImUiTexture* texture );
 
 bool					ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t size, float radius, float factor, bool horizontal );
 void					ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiTexture* texture );
+
+#ifdef __cplusplus
+}
+#endif

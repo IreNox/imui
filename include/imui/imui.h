@@ -1,15 +1,15 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #define IMUI_DEFINES
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
 #ifdef IMUI_DEFINES
 #	define IMUI_STR( s ) ImUiStringViewCreate( s )
