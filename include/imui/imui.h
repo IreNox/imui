@@ -139,7 +139,7 @@ struct ImUiDrawCommand
 	ImUiDrawTopology		topology;
 	void*					texture;
 	//ImUiRect				clipRect;
-	size_t					offset;				// index offset if index buffer is used otherwise vertex offset
+	//uint32					offset;				// index offset if index buffer is used otherwise vertex offset
 	size_t					count;				// same as offset but count
 };
 
@@ -149,7 +149,7 @@ struct ImUiDrawData
 	const void*				vertexData;
 	size_t					vertexDataSize;
 	const uint32_t*			indexData;
-	size_t					indexCount;
+	size_t					indexDataSize;
 
 	const ImUiDrawCommand*	commands;
 	size_t					commandCount;

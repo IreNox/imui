@@ -225,7 +225,7 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 	data->vertexData		= drawSurface->vertexData;
 	data->vertexDataSize	= draw->vertexSize * drawSurface->vertexCount;
 	data->indexData			= drawSurface->indices;
-	data->indexCount		= drawSurface->indexCount;
+	data->indexDataSize		= drawSurface->indexCount * sizeof( *drawSurface->indices );
 
 	return &drawSurface->data;
 }
@@ -713,7 +713,7 @@ static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDr
 	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
 	command->topology	= topology;
 	command->texture	= element->texture;
-	command->offset		= draw->useIndexBuffer ? surface->indexCount : surface->vertexCount;
+	//command->offset		= draw->useIndexBuffer ? surface->indexCount : surface->vertexCount;
 	command->count		= 0u;
 
 	return command;
