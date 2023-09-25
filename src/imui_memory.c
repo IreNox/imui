@@ -3,6 +3,36 @@
 #include <stdlib.h>
 #include <string.h>
 
+void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator )
+{
+	*targetAllocator = *sourceAllocator;
+
+	if( targetAllocator->mallocFunc == NULL ||
+		targetAllocator->freeFunc == NULL )
+	{
+		targetAllocator->mallocFunc	= ImUiMemoryDefaultAlloc;
+		targetAllocator->reallocFunc	= ImUiMemoryDefaultRealloc;
+		targetAllocator->freeFunc		= ImUiMemoryDefaultFree;
+		targetAllocator->userData		= NULL;
+		targetAllocator->internalData	= NULL;
+	}
+	else
+	{
+		targetAllocator->internalData	= sourceAllocator->userData;
+	}
+}
+
+void ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator )
+{
+	*targetAllocator = *sourceAllocator;
+
+	if( targetAllocator->reallocFunc == NULL )
+	{
+		targetAllocator->reallocFunc	= ImUiMemoryPseudoRealloc;
+		targetAllocator->internalData	= targetAllocator;
+	}
+}
+
 void* ImUiMemoryDefaultAlloc( uintsize size, void* userData )
 {
 	return malloc( size );

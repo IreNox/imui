@@ -43,19 +43,7 @@ static const ImUiWidget IMUI_DEFAULT_WIDGET =
 ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 {
 	ImUiAllocator allocator = parameters->allocator;
-	if( allocator.mallocFunc == NULL ||
-		allocator.freeFunc == NULL )
-	{
-		allocator.mallocFunc	= ImUiMemoryDefaultAlloc;
-		allocator.reallocFunc	= ImUiMemoryDefaultRealloc;
-		allocator.freeFunc		= ImUiMemoryDefaultFree;
-		allocator.userData		= NULL;
-		allocator.internalData	= NULL;
-	}
-	else
-	{
-		allocator.internalData	= allocator.userData;
-	}
+	ImUiMemoryAllocatorPrepare( &allocator, &parameters->allocator );
 
 	ImUiContext* imui = IMUI_MEMORY_NEW_ZERO( &allocator, ImUiContext );
 	if( !imui )
@@ -63,12 +51,7 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 		return NULL;
 	}
 
-	imui->allocator = allocator;
-	if( imui->allocator.reallocFunc == NULL )
-	{
-		allocator.reallocFunc	= ImUiMemoryPseudoRealloc;
-		allocator.internalData	= &imui->allocator;
-	}
+	ImUiMemoryAllocatorFinalize( &imui->allocator, &allocator );
 
 	ImUiInputConstruct( &imui->input, &imui->allocator );
 

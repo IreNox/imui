@@ -14,6 +14,9 @@
 #define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED( ARRAY, COUNT, INDEX )		ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), false )
 #define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( ARRAY, COUNT, INDEX )	ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), true )
 
+void	ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator );
+void	ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator );
+
 void*	ImUiMemoryDefaultAlloc( uintsize size, void* userData );
 void*	ImUiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
 void*	ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
