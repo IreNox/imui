@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator )
+void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator )
 {
 	*targetAllocator = *sourceAllocator;
 
@@ -22,7 +22,7 @@ void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, ImUiAllocator* 
 	}
 }
 
-void ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, ImUiAllocator* sourceAllocator )
+void ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator )
 {
 	*targetAllocator = *sourceAllocator;
 

@@ -42,7 +42,7 @@ static const ImUiWidget IMUI_DEFAULT_WIDGET =
 
 ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 {
-	ImUiAllocator allocator = parameters->allocator;
+	ImUiAllocator allocator;
 	ImUiMemoryAllocatorPrepare( &allocator, &parameters->allocator );
 
 	ImUiContext* imui = IMUI_MEMORY_NEW_ZERO( &allocator, ImUiContext );
