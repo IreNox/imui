@@ -15,8 +15,12 @@ extern "C"
 #	define IMUI_STR( s ) ImUiStringViewCreate( s )
 #endif
 
-#if !defined( IMUI_DEBUG ) && defined( _DEBUG )
-#	define IMUI_DEBUG 1
+#if !defined( IMUI_DEBUG )
+#	if defined( _DEBUG )
+#		define IMUI_DEBUG 1
+#	else
+#		define IMUI_DEBUG 0
+#	endif
 #endif
 
 typedef struct ImUiContext ImUiContext;
@@ -119,40 +123,6 @@ struct ImUiParameters							// Fill with zero for default parameters
 	ImUiAllocator			allocator;			// Override memory Allocator. Default use malloc/free
 	ImUiVertexFormat		vertexFormat;		// Override vertex format. Default: float2 pos ss, float2 uv, float4 color
 	ImUiVertexType			vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
-};
-
-typedef enum ImUiDrawTopology ImUiDrawTopology;
-enum ImUiDrawTopology
-{
-	ImUiDrawTopology_LineList,
-	ImUiDrawTopology_TriangleList,
-	ImUiDrawTopology_TriangleStrip,
-	ImUiDrawTopology_IndexedTriangleList,
-	ImUiDrawTopology_IndexedTriangleStrip,
-
-	ImUiDrawTopology_MAX
-};
-
-typedef struct ImUiDrawCommand ImUiDrawCommand;
-struct ImUiDrawCommand
-{
-	ImUiDrawTopology		topology;
-	void*					texture;
-	//ImUiRect				clipRect;
-	//uint32					offset;				// index offset if index buffer is used otherwise vertex offset
-	size_t					count;				// same as offset but count
-};
-
-typedef struct ImUiDrawData ImUiDrawData;
-struct ImUiDrawData
-{
-	const void*				vertexData;
-	size_t					vertexDataSize;
-	const uint32_t*			indexData;
-	size_t					indexDataSize;
-
-	const ImUiDrawCommand*	commands;
-	size_t					commandCount;
 };
 
 ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
@@ -258,6 +228,39 @@ enum ImUiLayout
 	ImUiLayout_Horizontal,
 	ImUiLayout_Vertical,
 	ImUiLayout_Grid
+};
+
+typedef enum ImUiDrawTopology ImUiDrawTopology;
+enum ImUiDrawTopology
+{
+	ImUiDrawTopology_LineList,
+	ImUiDrawTopology_TriangleList,
+	ImUiDrawTopology_TriangleStrip,
+	ImUiDrawTopology_IndexedTriangleList,
+	ImUiDrawTopology_IndexedTriangleStrip,
+
+	ImUiDrawTopology_MAX
+};
+
+typedef struct ImUiDrawCommand ImUiDrawCommand;
+struct ImUiDrawCommand
+{
+	ImUiDrawTopology		topology;
+	void*					texture;
+	ImUiRect				clipRect;
+	size_t					count;				// index count if index buffer is used otherwise vertex count
+};
+
+typedef struct ImUiDrawData ImUiDrawData;
+struct ImUiDrawData
+{
+	const void*				vertexData;
+	size_t					vertexDataSize;
+	const uint32_t*			indexData;
+	size_t					indexDataSize;
+
+	const ImUiDrawCommand*	commands;
+	size_t					commandCount;
 };
 
 //////////////////////////////////////////////////////////////////////////

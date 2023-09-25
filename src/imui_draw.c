@@ -35,8 +35,10 @@ static ImUiDrawElement*		ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElemen
 static void					ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
 static ImUiDrawCommand*		ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
 static bool					ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize vertexCount );
+static bool					ImUiDrawSurfacePreparePushRects( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize rectCount );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color );
 static void					ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
+static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
 static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
 bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVertexFormat* vertexFormat, ImUiVertexType vertexType )
@@ -48,8 +50,8 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 	{
 	case ImUiVertexType_VertexList:			draw->triangleTopology = ImUiDrawTopology_TriangleList; break;
 	case ImUiVertexType_VertexStrip:		draw->triangleTopology = ImUiDrawTopology_TriangleStrip; break;
-	case ImUiVertexType_IndexedVertexList:	draw->triangleTopology = ImUiDrawTopology_IndexedTriangleList; draw->useIndexBuffer = true; break;
-	case ImUiVertexType_IndexedVertexStrip:	draw->triangleTopology = ImUiDrawTopology_IndexedTriangleStrip; draw->useIndexBuffer = true; break;
+	case ImUiVertexType_IndexedVertexList:	draw->triangleTopology = ImUiDrawTopology_IndexedTriangleList; break;
+	case ImUiVertexType_IndexedVertexStrip:	draw->triangleTopology = ImUiDrawTopology_IndexedTriangleStrip; break;
 	}
 
 	const bool hasVertexFormat = vertexFormat->elementCount != 0u;
@@ -171,7 +173,6 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 		}
 
 		surface->used			= false;
-		surface->lastTopology	= ImUiDrawTopology_MAX;
 		surface->commandCount	= 0u;
 		surface->vertexCount	= 0u;
 		surface->indexCount		= 0u;
@@ -204,8 +205,7 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 		drawSurface->surface = surface;
 	}
 
-	drawSurface->lastTopology	= ImUiDrawTopology_MAX;
-	drawSurface->used			= true;
+	drawSurface->used = true;
 
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
@@ -418,6 +418,7 @@ static ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElement
 	ImUiDrawElement* element = &window->elements[ window->elementCount++ ];
 	element->type		= type;
 	element->texture	= texture;
+	element->clipRect	= widget->rect;
 
 	return element;
 }
@@ -439,7 +440,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			vertexIndices[ 0u ] = ImUiDrawSurfacePushVertex( draw, surface, lineData->p0.x, lineData->p0.y, 0.0f, 0.0f, lineData->color );
 			vertexIndices[ 1u ] = ImUiDrawSurfacePushVertex( draw, surface, lineData->p1.x, lineData->p1.y, 0.0f, 0.0f, lineData->color );
 
-			if( draw->useIndexBuffer )
+			if( draw->triangleTopology == ImUiDrawTopology_IndexedTriangleList || draw->triangleTopology == ImUiDrawTopology_IndexedTriangleStrip )
 			{
 				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
@@ -454,33 +455,9 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 			const ImUiPos posTl = ImUiRectGetTopLeft( rectData->rect );
 			const ImUiPos posBr = ImUiRectGetBottomRight( rectData->rect );
-			if( draw->useIndexBuffer )
-			{
-				ImUiDrawSurfacePreparePushVertices( draw, surface, 4u );
-				const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, rectData->uv.u0, rectData->uv.v0, rectData->color );
-				const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, rectData->uv.u1, rectData->uv.v0, rectData->color );
-				const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, rectData->uv.u0, rectData->uv.v1, rectData->color );
-				const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, rectData->uv.u1, rectData->uv.v1, rectData->color );
 
-				const uint32 vertexIndices[ 6u ] =
-				{
-					indexTl, indexTr, indexBl,
-					indexBl, indexTr, indexBr
-				};
-				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
-			}
-			else
-			{
-				ImUiDrawSurfacePreparePushVertices( draw, surface, 6u );
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, rectData->uv.u0, rectData->uv.v0, rectData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, rectData->uv.u1, rectData->uv.v0, rectData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, rectData->uv.u0, rectData->uv.v1, rectData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, rectData->uv.u0, rectData->uv.v1, rectData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, rectData->uv.u1, rectData->uv.v0, rectData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, rectData->uv.u1, rectData->uv.v1, rectData->color );
-			}
-
-			elementCount = 6u;
+			ImUiDrawSurfacePreparePushRects( draw, surface, 1u );
+			elementCount = ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, rectData->uv, rectData->color );
 		}
 		break;
 
@@ -548,103 +525,39 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 				vBottom
 			};
 
-			if( draw->useIndexBuffer )
+			ImUiDrawSurfacePreparePushRects( draw, surface, 9u );
+
+			for( uintsize y = 0; y < ImUiDrawSkinPointY_END; ++y )
 			{
-				ImUiDrawSurfacePreparePushVertices( draw, surface, 4u * 9u );
+				const uintsize nextY = y + 1u;
 
-				uint32 indices[ 6u * ImUiDrawSkinPointX_END * ImUiDrawSkinPointY_END ];
-				uint32* currentIndices = indices;
-				for( uintsize y = 0; y < ImUiDrawSkinPointY_END; ++y )
+				for( uintsize x = 0; x < ImUiDrawSkinPointX_END; ++x )
 				{
-					const uintsize nextY = y + 1u;
+					const uintsize nextX = x + 1u;
 
-					for( uintsize x = 0; x < ImUiDrawSkinPointX_END; ++x )
+					const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
+					const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
+
+					const ImUiTexCoord uv =
 					{
-						const uintsize nextX = x + 1u;
+						uPositions[ x ], vPositions[ y ],
+						uPositions[ nextX ], vPositions[ nextY ]
+					};
 
-						const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
-						const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
-						if( posBr.x - posTl.x <= 0.0f ||
-							posBr.y - posTl.y <= 0.0f )
-						{
-							continue;
-						}
-
-						const ImUiTexCoord uv =
-						{
-							uPositions[ x ], vPositions[ y ],
-							uPositions[ nextX ], vPositions[ nextY ]
-						};
-
-						const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, skinData->color );
-						const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, skinData->color );
-						const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, skinData->color );
-						const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, skinData->color );
-
-						currentIndices[ 0u ] = indexTl;
-						currentIndices[ 1u ] = indexTr;
-						currentIndices[ 2u ] = indexBl;
-						currentIndices[ 3u ] = indexBl;
-						currentIndices[ 4u ] = indexTr;
-						currentIndices[ 5u ] = indexBr;
-						currentIndices += 6u;
-					}
-				}
-
-				ImUiDrawSurfacePushIndices( draw, surface, indices, IMUI_ARRAY_COUNT( indices ) );
-
-				elementCount += 6u;
-			}
-			else
-			{
-				ImUiDrawSurfacePreparePushVertices( draw, surface, 6u * 9u );
-
-				for( uintsize y = 0; y < ImUiDrawSkinPointY_END; ++y )
-				{
-					const uintsize nextY = y + 1u;
-
-					for( uintsize x = 0; x < ImUiDrawSkinPointX_END; ++x )
-					{
-						const uintsize nextX = x + 1u;
-
-						const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
-						const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
-						if( posBr.x - posTl.x <= 0.0f ||
-							posBr.y - posTl.y <= 0.0f )
-						{
-							continue;
-						}
-
-						const ImUiTexCoord uv =
-						{
-							uPositions[ x ], vPositions[ y ],
-							uPositions[ nextX ], vPositions[ nextY ]
-						};
-
-						ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, skinData->color );
-						ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, skinData->color );
-						ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, skinData->color );
-						ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, skinData->color );
-						ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, skinData->color );
-						ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, skinData->color );
-
-						elementCount += 6u;
-					}
+					elementCount += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, uv, skinData->color );
 				}
 			}
 		}
 		break;
 
 	case ImUiDrawElementType_Text:
-	{
-		const struct ImUiDrawElementDataText* textData = &element->data.text;
-
-		const float x = textData->pos.x;
-		const float y = textData->pos.y;
-		if( draw->useIndexBuffer )
 		{
-			ImUiDrawSurfacePreparePushVertices( draw, surface, 4u * textData->layout->glyphCount );
+			const struct ImUiDrawElementDataText* textData = &element->data.text;
 
+			ImUiDrawSurfacePreparePushRects( draw, surface, textData->layout->glyphCount );
+
+			const float x = textData->pos.x;
+			const float y = textData->pos.y;
 			for( uintsize i = 0; i < textData->layout->glyphCount; ++i )
 			{
 				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
@@ -652,42 +565,10 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
 				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
 
-				const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, glyph->uv.u0, glyph->uv.v0, textData->color );
-				const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, glyph->uv.u1, glyph->uv.v0, textData->color );
-				const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, glyph->uv.u0, glyph->uv.v1, textData->color );
-				const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, glyph->uv.u1, glyph->uv.v1, textData->color );
-
-				const uint32 vertexIndices[ 6u ] =
-				{
-					indexTl, indexTr, indexBl,
-					indexBl, indexTr, indexBr
-				};
-				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+				elementCount += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, glyph->uv, textData->color );
 			}
 		}
-		else
-		{
-			ImUiDrawSurfacePreparePushVertices( draw, surface, 6u * textData->layout->glyphCount );
-
-			for( uintsize i = 0; i < textData->layout->glyphCount; ++i )
-			{
-				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
-
-				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
-				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
-
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, glyph->uv.u0, glyph->uv.v0, textData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, glyph->uv.u1, glyph->uv.v0, textData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, glyph->uv.u0, glyph->uv.v1, textData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, glyph->uv.u0, glyph->uv.v1, textData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, glyph->uv.u1, glyph->uv.v0, textData->color );
-				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, glyph->uv.u1, glyph->uv.v1, textData->color );
-			}
-		}
-
-		elementCount = 6u * textData->layout->glyphCount;
-	}
-	break;
+		break;
 	}
 
 	command->count += elementCount;
@@ -696,10 +577,11 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element )
 {
 	const ImUiDrawTopology topology = element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
-	if( topology == surface->lastTopology )
+	if( surface->commandCount > 0u )
 	{
 		ImUiDrawCommand* command = &surface->commands[ surface->commandCount - 1u ];
-		if( command->texture == element->texture )
+		if( command->topology == topology &&
+			command->texture == element->texture )
 		{
 			return command;
 		}
@@ -713,7 +595,7 @@ static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDr
 	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
 	command->topology	= topology;
 	command->texture	= element->texture;
-	//command->offset		= draw->useIndexBuffer ? surface->indexCount : surface->vertexCount;
+	command->clipRect	= element->clipRect;
 	command->count		= 0u;
 
 	return command;
@@ -723,6 +605,21 @@ static bool ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceD
 {
 	const uintsize requiredSize = draw->vertexSize * (surface->vertexCount + vertexCount);
 	return IMUI_MEMORY_ARRAY_CHECK_CAPACITY( draw->allocator, surface->vertexData, surface->vertexDataCapacity, requiredSize );
+}
+
+static bool ImUiDrawSurfacePreparePushRects( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize rectCount )
+{
+	uintsize elementCountPerRect = 0u;
+	switch( draw->triangleTopology )
+	{
+	case ImUiDrawTopology_LineList:				elementCountPerRect = 2u; break;
+	case ImUiDrawTopology_TriangleList:			elementCountPerRect = 6u; break;
+	case ImUiDrawTopology_TriangleStrip:		elementCountPerRect = 4u; break;
+	case ImUiDrawTopology_IndexedTriangleList:	elementCountPerRect = 6u; break;
+	case ImUiDrawTopology_IndexedTriangleStrip:	elementCountPerRect = 4u; break;
+	}
+
+	return ImUiDrawSurfacePreparePushVertices( draw, surface, elementCountPerRect * rectCount );
 }
 
 static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color )
@@ -985,6 +882,72 @@ static uintsize ImUiVertexElementTypeGetSize( ImUiVertexElementType type )
 	case ImUiVertexElementType_UInt2:	return 8u;
 	case ImUiVertexElementType_UInt3:	return 12u;
 	case ImUiVertexElementType_UInt4:	return 16u;
+	}
+
+	return 0u;
+}
+
+static uintsize ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color )
+{
+	if( posBr.x - posTl.x <= 0.0f ||
+		posBr.y - posTl.y <= 0.0f )
+	{
+		return 0u;
+	}
+
+	switch( draw->triangleTopology )
+	{
+	case ImUiDrawTopology_LineList:
+		break;
+
+	case ImUiDrawTopology_TriangleList:
+		{
+			ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, color );
+		}
+		return 6u;
+
+	case ImUiDrawTopology_TriangleStrip:
+		{
+			ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color );
+			ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, color );
+		}
+		return 4u;
+
+	case ImUiDrawTopology_IndexedTriangleList:
+		{
+			const uint32 indexTl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, color );
+			const uint32 indexTr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, color );
+			const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color );
+			const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, color );
+
+			const uint32 vertexIndices[ 6u ] =
+			{
+				indexTl, indexTr, indexBl,
+				indexBl, indexTr, indexBr
+			};
+			ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+		}
+		return 6u;
+
+	case ImUiDrawTopology_IndexedTriangleStrip:
+		{
+			const uint32 vertexIndices[ 4u ] =
+			{
+				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posTl.y, uv.u0, uv.v0, color ),
+				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posTl.y, uv.u1, uv.v0, color ),
+				ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color ),
+				ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, color )
+			};
+			ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+		}
+		return 4u;
 	}
 
 	return 0u;

@@ -486,22 +486,23 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 
 	// upload
 	{
-		void* pVertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, drawData->vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
+		void* vertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, drawData->vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
 		//void* pElementData = glMapBufferRange( GL_ELEMENT_ARRAY_BUFFER, 0, drawData->indexCount * 4u, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
 
-		memcpy( pVertexData, drawData->vertexData, drawData->vertexDataSize );
+		memcpy( vertexData, drawData->vertexData, drawData->vertexDataSize );
 		//memcpy( pElementData, drawData->indexData, drawData->indexCount * 4u );
 
 		glUnmapBuffer( GL_ARRAY_BUFFER );
 		//glUnmapBuffer( GL_ELEMENT_ARRAY_BUFFER );
 	}
 
+	GLint offset = 0;
 	for( size_t i = 0u; i < drawData->commandCount; ++i )
 	{
-		const ImUiDrawCommand* pCommand = &drawData->commands[ i ];
-		IMUI_ASSERT( pCommand->count >= 0u );
+		const ImUiDrawCommand* command = &drawData->commands[ i ];
+		IMUI_ASSERT( command->count >= 0u );
 
-		ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)pCommand->texture;
+		ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)command->texture;
 		if( !texture )
 		{
 			texture = &context->whiteTexture;
@@ -524,15 +525,16 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 
 		glBindTexture( GL_TEXTURE_2D, texture->handle );
 
-		//glScissor(
-		//	(GLint)(pCommand->clipRect.position.x),
-		//	(GLint)((height - (GLint)(pCommand->clipRect.position.y + pCommand->clipRect.size.height))),
-		//	(GLint)(pCommand->clipRect.size.width),
-		//	(GLint)(pCommand->clipRect.size.height)
-		//);
+		glScissor(
+			(GLint)(command->clipRect.pos.x),
+			(GLint)((context->windowHeight - (int)(command->clipRect.pos.y + command->clipRect.size.height))),
+			(GLint)(command->clipRect.size.width),
+			(GLint)(command->clipRect.size.height)
+		);
 
-		glDrawArrays( GL_TRIANGLES, (GLint)pCommand->offset, (GLsizei)pCommand->count );
+		glDrawArrays( GL_TRIANGLES, offset, (GLsizei)command->count );
 		//glDrawElements( GL_TRIANGLES, (GLsizei)pCommand->count, GL_UNSIGNED_SHORT, &pCommand->offset );
+		offset += (GLint)command->count;
 	}
 
 	// reset OpenGL state

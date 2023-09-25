@@ -95,6 +95,11 @@ void ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cache )
 
 ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text )
 {
+	if( !font )
+	{
+		return NULL;
+	}
+
 	ImUiTextLayoutParameters parameters;
 	parameters.font	= font;
 	parameters.text	= text;

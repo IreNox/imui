@@ -58,6 +58,7 @@ struct ImUiDrawElement
 	ImUiDrawElementType	type;
 	ImUiDrawElementData	data;
 	void*				texture;
+	ImUiRect			clipRect;
 };
 
 typedef struct ImUiDrawWindowData ImUiDrawWindowData;
@@ -75,7 +76,6 @@ typedef struct ImUiDrawSurfaceData ImUiDrawSurfaceData;
 struct ImUiDrawSurfaceData
 {
 	ImUiSurface*		surface;
-	uint8				lastTopology;
 	bool				used;
 
 	ImUiDrawCommand*	commands;
@@ -100,7 +100,6 @@ struct ImUiDraw
 	uintsize				vertexSize;
 	ImUiVertexType			vertexType;
 	ImUiDrawTopology		triangleTopology;
-	bool					useIndexBuffer;
 
 	ImUiDrawWindowData*		windows;
 	uintsize				windowCapacity;
