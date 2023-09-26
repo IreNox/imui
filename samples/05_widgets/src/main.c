@@ -139,27 +139,27 @@ void ImUiFrameworkShutdown( ImUiContext* imui )
 static void ImUiTestSetConfig()
 {
 	ImUiToolboxConfig config;
-	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_Button ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiToolboxColor_ButtonHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_ButtonClicked ]				= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_ButtonText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBox ]					= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= ImUiColorCreate( 1.0f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= ImUiColorCreate( 1.0f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_SliderBackground ]			= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_SliderPivot ]				= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= ImUiColorCreate( 0.3f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= ImUiColorCreate( 1.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_TextEditBackground ]		= ImUiColorCreate( 0.7f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_TextEditText ]				= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_TextEditCursor ]			= ImUiColorCreate( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_TextEditSelection ]			= ImUiColorCreate( 0.5f, 0.5f, 0.7f, 1.0f );
-	config.colors[ ImUiToolboxColor_ProgressBarBackground ]		= ImUiColorCreate( 0.0f, 0.3f, 0.5f, 1.0f );
-	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= ImUiColorCreate( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_Button ]					= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonHover ]				= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonClicked ]				= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_ButtonText ]				= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBox ]					= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= ImUiColorCreateFloat( 1.0f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= ImUiColorCreateFloat( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderBackground ]			= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivot ]				= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= ImUiColorCreateFloat( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditBackground ]		= ImUiColorCreateFloat( 0.7f, 0.7f, 0.9f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditText ]				= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditCursor ]			= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
+	config.colors[ ImUiToolboxColor_TextEditSelection ]			= ImUiColorCreateFloat( 0.5f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_ProgressBarBackground ]		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;

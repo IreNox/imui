@@ -55,7 +55,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
 			ImUiWidgetSetPadding( hCenter, ImUiBorderCreateAll( 50.0f ) );
 
-			ImUiDrawWidgetColor( hCenter, ImUiColorCreate( timeR, timeG, timeB, 1.0f ) );
+			ImUiDrawWidgetColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
 			ImUiWidget* centerText = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
 			ImUiWidgetSetFixedSize( centerText, ImUiTextLayoutGetSize( text ) );

@@ -76,6 +76,7 @@ struct ImUiToolboxConfig
 	ImUiBorder		progressBarPadding;
 };
 
+void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );

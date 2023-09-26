@@ -121,7 +121,7 @@ typedef struct ImUiParameters ImUiParameters;
 struct ImUiParameters							// Fill with zero for default parameters
 {
 	ImUiAllocator			allocator;			// Override memory Allocator. Default use malloc/free
-	ImUiVertexFormat		vertexFormat;		// Override vertex format. Default: float2 pos ss, float2 uv, float4 color
+	ImUiVertexFormat		vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
 	ImUiVertexType			vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
 };
 
@@ -133,24 +133,6 @@ void						ImUiEnd( ImUiFrame* frame );
 
 //////////////////////////////////////////////////////////////////////////
 // Types
-
-typedef struct ImUiColor ImUiColor;
-struct ImUiColor
-{
-	float					red;
-	float					green;
-	float					blue;
-	float					alpha;
-};
-
-typedef struct ImUiBorder ImUiBorder;
-struct ImUiBorder
-{
-	float					top;
-	float					left;
-	float					bottom;
-	float					right;
-};
 
 typedef enum ImUiHAlign ImUiHAlign;
 enum ImUiHAlign
@@ -173,6 +155,24 @@ struct ImUiAlign
 {
 	ImUiHAlign				horizontal;
 	ImUiVAlign				vertical;
+};
+
+typedef struct ImUiBorder ImUiBorder;
+struct ImUiBorder
+{
+	float					top;
+	float					left;
+	float					bottom;
+	float					right;
+};
+
+typedef struct ImUiColor ImUiColor;
+struct ImUiColor
+{
+	uint8_t					red;
+	uint8_t					green;
+	uint8_t					blue;
+	uint8_t					alpha;
 };
 
 typedef struct ImUiPos ImUiPos;
@@ -664,9 +664,14 @@ ImUiPos							ImUiRectGetBottomRight( ImUiRect rect );
 float							ImUiRectGetRight( ImUiRect rect );
 float							ImUiRectGetBottom( ImUiRect rect );
 
-ImUiColor						ImUiColorCreate( float red, float green, float blue, float alpha );
-ImUiColor						ImUiColorCreateBlack( float alpha );
-ImUiColor						ImUiColorCreateWhite( float alpha );
+ImUiColor						ImUiColorCreate( uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha );
+ImUiColor						ImUiColorCreateFloat( float red, float green, float blue, float alpha );
+ImUiColor						ImUiColorCreateBlack();
+ImUiColor						ImUiColorCreateBlackA( uint8_t alpha );
+ImUiColor						ImUiColorCreateWhite();
+ImUiColor						ImUiColorCreateWhiteA( uint8_t alpha );
+ImUiColor						ImUiColorCreateGray( uint8_t gray );
+ImUiColor						ImUiColorCreateGrayA( uint8_t gray, uint8_t alpha );
 ImUiColor						ImUiColorCreateTransparentBlack();
 
 #ifdef __cplusplus

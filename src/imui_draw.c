@@ -242,7 +242,7 @@ void ImUiDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )
 void ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
 	rectData->color		= color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
@@ -251,7 +251,7 @@ void ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color )
 void ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv.u0		= 0.0f;
@@ -263,7 +263,7 @@ void ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture )
 void ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
 	rectData->color		= color;
 	rectData->uv.u0		= 0.0f;
@@ -315,7 +315,7 @@ void ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiCo
 void ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, NULL );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
 	rectData->color		= color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
@@ -324,7 +324,7 @@ void ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color )
 void ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv.u0		= 0.0f;
@@ -336,7 +336,7 @@ void ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture
 void ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
 	rectData->color		= ImUiColorCreateWhite( 1.0f );
 	rectData->uv		= uv;
@@ -451,7 +451,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 	case ImUiDrawElementType_Rectangle:
 		{
-			const struct ImUiDrawElementDataRectangle* rectData = &element->data.rectangle;
+			const struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 
 			const ImUiPos posTl = ImUiRectGetTopLeft( rectData->rect );
 			const ImUiPos posBr = ImUiRectGetBottomRight( rectData->rect );
@@ -796,46 +796,41 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 				if( vertexElement->type >= ImUiVertexElementType_Float3 && vertexElement->type <= ImUiVertexElementType_Float4 )
 				{
 					float* floatData = (float*)elementData;
-					floatData[ 0u ] = color.red;
-					floatData[ 1u ] = color.green;
-					floatData[ 2u ] = color.blue;
+					floatData[ 0u ] = color.red / 255.0f;
+					floatData[ 1u ] = color.green / 255.0f;
+					floatData[ 2u ] = color.blue / 255.0f;
 
 					if( vertexElement->type == ImUiVertexElementType_Float4 )
 					{
-						floatData[ 3u ] = color.alpha;
+						floatData[ 3u ] = color.alpha / 255.0f;
 					}
 				}
 				else if( vertexElement->type >= ImUiVertexElementType_Int3 && vertexElement->type <= ImUiVertexElementType_Int4 )
 				{
 					sint32* intData = (sint32*)elementData;
-					intData[ 0u ] = (sint32)(color.red * 2147483647.0f + 0.5f);
-					intData[ 1u ] = (sint32)(color.green * 2147483647.0f + 0.5f);
-					intData[ 2u ] = (sint32)(color.blue * 2147483647.0f + 0.5f);
+					intData[ 0u ] = color.red << 23u;
+					intData[ 1u ] = color.green << 23u;
+					intData[ 2u ] = color.blue << 23u;
 
 					if( vertexElement->type == ImUiVertexElementType_Int4 )
 					{
-						intData[ 3u ] = (sint32)(color.alpha * 2147483647.0f + 0.5f);
+						intData[ 3u ] = color.alpha << 23u;
 					}
 				}
 				else if( vertexElement->type == ImUiVertexElementType_UInt  )
 				{
-					const uint32 uintR = (uint32)(color.red * 255.0f + 0.5f);
-					const uint32 uintG = (uint32)(color.green * 255.0f + 0.5f);
-					const uint32 uintB = (uint32)(color.blue * 255.0f + 0.5f);
-					const uint32 uintA = (uint32)(color.alpha * 255.0f + 0.5f);
-
-					*(uint32*)elementData = (uintR << 24u) | (uintG << 16u) | (uintB << 8u) | uintA;
+					*(uint32*)elementData = (color.red << 24u) | (color.green << 16u) | (color.blue << 8u) | color.alpha;
 				}
 				else if( vertexElement->type >= ImUiVertexElementType_UInt3 && vertexElement->type <= ImUiVertexElementType_UInt4 )
 				{
 					uint32* uintData = (uint32*)elementData;
-					uintData[ 0u ] = (uint32)(color.red * 4294967295.0f + 0.5f);
-					uintData[ 1u ] = (uint32)(color.green * 4294967295.0f + 0.5f);
-					uintData[ 2u ] = (uint32)(color.blue * 4294967295.0f + 0.5f);
+					uintData[ 0u ] = color.red << 24u;
+					uintData[ 1u ] = color.green << 24u;
+					uintData[ 2u ] = color.blue << 24u;
 
 					if( vertexElement->type == ImUiVertexElementType_UInt4 )
 					{
-						uintData[ 3u ] = (uint32)(color.alpha * 4294967295.0f + 0.5f);
+						uintData[ 3u ] = color.alpha << 24u;
 					}
 				}
 			}

@@ -47,7 +47,7 @@ typedef union ImUiDrawElementData ImUiDrawElementData;
 union ImUiDrawElementData
 {
 	struct ImUiDrawElementDataLine		line;
-	struct ImUiDrawElementDataRectangle	rectangle;
+	struct ImUiDrawElementDataRectangle	rect;
 	struct ImUiDrawElementDataSkin		skin;
 	struct ImUiDrawElementDataText		text;
 };

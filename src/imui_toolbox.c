@@ -15,6 +15,68 @@ static bool			ImUiToolboxCheckBoxEnd( ImUiWindow* window, ImUiWidget* checkBoxFr
 static ImUiWidget*	ImUiToolboxSliderBegin( ImUiWindow* window );
 static bool			ImUiToolboxSliderEnd( ImUiWindow* window, ImUiWidget* sliderFrame, float* value, float min, float max );
 
+void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
+{
+	const ImUiColor textColor			= ImUiColorCreateWhite();
+	const ImUiColor elementColor		= ImUiColorCreateGray( 0xb2u );
+	const ImUiColor elementHoverColor	= ImUiColorCreateGray( 0xe5u );
+	const ImUiColor elementClickedColor	= ImUiColorCreateGray( 0x66u );
+	const ImUiColor backgroundColor		= ImUiColorCreateGray( 0x4cu );
+	const ImUiColor textEditCursorColor	= ImUiColorCreateBlack();
+
+	config->colors[ ImUiToolboxColor_Text ]						= textColor;
+	config->colors[ ImUiToolboxColor_Button ]					= elementColor;
+	config->colors[ ImUiToolboxColor_ButtonHover ]				= elementHoverColor;
+	config->colors[ ImUiToolboxColor_ButtonClicked ]			= elementClickedColor;
+	config->colors[ ImUiToolboxColor_ButtonText ]				= textColor;
+	config->colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
+	config->colors[ ImUiToolboxColor_CheckBoxHover ]			= elementHoverColor;
+	config->colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
+	config->colors[ ImUiToolboxColor_CheckBoxChecked ]			= backgroundColor;
+	config->colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= textEditCursorColor;
+	config->colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= elementClickedColor;
+	config->colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
+	config->colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
+	config->colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
+	config->colors[ ImUiToolboxColor_SliderPivotClicked ]		= elementClickedColor;
+	config->colors[ ImUiToolboxColor_TextEditBackground ]		= backgroundColor;
+	config->colors[ ImUiToolboxColor_TextEditText ]				= textColor;
+	config->colors[ ImUiToolboxColor_TextEditCursor ]			= textEditCursorColor;
+	config->colors[ ImUiToolboxColor_TextEditSelection ]		= elementColor;
+	config->colors[ ImUiToolboxColor_ProgressBarBackground ]	= backgroundColor;
+	config->colors[ ImUiToolboxColor_ProgressBarProgress ]		= elementColor;
+
+	const ImUiSkin skin = { NULL };
+
+	config->skins[ ImUiToolboxSkin_Button ]						= skin;
+	config->skins[ ImUiToolboxSkin_CheckBox ]					= skin;
+	config->skins[ ImUiToolboxSkin_CheckBoxChecked ]			= skin;
+	config->skins[ ImUiToolboxSkin_SliderBackground ]			= skin;
+	config->skins[ ImUiToolboxSkin_SliderPivot ]				= skin;
+	config->skins[ ImUiToolboxSkin_TextEditBackground ]			= skin;
+	config->skins[ ImUiToolboxSkin_ProgressBarBackground ]		= skin;
+	config->skins[ ImUiToolboxSkin_ProgressBarProgress ]		= skin;
+
+	config->font				= font;
+
+	config->buttonPadding		= ImUiBorderCreateAll( 8.0f );
+
+	config->checkBoxSize		= ImUiSizeCreateAll( 25.0f );
+	config->checkBoxTextSpacing	= 8.0f;
+
+	config->sliderHeight		= 25.0f;
+	config->sliderPadding		= ImUiBorderCreateHorizontalVertical( 5.0f, 0.0f );
+	config->sliderPivotSize		= 10.0f;
+
+	config->textEditHeight		= 25.0f;
+	config->textEditPadding		= ImUiBorderCreateAll( 2.0f );
+	config->textEditCursorSize	= ImUiSizeCreate( 1.0f, 21.0f );
+	config->textEditBlinkTime	= 1.0f;
+
+	config->progressBarHeight	= 25.0f;
+	config->progressBarPadding	= ImUiBorderCreateAll( 2.0f );
+}
+
 void ImUiToolboxSetConfig( const ImUiToolboxConfig* config )
 {
 	s_config = *config;

@@ -65,7 +65,7 @@ static void HwMinSizeVertical( ImUiWindow* window )
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( layout, 10.0f );
 
-	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite() );
 
 	HwMinSizeElement( window );
 	HwMinSizeElement( window );
@@ -80,7 +80,7 @@ static void HwMinSizeElement( ImUiWindow* window )
 	ImUiWidgetSetMargin( widget, ImUiBorderCreateAll( 10.0f ) );
 	ImUiWidgetSetFixedSize( widget, ImUiSizeCreateAll( 20.0f ) );
 
-	ImUiDrawWidgetColor( widget, ImUiColorCreate( 0.0f, 1.0f, 1.0f, 1.0f ) );
+	ImUiDrawWidgetColor( widget, ImUiColorCreate( 0u, 0xffu, 0xffu, 0xffu ) );
 
 	ImUiWidgetEnd( widget );
 }
@@ -91,14 +91,14 @@ static void HwStretchStack( ImUiWindow* window )
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 
-	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite() );
 
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0.0f, 0.0f, 1.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}
@@ -109,7 +109,7 @@ static void HwStretchStack( ImUiWindow* window )
 		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
 		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( ImUiHAlign_Right, ImUiVAlign_Bottom ) );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0.0f, 1.0f, 0.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}
@@ -120,7 +120,7 @@ static void HwStretchStack( ImUiWindow* window )
 		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
 		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( ImUiHAlign_Center, ImUiVAlign_Center ) );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 1.0f, 0.0f, 0.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}
@@ -135,7 +135,7 @@ static void HwStretchHorizontal( ImUiWindow* window )
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutHorizontalSpacing( layout, 10.0f );
 
-	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite() );
 
 	HwStretchElements( window, ImUiSizeCreate( 0.5f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
@@ -149,7 +149,7 @@ static void HwStretchVertical( ImUiWindow* window )
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutVerticalSpacing( layout, 10.0f );
 
-	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite() );
 
 	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
@@ -163,7 +163,7 @@ static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize s
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, stretch1 );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0.0f, 0.0f, 1.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}
@@ -173,7 +173,7 @@ static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize s
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, stretch2 );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 1.0f, 0.0f, 0.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}
@@ -184,7 +184,7 @@ static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize s
 		ImUiWidgetSetStretch( widget2, stretch3 );
 		ImUiWidgetSetAlign( widget2, ImUiAlignCreateCenter() );
 
-		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0.0f, 1.0f, 0.0f, 1.0f ) );
+		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
 		ImUiWidgetEnd( widget2 );
 	}

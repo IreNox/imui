@@ -397,23 +397,54 @@ float ImUiRectGetBottom( ImUiRect rect )
 	return rect.pos.y + rect.size.height;
 }
 
-ImUiColor ImUiColorCreate( float red, float green, float blue, float alpha )
+ImUiColor ImUiColorCreate( uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha )
 {
 	const ImUiColor color = { red, green, blue, alpha };
 	return color;
 }
 
-ImUiColor ImUiColorCreateBlack( float alpha )
+ImUiColor ImUiColorCreateFloat( float red, float green, float blue, float alpha )
 {
-	return ImUiColorCreate( 0.0f, 0.0f, 0.0f, alpha );
+	const ImUiColor color = {
+		(uint8_t)((red * 255.0f) + 0.5f),
+		(uint8_t)((green * 255.0f) + 0.5f),
+		(uint8_t)((blue * 255.0f) + 0.5f),
+		(uint8_t)((alpha * 255.0f) + 0.5f)
+	};
+	return color;
 }
 
-ImUiColor ImUiColorCreateWhite( float alpha )
+ImUiColor ImUiColorCreateBlack()
 {
-	return ImUiColorCreate( 1.0f, 1.0f, 1.0f, alpha );
+	return ImUiColorCreate( 0u, 0u, 0u, 0xffu );
+}
+
+ImUiColor ImUiColorCreateBlackA( uint8_t alpha )
+{
+	return ImUiColorCreate( 0u, 0u, 0u, alpha );
+}
+
+ImUiColor ImUiColorCreateWhite()
+{
+	return ImUiColorCreate( 0xffu, 0xffu, 0xffu, 0xffu );
+}
+
+ImUiColor ImUiColorCreateWhiteA( uint8_t alpha )
+{
+	return ImUiColorCreate( 0xffu, 0xffu, 0xffu, alpha );
+}
+
+ImUiColor ImUiColorCreateGray( uint8_t gray )
+{
+	return ImUiColorCreate( gray, gray, gray, 0xffu );
+}
+
+ImUiColor ImUiColorCreateGrayA( uint8_t gray, uint8_t alpha )
+{
+	return ImUiColorCreate( gray, gray, gray, alpha );
 }
 
 ImUiColor ImUiColorCreateTransparentBlack()
 {
-	return ImUiColorCreate( 0.0f, 0.0f, 0.0f, 0.0f );
+	return ImUiColorCreate( 0u, 0u, 0u, 0u );
 }

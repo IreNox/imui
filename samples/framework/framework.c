@@ -378,7 +378,7 @@ static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShader
 	{
 		char buffer[ 2048u ];
 		GLsizei infoLength;
-		glGetShaderInfoLog( shader, 2048, &infoLength, buffer );
+		glGetShaderInfoLog( shader, sizeof( buffer ), &infoLength, buffer);
 
 		printf( "[renderer] Failed to compile Shader. Error: %s\n", buffer );
 		return false;
