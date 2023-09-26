@@ -65,8 +65,6 @@ struct ImUiStringView
 typedef enum ImUiVertexElementType ImUiVertexElementType;
 enum ImUiVertexElementType
 {
-	ImUiVertexElementType_Invalid,
-
 	ImUiVertexElementType_Float,
 	ImUiVertexElementType_Float2,
 	ImUiVertexElementType_Float3,
@@ -81,6 +79,8 @@ enum ImUiVertexElementType
 	ImUiVertexElementType_UInt2,
 	ImUiVertexElementType_UInt3,
 	ImUiVertexElementType_UInt4,
+
+	ImUiVertexElementType_MAX
 };
 
 typedef enum ImUiVertexElementSemantic ImUiVertexElementSemantic;
@@ -90,7 +90,8 @@ enum ImUiVertexElementSemantic
 	ImUiVertexElementSemantic_PositionScreenSpace,
 	ImUiVertexElementSemantic_PositionClipSpace,
 	ImUiVertexElementSemantic_TextureCoordinate,
-	ImUiVertexElementSemantic_Color
+	ImUiVertexElementSemantic_ColorRGBA,
+	ImUiVertexElementSemantic_ColorABGR
 };
 
 typedef struct ImUiVertexElement ImUiVertexElement;

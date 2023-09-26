@@ -41,6 +41,16 @@ static void					ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData*
 static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
 static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
+static const bool s_supportedVertexElementSemanicFormats[][ ImUiVertexElementType_MAX ] =
+{
+	{ true,		true,	true,	true,	true,	true,	true,	true,	true,	true,	true,	true },		// ImUiVertexElementSemantic_None
+	{ false,	true,	true,	true,	false,	true,	true,	true,	false,	true,	true,	true },		// ImUiVertexElementSemantic_PositionScreenSpace
+	{ false,	true,	true,	true,	false,	true,	true,	true,	false,	false,	false,	false },	// ImUiVertexElementSemantic_PositionClipSpace
+	{ false,	true,	true,	true,	false,	true,	true,	true,	false,	true,	true,	true },		// ImUiVertexElementSemantic_TextureCoordinate
+	{ false,	false,	true,	true,	false,	false,	true,	true,	true,	false,	true,	true },		// ImUiVertexElementSemantic_ColorRGBA
+	{ false,	false,	true,	true,	false,	false,	false,	true,	true,	false,	false,	true }		// ImUiVertexElementSemantic_ColorARGB
+};
+
 bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVertexFormat* vertexFormat, ImUiVertexType vertexType )
 {
 	draw->allocator		= allocator;
@@ -70,14 +80,14 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 	else
 	{
 		elements[ 0u ].align	= 1u;
-		elements[ 0u ].type			= ImUiVertexElementType_Float2;
-		elements[ 0u ].semantic		= ImUiVertexElementSemantic_PositionScreenSpace;
+		elements[ 0u ].type		= ImUiVertexElementType_Float2;
+		elements[ 0u ].semantic	= ImUiVertexElementSemantic_PositionScreenSpace;
 		elements[ 1u ].align	= 1u;
-		elements[ 1u ].type			= ImUiVertexElementType_Float2;
-		elements[ 1u ].semantic		= ImUiVertexElementSemantic_TextureCoordinate;
+		elements[ 1u ].type		= ImUiVertexElementType_Float2;
+		elements[ 1u ].semantic	= ImUiVertexElementSemantic_TextureCoordinate;
 		elements[ 2u ].align	= 1u;
-		elements[ 2u ].type			= ImUiVertexElementType_Float4;
-		elements[ 2u ].semantic		= ImUiVertexElementSemantic_Color;
+		elements[ 2u ].type		= ImUiVertexElementType_Float4;
+		elements[ 2u ].semantic	= ImUiVertexElementSemantic_ColorRGBA;
 	}
 
 	draw->vertexFormat.elements		= elements;
@@ -86,6 +96,8 @@ bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVert
 	for( uintsize i = 0u; i < vertexElementCount; ++i )
 	{
 		const ImUiVertexElement* vertexElement = &elements[ i ];
+		IMUI_ASSERT( vertexElement->align > 0u );
+		IMUI_ASSERT( s_supportedVertexElementSemanicFormats[ vertexElement->semantic ][ vertexElement->type ] );
 
 		draw->vertexSize = (draw->vertexSize + vertexElement->align - 1u) & (0u - vertexElement->align);
 		draw->vertexSize += ImUiVertexElementTypeGetSize( vertexElement->type );
@@ -577,7 +589,9 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element )
 {
 	const ImUiDrawTopology topology = element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
-	if( surface->commandCount > 0u )
+	if( surface->commandCount > 0u &&
+		topology != ImUiDrawTopology_TriangleStrip &&
+		topology != ImUiDrawTopology_IndexedTriangleStrip )
 	{
 		ImUiDrawCommand* command = &surface->commands[ surface->commandCount - 1u ];
 		if( command->topology == topology &&
@@ -634,6 +648,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 	for( uintsize i = 0u; i < draw->vertexFormat.elementCount; ++i )
 	{
 		const ImUiVertexElement* vertexElement = &draw->vertexFormat.elements[ i ];
+		const uintsize vertexElementSize = ImUiVertexElementTypeGetSize( vertexElement->type );
 
 		vertexOffset = (vertexOffset + vertexElement->align - 1u) & (0u - vertexElement->align);
 
@@ -641,203 +656,453 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 		switch( vertexElement->semantic )
 		{
 		case ImUiVertexElementSemantic_None:
+			memset( elementData, 0, vertexElementSize );
 			break;
 
 		case ImUiVertexElementSemantic_PositionScreenSpace:
 			{
-				if( vertexElement->type >= ImUiVertexElementType_Float2 && vertexElement->type <= ImUiVertexElementType_Float4 )
+				switch( vertexElement->type )
 				{
-					float* floatData = (float*)elementData;
-					floatData[ 0u ] = x;
-					floatData[ 1u ] = y;
+				case ImUiVertexElementType_Float:
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Float3 )
+				case ImUiVertexElementType_Float2:
 					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = x;
+						floatData[ 1u ] = y;
+					}
+					break;
+
+				case ImUiVertexElementType_Float3:
+					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = x;
+						floatData[ 1u ] = y;
 						floatData[ 2u ] = 0.0f;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Float4 )
+				case ImUiVertexElementType_Float4:
 					{
-						floatData[ 3u ] = 0.0f;
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = x;
+						floatData[ 1u ] = y;
+						floatData[ 2u ] = 0.0f;
+						floatData[ 3u ] = 1.0f;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_Int2 && vertexElement->type <= ImUiVertexElementType_Int4 )
-				{
-					sint32* intData = (sint32*)elementData;
-					intData[ 0u ] = (sint32)x;
-					intData[ 1u ] = (sint32)y;
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Int3 )
+				case ImUiVertexElementType_Int:
+					break;
+
+				case ImUiVertexElementType_Int2:
 					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)x;
+						intData[ 1u ] = (sint32)y;
+					}
+					break;
+
+				case ImUiVertexElementType_Int3:
+					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)x;
+						intData[ 1u ] = (sint32)y;
 						intData[ 2u ] = 0;
 					}
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Int4 )
+				case ImUiVertexElementType_Int4:
 					{
-						intData[ 3u ] = 0;
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)x;
+						intData[ 1u ] = (sint32)y;
+						intData[ 2u ] = 0;
+						intData[ 3u ] = 0x7fffffff;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_UInt2 && vertexElement->type <= ImUiVertexElementType_UInt4 )
-				{
-					uint32* uintData = (uint32*)elementData;
-					uintData[ 0u ] = (uint32)x;
-					uintData[ 1u ] = (uint32)y;
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_UInt3 )
+				case ImUiVertexElementType_UInt:
+					break;
+
+				case ImUiVertexElementType_UInt2:
 					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)x;
+						uintData[ 1u ] = (uint32)y;
+					}
+					break;
+
+				case ImUiVertexElementType_UInt3:
+					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)x;
+						uintData[ 1u ] = (uint32)y;
 						uintData[ 2u ] = 0u;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_UInt4 )
+				case ImUiVertexElementType_UInt4:
 					{
-						uintData[ 3u ] = 0u;
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)x;
+						uintData[ 1u ] = (uint32)y;
+						uintData[ 2u ] = 0u;
+						uintData[ 3u ] = 0xffffffffu;
 					}
+					break;
+
+				case ImUiVertexElementType_MAX:
+					break;
 				}
 			}
 			break;
 
 		case ImUiVertexElementSemantic_PositionClipSpace:
 			{
-				ImUiPos clipSpacePosition =
+				const ImUiPos clipSpacePosition =
 				{
 					-1.0f + (x / surface->surface->size.width),
 					 1.0f - (y / surface->surface->size.height),
 				};
-				if( vertexElement->type >= ImUiVertexElementType_Float2 && vertexElement->type <= ImUiVertexElementType_Float4 )
-				{
-					float* floatData = (float*)elementData;
-					floatData[ 0u ] = clipSpacePosition.x;
-					floatData[ 1u ] = clipSpacePosition.y;
 
-					if( vertexElement->type >= ImUiVertexElementType_Float3 )
+				switch( vertexElement->type )
+				{
+				case ImUiVertexElementType_Float:
+					break;
+
+				case ImUiVertexElementType_Float2:
 					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = clipSpacePosition.x;
+						floatData[ 1u ] = clipSpacePosition.y;
+					}
+					break;
+
+				case ImUiVertexElementType_Float3:
+					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = clipSpacePosition.x;
+						floatData[ 1u ] = clipSpacePosition.y;
 						floatData[ 2u ] = 0.0f;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Float4 )
+				case ImUiVertexElementType_Float4:
 					{
-						floatData[ 3u ] = 0.0f;
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = clipSpacePosition.x;
+						floatData[ 1u ] = clipSpacePosition.y;
+						floatData[ 2u ] = 0.0f;
+						floatData[ 3u ] = 1.0f;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_Int2 && vertexElement->type <= ImUiVertexElementType_Int4 )
-				{
-					sint32* intData = (sint32*)elementData;
-					intData[ 0u ] = (sint32)(clipSpacePosition.x * 2147483647.0f + 0.5f);
-					intData[ 1u ] = (sint32)(clipSpacePosition.y * 2147483647.0f + 0.5f);
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Int3 )
+				case ImUiVertexElementType_Int:
+					break;
+
+				case ImUiVertexElementType_Int2:
 					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(clipSpacePosition.x * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(clipSpacePosition.y * 2147483647.0f + 0.5f);
+					}
+					break;
+
+				case ImUiVertexElementType_Int3:
+					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(clipSpacePosition.x * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(clipSpacePosition.y * 2147483647.0f + 0.5f);
 						intData[ 2u ] = 0;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Int4 )
+				case ImUiVertexElementType_Int4:
 					{
-						intData[ 3u ] = 0;
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(clipSpacePosition.x * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(clipSpacePosition.y * 2147483647.0f + 0.5f);
+						intData[ 2u ] = 0;
+						intData[ 3u ] = 0x7fffffff;
 					}
+					break;
+
+				case ImUiVertexElementType_UInt:
+					break;
+
+				case ImUiVertexElementType_UInt2:
+					break;
+
+				case ImUiVertexElementType_UInt3:
+					break;
+
+				case ImUiVertexElementType_UInt4:
+					break;
+
+				case ImUiVertexElementType_MAX:
+					break;
 				}
 			}
 			break;
 
 		case ImUiVertexElementSemantic_TextureCoordinate:
 			{
-				if( vertexElement->type >= ImUiVertexElementType_Float2 && vertexElement->type <= ImUiVertexElementType_Float4 )
+				switch( vertexElement->type )
 				{
-					float* floatData = (float*)elementData;
-					floatData[ 0u ] = u;
-					floatData[ 1u ] = v;
+				case ImUiVertexElementType_Float:
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Float3 )
+				case ImUiVertexElementType_Float2:
 					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = u;
+						floatData[ 1u ] = v;
+					}
+					break;
+
+				case ImUiVertexElementType_Float3:
+					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = u;
+						floatData[ 1u ] = v;
 						floatData[ 2u ] = 0.0f;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Float4 )
+				case ImUiVertexElementType_Float4:
 					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = u;
+						floatData[ 1u ] = v;
+						floatData[ 2u ] = 0.0f;
 						floatData[ 3u ] = 0.0f;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_Int2 && vertexElement->type <= ImUiVertexElementType_Int4 )
-				{
-					sint32* intData = (sint32*)elementData;
-					intData[ 0u ] = (sint32)(u * 2147483647.0f + 0.5f);
-					intData[ 1u ] = (sint32)(v * 2147483647.0f + 0.5f);
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Int3 )
+				case ImUiVertexElementType_Int:
+					break;
+
+				case ImUiVertexElementType_Int2:
 					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(u * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(v * 2147483647.0f + 0.5f);
+					}
+					break;
+
+				case ImUiVertexElementType_Int3:
+					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(u * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(v * 2147483647.0f + 0.5f);
 						intData[ 2u ] = 0;
 					}
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_Int4 )
+				case ImUiVertexElementType_Int4:
 					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)(u * 2147483647.0f + 0.5f);
+						intData[ 1u ] = (sint32)(v * 2147483647.0f + 0.5f);
+						intData[ 2u ] = 0;
 						intData[ 3u ] = 0;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_UInt2 && vertexElement->type <= ImUiVertexElementType_UInt4 )
-				{
-					uint32* uintData = (uint32*)elementData;
-					uintData[ 0u ] = (uint32)(u * 4294967295.0f + 0.5f);
-					uintData[ 1u ] = (uint32)(v * 4294967295.0f + 0.5f);
+					break;
 
-					if( vertexElement->type >= ImUiVertexElementType_UInt3 )
+				case ImUiVertexElementType_UInt:
+					break;
+
+				case ImUiVertexElementType_UInt2:
 					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)(u * 4294967295.0f + 0.5f);
+						uintData[ 1u ] = (uint32)(v * 4294967295.0f + 0.5f);
+					}
+					break;
+
+				case ImUiVertexElementType_UInt3:
+					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)(u * 4294967295.0f + 0.5f);
+						uintData[ 1u ] = (uint32)(v * 4294967295.0f + 0.5f);
 						uintData[ 2u ] = 0u;
 					}
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_UInt4 )
+				case ImUiVertexElementType_UInt4:
 					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = (uint32)(u * 4294967295.0f + 0.5f);
+						uintData[ 1u ] = (uint32)(v * 4294967295.0f + 0.5f);
+						uintData[ 2u ] = 0u;
 						uintData[ 3u ] = 0u;
 					}
+					break;
+
+				case ImUiVertexElementType_MAX:
+					break;
 				}
 			}
 			break;
 
-		case ImUiVertexElementSemantic_Color:
+		case ImUiVertexElementSemantic_ColorRGBA:
 			{
-				if( vertexElement->type >= ImUiVertexElementType_Float3 && vertexElement->type <= ImUiVertexElementType_Float4 )
+				switch( vertexElement->type )
 				{
-					float* floatData = (float*)elementData;
-					floatData[ 0u ] = color.red / 255.0f;
-					floatData[ 1u ] = color.green / 255.0f;
-					floatData[ 2u ] = color.blue / 255.0f;
+				case ImUiVertexElementType_Float:
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Float4 )
+				case ImUiVertexElementType_Float2:
+					break;
+
+				case ImUiVertexElementType_Float3:
 					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = color.red / 255.0f;
+						floatData[ 1u ] = color.green / 255.0f;
+						floatData[ 2u ] = color.blue / 255.0f;
+					}
+					break;
+
+				case ImUiVertexElementType_Float4:
+					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = color.red / 255.0f;
+						floatData[ 1u ] = color.green / 255.0f;
+						floatData[ 2u ] = color.blue / 255.0f;
 						floatData[ 3u ] = color.alpha / 255.0f;
 					}
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_Int3 && vertexElement->type <= ImUiVertexElementType_Int4 )
-				{
-					sint32* intData = (sint32*)elementData;
-					intData[ 0u ] = color.red << 23u;
-					intData[ 1u ] = color.green << 23u;
-					intData[ 2u ] = color.blue << 23u;
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_Int4 )
+				case ImUiVertexElementType_Int:
+					break;
+
+				case ImUiVertexElementType_Int2:
+					break;
+
+				case ImUiVertexElementType_Int3:
 					{
-						intData[ 3u ] = color.alpha << 23u;
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)color.red << 23;
+						intData[ 1u ] = (sint32)color.green << 23;
+						intData[ 2u ] = (sint32)color.blue << 23;
 					}
-				}
-				else if( vertexElement->type == ImUiVertexElementType_UInt  )
-				{
-					*(uint32*)elementData = (color.red << 24u) | (color.green << 16u) | (color.blue << 8u) | color.alpha;
-				}
-				else if( vertexElement->type >= ImUiVertexElementType_UInt3 && vertexElement->type <= ImUiVertexElementType_UInt4 )
-				{
-					uint32* uintData = (uint32*)elementData;
-					uintData[ 0u ] = color.red << 24u;
-					uintData[ 1u ] = color.green << 24u;
-					uintData[ 2u ] = color.blue << 24u;
+					break;
 
-					if( vertexElement->type == ImUiVertexElementType_UInt4 )
+				case ImUiVertexElementType_Int4:
 					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)color.red << 23;
+						intData[ 1u ] = (sint32)color.green << 23;
+						intData[ 2u ] = (sint32)color.blue << 23;
+						intData[ 3u ] = (sint32)color.alpha << 23;
+					}
+					break;
+
+				case ImUiVertexElementType_UInt:
+					*(uint32*)elementData = (color.red << 24u) | (color.green << 16u) | (color.blue << 8u) | color.alpha;
+					break;
+
+				case ImUiVertexElementType_UInt2:
+					break;
+
+				case ImUiVertexElementType_UInt3:
+					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = color.red << 24u;
+						uintData[ 1u ] = color.green << 24u;
+						uintData[ 2u ] = color.blue << 24u;
+					}
+					break;
+
+				case ImUiVertexElementType_UInt4:
+					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = color.red << 24u;
+						uintData[ 1u ] = color.green << 24u;
+						uintData[ 2u ] = color.blue << 24u;
 						uintData[ 3u ] = color.alpha << 24u;
 					}
+					break;
+
+				case ImUiVertexElementType_MAX:
+					break;
 				}
 			}
 			break;
+
+		case ImUiVertexElementSemantic_ColorABGR:
+			{
+				switch( vertexElement->type )
+				{
+				case ImUiVertexElementType_Float:
+					break;
+
+				case ImUiVertexElementType_Float2:
+					break;
+
+				case ImUiVertexElementType_Float3:
+					break;
+
+				case ImUiVertexElementType_Float4:
+					{
+						float* floatData = (float*)elementData;
+						floatData[ 0u ] = color.alpha / 255.0f;
+						floatData[ 1u ] = color.blue / 255.0f;
+						floatData[ 2u ] = color.green / 255.0f;
+						floatData[ 3u ] = color.red / 255.0f;
+					}
+					break;
+
+				case ImUiVertexElementType_Int:
+					break;
+
+				case ImUiVertexElementType_Int2:
+					break;
+
+				case ImUiVertexElementType_Int3:
+					break;
+
+				case ImUiVertexElementType_Int4:
+					{
+						sint32* intData = (sint32*)elementData;
+						intData[ 0u ] = (sint32)color.alpha << 23;
+						intData[ 1u ] = (sint32)color.blue << 23;
+						intData[ 2u ] = (sint32)color.green << 23;
+						intData[ 3u ] = (sint32)color.red << 23;
+					}
+					break;
+
+				case ImUiVertexElementType_UInt:
+					*(uint32*)elementData = (color.alpha << 24u) | (color.blue << 16u) | (color.green << 8u) | color.red;
+					break;
+
+				case ImUiVertexElementType_UInt2:
+					break;
+
+				case ImUiVertexElementType_UInt3:
+					break;
+
+				case ImUiVertexElementType_UInt4:
+					{
+						uint32* uintData = (uint32*)elementData;
+						uintData[ 0u ] = color.alpha << 24u;
+						uintData[ 1u ] = color.blue << 24u;
+						uintData[ 2u ] = color.green << 24u;
+						uintData[ 3u ] = color.red << 24u;
+					}
+					break;
+
+				case ImUiVertexElementType_MAX:
+					break;
+				}
+			}
+		break;
 		}
 
-		vertexOffset += ImUiVertexElementTypeGetSize( vertexElement->type );
+		vertexOffset += vertexElementSize;
 	}
 
 	return vertexIndex;
@@ -864,7 +1129,6 @@ static uintsize ImUiVertexElementTypeGetSize( ImUiVertexElementType type )
 {
 	switch( type )
 	{
-	case ImUiVertexElementType_Invalid:	return 0u;
 	case ImUiVertexElementType_Float:	return 4u;
 	case ImUiVertexElementType_Float2:	return 8u;
 	case ImUiVertexElementType_Float3:	return 12u;
