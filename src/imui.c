@@ -317,7 +317,9 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 	rootWidget->window		= window;
 	rootWidget->name		= window->name;
 	rootWidget->hash		= ImUiHashString( window->name, 0u );
-	ImUiWidgetSetFixedSize( rootWidget, rect.size );
+	rootWidget->minSize		= rect.size;
+	rootWidget->maxSize		= rect.size;
+	rootWidget->rect		= rect;
 
 	window->lastFrameRootWidget		= window->rootWidget;
 	window->lastFrameCurrentWidget	= window->rootWidget;
@@ -509,8 +511,9 @@ static void ImUiWidgetLayoutStackScroll( ImUiWidget* widget, const ImUiRect* par
 {
 	const float factorWidth			= IMUI_MIN( widget->stretch.width, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretch.height, widget->parent->layoutContext.childrenMaxStretch.height );
+	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
 	const ImUiSize maxSize			= ImUiSizeMax( ImUiSizeShrinkBorder( parentInnerRect->size, widget->margin ), ImUiSizeCreateZero() );
-	ImUiSize size					= ImUiSizeLerp2( widget->minSize, maxSize, factorWidth, factorHeight );
+	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
 	switch( widget->align.horizontal )
