@@ -33,7 +33,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
-	ImUiWidgetSetLayoutVerical( vLayout );
+	ImUiWidgetSetLayoutVertical( vLayout );
 
 	{
 		ImUiWidget* vTop = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vTop" ) );

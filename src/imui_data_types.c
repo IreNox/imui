@@ -210,6 +210,26 @@ ImUiSize ImUiSizeScale( ImUiSize size, float factor )
 	return result;
 }
 
+ImUiSize ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border )
+{
+	const ImUiSize result =
+	{
+		size.width - (border.left + border.right),
+		size.height - (border.top + border.bottom)
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border )
+{
+	const ImUiSize result =
+	{
+		size.width + border.left + border.right,
+		size.height + border.top + border.bottom
+	};
+	return result;
+}
+
 ImUiSize ImUiSizeLerp( ImUiSize a, ImUiSize b, float t )
 {
 	const ImUiSize result =
@@ -246,26 +266,6 @@ ImUiSize ImUiSizeMax( ImUiSize a, ImUiSize b )
 	{
 		IMUI_MAX( a.width, b.width ),
 		IMUI_MAX( a.height, b.height )
-	};
-	return result;
-}
-
-ImUiSize ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border )
-{
-	const ImUiSize result =
-	{
-		size.width - (border.left + border.right),
-		size.height - (border.top + border.bottom)
-	};
-	return result;
-}
-
-ImUiSize ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border )
-{
-	const ImUiSize result =
-	{
-		size.width + border.left + border.right,
-		size.height + border.top + border.bottom
 	};
 	return result;
 }

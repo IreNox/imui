@@ -86,12 +86,14 @@ void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
+bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
 bool				ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text );
 
 void				ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text );
 void				ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
+void				ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
 bool				ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
 bool				ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);

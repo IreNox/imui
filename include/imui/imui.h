@@ -304,7 +304,7 @@ void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
 void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPos offset );
 void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
-void						ImUiWidgetSetLayoutVerical( ImUiWidget* widget );
+void						ImUiWidgetSetLayoutVertical( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
 
@@ -635,12 +635,12 @@ ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
 ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeSubSize( ImUiSize size, ImUiSize sub );
 ImUiSize						ImUiSizeScale( ImUiSize size, float factor );
+ImUiSize						ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border );
+ImUiSize						ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border );
 ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
 ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
 ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
-ImUiSize						ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border );
-ImUiSize						ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border );
 
 ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
 ImUiBorder						ImUiBorderCreateAll( float all );

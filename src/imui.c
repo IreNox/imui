@@ -872,7 +872,7 @@ void ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing )
 	widget->layoutData.horizintalVertical.spacing	= spacing;
 }
 
-void ImUiWidgetSetLayoutVerical( ImUiWidget* widget )
+void ImUiWidgetSetLayoutVertical( ImUiWidget* widget )
 {
 	widget->layout									= ImUiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= 0.0f;
@@ -882,6 +882,12 @@ void ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing )
 {
 	widget->layout									= ImUiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
+}
+
+void ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount )
+{
+	widget->layout									= ImUiLayout_Grid;
+	widget->layoutData.grid.columnCount				= columnCount;
 }
 
 float ImUiWidgetGetTime( const ImUiWidget* widget )

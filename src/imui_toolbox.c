@@ -122,12 +122,19 @@ bool ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text )
 
 bool ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... )
 {
-	char buffer[ 256u ];
-
 	va_list args;
 	va_start( args, format );
-	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
+	const bool result = ImUiToolboxButtonLabelFormatArgs( window, format, args );
 	va_end( args );
+
+	return result;
+}
+
+bool ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args )
+{
+	char buffer[ 256u ];
+
+	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
 	if( length < 0 )
 	{
 		return false;
@@ -140,9 +147,7 @@ bool ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... )
 			return false;
 		}
 
-		va_start( args, format );
 		length = vsnprintf( headBuffer, length + 1u, format, args );
-		va_end( args );
 
 		const bool result = ImUiToolboxButtonLabel( window, ImUiStringViewCreateLength( headBuffer, length ) );
 
@@ -237,12 +242,17 @@ void ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text )
 
 void ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... )
 {
-	char buffer[ 256u ];
-
 	va_list args;
 	va_start( args, format );
-	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
+	ImUiToolboxLabelFormatArgs( window, format, args );
 	va_end( args );
+}
+
+void ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args )
+{
+	char buffer[ 256u ];
+
+	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
 	if( length < 0 )
 	{
 		return;
@@ -255,9 +265,7 @@ void ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... )
 			return;
 		}
 
-		va_start( args, format );
 		length = vsnprintf( headBuffer, length + 1u, format, args );
-		va_end( args );
 
 		ImUiToolboxLabel( window, ImUiStringViewCreateLength( headBuffer, length ) );
 

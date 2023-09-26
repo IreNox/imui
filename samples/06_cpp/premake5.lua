@@ -1,0 +1,13 @@
+-- samples/05_widgets
+
+add_module_include_path( ".." )
+
+local project = Project:new( ProjectTypes.WindowApplication )
+
+project:add_files( 'src/*.cpp' )
+
+project:add_dependency( "framework" )
+
+project:add_external( "local://../.." )
+
+finalize_default_solution( project )
