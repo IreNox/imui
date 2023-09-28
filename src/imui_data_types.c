@@ -2,6 +2,7 @@
 
 #include "imui_internal.h"
 
+#include <math.h>
 #include <string.h>
 
 ImUiStringView ImUiStringViewCreate( const char* str )
@@ -111,6 +112,12 @@ ImUiAlign ImUiAlignCreateCenter()
 ImUiPos ImUiPosCreate( float x, float y )
 {
 	const ImUiPos pos = { x, y };
+	return pos;
+}
+
+ImUiPos ImUiPosCreateZero()
+{
+	const ImUiPos pos = { 0.0f, 0.0f };
 	return pos;
 }
 
@@ -270,6 +277,26 @@ ImUiSize ImUiSizeMax( ImUiSize a, ImUiSize b )
 	return result;
 }
 
+ImUiSize ImUiSizeFloor( ImUiSize size )
+{
+	const ImUiSize result =
+	{
+		floorf( size.width ),
+		floorf( size.height )
+	};
+	return result;
+}
+
+ImUiSize ImUiSizeCeil( ImUiSize size )
+{
+	const ImUiSize result =
+	{
+		ceilf( size.width ),
+		ceilf( size.height )
+	};
+	return result;
+}
+
 ImUiBorder ImUiBorderCreate( float top, float left, float bottom, float right )
 {
 	const ImUiBorder result = { top, left, bottom, right };
@@ -318,6 +345,18 @@ ImUiRect ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size )
 	return rect;
 }
 
+ImUiRect ImUiRectCreateMinMax( float minX, float minY, float maxX, float maxY )
+{
+	const ImUiRect rect = { { minX, minY }, { maxX - minX , maxY - minY } };
+	return rect;
+}
+
+ImUiRect ImUiRectCreateMinMaxPos( ImUiPos tl, ImUiPos br )
+{
+	const ImUiRect rect ={ tl, { br.x - tl.x , br.y - tl.y } };
+	return rect;
+}
+
 ImUiRect ImUiRectCreateCenter( float x, float y, float width, float height )
 {
 	const float halfWidth	= width * 0.5f;
@@ -341,6 +380,12 @@ ImUiRect ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size )
 	return ImUiRectCreateCenter( pos.x, pos.y, size.width, size.height );
 }
 
+ImUiRect ImUiRectCreateZero()
+{
+	const ImUiRect rect ={ { 0.0f, 0.0f }, { 0.0f, 0.0f } };
+	return rect;
+}
+
 ImUiRect ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border )
 {
 	const ImUiRect result =
@@ -349,6 +394,26 @@ ImUiRect ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border )
 		{ rect.size.width - border.left - border.right, rect.size.height - border.top - border.bottom }
 	};
 	return result;
+}
+
+ImUiRect ImUiRectIntersection( ImUiRect rect1, ImUiRect rect2 )
+{
+	const ImUiPos rect1br	= ImUiRectGetBottomRight( rect1 );
+	const ImUiPos rect2br	= ImUiRectGetBottomRight( rect2 );
+	if( rect2br.x > rect1.pos.x &&
+		rect2br.y > rect1.pos.y &&
+		rect2.pos.x < rect1br.x &&
+		rect2.pos.y < rect1br.y )
+	{
+		return ImUiRectCreateMinMax(
+			IMUI_MAX( rect1.pos.x, rect2.pos.x ),
+			IMUI_MAX( rect1.pos.y, rect2.pos.y ),
+			IMUI_MIN( rect1br.x, rect2br.x ),
+			IMUI_MIN( rect1br.y, rect2br.y )
+		);
+	}
+
+	return ImUiRectCreateZero();
 }
 
 bool ImUiRectIncludesPos( ImUiRect rect, ImUiPos pos )

@@ -37,6 +37,12 @@ enum ImUiToolboxColor
 	ImUiToolboxColor_ProgressBarBackground,
 	ImUiToolboxColor_ProgressBarProgress,
 
+	ImUiToolboxColor_ScrollAreaBarBackground,
+	ImUiToolboxColor_ScrollAreaBarPivot,
+
+	ImUiToolboxColor_ListItemBackground,
+	ImUiToolboxColor_ListItemText,
+
 	ImUiToolboxColor_MAX
 };
 
@@ -51,34 +57,73 @@ enum ImUiToolboxSkin
 	ImUiToolboxSkin_TextEditBackground,
 	ImUiToolboxSkin_ProgressBarBackground,
 	ImUiToolboxSkin_ProgressBarProgress,
+	ImUiToolboxSkin_ScrollAreaBarBackground,
+	ImUiToolboxSkin_ScrollAreaBarPivot,
+	ImUiToolboxSkin_ListItem,
 
 	ImUiToolboxSkin_MAX
+};
+
+typedef struct ImUiToolboxButtonConfig ImUiToolboxButtonConfig;
+struct ImUiToolboxButtonConfig
+{
+	float			height;
+	ImUiBorder		padding;
+};
+
+typedef struct ImUiToolboxCheckBoxConfig ImUiToolboxCheckBoxConfig;
+struct ImUiToolboxCheckBoxConfig
+{
+	ImUiSize		size;
+	float			textSpacing;
+};
+
+typedef struct ImUiToolboxSliderConfig ImUiToolboxSliderConfig;
+struct ImUiToolboxSliderConfig
+{
+	float			height;
+	ImUiBorder		padding;
+	float			pivotSize;
+};
+
+typedef struct ImUiToolboxTextEditConfig ImUiToolboxTextEditConfig;
+struct ImUiToolboxTextEditConfig
+{
+	float			height;
+	ImUiBorder		padding;
+	ImUiSize		cursorSize;
+	float			blinkTime;
+};
+
+typedef struct ImUiToolboxProgressBarConfig ImUiToolboxProgressBarConfig;
+struct ImUiToolboxProgressBarConfig
+{
+	float			height;
+	ImUiBorder		padding;
+};
+
+typedef struct ImUiToolboxScrollAreaConfig ImUiToolboxScrollAreaConfig;
+struct ImUiToolboxScrollAreaConfig
+{
+	float			barSize;
+	float			barSpacing;
+	float			barMinSize;
 };
 
 typedef struct ImUiToolboxConfig ImUiToolboxConfig;
 struct ImUiToolboxConfig
 {
-	ImUiColor		colors[ ImUiToolboxColor_MAX ];
-	ImUiSkin		skins[ ImUiToolboxSkin_MAX ];
+	ImUiColor						colors[ ImUiToolboxColor_MAX ];
+	ImUiSkin						skins[ ImUiToolboxSkin_MAX ];
 
-	ImUiFont*		font;
+	ImUiFont*						font;
 
-	ImUiBorder		buttonPadding;
-
-	ImUiSize		checkBoxSize;
-	float			checkBoxTextSpacing;
-
-	float			sliderHeight;
-	ImUiBorder		sliderPadding;
-	float			sliderPivotSize;
-
-	float			textEditHeight;
-	ImUiBorder		textEditPadding;
-	ImUiSize		textEditCursorSize;
-	float			textEditBlinkTime;
-
-	float			progressBarHeight;
-	ImUiBorder		progressBarPadding;
+	ImUiToolboxButtonConfig			button;
+	ImUiToolboxCheckBoxConfig		checkBox;
+	ImUiToolboxSliderConfig			slider;
+	ImUiToolboxTextEditConfig		textEdit;
+	ImUiToolboxProgressBarConfig	progressBar;
+	ImUiToolboxScrollAreaConfig		scrollArea;
 };
 
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
@@ -104,6 +149,18 @@ bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize
 
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
+
+ImUiWidget*			ImUiToolboxScrollAreaBeginHorizontal( ImUiWindow* window );
+ImUiWidget*			ImUiToolboxScrollAreaBeginVertical( ImUiWindow* window );
+ImUiWidget*			ImUiToolboxScrollAreaBeginBoth( ImUiWindow* window );
+void				ImUiToolboxScrollAreaEnd( ImUiWidget* scroll );
+
+ImUiWidget*			ImUiToolboxListBeginHorizontal( ImUiWindow* window, size_t itemCount );
+ImUiWidget*			ImUiToolboxListBeginVertical( ImUiWindow* window, size_t itemCount );
+size_t				ImUiToolboxListGetBeginIndex( ImUiWidget* list );
+size_t				ImUiToolboxListGetEndIndex( ImUiWidget* list );
+ImUiWidget*			ImUiToolboxListNextItem( ImUiWidget* list );
+void				ImUiToolboxListEnd( ImUiWidget* list );
 
 #ifdef __cplusplus
 }

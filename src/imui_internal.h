@@ -85,6 +85,7 @@ struct ImUiLayoutContext
 {
 	//ImUiRect		minInnerRect;
 	//ImUiRect		maxInnerRect;
+	ImUiSize		marginSize;
 	ImUiSize		minOuterSize;
 	size_t			childCount;
 	ImUiSize		childrenStretch;
@@ -127,6 +128,7 @@ struct ImUiWidget
 	ImUiAlign				align;
 
 	ImUiRect				rect;
+	ImUiRect				clipRect;
 	ImUiLayoutContext		layoutContext;
 };
 

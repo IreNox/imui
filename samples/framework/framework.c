@@ -463,7 +463,7 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 
 	glDisable( GL_CULL_FACE );
 	glDisable( GL_DEPTH_TEST );
-	//glEnable( GL_SCISSOR_TEST );
+	glEnable( GL_SCISSOR_TEST );
 
 	glUseProgram( context->program );
 	glUniform1i( context->programUniformTexture, 0 );

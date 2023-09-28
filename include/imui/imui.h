@@ -299,6 +299,9 @@ void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size );
 void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew );
 void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc );
 
+ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
+float						ImUiWidgetGetTime( const ImUiWidget* widget );
+
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
 void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
 void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPos offset );
@@ -307,8 +310,6 @@ void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacin
 void						ImUiWidgetSetLayoutVertical( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
-
-float						ImUiWidgetGetTime( const ImUiWidget* widget );
 
 ImUiBorder					ImUiWidgetGetMargin( const ImUiWidget* widget );
 void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin );
@@ -618,6 +619,7 @@ ImUiAlign						ImUiAlignCreate( ImUiHAlign horizintal, ImUiVAlign vertical );
 ImUiAlign						ImUiAlignCreateCenter();
 
 ImUiPos							ImUiPosCreate( float x, float y );
+ImUiPos							ImUiPosCreateZero();
 ImUiPos							ImUiPosAdd( ImUiPos pos, float x, float y );
 ImUiPos							ImUiPosAddPos( ImUiPos pos, ImUiPos add );
 ImUiPos							ImUiPosSub( ImUiPos pos, float x, float y );
@@ -641,6 +643,8 @@ ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
 ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
 ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
+ImUiSize						ImUiSizeFloor( ImUiSize size );
+ImUiSize						ImUiSizeCeil( ImUiSize size );
 
 ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
 ImUiBorder						ImUiBorderCreateAll( float all );
@@ -651,11 +655,15 @@ ImUiRect						ImUiRectCreate( float x, float y, float width, float height );
 ImUiRect						ImUiRectCreatePos( ImUiPos pos, float width, float height );
 ImUiRect						ImUiRectCreateSize( float x, float y, ImUiSize size );
 ImUiRect						ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size );
+ImUiRect						ImUiRectCreateMinMax( float minX, float minY, float maxX, float maxY );
+ImUiRect						ImUiRectCreateMinMaxPos( ImUiPos tl, ImUiPos br );
 ImUiRect						ImUiRectCreateCenter( float x, float y, float width, float height );
 ImUiRect						ImUiRectCreateCenterPos( ImUiPos pos, float width, float height );
 ImUiRect						ImUiRectCreateCenterSize( float x, float y, ImUiSize size );
 ImUiRect						ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size );
+ImUiRect						ImUiRectCreateZero();
 ImUiRect						ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border );
+ImUiRect						ImUiRectIntersection( ImUiRect rect1, ImUiRect rect2 );
 bool							ImUiRectIncludesPos( ImUiRect rect, ImUiPos pos );
 bool							ImUiRectIntersectsRect( ImUiRect rect1, ImUiRect rect2 );
 ImUiPos							ImUiRectGetTopLeft( ImUiRect rect );

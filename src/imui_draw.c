@@ -33,7 +33,6 @@ static void					ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surfac
 static ImUiDrawWindowData*	ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget );
 static ImUiDrawElement*		ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, void* texture );
 static void					ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
-static ImUiDrawCommand*		ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
 static bool					ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize vertexCount );
 static bool					ImUiDrawSurfacePreparePushRects( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize rectCount );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color );
@@ -221,14 +220,49 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
-		const uintsize drawIndex = surface->windows[ windowIndex ].drawIndex;
-		const ImUiDrawWindowData* window = &draw->windows[ drawIndex ];
+		const ImUiWindow* window = &surface->windows[ windowIndex ];
+		const ImUiDrawWindowData* drawWindow = &draw->windows[ window->drawIndex ];
 
-		for( uintsize elementIndex = 0u; elementIndex < window->elementCount; ++elementIndex )
+		for( uintsize elementIndex = 0u; elementIndex < drawWindow->elementCount; ++elementIndex )
 		{
-			const ImUiDrawElement* element = &window->elements[ elementIndex ];
+			const ImUiDrawElement* element = &drawWindow->elements[ elementIndex ];
 			ImUiDrawSurfaceGenerateElementData( draw, drawSurface, element );
 		}
+
+#if 0
+		IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, drawSurface->commands, drawSurface->commandCapacity, drawSurface->commandCount + 1u );
+
+		ImUiDrawCommand* command = &drawSurface->commands[ drawSurface->commandCount++ ];
+		command->topology	= ImUiDrawTopology_TriangleList;
+		command->texture	= NULL;
+		command->clipRect	= ImUiRectCreatePosSize( ImUiPosCreateZero(), surface->size );
+		command->count		= 0u;
+
+		const ImUiTexCoord uv = { 0.0f, 0.0f, 0.0f, 0.0f };
+		ImUiWidget* widget = window->rootWidget;
+		while( widget )
+		{
+			ImUiDrawSurfacePreparePushRects( draw, drawSurface, 1u );
+			command->count += ImUiDrawSurfacePushRect( draw, drawSurface, widget->clipRect.pos, ImUiRectGetBottomRight( widget->clipRect ), uv, ImUiColorCreateGrayA( 0x80u, 0x80u ) );
+
+			if( widget->firstChild )
+			{
+				widget = widget->firstChild;
+			}
+			else if( widget->nextSibling )
+			{
+				widget = widget->nextSibling;
+			}
+			else if( widget->parent )
+			{
+				widget = widget->parent->nextSibling;
+			}
+			else
+			{
+				widget = NULL;
+			}
+		}
+#endif
 	}
 
 	ImUiDrawData* data = &drawSurface->data;
@@ -354,6 +388,27 @@ void ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture textu
 	rectData->uv		= uv;
 }
 
+void ImUiDrawRectTextureColor( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
+	rectData->rect		= rect;
+	rectData->color		= color;
+	rectData->uv.u0		= 0.0f;
+	rectData->uv.v0		= 0.0f;
+	rectData->uv.u1		= 1.0f;
+	rectData->uv.v1		= 1.0f;
+}
+
+void ImUiDrawRectTextureColorUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color, ImUiTexCoord uv )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
+	rectData->rect		= rect;
+	rectData->color		= color;
+	rectData->uv		= uv;
+}
+
 void ImUiDrawSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin )
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
@@ -430,16 +485,24 @@ static ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElement
 	ImUiDrawElement* element = &window->elements[ window->elementCount++ ];
 	element->type		= type;
 	element->texture	= texture;
-	element->clipRect	= widget->rect;
+	element->clipRect	= widget->clipRect;
 
 	return element;
 }
 
 static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element )
 {
-	ImUiDrawCommand* command = ImUiDrawSurfaceGetElementCommand( draw, surface, element );
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount + 1u ) )
+	{
+		return;
+	}
 
-	uintsize elementCount = 0u;
+	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
+	command->topology	= element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
+	command->texture	= element->texture;
+	command->clipRect	= element->clipRect;
+	command->count		= 0u;
+
 	switch( element->type )
 	{
 	case ImUiDrawElementType_Line:
@@ -457,7 +520,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
 
-			elementCount = 2u;
+			command->count = 2u;
 		}
 		break;
 
@@ -469,7 +532,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			const ImUiPos posBr = ImUiRectGetBottomRight( rectData->rect );
 
 			ImUiDrawSurfacePreparePushRects( draw, surface, 1u );
-			elementCount = ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, rectData->uv, rectData->color );
+			command->count = ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, rectData->uv, rectData->color );
 		}
 		break;
 
@@ -556,7 +619,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 						uPositions[ nextX ], vPositions[ nextY ]
 					};
 
-					elementCount += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, uv, skinData->color );
+					command->count += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, uv, skinData->color );
 				}
 			}
 		}
@@ -577,42 +640,11 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
 				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
 
-				elementCount += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, glyph->uv, textData->color );
+				command->count += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, glyph->uv, textData->color );
 			}
 		}
 		break;
 	}
-
-	command->count += elementCount;
-}
-
-static ImUiDrawCommand* ImUiDrawSurfaceGetElementCommand( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element )
-{
-	const ImUiDrawTopology topology = element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
-	if( surface->commandCount > 0u &&
-		topology != ImUiDrawTopology_TriangleStrip &&
-		topology != ImUiDrawTopology_IndexedTriangleStrip )
-	{
-		ImUiDrawCommand* command = &surface->commands[ surface->commandCount - 1u ];
-		if( command->topology == topology &&
-			command->texture == element->texture )
-		{
-			return command;
-		}
-	}
-
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount + 1u ) )
-	{
-		return NULL;
-	}
-
-	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
-	command->topology	= topology;
-	command->texture	= element->texture;
-	command->clipRect	= element->clipRect;
-	command->count		= 0u;
-
-	return command;
 }
 
 static bool ImUiDrawSurfacePreparePushVertices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, uintsize vertexCount )
