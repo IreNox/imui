@@ -5,15 +5,7 @@
 
 namespace imui
 {
-	class UiFrame;
 	class UiInput;
-	class UiSurface;
-	class UiWidget;
-	class UiWindow;
-	struct UiAlign;
-	struct UiBorder;
-	struct UiPos;
-	struct UiRect;
 	struct UiSize;
 
 	struct UiStringView : public ImUiStringView
@@ -106,6 +98,29 @@ namespace imui
 		static UiSize	Vertical;
 	};
 
+	struct UiColor : public ImUiColor
+	{
+						UiColor();
+						UiColor( uint8_t _red, uint8_t _green, uint8_t _blue );
+						UiColor( uint8_t _red, uint8_t _green, uint8_t _blue, uint8_t _alpha );
+						UiColor( float _red, float _green, float _blue );
+						UiColor( float _red, float _green, float _blue, float _alpha );
+		explicit		UiColor( ImUiColor value );
+
+		static UiColor	CreateWhite( uint8_t _alpha );
+		static UiColor	CreateBlack( uint8_t _alpha );
+		static UiColor	CreateGray( uint8_t gray );
+		static UiColor	CreateGray( uint8_t gray, uint8_t _alpha );
+
+		static UiColor	White;
+		static UiColor	Black;
+		static UiColor	TransparentBlack;
+	};
+
+	struct UiTexCoord : public ImUiTexCoord
+	{
+	};
+
 	struct UiContextParameters : public ImUiParameters
 	{
 						UiContextParameters();
@@ -147,6 +162,7 @@ namespace imui
 
 	private:
 
+		bool			m_owner;
 		ImUiFrame*		m_frame;
 	};
 
@@ -167,11 +183,13 @@ namespace imui
 		bool			isValid() const;
 		ImUiSurface*	getInternal() const;
 
+		UiRect			getRect() const;
 		UiSize			getSize() const;
 		float			getDpiScale() const;
 
 	private:
 
+		bool			m_owner;
 		ImUiSurface*	m_surface;
 	};
 
@@ -198,6 +216,7 @@ namespace imui
 
 	private:
 
+		bool			m_owner;
 		ImUiWindow*		m_window;
 	};
 
@@ -206,7 +225,6 @@ namespace imui
 	public:
 
 						UiWidget();
-						UiWidget( ImUiWidget* widget );
 						UiWidget( UiWindow& window );
 						UiWidget( UiWindow& window, ImUiId id );
 						UiWidget( UiWindow& window, const UiStringView& name );
@@ -232,7 +250,7 @@ namespace imui
 		void			setLayoutScroll( UiPos offset );
 		void			setLayoutHorizontal();
 		void			setLayoutHorizontalSpacing( float spacing );
-		void			setLayoutVerical();
+		void			setLayoutVertical();
 		void			setLayoutVerticalSpacing( float spacing );
 		void			setLayoutGrid( size_t columnCount );
 
@@ -266,16 +284,50 @@ namespace imui
 		UiSize			getInnerSize();
 		UiRect			getInnerRect();
 
-	private:
+		void			drawLine( UiPos p0, UiPos p1, UiColor color );
+		void			drawWidgetColor( UiColor color );
+		void			drawWidgetTexture( const ImUiTexture& texture );
+		void			drawWidgetTextureColor( const ImUiTexture& texture, UiColor color );
+		void			drawWidgetSkin( const ImUiSkin& skin );
+		void			drawWidgetSkinColor( const ImUiSkin& skin, UiColor color );
+		void			drawWidgetText( ImUiTextLayout* layout );
+		void			drawWidgetTextColor( ImUiTextLayout* layout, UiColor color );
+		void			drawRectColor( const UiRect& rect, ImUiColor color );
+		void			drawRectTexture( const UiRect& rect, const ImUiTexture& texture );
+		void			drawRectTextureUv( const UiRect& rect, const ImUiTexture& texture, const UiTexCoord& uv );
+		void			drawRectTextureColor( const UiRect& rect, const ImUiTexture& texture, UiColor color );
+		void			drawRectTextureColorUv( const UiRect& rect, const ImUiTexture& texture, UiColor color, const UiTexCoord& uv );
+		void			drawSkin( const UiRect& rect, const ImUiSkin& skin );
+		void			drawSkinColor( const UiRect& rect, const ImUiSkin& skin, UiColor color );
+		void			drawText( UiPos pos, ImUiTextLayout* layout );
+		void			drawTextColor( UiPos pos, ImUiTextLayout* layout, UiColor color );
+
+	protected:
 
 		ImUiWidget*		m_widget;
+	};
+
+	class UiWidgetLayoutHorizontal : public UiWidget
+	{
+	public:
+
+						UiWidgetLayoutHorizontal( UiWindow& window );
+						UiWidgetLayoutHorizontal( UiWindow& window, float spacing );
+	};
+
+	class UiWidgetLayoutVertical : public UiWidget
+	{
+	public:
+
+						UiWidgetLayoutVertical( UiWindow& window );
+						UiWidgetLayoutVertical( UiWindow& window, float spacing );
 	};
 
 	namespace toolbox
 	{
 		struct UiToolboxConfig : ImUiToolboxConfig
 		{
-						UiToolboxConfig();
+						UiToolboxConfig( ImUiFont* font );
 		};
 
 		void			setConfig( const UiToolboxConfig& config );
@@ -286,7 +338,7 @@ namespace imui
 		bool			checkBox( UiWindow& window, bool& checked, const UiStringView& text );
 		bool			checkBoxState( UiWindow& window, const UiStringView& text );
 
-		void			label( UiWindow& window, ImUiStringView text );
+		void			label( UiWindow& window, const UiStringView& text );
 		void			labelFormat( UiWindow& window, const char* format, ... );
 
 		bool			slider( UiWindow& window, float& value );								// value range is 0 to 1
