@@ -621,7 +621,8 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	const float factorHeight		= parentContext->childrenMaxStretch.height ? widget->stretch.height / parentContext->childrenMaxStretch.height : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
 
-	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width) + minSize.width;
+	const float spacing				= widget->parent->layoutData.horizintalVertical.spacing * (parentContext->childCount - 1u);
+	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width - spacing) + minSize.width;
 	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( maxFreeWidth, parentInnerRect->size.height ) );
 	//{
 	//	IMUI_MIN( widget->maxSize.width, parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width )

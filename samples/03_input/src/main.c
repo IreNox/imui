@@ -44,8 +44,8 @@ static void HwInputElement( ImUiWindow* window )
 
 	ImUiColor color = ImUiColorCreateFloat( 0.1f, 0.5f, 0.8f, 1.0f );
 
-	ImUiInputWidgetState inputState;
-	ImUiInputGetWidgetState( widget, &inputState );
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( widget, &inputState );
 
 	if( inputState.hasMouseReleased )
 	{
