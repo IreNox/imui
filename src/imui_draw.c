@@ -243,7 +243,11 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 		while( widget )
 		{
 			ImUiDrawSurfacePreparePushRects( draw, drawSurface, 1u );
-			command->count += ImUiDrawSurfacePushRect( draw, drawSurface, widget->clipRect.pos, ImUiRectGetBottomRight( widget->clipRect ), uv, ImUiColorCreateGrayA( 0x80u, 0x80u ) );
+
+			const ImUiRect rect = widget->rect;
+			//const ImUiRect rect = widget->clipRect;
+			//const ImUiRect rect = ImUiRectCreatePosSize( widget->rect.pos, ImUiSizeMax( widget->minSize, widget->layoutContext.childrenMinSize ) );
+			command->count += ImUiDrawSurfacePushRect( draw, drawSurface, rect.pos, ImUiRectGetBottomRight( rect ), uv, ImUiColorCreateGrayA( 0x80u, 0x40u ) );
 
 			if( widget->firstChild )
 			{
@@ -253,13 +257,22 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 			{
 				widget = widget->nextSibling;
 			}
-			else if( widget->parent )
-			{
-				widget = widget->parent->nextSibling;
-			}
 			else
 			{
-				widget = NULL;
+				ImUiWidget* nextWidget = widget->parent;
+				while( nextWidget )
+				{
+					ImUiWidget* nextNextWidget = nextWidget->nextSibling;
+					if( nextNextWidget )
+					{
+						nextWidget = nextNextWidget;
+						break;
+					}
+
+					nextWidget = nextWidget->parent;
+				}
+
+				widget = nextWidget;
 			}
 		}
 #endif

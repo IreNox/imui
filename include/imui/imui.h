@@ -290,17 +290,37 @@ float						ImUiWindowGetTime( const ImUiWindow* window );
 
 typedef void(*ImUiStateDestructFunc)( void* state );
 
+typedef struct ImUiWidgetInputState ImUiWidgetInputState;
+struct ImUiWidgetInputState
+{
+	ImUiPos						relativeMousePos;
+
+	bool						wasPressed;
+	bool						wasMouseOver;
+	bool						isMouseOver;
+	bool						isMouseDown;
+	bool						hasMouseReleased;
+};
+
 ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
 ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
 ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
 
+ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
+ImUiWindow*					ImUiWidgetGetWindow( const ImUiWidget* widget );
+
+ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
+ImUiWidget*					ImUiWidgetGetFirstChild( const ImUiWidget* widget );
+ImUiWidget*					ImUiWidgetGetLastChild( const ImUiWidget* widget );
+ImUiWidget*					ImUiWidgetGetPrevSibling( const ImUiWidget* widget );
+ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
+
+float						ImUiWidgetGetTime( const ImUiWidget* widget );
+
 void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size );
 void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew );
 void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc );
-
-ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
-float						ImUiWidgetGetTime( const ImUiWidget* widget );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
 void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
@@ -317,8 +337,12 @@ ImUiBorder					ImUiWidgetGetPadding( const ImUiWidget* widget );
 void						ImUiWidgetSetPadding( ImUiWidget* widget, ImUiBorder padding );
 
 ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
+void						ImUiWidgetSetMinWidth( ImUiWidget* widget, float value );
+void						ImUiWidgetSetMinHeight( ImUiWidget* widget, float value );
 void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
 ImUiSize					ImUiWidgetGetMaxSize( const ImUiWidget* widget );
+void						ImUiWidgetSetMaxWidth( ImUiWidget* widget, float value );
+void						ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value );
 void						ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size );
 
 void						ImUiWidgetSetFixedWidth( ImUiWidget* widget, float value );
@@ -338,6 +362,8 @@ ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
 ImUiRect					ImUiWidgetGetRect( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetInnerSize( const ImUiWidget* widget );
 ImUiRect					ImUiWidgetGetInnerRect( const ImUiWidget* widget );
+
+void						ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target );
 
 //////////////////////////////////////////////////////////////////////////
 // Widget Draw
@@ -505,14 +531,6 @@ enum ImUiInputModifier
 	ImUiInputModifier_RightAlt		= 1u << 5u
 };
 
-typedef struct ImUiInputWidgetState ImUiInputWidgetState;
-struct ImUiInputWidgetState
-{
-	bool						isMouseOver;
-	bool						isMouseDown;
-	bool						hasMouseReleased;
-};
-
 // Push
 
 ImUiInput*						ImUiInputBegin( ImUiContext* imui );
@@ -547,8 +565,6 @@ bool							ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton b
 bool							ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton button );
-
-void							ImUiInputGetWidgetState( ImUiWidget* widget, ImUiInputWidgetState* target );
 
 //////////////////////////////////////////////////////////////////////////
 // Font
@@ -625,6 +641,8 @@ ImUiPos							ImUiPosAddPos( ImUiPos pos, ImUiPos add );
 ImUiPos							ImUiPosSub( ImUiPos pos, float x, float y );
 ImUiPos							ImUiPosSubPos( ImUiPos pos, ImUiPos sub );
 ImUiPos							ImUiPosScale( ImUiPos pos, float factor );
+ImUiPos							ImUiPosMin( ImUiPos a, ImUiPos b );
+ImUiPos							ImUiPosMax( ImUiPos a, ImUiPos b );
 
 ImUiSize						ImUiSizeCreate( float width, float height );
 ImUiSize						ImUiSizeCreateAll( float value );
@@ -645,6 +663,7 @@ ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
 ImUiSize						ImUiSizeFloor( ImUiSize size );
 ImUiSize						ImUiSizeCeil( ImUiSize size );
+ImUiPos							ImUiSizeToPos( ImUiSize size );
 
 ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
 ImUiBorder						ImUiBorderCreateAll( float all );

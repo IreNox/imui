@@ -19,9 +19,11 @@ static ImUiTexture	s_skinLineTexture	= { NULL };
 static void			ImUiTestSetConfig();
 
 static void			ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
-static void			ImUiTestDoSlidersAndProgressBars( ImUiWindow* window, ImUiWidget* vLayout );
-static void			ImUiTestDoTextEdit( ImUiWindow* window, ImUiWidget* vLayout );
-static void			ImUiTestDoScrollArea( ImUiWindow* window, ImUiWidget* vLayout );
+static void			ImUiTestDoSlidersAndProgressBars( ImUiWindow* window );
+static void			ImUiTestDoTextEdit( ImUiWindow* window );
+static void			ImUiTestDoScrollArea( ImUiWindow* window );
+
+static float		s_sliderValue1 = 2.5f;
 
 void ImUiFrameworkTick( ImUiSurface* surface )
 {
@@ -36,19 +38,32 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
+	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
+	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
+
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
-	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
-	ImUiWidgetSetMargin( vLayout, ImUiBorderCreateAll( 25.0f ) );
+	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateHorizintal() );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	//ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
-	//ImUiTestDoSlidersAndProgressBars( window, vLayout );
-	//ImUiTestDoTextEdit( window, vLayout );
-	ImUiTestDoScrollArea( window, vLayout );
+	ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
+	ImUiTestDoSlidersAndProgressBars( window );
+	ImUiTestDoTextEdit( window );
+
+	ImUiWidgetEnd( vLayout );
+
+	ImUiTestDoScrollArea( window );
+
+	const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
+	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
+	ImUiWidgetSetMinWidth( mouseLabel, 100.0f );
+	ImUiToolboxLabelEnd( mouseLabel );
 
 	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
 
-	ImUiWidgetEnd( vLayout );
+
+	ImUiWidgetEnd( hLayout );
 
 	ImUiWindowEnd( window );
 }
@@ -64,7 +79,7 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 
 	{
 		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "buttons" ) );
-		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateHorizintal() );
+		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateZero() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
 		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 1" ) ) )
@@ -81,13 +96,6 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 		{
 			checked[ 2u ] = !checked[ 2u ];
 		}
-
-		ImUiWidget* strecher = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "strecher" ) );
-		ImUiWidgetSetStretch( strecher, ImUiSizeCreateHorizintal() );
-		ImUiWidgetEnd( strecher );
-
-		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
-		ImUiToolboxLabelFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
 
 		ImUiWidgetEnd( buttonsLayout );
 	}
@@ -109,32 +117,38 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 	}
 }
 
-static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window, ImUiWidget* vLayout )
+static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window )
 {
 	ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "sliders" ) );
-	ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreate( 0.25f, 0.0f ) );
+	ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
-	static float value1 = 2.5f;
-	ImUiToolboxSliderMinMax( window, &value1, 1.0f, 5.0f );
+	ImUiToolboxSliderMinMax( window, &s_sliderValue1, 1.0f, 5.0f );
 
 	const float value2 = ImUiToolboxSliderStateMinMax( window, 1.0f, 5.0f );
 
-	ImUiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", value1, value2 );
+	ImUiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", s_sliderValue1, value2 );
 
-	ImUiToolboxProgressBarMinMax( window, value1, 0.0f, 5.0f );
+	ImUiToolboxProgressBarMinMax( window, s_sliderValue1, 0.0f, 5.0f );
 	ImUiToolboxProgressBar( window, -1.0f );
 
 	ImUiWidgetEnd( sliderLayout );
 }
 
-static void ImUiTestDoTextEdit( ImUiWindow* window, ImUiWidget* vLayout )
+static void ImUiTestDoTextEdit( ImUiWindow* window )
 {
-
+	//imuitoolboxtextedit
 }
 
-static void ImUiTestDoScrollArea( ImUiWindow* window, ImUiWidget* vLayout )
+static void ImUiTestDoScrollArea( ImUiWindow* window )
 {
+	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vLayout" ) );
+	ImUiWidgetSetStretch( vLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
+
+	ImUiToolboxLabel( window, IMUI_STR( "Item count:" ) );
+	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
+
 	ImUiWidget* scrollArea = ImUiToolboxScrollAreaBeginVertical( window );
 	ImUiWidgetSetMinSize( scrollArea, ImUiSizeCreateAll( 200.0f ) );
 
@@ -142,13 +156,16 @@ static void ImUiTestDoScrollArea( ImUiWindow* window, ImUiWidget* vLayout )
 	ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizintal() );
 	ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
-	for( size_t i = 0; i < 30u; ++i )
+	const size_t count = (size_t)itemCount;
+	for( size_t i = 0; i < itemCount; ++i )
 	{
 		ImUiToolboxLabelFormat( window, "Scroll Label %i", i );
 	}
 
 	ImUiWidgetEnd( scrollLayout );
 	ImUiToolboxScrollAreaEnd( scrollArea );
+
+	ImUiWidgetEnd( vLayout );
 }
 
 bool ImUiFrameworkInitialize( ImUiContext* imui )
@@ -187,6 +204,7 @@ static void ImUiTestSetConfig()
 	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
 	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
 	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
 	const ImUiColor textEditCursorColor	= ImUiColorCreateBlack();
 
 	ImUiToolboxConfig config;
@@ -198,13 +216,13 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
 	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= checkedColor;
 	config.colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= ImUiColorCreateFloat( 1.0f, 0.7f, 0.9f, 1.0f );
 	config.colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= ImUiColorCreateFloat( 1.0f, 0.3f, 0.5f, 1.0f );
 	config.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
 	config.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
 	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
-	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= elementClickedColor;
+	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= checkedColor;
 	config.colors[ ImUiToolboxColor_TextEditBackground ]		= backgroundColor;
 	config.colors[ ImUiToolboxColor_TextEditText ]				= textColor;
 	config.colors[ ImUiToolboxColor_TextEditCursor ]			= textEditCursorColor;

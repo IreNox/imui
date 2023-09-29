@@ -146,15 +146,6 @@ bool ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton bu
 	return !imui->input.currentState.mouseButtons[ button ] && imui->input.lastState.mouseButtons[ button ];
 }
 
-void ImUiInputGetWidgetState( ImUiWidget* widget, ImUiInputWidgetState* target )
-{
-	ImUiInput* input = &widget->window->imui->input;
-
-	target->isMouseOver			= ImUiRectIncludesPos( widget->rect, input->currentState.mousePos );
-	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
-	target->hasMouseReleased	= target->isMouseOver && !input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] && input->lastState.mouseButtons[ ImUiInputMouseButton_Left ];
-}
-
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state )
 {
 	if( state->textCapacity <= sizeof( state->text.buffer ) )

@@ -129,13 +129,21 @@ struct ImUiToolboxConfig
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
+ImUiWidget*			ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text );
+bool				ImUiToolboxButtonLabelEnd( ImUiWidget* button );
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
 bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
+ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window, bool* checked, ImUiStringView text );
+bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox );
 bool				ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text );
 
+ImUiWidget*			ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text );
+ImUiWidget*			ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
+ImUiWidget*			ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
+void				ImUiToolboxLabelEnd( ImUiWidget* label );
 void				ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text );
 void				ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
 void				ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
@@ -143,7 +151,9 @@ void				ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_l
 bool				ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
 bool				ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);
 float				ImUiToolboxSliderState( ImUiWindow* window );										// value range is 0 to 1
+float				ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue );			// value range is 0 to 1
 float				ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
+float				ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
 bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t textLength );
 

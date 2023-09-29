@@ -141,13 +141,33 @@ ImUiPos ImUiPosSub( ImUiPos pos, float x, float y )
 
 ImUiPos ImUiPosSubPos( ImUiPos pos, ImUiPos sub )
 {
-	const ImUiPos result = { pos.x + sub.x, pos.y + sub.y };
+	const ImUiPos result = { pos.x - sub.x, pos.y - sub.y };
 	return result;
 }
 
 ImUiPos ImUiPosScale( ImUiPos pos, float factor )
 {
 	const ImUiPos result = { pos.x * factor, pos.y * factor };
+	return result;
+}
+
+ImUiPos ImUiPosMin( ImUiPos a, ImUiPos b )
+{
+	const ImUiPos result =
+	{
+		IMUI_MIN( a.x, b.x ),
+		IMUI_MIN( a.y, b.y )
+	};
+	return result;
+}
+
+ImUiPos ImUiPosMax( ImUiPos a, ImUiPos b )
+{
+	const ImUiPos result =
+	{
+		IMUI_MAX( a.x, b.x ),
+		IMUI_MAX( a.y, b.y )
+	};
 	return result;
 }
 
@@ -297,6 +317,16 @@ ImUiSize ImUiSizeCeil( ImUiSize size )
 	return result;
 }
 
+ImUiPos ImUiSizeToPos( ImUiSize size )
+{
+	const ImUiPos result =
+	{
+		size.width,
+		size.height
+	};
+	return result;
+}
+
 ImUiBorder ImUiBorderCreate( float top, float left, float bottom, float right )
 {
 	const ImUiBorder result = { top, left, bottom, right };
@@ -390,8 +420,8 @@ ImUiRect ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border )
 {
 	const ImUiRect result =
 	{
-		{ rect.pos.x + border.left, rect.pos.y + border.top},
-		{ rect.size.width - border.left - border.right, rect.size.height - border.top - border.bottom }
+		{ rect.pos.x + border.left, rect.pos.y + border.top },
+		{ IMUI_MAX( 0.0f, rect.size.width - border.left - border.right ), IMUI_MAX( 0.0f, rect.size.height - border.top - border.bottom ) }
 	};
 	return result;
 }
@@ -400,10 +430,10 @@ ImUiRect ImUiRectIntersection( ImUiRect rect1, ImUiRect rect2 )
 {
 	const ImUiPos rect1br	= ImUiRectGetBottomRight( rect1 );
 	const ImUiPos rect2br	= ImUiRectGetBottomRight( rect2 );
-	if( rect2br.x > rect1.pos.x &&
-		rect2br.y > rect1.pos.y &&
-		rect2.pos.x < rect1br.x &&
-		rect2.pos.y < rect1br.y )
+	if( rect2br.x >= rect1.pos.x &&
+		rect2br.y >= rect1.pos.y &&
+		rect2.pos.x <= rect1br.x &&
+		rect2.pos.y <= rect1br.y )
 	{
 		return ImUiRectCreateMinMax(
 			IMUI_MAX( rect1.pos.x, rect2.pos.x ),

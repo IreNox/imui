@@ -94,6 +94,14 @@ struct ImUiLayoutContext
 	ImUiSize		childrenMargin;
 };
 
+typedef struct ImUiWidgetInputContext ImUiWidgetInputContext;
+struct ImUiWidgetInputContext
+{
+	uint32					lastFrameIndex;
+	bool					wasPressed;
+	bool					wasMouseOver;
+};
+
 struct ImUiWidget
 {
 	ImUiWindow*				window;
@@ -108,8 +116,6 @@ struct ImUiWidget
 	ImUiHash				hash;
 	ImUiId					id;
 	ImUiStringView			name;
-
-	ImUiWidget*				lastFrameWidget;
 
 	ImUiWidgetState*		state;
 
@@ -127,9 +133,12 @@ struct ImUiWidget
 
 	ImUiAlign				align;
 
+	// generated data
+	ImUiWidget*				lastFrameWidget;
 	ImUiRect				rect;
 	ImUiRect				clipRect;
 	ImUiLayoutContext		layoutContext;
+	ImUiWidgetInputContext	inputContext;
 };
 
 typedef struct ImUiWidgetChunk ImUiWidgetChunk;
@@ -143,6 +152,7 @@ struct ImUiWidgetChunk
 struct ImUiFrame
 {
 	ImUiContext*			imui;
+	uint32					index;
 	float					timeInSeconds;
 };
 

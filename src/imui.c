@@ -125,6 +125,7 @@ void ImUiDestroy( ImUiContext* imui )
 ImUiFrame* ImUiBegin( ImUiContext* imui, float timeInSeconds )
 {
 	imui->frame.imui			= imui;
+	imui->frame.index++;
 	imui->frame.timeInSeconds	= timeInSeconds;
 
 	return &imui->frame;
@@ -462,7 +463,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 			parentContext->childrenMinSize.width	+= widget->parent->layoutData.horizintalVertical.spacing;
 		}
 		parentContext->childrenMinSize.width		+= IMUI_MAX( context->minOuterSize.width, context->childrenMinSize.width ) + widget->padding.left + widget->padding.right;
-		parentContext->childrenMinSize.height		= IMUI_MAX( parentContext->childrenMinSize.height, context->minOuterSize.height + context->childrenMinSize.height + widget->padding.top + widget->padding.bottom );
+		parentContext->childrenMinSize.height		= IMUI_MAX( parentContext->childrenMinSize.height, IMUI_MAX( context->minOuterSize.height, context->childrenMinSize.height ) + widget->padding.top + widget->padding.bottom );
 		parentContext->childrenMargin.width			+= widget->margin.left + widget->margin.right;
 		parentContext->childrenMargin.height		= IMUI_MAX( parentContext->childrenMargin.height, widget->margin.top + widget->margin.bottom );
 		break;
@@ -472,7 +473,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 		{
 			parentContext->childrenMinSize.height	+= widget->parent->layoutData.horizintalVertical.spacing;
 		}
-		parentContext->childrenMinSize.width		= IMUI_MAX( parentContext->childrenMinSize.width, context->minOuterSize.width + context->childrenMinSize.width + widget->padding.left + widget->padding.right );
+		parentContext->childrenMinSize.width		= IMUI_MAX( parentContext->childrenMinSize.width, IMUI_MAX( context->minOuterSize.width, context->childrenMinSize.width ) + widget->padding.left + widget->padding.right );
 		parentContext->childrenMinSize.height		+= IMUI_MAX( context->minOuterSize.height, context->childrenMinSize.height ) + widget->padding.top + widget->padding.bottom;
 		parentContext->childrenMargin.width			= IMUI_MAX( parentContext->childrenMargin.width, widget->margin.left + widget->margin.right );
 		parentContext->childrenMargin.height		+= widget->margin.top + widget->margin.bottom;
@@ -619,7 +620,15 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	const float factorWidth			= parentContext->childrenStretch.width ? widget->stretch.width / parentContext->childrenStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenMaxStretch.height ? widget->stretch.height / parentContext->childrenMaxStretch.height : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
-	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeSub( ImUiSizeMax( parentInnerRect->size, ImUiSizeCreate( 0.0f, parentContext->childrenMinSize.height ) ), parentContext->childrenMinSize.width - parentContext->childrenMargin.width, 0.0f ) );
+
+	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width) + minSize.width;
+	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( maxFreeWidth, parentInnerRect->size.height ) );
+	//{
+	//	IMUI_MIN( widget->maxSize.width, parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width )
+	//	IMUI_MIN( widget->maxSize.height, parentInnerRect->size.height )
+	//};
+
+	//const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeSub( ImUiSizeMax( parentInnerRect->size, ImUiSizeCreate( 0.0f, parentContext->childrenMinSize.height ) ), parentContext->childrenMinSize.width - parentContext->childrenMargin.width, 0.0f ) );
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
@@ -705,7 +714,7 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 
 static ImUiSize ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight )
 {
-	ImUiSize size = ImUiSizeLerp2( ImUiSizeCreateZero(), maxSize, factorWidth, factorHeight );
+	ImUiSize size = ImUiSizeLerp2( minSize, maxSize, factorWidth, factorHeight );
 	size = ImUiSizeShrinkBorder( size, widget->margin );
 	size = ImUiSizeMax( size, minSize );
 
@@ -774,6 +783,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 			widget->layoutContext	= lastFrameWidget->layoutContext;
 			widget->rect			= lastFrameWidget->rect;
 			widget->clipRect		= lastFrameWidget->clipRect;
+			widget->inputContext		= lastFrameWidget->inputContext;
 		}
 	}
 
@@ -815,6 +825,47 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	{
 		widget->window->lastFrameCurrentWidget = widget->window->lastFrameCurrentWidget->parent;
 	}
+}
+
+ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
+{
+	return widget->window->imui;
+}
+
+ImUiWindow* ImUiWidgetGetWindow( const ImUiWidget* widget )
+{
+	return widget->window;
+}
+
+ImUiWidget* ImUiWidgetGetParent( const ImUiWidget* widget )
+{
+	IMUI_ASSERT( widget->parent != widget->window->rootWidget );
+	return widget->parent;
+}
+
+ImUiWidget* ImUiWidgetGetFirstChild( const ImUiWidget* widget )
+{
+	return widget->firstChild;
+}
+
+ImUiWidget* ImUiWidgetGetLastChild( const ImUiWidget* widget )
+{
+	return widget->lastChild;
+}
+
+ImUiWidget* ImUiWidgetGetPrevSibling( const ImUiWidget* widget )
+{
+	return widget->prevSibling;
+}
+
+ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
+{
+	return widget->firstChild;
+}
+
+float ImUiWidgetGetTime( const ImUiWidget* widget )
+{
+	return widget->window->frame->timeInSeconds;
 }
 
 void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size )
@@ -904,17 +955,6 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* is
 	return widget->state->data;
 }
 
-ImUiWidget* ImUiWidgetGetParent( const ImUiWidget* widget )
-{
-	IMUI_ASSERT( widget->parent != widget->window->rootWidget );
-	return widget->parent;
-}
-
-float ImUiWidgetGetTime( const ImUiWidget* widget )
-{
-	return widget->window->frame->timeInSeconds;
-}
-
 ImUiLayout ImUiWidgetGetLayout( const ImUiWidget* widget )
 {
 	return widget->layout;
@@ -988,6 +1028,18 @@ ImUiSize ImUiWidgetGetMinSize( const ImUiWidget* widget )
 	return widget->minSize;
 }
 
+void ImUiWidgetSetMinWidth( ImUiWidget* widget, float value )
+{
+	IMUI_ASSERT( value >= 0.0f );
+	widget->minSize.width = value;
+}
+
+void ImUiWidgetSetMinHeight( ImUiWidget* widget, float value )
+{
+	IMUI_ASSERT( value >= 0.0f );
+	widget->minSize.height = value;
+}
+
 void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
 {
 	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
@@ -997,6 +1049,18 @@ void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
 ImUiSize ImUiWidgetGetMaxSize( const ImUiWidget* widget )
 {
 	return widget->maxSize;
+}
+
+void ImUiWidgetSetMaxWidth( ImUiWidget* widget, float value )
+{
+	IMUI_ASSERT( value >= 0.0f );
+	widget->maxSize.width = value;
+}
+
+void ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value )
+{
+	IMUI_ASSERT( value >= 0.0f );
+	widget->maxSize.height = value;
 }
 
 void ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size )
@@ -1080,4 +1144,33 @@ ImUiSize ImUiWidgetGetInnerSize( const ImUiWidget* widget )
 ImUiRect ImUiWidgetGetInnerRect( const ImUiWidget* widget )
 {
 	return ImUiRectShrinkBorder( widget->rect, widget->padding );
+}
+
+void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
+{
+	ImUiContext* imui = widget->window->imui;
+	ImUiInput* input = &imui->input;
+
+	target->relativeMousePos	= ImUiPosSubPos( input->currentState.mousePos, widget->rect.pos );
+
+	target->isMouseOver			= ImUiRectIncludesPos( widget->rect, input->currentState.mousePos );
+	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
+	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left );
+
+	if( (input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] || input->lastState.mouseButtons[ ImUiInputMouseButton_Left ]) &&
+		widget->inputContext.lastFrameIndex >= imui->frame.index - 1u )
+	{
+		widget->inputContext.wasPressed	|= target->isMouseOver && ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left );
+		widget->inputContext.wasMouseOver	|= target->isMouseOver;
+	}
+	else
+	{
+		widget->inputContext.wasPressed	= false;
+		widget->inputContext.wasMouseOver	= false;
+	}
+
+	target->wasPressed		= widget->inputContext.wasPressed;
+	target->wasMouseOver	= widget->inputContext.wasMouseOver;
+
+	widget->inputContext.lastFrameIndex = imui->frame.index;
 }
