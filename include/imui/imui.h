@@ -538,7 +538,7 @@ void							ImUiInputEnd( ImUiContext* imui );
 
 void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );
-void							ImUiInputPushKeyRepeate( ImUiInput* input, ImUiInputKey key );
+void							ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushText( ImUiInput* input, const char* text );
 void							ImUiInputPushTextChar( ImUiInput* input, char c );
 
@@ -558,6 +558,8 @@ bool							ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
 ImUiInputKey					ImUiInputGetKeyRepeate( ImUiContext* imui, size_t index );
 size_t							ImUiInputGetKeyRepeateCount( ImUiContext* imui );
+
+ImUiStringView					ImUiInputGetText( ImUiContext* imui );
 
 ImUiPos							ImUiInputGetMousePos( ImUiContext* imui );
 bool							ImUiInputIsMouseInRect( ImUiContext* imui, ImUiRect rect );
@@ -617,6 +619,7 @@ ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImU
 ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text );
 
 ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
+ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex );
 
 //////////////////////////////////////////////////////////////////////////
 // Data Type Functions

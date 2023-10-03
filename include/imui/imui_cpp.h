@@ -346,7 +346,7 @@ namespace imui
 		float			sliderState( UiWindow& window );										// value range is 0 to 1
 		float			sliderStateMinMax( UiWindow& window, float min, float max );
 
-		bool			textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t textLength );
+		bool			textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength );
 
 		void			progressBar( UiWindow& window, float value ); // value range 0 to 1
 		void			progressBarMinMax( UiWindow& window, float value, float min, float max );

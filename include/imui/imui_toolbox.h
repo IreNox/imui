@@ -135,8 +135,8 @@ bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
 bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
-ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window, bool* checked, ImUiStringView text );
-bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox );
+ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
+bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text );
 
@@ -148,6 +148,8 @@ void				ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text );
 void				ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
 void				ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
+ImUiWidget*			ImUiToolboxSliderBegin( ImUiWindow* window );
+bool				ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max );
 bool				ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
 bool				ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);
 float				ImUiToolboxSliderState( ImUiWindow* window );										// value range is 0 to 1
@@ -155,7 +157,10 @@ float				ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue )
 float				ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
 float				ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
-bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t textLength );
+ImUiWidget*			ImUiToolboxTextEditBegin( ImUiWindow* window );
+bool				ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
+bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
+ImUiStringView		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
 
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );

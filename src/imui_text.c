@@ -276,3 +276,17 @@ ImUiSize ImUiTextLayoutGetSize( const ImUiTextLayout* layout )
 
 	return layout->size;
 }
+
+ImUiPos ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex )
+{
+	if( !layout )
+	{
+		return ImUiPosCreateZero();
+	}
+	else if( glyphIndex >= layout->glyphCount  )
+	{
+		return ImUiPosCreate( layout->size.width, 0.0f );
+	}
+
+	return layout->glyphs[ glyphIndex ].pos;
+}

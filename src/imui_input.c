@@ -11,6 +11,9 @@ static bool ImUiInputPushTextSize( ImUiInput* input, ImUiInputState* state, cons
 void ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator )
 {
 	input->allocator = allocator;
+
+	ImUiInputFreeText( input, &input->currentState );
+	ImUiInputFreeText( input, &input->lastState );
 }
 
 void ImUiInputDestruct( ImUiInput* input )
@@ -24,6 +27,8 @@ void ImUiInputNextTick( ImUiInput* input )
 	ImUiInputFreeText( input, &input->lastState );
 
 	input->lastState = input->currentState;
+
+	ImUiInputFreeText( input, &input->currentState );
 }
 
 ImUiInput* ImUiInputBegin( ImUiContext* imui )
@@ -38,17 +43,68 @@ void ImUiInputEnd( ImUiContext* imui )
 
 void ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key )
 {
+	if( key == ImUiInputKey_LeftShift )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_LeftShift;
+	}
+	else if( key == ImUiInputKey_RightShift )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_RightShift;
+	}
+	else if( key == ImUiInputKey_LeftControl )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_LeftCtrl;
+	}
+	else if( key == ImUiInputKey_RightControl )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_RightCtrl;
+	}
+	else if( key == ImUiInputKey_LeftAlt )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_LeftAlt;
+	}
+	else if( key == ImUiInputKey_RightAlt )
+	{
+		input->currentState.keyModifiers |= ImUiInputModifier_RightAlt;
+	}
+
 	input->currentState.keys[ key ] = true;
 }
 
 void ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key )
 {
+	if( key == ImUiInputKey_LeftShift )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftShift;
+	}
+	else if( key == ImUiInputKey_RightShift )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_RightShift;
+	}
+	else if( key == ImUiInputKey_LeftControl )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftCtrl;
+	}
+	else if( key == ImUiInputKey_RightControl )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_RightCtrl;
+	}
+	else if( key == ImUiInputKey_LeftAlt )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftAlt;
+	}
+	else if( key == ImUiInputKey_RightAlt )
+	{
+		input->currentState.keyModifiers &= ~ImUiInputModifier_RightAlt;
+	}
+
 	input->currentState.keys[ key ] = false;
 }
 
-void ImUiInputPushKeyRepeate( ImUiInput* input, ImUiInputKey key )
+void ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key )
 {
-	// ???
+	// fake key repeat by setting last state to released so 'was pressed' trigger again
+	input->lastState.keys[ key ] = false;
 }
 
 void ImUiInputPushText( ImUiInput* input, const char* text )
@@ -116,6 +172,16 @@ bool ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key )
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
+ImUiStringView ImUiInputGetText( ImUiContext* imui )
+{
+	if( imui->input.currentState.textCapacity > sizeof( imui->input.currentState.text.buffer ) )
+	{
+		return ImUiStringViewCreateLength( imui->input.currentState.text.pointer, imui->input.currentState.textSize );
+	}
+
+	return ImUiStringViewCreateLength( imui->input.currentState.text.buffer, imui->input.currentState.textSize );
+}
+
 ImUiPos ImUiInputGetMousePos( ImUiContext* imui )
 {
 	return imui->input.currentState.mousePos;
@@ -148,12 +214,11 @@ bool ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton bu
 
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state )
 {
-	if( state->textCapacity <= sizeof( state->text.buffer ) )
+	if( state->textCapacity > sizeof( state->text.buffer ) )
 	{
-		return;
+		ImUiMemoryFree( input->allocator, state->text.pointer );
 	}
 
-	ImUiMemoryFree( input->allocator, state->text.pointer );
 	state->text.buffer[ 0u ]	= '\0';
 	state->textCapacity			= sizeof( state->text.buffer );
 	state->textSize				= 0u;

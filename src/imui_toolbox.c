@@ -7,6 +7,7 @@
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 static ImUiToolboxConfig s_config;
 
@@ -19,11 +20,22 @@ struct ImUiToolboxScrollState
 	ImUiPos			pressPoint;
 };
 
-static ImUiWidget*	ImUiToolboxCheckBoxBeginInternal( ImUiWindow* window );
-static void			ImUiToolboxCheckBoxDoInternal( ImUiWindow* window, ImUiWidget* checkBoxFrame, ImUiStringView text, bool* checked );
-static ImUiWidget*	ImUiToolboxSliderBeginInternal( ImUiWindow* window );
-static void			ImUiToolboxSliderDoInternal( ImUiWindow* window, ImUiWidget* sliderFrame, float* value, float min, float max );
-static ImUiWidget*	ImUiToolboxScrollAreaBegin( ImUiWindow* window, bool horizontal, bool vertical );
+typedef struct ImUiToolboxTextEditState ImUiToolboxTextEditState;
+struct ImUiToolboxTextEditState
+{
+	bool			hasFocus;
+
+	ImUiPos			offset;
+	bool			wasPressedX;
+	bool			wasPressedY;
+	ImUiPos			pressPoint;
+
+	uint32			selectionStart;
+	uint32			selectionEnd;
+	uint32			cursorPos;
+};
+
+static ImUiWidget*	ImUiToolboxScrollAreaBeginInternal( ImUiWindow* window, bool horizontal, bool vertical );
 
 void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 {
@@ -89,9 +101,9 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->slider.pivotSize		= 10.0f;
 
 	config->textEdit.height			= 25.0f;
-	config->textEdit.padding			= ImUiBorderCreateAll( 2.0f );
+	config->textEdit.padding		= ImUiBorderCreateAll( 2.0f );
 	config->textEdit.cursorSize		= ImUiSizeCreate( 1.0f, 21.0f );
-	config->textEdit.blinkTime		= 1.0f;
+	config->textEdit.blinkTime		= 0.53f;
 
 	config->progressBar.height		= 25.0f;
 	config->progressBar.padding		= ImUiBorderCreateAll( 2.0f );
@@ -193,7 +205,7 @@ bool ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, v
 	return ImUiToolboxButtonLabel( window, ImUiStringViewCreateLength( buffer, length ) );
 }
 
-static ImUiWidget* ImUiToolboxCheckBoxBeginInternal( ImUiWindow* window )
+ImUiWidget* ImUiToolboxCheckBoxBegin( ImUiWindow* window )
 {
 	ImUiWidget* checkBoxFrame = ImUiWidgetBegin( window );
 	ImUiWidgetSetPadding( checkBoxFrame, ImUiBorderCreate( 0.0f, s_config.checkBox.size.width + s_config.checkBox.textSpacing, 0.0f, 0.0f ) );
@@ -202,10 +214,10 @@ static ImUiWidget* ImUiToolboxCheckBoxBeginInternal( ImUiWindow* window )
 	return checkBoxFrame;
 }
 
-static void ImUiToolboxCheckBoxDoInternal( ImUiWindow* window, ImUiWidget* checkBoxFrame, ImUiStringView text, bool* checked )
+bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text )
 {
 	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( checkBoxFrame, &inputState );
+	ImUiWidgetGetInputState( checkBox, &inputState );
 
 	ImUiColor color = s_config.colors[ *checked ? ImUiToolboxColor_CheckBoxChecked : ImUiToolboxColor_CheckBox ];
 	if( inputState.wasPressed && inputState.isMouseDown )
@@ -217,10 +229,10 @@ static void ImUiToolboxCheckBoxDoInternal( ImUiWindow* window, ImUiWidget* check
 		color = s_config.colors[ *checked ? ImUiToolboxColor_CheckBoxCheckedHover : ImUiToolboxColor_CheckBoxHover ];
 	}
 
-	const ImUiRect rect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBoxFrame ), s_config.checkBox.size );
-	ImUiDrawSkinColor( checkBoxFrame, rect, s_config.skins[ *checked ? ImUiToolboxSkin_CheckBoxChecked : ImUiToolboxSkin_CheckBox ], color );
+	const ImUiRect rect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBox ), s_config.checkBox.size );
+	ImUiDrawSkinColor( checkBox, rect, s_config.skins[ *checked ? ImUiToolboxSkin_CheckBoxChecked : ImUiToolboxSkin_CheckBox ], color );
 
-	ImUiWidget* checkBoxText = ImUiWidgetBegin( window );
+	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
 
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
@@ -234,28 +246,11 @@ static void ImUiToolboxCheckBoxDoInternal( ImUiWindow* window, ImUiWidget* check
 
 	ImUiWidgetEnd( checkBoxText );
 
+	ImUiWidgetEnd( checkBox );
+
 	if( inputState.wasPressed && inputState.hasMouseReleased )
 	{
 		*checked = !*checked;
-	}
-}
-
-ImUiWidget* ImUiToolboxCheckBoxBegin( ImUiWindow* window, bool* checked, ImUiStringView text )
-{
-	ImUiWidget* checkBox = ImUiToolboxCheckBoxBeginInternal( window );
-	ImUiToolboxCheckBoxDoInternal( window, checkBox, text, checked );
-	return checkBox;
-}
-
-bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox )
-{
-	ImUiWidgetEnd( checkBox );
-
-	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( checkBox, &inputState );
-
-	if( inputState.wasPressed && inputState.hasMouseReleased )
-	{
 		return true;
 	}
 
@@ -264,19 +259,15 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox )
 
 bool ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text )
 {
-	ImUiWidget* checkBox = ImUiToolboxCheckBoxBeginInternal( window );
-	ImUiToolboxCheckBoxDoInternal( window, checkBox, text, checked );
-	return ImUiToolboxCheckBoxEnd( checkBox );
+	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
+	return ImUiToolboxCheckBoxEnd( checkBox, checked, text);
 }
 
 bool ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text )
 {
-	ImUiWidget* checkBox = ImUiToolboxCheckBoxBeginInternal( window );
-
+	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
 	bool* checked = ImUiWidgetAllocState( checkBox, sizeof( bool ) );
-	ImUiToolboxCheckBoxDoInternal( window, checkBox, text, checked );
-
-	return ImUiToolboxCheckBoxEnd( checkBox );
+	return ImUiToolboxCheckBoxEnd( checkBox, checked, text );
 }
 
 ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text )
@@ -357,29 +348,27 @@ void ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list
 	ImUiToolboxLabelEnd( label );
 }
 
-static ImUiWidget* ImUiToolboxSliderBegin( ImUiWindow* window )
+ImUiWidget* ImUiToolboxSliderBegin( ImUiWindow* window )
 {
-	ImUiWidget* sliderFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( sliderFrame, ImUiSizeCreateHorizintal() );
-	ImUiWidgetSetPadding( sliderFrame, s_config.slider.padding );
-	ImUiWidgetSetFixedHeight( sliderFrame, s_config.slider.height );
+	ImUiWidget* slider = ImUiWidgetBegin( window );
+	ImUiWidgetSetStretch( slider, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetPadding( slider, s_config.slider.padding );
+	ImUiWidgetSetFixedHeight( slider, s_config.slider.height );
 
-	return sliderFrame;
+	return slider;
 }
 
-static bool ImUiToolboxSliderEnd( ImUiWindow* window, ImUiWidget* sliderFrame, float* value, float min, float max )
+bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max )
 {
-	ImUiContext* imui = ImUiWindowGetContext( window );
-
 	ImUiWidgetInputState frameInputState;
-	ImUiWidgetGetInputState( sliderFrame, &frameInputState );
+	ImUiWidgetGetInputState( slider, &frameInputState );
 
-	ImUiDrawWidgetSkinColor( sliderFrame, s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
+	ImUiDrawWidgetSkinColor( slider, s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
 
-	ImUiWidget* sliderPivot = ImUiWidgetBegin( window );
+	ImUiWidget* sliderPivot = ImUiWidgetBegin( ImUiWidgetGetWindow( slider ) );
 	ImUiWidgetSetFixedSize( sliderPivot, ImUiSizeCreate( s_config.slider.pivotSize, s_config.slider.height ) );
 
-	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( sliderFrame );
+	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
 	const float normalizedValue		= (*value - min) / (max - min);
 	const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.slider.pivotSize));
 	const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : roundf( sliderPivotX );
@@ -416,7 +405,7 @@ static bool ImUiToolboxSliderEnd( ImUiWindow* window, ImUiWidget* sliderFrame, f
 
 	ImUiWidgetEnd( sliderPivot );
 
-	ImUiWidgetEnd( sliderFrame );
+	ImUiWidgetEnd( slider );
 
 	return changed;
 }
@@ -429,7 +418,7 @@ bool ImUiToolboxSlider( ImUiWindow* window, float* value )
 bool ImUiToolboxSliderMinMax( ImUiWindow* window, float* value, float min, float max )
 {
 	ImUiWidget* sliderFrame = ImUiToolboxSliderBegin( window );
-	return ImUiToolboxSliderEnd( window, sliderFrame, value, min, max );
+	return ImUiToolboxSliderEnd( sliderFrame, value, min, max );
 }
 
 float ImUiToolboxSliderState( ImUiWindow* window )
@@ -462,24 +451,264 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 		*value = defaultValue;
 	}
 
-	ImUiToolboxSliderEnd( window, sliderFrame, value, min, max );
+	ImUiToolboxSliderEnd( sliderFrame, value, min, max );
 	return *value;
 }
 
-bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t textLength )
+ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 {
 	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( textEditFrame, ImUiSizeCreateHorizintal() );
 	ImUiWidgetSetPadding( textEditFrame, s_config.textEdit.padding );
 	ImUiWidgetSetFixedHeight( textEditFrame, s_config.textEdit.height );
 
-	ImUiWidgetInputState frameInputState;
-	ImUiWidgetGetInputState( textEditFrame, &frameInputState );
+	ImUiDrawWidgetSkinColor( textEditFrame, s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
 
-	ImUiDrawWidgetSkinColor( textEditFrame, s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
+	return textEditFrame;
+}
 
-	ImUiWidget* textEditText = ImUiWidgetBegin( window );
-	ImUiWidgetSetFixedSize( textEditText, ImUiSizeCreate( s_config.slider.pivotSize, s_config.slider.height ) );
+bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength )
+{
+	ImUiContext* imui = ImUiWidgetGetContext( textEdit );
+
+	uintsize textLengthInternal;
+	if( textLength )
+	{
+		textLengthInternal = *textLength;
+	}
+	else
+	{
+		textLengthInternal = strlen( buffer );
+	}
+
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( textEdit, &inputState );
+
+	ImUiWidget* text = ImUiWidgetBegin( ImUiWidgetGetWindow( textEdit ) );
+
+	bool isNew;
+	ImUiToolboxTextEditState* state = ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
+
+	if( ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left ) )
+	{
+		state->hasFocus = inputState.hasMouseReleased;
+	}
+
+	const ImUiRect textRect = ImUiWidgetGetRect( text );
+	const ImUiRect textEditInnerRect = ImUiWidgetGetInnerRect( textEdit );
+
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreate( buffer ) );
+	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
+	ImUiWidgetSetFixedSize( text, textSize );
+
+	bool changed = false;
+	if( state->hasFocus )
+	{
+		const uint32 mods = ImUiInputGetKeyModifiers( imui );
+
+		const ImUiStringView textInput = ImUiInputGetText( imui );
+		if( textInput.length > 0u )
+		{
+			const uintsize remainingSize	= bufferSize - textLengthInternal - 1u;
+			const uintsize newSize			= IMUI_MIN( textInput.length, remainingSize );
+
+			if( state->selectionStart != state->selectionEnd )
+			{
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				state->cursorPos = state->selectionStart;
+
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
+			}
+
+			if( state->cursorPos != textLengthInternal )
+			{
+				memmove( buffer + state->cursorPos + newSize, buffer + state->cursorPos, textLengthInternal - state->cursorPos );
+			}
+
+			memcpy( buffer + state->cursorPos, textInput.data, newSize );
+			textLengthInternal += newSize;
+			buffer[ textLengthInternal ] = '\0';
+
+			state->cursorPos += (uint32)newSize;
+
+			changed = true;
+		}
+
+		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Backspace ) )
+		{
+			if( state->selectionStart != state->selectionEnd )
+			{
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				state->cursorPos = state->selectionStart;
+
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
+			}
+			else if( state->cursorPos > 0u )
+			{
+				for( uintsize i = state->cursorPos - 1u; i < textLengthInternal; ++i )
+				{
+					buffer[ i ] = buffer[ i + 1u ];
+				}
+
+				textLengthInternal--;
+				state->cursorPos--;
+			}
+		}
+		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Delete ) )
+		{
+			if( state->selectionStart != state->selectionEnd )
+			{
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				state->cursorPos = state->selectionStart;
+
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
+			}
+			else if( textLengthInternal > state->cursorPos )
+			{
+				for( uintsize i = state->cursorPos; i < textLengthInternal; ++i )
+				{
+					buffer[ i ] = buffer[ i + 1u ];
+				}
+
+				textLengthInternal--;
+			}
+		}
+
+		sint32 nextCursorPos = (sint32)state->cursorPos;
+		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Left ) ||
+			ImUiInputHasKeyPressed( imui, ImUiInputKey_Right ) )
+		{
+			const sint32 direction = ImUiInputHasKeyPressed( imui, ImUiInputKey_Left ) ? -1 : 1;
+			if( mods & (ImUiInputModifier_LeftCtrl | ImUiInputModifier_RightCtrl) )
+			{
+				nextCursorPos += direction; \
+
+					for( ; nextCursorPos > 0 && nextCursorPos <= (sint32)textLengthInternal; nextCursorPos += direction )
+					{
+						const char c = buffer[ nextCursorPos ];
+						if( (c>= 'a' && c <= 'z') ||
+							(c>= 'A' && c <= 'Z') ||
+							(c>= '0' && c <= '9') )
+						{
+							continue;
+						}
+
+						break;
+					}
+			}
+			else
+			{
+				nextCursorPos += direction;
+			}
+		}
+		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Home ) )
+		{
+			nextCursorPos = 0u;
+		}
+		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_End ) )
+		{
+			nextCursorPos = (sint32)textLengthInternal;
+		}
+
+		if( nextCursorPos != (sint32)state->cursorPos )
+		{
+			nextCursorPos = IMUI_MAX( nextCursorPos, 0 );
+			nextCursorPos = IMUI_MIN( nextCursorPos, (sint32)textLengthInternal );
+
+			const uint32 nextCursorPosU = (uint32)nextCursorPos;
+			if( mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift) )
+			{
+				if( state->selectionStart == state->selectionEnd )
+				{
+					state->selectionStart	= IMUI_MIN( state->cursorPos, nextCursorPosU );
+					state->selectionEnd		= IMUI_MAX( state->cursorPos, nextCursorPosU );
+				}
+				else if( state->selectionStart == state->cursorPos )
+				{
+					if( nextCursorPosU > state->selectionEnd )
+					{
+						state->selectionStart	= state->selectionEnd;
+						state->selectionEnd		= nextCursorPosU;
+					}
+					else
+					{
+						state->selectionStart	= nextCursorPosU;
+					}
+				}
+				else
+				{
+					if( nextCursorPosU < state->selectionStart )
+					{
+						state->selectionEnd		= state->selectionStart;
+						state->selectionStart	= nextCursorPosU;
+					}
+					else
+					{
+						state->selectionEnd		= nextCursorPosU;
+					}
+				}
+			}
+			else
+			{
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
+			}
+
+			state->cursorPos = nextCursorPosU;
+		}
+
+		if( state->selectionStart != state->selectionEnd )
+		{
+			const ImUiPos startPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionStart );
+			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd );
+
+			const ImUiRect selection = ImUiRectCreate(
+				textRect.pos.x + startPos.x,
+				textEditInnerRect.pos.y,
+				endPos.x - startPos.x,
+				textEditInnerRect.size.height
+			);
+			ImUiDrawRectColor( textEdit, selection, s_config.colors[ ImUiToolboxColor_TextEditSelection ] );
+		}
+	}
+
+	if( layout )
+	{
+		ImUiDrawWidgetTextColor( text, layout, s_config.colors[ ImUiToolboxColor_Text ] );
+	}
+
+	if( state->hasFocus )
+	{
+		const float blinkValue	= fmodf( ImUiWidgetGetTime( textEdit ), s_config.textEdit.blinkTime * 2.0f );
+		const bool blink		= blinkValue > s_config.textEdit.blinkTime;
+		if( blink )
+		{
+			const ImUiPos cursorPos			= ImUiTextLayoutGetGlyphPos( layout, state->cursorPos );
+			const ImUiPos cursorPosTop		= ImUiPosCreate( textRect.pos.x + cursorPos.x, textEditInnerRect.pos.y );
+			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height );
+			ImUiDrawLine( textEdit, cursorPosTop, cursorPosBottom, s_config.colors[ ImUiToolboxColor_TextEditCursor ] );
+		}
+	}
+
+	ImUiWidgetEnd( text );
+
+	ImUiWidgetEnd( textEdit );
+
+	if( textLength )
+	{
+		*textLength = textLengthInternal;
+	}
+
+	return changed;
+}
+
+bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength )
+{
+	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
+	return ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, textLength );
 
 	//const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( textEditFrame );
 	//const float normalizedValue		= (*value - min) / (max - min);
@@ -501,7 +730,6 @@ bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, s
 	//	color = s_config.colors[ ImUiToolboxColor_SliderPivotHover ];
 	//}
 
-	bool changed = false;
 
 	//if( frameInputState.isMouseDown )
 	//{
@@ -517,11 +745,19 @@ bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, s
 
 	//ImUiDrawWidgetSkinColor( textEditText, s_config.skins[ ImUiToolboxSkin_SliderPivot ], color );
 
-	ImUiWidgetEnd( textEditText );
+	ImUiWidgetEnd( textEdit );
 
-	ImUiWidgetEnd( textEditFrame );
+}
 
-	return changed;
+ImUiStringView ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize )
+{
+	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
+
+	bool isNew;
+	char* buffer = (char*)ImUiWidgetAllocStateNew( textEdit, bufferSize, &isNew );
+
+	ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, NULL );
+	return ImUiStringViewCreate( buffer );
 }
 
 void ImUiToolboxProgressBar( ImUiWindow* window, float value )
@@ -573,7 +809,7 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 	ImUiWidgetEnd( progressBar );
 }
 
-static ImUiWidget* ImUiToolboxScrollAreaBegin( ImUiWindow* window, bool horizontal, bool vertical )
+static ImUiWidget* ImUiToolboxScrollAreaBeginInternal( ImUiWindow* window, bool horizontal, bool vertical )
 {
 	ImUiWidget* scrollFrame = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll_frame" ) );
 
@@ -600,17 +836,17 @@ static ImUiWidget* ImUiToolboxScrollAreaBegin( ImUiWindow* window, bool horizont
 
 ImUiWidget* ImUiToolboxScrollAreaBeginHorizontal( ImUiWindow* window )
 {
-	return ImUiToolboxScrollAreaBegin( window, true, false );
+	return ImUiToolboxScrollAreaBeginInternal( window, true, false );
 }
 
 ImUiWidget* ImUiToolboxScrollAreaBeginVertical( ImUiWindow* window )
 {
-	return ImUiToolboxScrollAreaBegin( window, false, true );
+	return ImUiToolboxScrollAreaBeginInternal( window, false, true );
 }
 
 ImUiWidget* ImUiToolboxScrollAreaBeginBoth( ImUiWindow* window )
 {
-	return ImUiToolboxScrollAreaBegin( window, true, true );
+	return ImUiToolboxScrollAreaBeginInternal( window, true, true );
 }
 
 void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )

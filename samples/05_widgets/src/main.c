@@ -137,7 +137,8 @@ static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window )
 
 static void ImUiTestDoTextEdit( ImUiWindow* window )
 {
-	//imuitoolboxtextedit
+	//char buffer[ 128u ];
+	ImUiToolboxTextEditStateBuffer( window, 128u );
 }
 
 static void ImUiTestDoScrollArea( ImUiWindow* window )
@@ -205,7 +206,7 @@ static void ImUiTestSetConfig()
 	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
 	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
 	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor textEditCursorColor	= ImUiColorCreateBlack();
+	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
 
 	ImUiToolboxConfig config;
 	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -240,7 +241,7 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_skinRect;
 	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_skinLine;
 	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_skinRect;
-	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_skinLine;
+	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_skinLine;
 	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
@@ -259,10 +260,10 @@ static void ImUiTestSetConfig()
 	config.slider.pivotSize			= 12.0f;
 	config.slider.height			= 20.0f;
 
-	config.textEdit.height			= 20.0f;
+	config.textEdit.height			= 25.0f;
 	config.textEdit.padding			= ImUiBorderCreateAll( 4.0f );
 	config.textEdit.cursorSize		= ImUiSizeCreate( 1.0f, 12.0f );
-	config.textEdit.blinkTime		= 1.0f;
+	config.textEdit.blinkTime		= 0.53f;
 
 	config.progressBar.height		= 20.0f;
 	config.progressBar.padding		= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );

@@ -969,7 +969,7 @@ namespace imui
 		return ImUiToolboxSliderStateMinMax( window.getInternal(), min, max );
 	}
 
-	bool toolbox::textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t textLength )
+	bool toolbox::textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength )
 	{
 		return ImUiToolboxTextEdit( window.getInternal(), buffer, bufferSize, textLength );;
 	}
