@@ -29,7 +29,7 @@ namespace imui
 		return length;
 	}
 
-	UiAlign::UiAlign( ImUiHAlign hAlign, ImUiVAlign vAlign )
+	UiAlign::UiAlign( float hAlign, float vAlign )
 	{
 		horizontal	= hAlign;
 		vertical	= vAlign;
@@ -781,12 +781,12 @@ namespace imui
 		ImUiWidgetSetAlign( m_widget, align );
 	}
 
-	void UiWidget::setHAlign( ImUiHAlign align )
+	void UiWidget::setHAlign( float align )
 	{
 		ImUiWidgetSetHAlign( m_widget, align );
 	}
 
-	void UiWidget::setVAlign( ImUiVAlign align )
+	void UiWidget::setVAlign( float align )
 	{
 		ImUiWidgetSetVAlign( m_widget, align );
 	}
@@ -901,6 +901,30 @@ namespace imui
 		ImUiDrawTextColor( m_widget, pos, layout, color );
 	}
 
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window )
+		: UiWidget( window )
+	{
+		setLayoutHorizontal();
+	}
+
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing )
+		: UiWidget( window )
+	{
+		setLayoutHorizontalSpacing( spacing );
+	}
+
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window )
+		: UiWidget( window )
+	{
+		setLayoutVertical();
+	}
+
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing )
+		: UiWidget( window )
+	{
+		setLayoutVerticalSpacing( spacing );
+	}
+
 	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* font )
 	{
 		ImUiToolboxFillDefaultConfig( this, font );
@@ -984,27 +1008,45 @@ namespace imui
 		ImUiToolboxProgressBarMinMax( window.getInternal(), value, min, max );
 	}
 
-	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window )
-		: UiWidget( window )
+	toolbox::UiToolboxScrollArea::UiToolboxScrollArea( UiWindow& window )
 	{
-		setLayoutHorizontal();
+		m_widget = ImUiToolboxScrollAreaBegin( window.getInternal() );
 	}
 
-	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing )
-		: UiWidget( window )
+	toolbox::UiToolboxScrollArea::~UiToolboxScrollArea()
 	{
-		setLayoutHorizontalSpacing( spacing );
+		ImUiToolboxScrollAreaEnd( m_widget );
+		m_widget = NULL;
 	}
 
-	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window )
-		: UiWidget( window )
+	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount )
+		: UiToolboxScrollArea( window )
 	{
-		setLayoutVertical();
+		ImUiToolboxListBeginVertical( &m_list, window.getInternal(), itemSize, itemCount );
 	}
 
-	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing )
-		: UiWidget( window )
+	toolbox::UiToolboxList::~UiToolboxList()
 	{
-		setLayoutVerticalSpacing( spacing );
+		ImUiToolboxListEnd( &m_list );
+	}
+
+	size_t toolbox::UiToolboxList::getBeginIndex() const
+	{
+		return ImUiToolboxListGetBeginIndex( &m_list );
+	}
+
+	size_t toolbox::UiToolboxList::getEndIndex() const
+	{
+		return ImUiToolboxListGetEndIndex( &m_list );
+	}
+
+	size_t toolbox::UiToolboxList::getSelectedIndex() const
+	{
+		return ImUiToolboxListGetSelectedIndex( &m_list );
+	}
+
+	ImUiWidget* toolbox::UiToolboxList::nextItem()
+	{
+		return ImUiToolboxListNextItem( &m_list );
 	}
 }

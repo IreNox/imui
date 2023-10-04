@@ -165,6 +165,7 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 			ImUiWidgetSetPadding( item, ImUiBorderCreateAll( 4.0f ) );
 
 			ImUiWidget* label = ImUiToolboxLabelBeginFormat( window, "List Label %i", i );
+			ImUiWidgetSetVAlign( label, 0.5f );
 			ImUiToolboxLabelEnd( label );
 		}
 

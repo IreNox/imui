@@ -135,27 +135,11 @@ void						ImUiEnd( ImUiFrame* frame );
 //////////////////////////////////////////////////////////////////////////
 // Types
 
-typedef enum ImUiHAlign ImUiHAlign;
-enum ImUiHAlign
-{
-	ImUiHAlign_Left,
-	ImUiHAlign_Center,
-	ImUiHAlign_Right
-};
-
-typedef enum ImUiVAlign ImUiVAlign;
-enum ImUiVAlign
-{
-	ImUiVAlign_Top,
-	ImUiVAlign_Center,
-	ImUiVAlign_Bottom
-};
-
 typedef struct ImUiAlign ImUiAlign;
 struct ImUiAlign
 {
-	ImUiHAlign				horizontal;
-	ImUiVAlign				vertical;
+	float					horizontal;
+	float					vertical;
 };
 
 typedef struct ImUiBorder ImUiBorder;
@@ -355,8 +339,8 @@ void						ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch );
 
 ImUiAlign					ImUiWidgetGetAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetAlign( ImUiWidget* widget, ImUiAlign align );
-void						ImUiWidgetSetHAlign( ImUiWidget* widget, ImUiHAlign align );
-void						ImUiWidgetSetVAlign( ImUiWidget* widget, ImUiVAlign align );
+void						ImUiWidgetSetHAlign( ImUiWidget* widget, float align );
+void						ImUiWidgetSetVAlign( ImUiWidget* widget, float align );
 
 ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
@@ -557,8 +541,6 @@ bool							ImUiInputIsKeyDown( ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputIsKeyUp( ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
-ImUiInputKey					ImUiInputGetKeyRepeate( ImUiContext* imui, size_t index );
-size_t							ImUiInputGetKeyRepeateCount( ImUiContext* imui );
 
 ImUiStringView					ImUiInputGetText( ImUiContext* imui );
 
@@ -635,7 +617,7 @@ ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 ImUiHash						ImUiHashString( ImUiStringView string, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
 
-ImUiAlign						ImUiAlignCreate( ImUiHAlign horizintal, ImUiVAlign vertical );
+ImUiAlign						ImUiAlignCreate( float horizontal, float vertical );
 ImUiAlign						ImUiAlignCreateCenter();
 
 ImUiPos							ImUiPosCreate( float x, float y );

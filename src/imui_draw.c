@@ -244,10 +244,13 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, ImUiSurface* su
 		{
 			ImUiDrawSurfacePreparePushRects( draw, drawSurface, 1u );
 
+			const uint8* idBytes = (const uint8*)&widget->id;
+			const ImUiColor color = ImUiColorCreate( idBytes[ 0u ], idBytes[ 1u ], idBytes[ 2u ], 0x40u );
+
 			const ImUiRect rect = widget->rect;
 			//const ImUiRect rect = widget->clipRect;
 			//const ImUiRect rect = ImUiRectCreatePosSize( widget->rect.pos, ImUiSizeMax( widget->minSize, widget->layoutContext.childrenMinSize ) );
-			command->count += ImUiDrawSurfacePushRect( draw, drawSurface, rect.pos, ImUiRectGetBottomRight( rect ), uv, ImUiColorCreateGrayA( 0x80u, 0x40u ) );
+			command->count += ImUiDrawSurfacePushRect( draw, drawSurface, rect.pos, ImUiRectGetBottomRight( rect ), uv, color );
 
 			if( widget->firstChild )
 			{

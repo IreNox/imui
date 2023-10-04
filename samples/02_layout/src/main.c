@@ -107,7 +107,7 @@ static void HwStretchStack( ImUiWindow* window )
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
-		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( ImUiHAlign_Right, ImUiVAlign_Bottom ) );
+		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( 1.0f, 1.0f ) );
 
 		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
@@ -118,7 +118,7 @@ static void HwStretchStack( ImUiWindow* window )
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
-		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( ImUiHAlign_Center, ImUiVAlign_Center ) );
+		ImUiWidgetSetAlign( widget2, ImUiAlignCreateCenter() );
 
 		ImUiDrawWidgetColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 

@@ -21,7 +21,7 @@ namespace imui
 
 	struct UiAlign : public ImUiAlign
 	{
-						UiAlign( ImUiHAlign hAlign, ImUiVAlign vAlign );
+						UiAlign( float hAlign, float vAlign );
 	};
 
 	struct UiBorder : public ImUiBorder
@@ -275,8 +275,8 @@ namespace imui
 
 		UiAlign			getAlign();
 		void			setAlign( UiAlign align );
-		void			setHAlign( ImUiHAlign align );
-		void			setVAlign( ImUiVAlign align );
+		void			setHAlign( float align );
+		void			setVAlign( float align );
 
 		UiPos			getPos();
 		UiSize			getSize();
@@ -328,6 +328,32 @@ namespace imui
 		struct UiToolboxConfig : ImUiToolboxConfig
 		{
 						UiToolboxConfig( ImUiFont* font );
+		};
+
+		class UiToolboxScrollArea : UiWidget
+		{
+		public:
+
+						UiToolboxScrollArea( UiWindow& window );
+						~UiToolboxScrollArea();
+		};
+
+		class UiToolboxList : UiToolboxScrollArea
+		{
+		public:
+
+									UiToolboxList( UiWindow& window, float itemSize, size_t itemCount );
+									~UiToolboxList();
+
+			size_t					getBeginIndex() const;
+			size_t					getEndIndex() const;
+			size_t					getSelectedIndex() const;
+
+			ImUiWidget*				nextItem();
+
+		private:
+
+			ImUiToolboxListContext	m_list;
 		};
 
 		void			setConfig( const UiToolboxConfig& config );

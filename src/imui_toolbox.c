@@ -250,7 +250,7 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( checkBoxText, textSize );
-	ImUiWidgetSetVAlign( checkBoxText, ImUiVAlign_Center );
+	ImUiWidgetSetVAlign( checkBoxText, 0.5f );
 
 	if( layout )
 	{
@@ -396,10 +396,10 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 
 	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
 	const float normalizedValue		= (*value - min) / (max - min);
-	const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.slider.pivotSize));
-	const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : roundf( sliderPivotX );
+	//const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.slider.pivotSize));
+	//const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : roundf( sliderPivotX );
 
-	ImUiWidgetSetMargin( sliderPivot, ImUiBorderCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
+	ImUiWidgetSetHAlign( sliderPivot, normalizedValue ); // ImUiBorderCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
 
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( sliderPivot, &inputState );
@@ -862,7 +862,7 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 	{
 		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll_bar" ) );
 		ImUiWidgetSetMargin( scrollBar, ImUiBorderCreate( state->offset.y, 0.0f, 0.0f, 0.0f ) );
-		ImUiWidgetSetHAlign( scrollBar, ImUiHAlign_Right );
+		ImUiWidgetSetHAlign( scrollBar, 1.0f );
 		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, frameRect.size.height ) );
 
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
@@ -929,10 +929,17 @@ void ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* win
 	list->listLayout = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( list->listLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( list->listLayout, s_config.list.itemSpacing );
-	ImUiWidgetSetMinHeight( list->listLayout, (totalItemSize * itemCount) - s_config.list.itemSpacing );
+	if( itemCount > 0u )
+	{
+		ImUiWidgetSetMinHeight( list->listLayout, (totalItemSize * itemCount) - s_config.list.itemSpacing );
+	}
 
 	bool isNew;
 	list->state = (ImUiToolboxListState*)ImUiWidgetAllocStateNew( list->listLayout, sizeof( ImUiToolboxListState ), &isNew );
+	if( isNew )
+	{
+		list->state->selectedIndex = (uintsize)-1;
+	}
 
 	const ImUiRect listRect		= ImUiWidgetGetRect( list->list );
 	const ImUiRect layoutRect	= ImUiWidgetGetRect( list->listLayout );
@@ -947,17 +954,17 @@ void ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* win
 	list->itemIndex		= list->beginIndex - 1u;
 }
 
-size_t ImUiToolboxListGetBeginIndex( ImUiToolboxListContext* list )
+size_t ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list )
 {
 	return list->beginIndex;
 }
 
-size_t ImUiToolboxListGetEndIndex( ImUiToolboxListContext* list )
+size_t ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list )
 {
 	return list->endIndex;
 }
 
-size_t ImUiToolboxListGetSelectedIndex( ImUiToolboxListContext* list )
+size_t ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list )
 {
 	return list->state->selectedIndex;
 }

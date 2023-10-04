@@ -197,9 +197,9 @@ void				ImUiToolboxScrollAreaEnd( ImUiWidget* scroll );
 
 void				ImUiToolboxListBeginHorizontal( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
 void				ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
-size_t				ImUiToolboxListGetBeginIndex( ImUiToolboxListContext* list );
-size_t				ImUiToolboxListGetEndIndex( ImUiToolboxListContext* list );
-size_t				ImUiToolboxListGetSelectedIndex( ImUiToolboxListContext* list );
+size_t				ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
+size_t				ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
+size_t				ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
 ImUiWidget*			ImUiToolboxListNextItem( ImUiToolboxListContext* list );
 void				ImUiToolboxListEnd( ImUiToolboxListContext* list );
 

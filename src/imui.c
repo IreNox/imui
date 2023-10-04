@@ -17,6 +17,8 @@ static void			ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parent
 static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
+static float		ImUiWidgetLayoutPositionX( ImUiWidget* widget, const ImUiRect* parentInnerRect, float width );
+static float		ImUiWidgetLayoutPositionY( ImUiWidget* widget, const ImUiRect* parentInnerRect, float height );
 
 static ImUiSize		ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight );
 
@@ -530,32 +532,8 @@ static void ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInn
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
-	switch( widget->align.horizontal )
-	{
-	case ImUiHAlign_Left:
-		pos.x = parentInnerRect->pos.x + widget->margin.left;
-		break;
-	case ImUiHAlign_Center:
-		pos.x = parentInnerRect->pos.x + (parentInnerRect->size.width * 0.5f) - (size.width * 0.5f);
-		break;
-
-	case ImUiHAlign_Right:
-		pos.x = (parentInnerRect->pos.x + parentInnerRect->size.width) - (widget->margin.left + size.width);
-		break;
-	}
-	switch( widget->align.vertical )
-	{
-	case ImUiVAlign_Top:
-		pos.y = parentInnerRect->pos.y + widget->margin.top;
-		break;
-	case ImUiVAlign_Center:
-		pos.y = parentInnerRect->pos.y + (parentInnerRect->size.height * 0.5f) - (size.height * 0.5f);
-		break;
-
-	case ImUiVAlign_Bottom:
-		pos.y = (parentInnerRect->pos.y + parentInnerRect->size.height) - (widget->margin.top + size.height);
-		break;
-	}
+	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width );
+	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height );
 
 	// ???
 	pos.x		= floorf( pos.x );
@@ -576,32 +554,8 @@ static void ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parentIn
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
-	switch( widget->align.horizontal )
-	{
-	case ImUiHAlign_Left:
-		pos.x = parentInnerRect->pos.x + widget->margin.left;
-		break;
-	case ImUiHAlign_Center:
-		pos.x = parentInnerRect->pos.x + (parentInnerRect->size.width * 0.5f) - (size.width * 0.5f);
-		break;
-
-	case ImUiHAlign_Right:
-		pos.x = (parentInnerRect->pos.x + parentInnerRect->size.width) - (widget->margin.left + size.width);
-		break;
-	}
-	switch( widget->align.vertical )
-	{
-	case ImUiVAlign_Top:
-		pos.y = parentInnerRect->pos.y + widget->margin.top;
-		break;
-	case ImUiVAlign_Center:
-		pos.y = parentInnerRect->pos.y + (parentInnerRect->size.height * 0.5f) - (size.height * 0.5f);
-		break;
-
-	case ImUiVAlign_Bottom:
-		pos.y = (parentInnerRect->pos.y + parentInnerRect->size.height) - (widget->margin.top + size.height);
-		break;
-	}
+	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width );
+	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height );
 
 	// ???
 	pos.x		= floorf( pos.x - widget->parent->layoutData.scroll.offset.x );
@@ -641,19 +595,7 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	{
 		pos.x = parentInnerRect->pos.x + widget->margin.left;
 	}
-	switch( widget->align.vertical )
-	{
-	case ImUiVAlign_Top:
-		pos.y = parentInnerRect->pos.y + widget->margin.top;
-		break;
-	case ImUiVAlign_Center:
-		pos.y = parentInnerRect->pos.y + (parentInnerRect->size.height * 0.5f) - (size.height * 0.5f);
-		break;
-
-	case ImUiVAlign_Bottom:
-		pos.y = (parentInnerRect->pos.y + parentInnerRect->size.height) - (widget->margin.top + size.height);
-		break;
-	}
+	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height );
 
 	// ???
 	pos.x		= floorf( pos.x );
@@ -676,19 +618,7 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
-	switch( widget->align.horizontal )
-	{
-	case ImUiHAlign_Left:
-		pos.x = parentInnerRect->pos.x + widget->margin.left;
-		break;
-	case ImUiHAlign_Center:
-		pos.x = parentInnerRect->pos.x + (parentInnerRect->size.width * 0.5f) - (size.width * 0.5f);
-		break;
-
-	case ImUiHAlign_Right:
-		pos.x = (parentInnerRect->pos.x + parentInnerRect->size.width) - (widget->margin.left + size.width);
-		break;
-	}
+	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width );
 	if( widget->prevSibling )
 	{
 		pos.y = widget->prevSibling->rect.pos.y + widget->prevSibling->rect.size.height + widget->prevSibling->margin.bottom + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left;
@@ -711,6 +641,18 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
 
+}
+
+static float ImUiWidgetLayoutPositionX( ImUiWidget* widget, const ImUiRect* parentInnerRect, float width )
+{
+	const float remainingWidth = parentInnerRect->size.width - (width + widget->margin.left + widget->margin.right);
+	return parentInnerRect->pos.x + widget->margin.left + (remainingWidth * widget->align.horizontal);
+}
+
+static float ImUiWidgetLayoutPositionY( ImUiWidget* widget, const ImUiRect* parentInnerRect, float height )
+{
+	const float remainingHeight = parentInnerRect->size.height - (height + widget->margin.top + widget->margin.bottom);
+	return parentInnerRect->pos.y + widget->margin.top + (remainingHeight * widget->align.vertical);
 }
 
 static ImUiSize ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight )
@@ -1124,12 +1066,12 @@ void ImUiWidgetSetAlign( ImUiWidget* widget, ImUiAlign align )
 	widget->align = align;
 }
 
-void ImUiWidgetSetHAlign( ImUiWidget* widget, ImUiHAlign align )
+void ImUiWidgetSetHAlign( ImUiWidget* widget, float align )
 {
 	widget->align.horizontal = align;
 }
 
-void ImUiWidgetSetVAlign( ImUiWidget* widget, ImUiVAlign align )
+void ImUiWidgetSetVAlign( ImUiWidget* widget, float align )
 {
 	widget->align.vertical = align;
 }

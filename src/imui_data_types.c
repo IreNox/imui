@@ -97,15 +97,15 @@ ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )
 	return hash1 ^ hash2;
 }
 
-ImUiAlign ImUiAlignCreate( ImUiHAlign horizintal, ImUiVAlign vertical )
+ImUiAlign ImUiAlignCreate( float horizontal, float vertical )
 {
-	const ImUiAlign align = { horizintal, vertical };
+	const ImUiAlign align = { horizontal, vertical };
 	return align;
 }
 
 ImUiAlign ImUiAlignCreateCenter()
 {
-	const ImUiAlign align = { ImUiHAlign_Center, ImUiVAlign_Center };
+	const ImUiAlign align = { 0.5f, 0.5f };
 	return align;
 }
 

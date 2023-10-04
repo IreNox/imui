@@ -13,7 +13,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 {
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
-	ImUiTextLayout* text = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ" ) );
+	ImUiTextLayout* textLayout = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ" ) );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
@@ -53,16 +53,17 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hCenter" ) );
 			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
-			ImUiWidgetSetPadding( hCenter, ImUiBorderCreateAll( 50.0f ) );
+			ImUiWidgetSetFixedSize( hCenter, ImUiSizeExpandBorder( ImUiTextLayoutGetSize( textLayout ), ImUiBorderCreateAll( 50.0f ) ) );
 
 			ImUiDrawWidgetColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
-			ImUiWidget* centerText = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
-			ImUiWidgetSetFixedSize( centerText, ImUiTextLayoutGetSize( text ) );
+			ImUiWidget* text = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
+			ImUiWidgetSetFixedSize( text, ImUiTextLayoutGetSize( textLayout ) );
+			ImUiWidgetSetAlign( text, ImUiAlignCreate( timeLeft, timeTop ) );
 
-			ImUiDrawText( centerText, ImUiWidgetGetPos( centerText ), text );
+			ImUiDrawText( text, ImUiWidgetGetPos( text ), textLayout );
 
-			ImUiWidgetEnd( centerText );
+			ImUiWidgetEnd( text );
 
 			ImUiWidgetEnd( hCenter );
 
