@@ -656,8 +656,6 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 			(GLint)(command->clipRect.size.height)
 		);
 
-		if( command->topology == ImUiDrawTopology_LineList )
-		{ }
 		const GLenum topology = (command->topology == ImUiDrawTopology_LineList ? GL_LINES : GL_TRIANGLES);
 		glDrawArrays( topology, offset, (GLsizei)command->count );
 		//glDrawElements( GL_TRIANGLES, (GLsizei)pCommand->count, GL_UNSIGNED_SHORT, &pCommand->offset );

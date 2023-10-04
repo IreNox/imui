@@ -1,9 +1,12 @@
 #pragma once
 
-#include <assert.h>
 #include <float.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef _DEBUG
+#	include <assert.h>
+#endif
 
 #ifdef _MSC_VER
 #	include <intrin.h>
@@ -20,7 +23,6 @@ typedef int32_t		sint32;
 typedef int64_t		sint64;
 
 typedef size_t		uintsize;
-//typedef ssize_t		sintsize;
 
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
 #	define IMUI_DEFAULT_ARRAY_CAPACITY				16u
@@ -30,9 +32,6 @@ typedef size_t		uintsize;
 #endif
 #ifndef IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE
 #	define IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE		4096u
-#endif
-#ifndef IMUI_DEFAULT_TEXT_LAYOUT_POOL_CHUNK_SIZE
-#	define IMUI_DEFAULT_TEXT_LAYOUT_POOL_CHUNK_SIZE	1024u
 #endif
 
 #define IMUI_FLOAT_MAX FLT_MAX

@@ -569,11 +569,11 @@ static void ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInn
 
 static void ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
-	//const float factorWidth			= IMUI_MIN( widget->stretch.width, widget->parent->layoutContext.childrenMaxStretch.width );
-	//const float factorHeight		= IMUI_MIN( widget->stretch.height, widget->parent->layoutContext.childrenMaxStretch.height );
-	ImUiSize size					= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );/*
-	const ImUiSize maxSize			= widget->maxSize;
-	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );*/
+	const float factorWidth			= IMUI_MIN( widget->stretch.width, widget->parent->layoutContext.childrenMaxStretch.width );
+	const float factorHeight		= IMUI_MIN( widget->stretch.height, widget->parent->layoutContext.childrenMaxStretch.height );
+	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, widget->layoutContext.childrenMinSize );
+	const ImUiSize maxSize			= ImUiSizeMax( parentInnerRect->size, minSize );
+	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
 	switch( widget->align.horizontal )
@@ -724,6 +724,8 @@ static ImUiSize ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, I
 
 ImUiWidget* ImUiWidgetBegin( ImUiWindow* window )
 {
+	IMUI_ASSERT( window );
+
 	ImUiId id = 0u;
 	if( window->currentWidget->lastChild )
 	{
@@ -861,12 +863,22 @@ ImUiWidget* ImUiWidgetGetPrevSibling( const ImUiWidget* widget )
 
 ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
 {
-	return widget->firstChild;
+	return widget->nextSibling;
 }
 
 float ImUiWidgetGetTime( const ImUiWidget* widget )
 {
 	return widget->window->frame->timeInSeconds;
+}
+
+void* ImUiWidgetGetState( ImUiWidget* widget )
+{
+	if( widget->state )
+	{
+		return widget->state->data;
+	}
+
+	return NULL;
 }
 
 void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size )
@@ -1154,7 +1166,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 
 	target->relativeMousePos	= ImUiPosSubPos( input->currentState.mousePos, widget->rect.pos );
 
-	target->isMouseOver			= ImUiRectIncludesPos( widget->rect, input->currentState.mousePos );
+	target->isMouseOver			= ImUiRectIncludesPos( widget->clipRect, input->currentState.mousePos );
 	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
 	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left );
 

@@ -318,6 +318,7 @@ ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
 
 float						ImUiWidgetGetTime( const ImUiWidget* widget );
 
+void*						ImUiWidgetGetState( ImUiWidget* widget );
 void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size );
 void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew );
 void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc );

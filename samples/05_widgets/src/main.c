@@ -21,7 +21,7 @@ static void			ImUiTestSetConfig();
 static void			ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
 static void			ImUiTestDoSlidersAndProgressBars( ImUiWindow* window );
 static void			ImUiTestDoTextEdit( ImUiWindow* window );
-static void			ImUiTestDoScrollArea( ImUiWindow* window );
+static void			ImUiTestDoScrollAndList( ImUiWindow* window );
 
 static float		s_sliderValue1 = 2.5f;
 
@@ -53,7 +53,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 	ImUiWidgetEnd( vLayout );
 
-	ImUiTestDoScrollArea( window );
+	ImUiTestDoScrollAndList( window );
 
 	const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
 	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
@@ -141,7 +141,7 @@ static void ImUiTestDoTextEdit( ImUiWindow* window )
 	ImUiToolboxTextEditStateBuffer( window, 128u );
 }
 
-static void ImUiTestDoScrollArea( ImUiWindow* window )
+static void ImUiTestDoScrollAndList( ImUiWindow* window )
 {
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vLayout" ) );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
@@ -150,21 +150,43 @@ static void ImUiTestDoScrollArea( ImUiWindow* window )
 	ImUiToolboxLabel( window, IMUI_STR( "Item count:" ) );
 	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
-	ImUiWidget* scrollArea = ImUiToolboxScrollAreaBeginVertical( window );
-	ImUiWidgetSetMinSize( scrollArea, ImUiSizeCreateAll( 200.0f ) );
-
-	ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll" ));
-	ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizintal() );
-	ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
+	const bool useList = ImUiToolboxCheckBoxStateDefault( window, IMUI_STR( "List" ), true );
 
 	const size_t count = (size_t)itemCount;
-	for( size_t i = 0; i < itemCount; ++i )
+	if( useList )
 	{
-		ImUiToolboxLabelFormat( window, "Scroll Label %i", i );
-	}
+		ImUiToolboxListContext list;
+		ImUiToolboxListBeginVertical( &list, window, 25.0f, count );
+		ImUiWidgetSetMinSize( list.list, ImUiSizeCreateAll( 200.0f ) );
 
-	ImUiWidgetEnd( scrollLayout );
-	ImUiToolboxScrollAreaEnd( scrollArea );
+		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
+		{
+			ImUiWidget* item = ImUiToolboxListNextItem( &list );
+			ImUiWidgetSetPadding( item, ImUiBorderCreateAll( 4.0f ) );
+
+			ImUiWidget* label = ImUiToolboxLabelBeginFormat( window, "List Label %i", i );
+			ImUiToolboxLabelEnd( label );
+		}
+
+		ImUiToolboxListEnd( &list );
+	}
+	else
+	{
+		ImUiWidget* scrollArea = ImUiToolboxScrollAreaBegin( window );
+		ImUiWidgetSetMinSize( scrollArea, ImUiSizeCreateAll( 200.0f ) );
+
+		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll" ) );
+		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizintal() );
+		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
+
+		for( size_t i = 0; i < itemCount; ++i )
+		{
+			ImUiToolboxLabelFormat( window, "Scroll Label %i", i );
+		}
+
+		ImUiWidgetEnd( scrollLayout );
+		ImUiToolboxScrollAreaEnd( scrollArea );
+	}
 
 	ImUiWidgetEnd( vLayout );
 }
@@ -232,9 +254,10 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= elementColor;
 	config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ]	= backgroundColor;
 	config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ]		= elementColor;
-	config.colors[ ImUiToolboxColor_ListItemBackground ]		= backgroundColor;
-	config.colors[ ImUiToolboxColor_ListItemText ]				= textColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 25 );
+	config.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
+	config.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
+	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 26 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -246,7 +269,7 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinLine;
+	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
 	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 11 );
 
 	config.font						= s_font;
@@ -271,6 +294,8 @@ static void ImUiTestSetConfig()
 	config.scrollArea.barSize		= 8.0f;
 	config.scrollArea.barSpacing	= 4.0f;
 	config.scrollArea.barMinSize	= 20.0f;
+
+	config.list.itemSpacing			= 4.0f;
 
 	ImUiToolboxSetConfig( &config );
 }

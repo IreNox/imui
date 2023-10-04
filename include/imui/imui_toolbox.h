@@ -40,8 +40,9 @@ enum ImUiToolboxColor
 	ImUiToolboxColor_ScrollAreaBarBackground,
 	ImUiToolboxColor_ScrollAreaBarPivot,
 
-	ImUiToolboxColor_ListItemBackground,
-	ImUiToolboxColor_ListItemText,
+	ImUiToolboxColor_ListItemHover,
+	ImUiToolboxColor_ListItemClicked,
+	ImUiToolboxColor_ListItemSelected,
 
 	ImUiToolboxColor_MAX
 };
@@ -110,6 +111,12 @@ struct ImUiToolboxScrollAreaConfig
 	float			barMinSize;
 };
 
+typedef struct ImUiToolboxListConfig ImUiToolboxListConfig;
+struct ImUiToolboxListConfig
+{
+	float			itemSpacing;
+};
+
 typedef struct ImUiToolboxConfig ImUiToolboxConfig;
 struct ImUiToolboxConfig
 {
@@ -124,6 +131,25 @@ struct ImUiToolboxConfig
 	ImUiToolboxTextEditConfig		textEdit;
 	ImUiToolboxProgressBarConfig	progressBar;
 	ImUiToolboxScrollAreaConfig		scrollArea;
+	ImUiToolboxListConfig			list;
+};
+
+typedef struct ImUiToolboxListState ImUiToolboxListState;
+typedef struct ImUiToolboxListContext ImUiToolboxListContext;
+struct ImUiToolboxListContext
+{
+	float					itemSize;
+	size_t					itemCount;
+
+	ImUiWidget*				list;
+	ImUiWidget*				listLayout;
+	ImUiToolboxListState*	state;
+
+	ImUiWidget*				item;
+	size_t					itemIndex;
+
+	size_t					beginIndex;
+	size_t					endIndex;
 };
 
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
@@ -139,6 +165,7 @@ ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
 bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text );
 bool				ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text );
+bool				ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, ImUiStringView text, bool defaultValue );
 
 ImUiWidget*			ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text );
 ImUiWidget*			ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
@@ -165,17 +192,16 @@ ImUiStringView		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t buffe
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
 
-ImUiWidget*			ImUiToolboxScrollAreaBeginHorizontal( ImUiWindow* window );
-ImUiWidget*			ImUiToolboxScrollAreaBeginVertical( ImUiWindow* window );
-ImUiWidget*			ImUiToolboxScrollAreaBeginBoth( ImUiWindow* window );
+ImUiWidget*			ImUiToolboxScrollAreaBegin( ImUiWindow* window );
 void				ImUiToolboxScrollAreaEnd( ImUiWidget* scroll );
 
-ImUiWidget*			ImUiToolboxListBeginHorizontal( ImUiWindow* window, size_t itemCount );
-ImUiWidget*			ImUiToolboxListBeginVertical( ImUiWindow* window, size_t itemCount );
-size_t				ImUiToolboxListGetBeginIndex( ImUiWidget* list );
-size_t				ImUiToolboxListGetEndIndex( ImUiWidget* list );
-ImUiWidget*			ImUiToolboxListNextItem( ImUiWidget* list );
-void				ImUiToolboxListEnd( ImUiWidget* list );
+void				ImUiToolboxListBeginHorizontal( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
+void				ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
+size_t				ImUiToolboxListGetBeginIndex( ImUiToolboxListContext* list );
+size_t				ImUiToolboxListGetEndIndex( ImUiToolboxListContext* list );
+size_t				ImUiToolboxListGetSelectedIndex( ImUiToolboxListContext* list );
+ImUiWidget*			ImUiToolboxListNextItem( ImUiToolboxListContext* list );
+void				ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
 #ifdef __cplusplus
 }
