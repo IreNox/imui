@@ -195,8 +195,7 @@ void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min
 ImUiWidget*			ImUiToolboxScrollAreaBegin( ImUiWindow* window );
 void				ImUiToolboxScrollAreaEnd( ImUiWidget* scroll );
 
-void				ImUiToolboxListBeginHorizontal( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
-void				ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
+void				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
 size_t				ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
 size_t				ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
 size_t				ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );

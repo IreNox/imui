@@ -195,7 +195,7 @@ ImUiSize ImUiSizeCreateZero()
 	return size;
 }
 
-ImUiSize ImUiSizeCreateHorizintal()
+ImUiSize ImUiSizeCreateHorizontal()
 {
 	const ImUiSize size = { 1.0f, 0.0f };
 	return size;

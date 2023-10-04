@@ -377,7 +377,7 @@ void ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list
 ImUiWidget* ImUiToolboxSliderBegin( ImUiWindow* window )
 {
 	ImUiWidget* slider = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( slider, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetStretch( slider, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetPadding( slider, s_config.slider.padding );
 	ImUiWidgetSetFixedHeight( slider, s_config.slider.height );
 
@@ -484,7 +484,7 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 {
 	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( textEditFrame, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetStretch( textEditFrame, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetPadding( textEditFrame, s_config.textEdit.padding );
 	ImUiWidgetSetFixedHeight( textEditFrame, s_config.textEdit.height );
 
@@ -756,7 +756,7 @@ void ImUiToolboxProgressBar( ImUiWindow* window, float value )
 void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max )
 {
 	ImUiWidget* progressBar = ImUiWidgetBeginNamed( window, IMUI_STR( "progress_bar" ));
-	ImUiWidgetSetStretch( progressBar, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetStretch( progressBar, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetPadding( progressBar, s_config.progressBar.padding );
 	ImUiWidgetSetFixedHeight( progressBar, s_config.progressBar.height );
 
@@ -914,11 +914,7 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 	ImUiWidgetEnd( scroll );
 }
 
-void ImUiToolboxListBeginHorizontal( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount )
-{
-}
-
-void ImUiToolboxListBeginVertical( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount )
+void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount )
 {
 	IMUI_ASSERT( list );
 

@@ -44,7 +44,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
-	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateHorizintal() );
+	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
 	ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
@@ -102,7 +102,7 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 
 	{
 		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "checks" ) );
-		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizintal() );
+		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizontal() );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
 		ImUiToolboxCheckBox( window, &checked[ 0u ], IMUI_STR( "Check 1" ) );
@@ -137,7 +137,6 @@ static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window )
 
 static void ImUiTestDoTextEdit( ImUiWindow* window )
 {
-	//char buffer[ 128u ];
 	ImUiToolboxTextEditStateBuffer( window, 128u );
 }
 
@@ -156,7 +155,7 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 	if( useList )
 	{
 		ImUiToolboxListContext list;
-		ImUiToolboxListBeginVertical( &list, window, 25.0f, count );
+		ImUiToolboxListBegin( &list, window, 25.0f, count );
 		ImUiWidgetSetMinSize( list.list, ImUiSizeCreateAll( 200.0f ) );
 
 		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
@@ -177,7 +176,7 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 		ImUiWidgetSetMinSize( scrollArea, ImUiSizeCreateAll( 200.0f ) );
 
 		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll" ) );
-		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizintal() );
+		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizontal() );
 		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
 		for( size_t i = 0; i < itemCount; ++i )

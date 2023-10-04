@@ -634,7 +634,7 @@ ImUiSize						ImUiSizeCreate( float width, float height );
 ImUiSize						ImUiSizeCreateAll( float value );
 ImUiSize						ImUiSizeCreateOne();
 ImUiSize						ImUiSizeCreateZero();
-ImUiSize						ImUiSizeCreateHorizintal();				// x = 1, y = 0
+ImUiSize						ImUiSizeCreateHorizontal();				// x = 1, y = 0
 ImUiSize						ImUiSizeCreateVertical();				// x = 0, y = 1
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );

@@ -3,6 +3,8 @@
 #include "imui/imui.h"
 #include "imui/imui_toolbox.h"
 
+#include <new>
+
 namespace imui
 {
 	class UiInput;
@@ -262,8 +264,12 @@ namespace imui
 		void			setPadding( const UiBorder& padding );
 
 		UiSize			getMinSize();
+		void			setMinWidth( float value );
+		void			setMinHeight( float value );
 		void			setMinSize( UiSize size );
 		UiSize			getMaxSize();
+		void			setMaxWidth( float value );
+		void			setMaxHeight( float value );
 		void			setMaxSize( UiSize size );
 
 		void			setFixedWidth( float value );
@@ -325,31 +331,48 @@ namespace imui
 
 	namespace toolbox
 	{
-		struct UiToolboxConfig : ImUiToolboxConfig
+		struct UiToolboxConfig : public ImUiToolboxConfig
 		{
 						UiToolboxConfig( ImUiFont* font );
 		};
 
-		class UiToolboxScrollArea : UiWidget
+		class UiToolboxLabel : public UiWidget
+		{
+		public:
+
+						UiToolboxLabel();
+						UiToolboxLabel( UiWindow& window, const UiStringView& text );
+						~UiToolboxLabel();
+
+			void		begin( UiWindow& window, const UiStringView& text );
+			void		beginFormat( UiWindow& window, const char* format, ... );
+			void		end();
+		};
+
+		class UiToolboxScrollArea : public UiWidget
 		{
 		public:
 
 						UiToolboxScrollArea( UiWindow& window );
 						~UiToolboxScrollArea();
+
+		protected:
+
+						UiToolboxScrollArea();
 		};
 
-		class UiToolboxList : UiToolboxScrollArea
+		class UiToolboxList : public UiToolboxScrollArea
 		{
 		public:
 
-									UiToolboxList( UiWindow& window, float itemSize, size_t itemCount );
-									~UiToolboxList();
+						UiToolboxList( UiWindow& window, float itemSize, size_t itemCount );
+						~UiToolboxList();
 
-			size_t					getBeginIndex() const;
-			size_t					getEndIndex() const;
-			size_t					getSelectedIndex() const;
+			size_t		getBeginIndex() const;
+			size_t		getEndIndex() const;
+			size_t		getSelectedIndex() const;
 
-			ImUiWidget*				nextItem();
+			ImUiWidget*	nextItem();
 
 		private:
 
@@ -362,20 +385,19 @@ namespace imui
 		bool			buttonLabelFormat( UiWindow& window, const char* format, ... );
 
 		bool			checkBox( UiWindow& window, bool& checked, const UiStringView& text );
-		bool			checkBoxState( UiWindow& window, const UiStringView& text );
+		bool			checkBoxState( UiWindow& window, const UiStringView& text, bool defaultValue = false );
 
 		void			label( UiWindow& window, const UiStringView& text );
 		void			labelFormat( UiWindow& window, const char* format, ... );
 
-		bool			slider( UiWindow& window, float& value );								// value range is 0 to 1
-		bool			sliderMinMax( UiWindow& window, float& value, float min, float max );
-		float			sliderState( UiWindow& window );										// value range is 0 to 1
-		float			sliderStateMinMax( UiWindow& window, float min, float max );
+		bool			slider( UiWindow& window, float& value, float min = 0.0f, float max = 1.0f );
+		float			sliderState( UiWindow& window, float min = 0.0f, float max = 1.0f );
+		float			sliderState( UiWindow& window, float min, float max, float defaultValue );
 
 		bool			textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength );
+		UiStringView	textEditState( UiWindow& window, size_t bufferSize );
 
-		void			progressBar( UiWindow& window, float value ); // value range 0 to 1
-		void			progressBarMinMax( UiWindow& window, float value, float min, float max );
+		void			progressBar( UiWindow& window, float value, float min = 0.0f, float max = 1.0f );
 	}
 
 	template< size_t TLen >
@@ -393,9 +415,16 @@ namespace imui
 	}
 
 	template< class T >
+	void callDestructor( void* ptr )
+	{
+		T* obj = (T*)ptr;
+		obj->T::~T();
+	}
+
+	template< class T >
 	T* UiWidget::newState( bool& isNew )
 	{
-		void* memory = ImUiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), &isNew, T::~T );
+		void* memory = ImUiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), &isNew, &callDestructor< T > );
 		if( !memory )
 		{
 			return nullptr;
@@ -404,7 +433,7 @@ namespace imui
 		T* state = (T*)memory;
 		if( isNew )
 		{
-			new (memory) T();
+			new (state) T();
 		}
 
 		return state;

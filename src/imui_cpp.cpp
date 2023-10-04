@@ -731,6 +731,16 @@ namespace imui
 		return (const UiSize&)m_widget->minSize;
 	}
 
+	void UiWidget::setMinWidth( float value )
+	{
+		ImUiWidgetSetMinWidth( m_widget, value );
+	}
+
+	void UiWidget::setMinHeight( float value )
+	{
+		ImUiWidgetSetMinHeight( m_widget, value );
+	}
+
 	void UiWidget::setMinSize( UiSize size )
 	{
 		ImUiWidgetSetMinSize( m_widget, size );
@@ -739,6 +749,16 @@ namespace imui
 	UiSize UiWidget::getMaxSize()
 	{
 		return (const UiSize&)m_widget->maxSize;
+	}
+
+	void UiWidget::setMaxWidth( float value )
+	{
+		ImUiWidgetSetMaxWidth( m_widget, value );
+	}
+
+	void UiWidget::setMaxHeight( float value )
+	{
+		ImUiWidgetSetMaxHeight( m_widget, value );
 	}
 
 	void UiWidget::setMaxSize( UiSize size )
@@ -955,9 +975,9 @@ namespace imui
 		return ImUiToolboxCheckBox( window.getInternal(), &checked, text );
 	}
 
-	bool toolbox::checkBoxState( UiWindow& window, const UiStringView& text )
+	bool toolbox::checkBoxState( UiWindow& window, const UiStringView& text, bool defaultValue /*= false */ )
 	{
-		return ImUiToolboxCheckBoxState( window.getInternal(), text );
+		return ImUiToolboxCheckBoxStateDefault( window.getInternal(), text, defaultValue );
 	}
 
 	void toolbox::label( UiWindow& window, const UiStringView& text )
@@ -973,39 +993,74 @@ namespace imui
 		va_end( args );
 	}
 
-	bool toolbox::slider( UiWindow& window, float& value )
-	{
-		return ImUiToolboxSlider( window.getInternal(), &value );
-	}
-
-	bool toolbox::sliderMinMax( UiWindow& window, float& value, float min, float max )
+	bool toolbox::slider( UiWindow& window, float& value, float min /*= 0.0f*/, float max /*= 1.0f*/ )
 	{
 		return ImUiToolboxSliderMinMax( window.getInternal(), &value, min, max );
 	}
 
-	float toolbox::sliderState( UiWindow& window )
-	{
-		return ImUiToolboxSliderState( window.getInternal() );
-	}
-
-	float toolbox::sliderStateMinMax( UiWindow& window, float min, float max )
+	float toolbox::sliderState( UiWindow& window, float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
 		return ImUiToolboxSliderStateMinMax( window.getInternal(), min, max );
 	}
 
+	float toolbox::sliderState( UiWindow& window, float min, float max, float defaultValue )
+	{
+		return ImUiToolboxSliderStateMinMaxDefault( window.getInternal(), min, max, defaultValue );
+	}
+
 	bool toolbox::textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength )
 	{
-		return ImUiToolboxTextEdit( window.getInternal(), buffer, bufferSize, textLength );;
+		return ImUiToolboxTextEdit( window.getInternal(), buffer, bufferSize, textLength );
 	}
 
-	void toolbox::progressBar( UiWindow& window, float value )
+	UiStringView toolbox::textEditState( UiWindow& window, size_t bufferSize )
 	{
-		ImUiToolboxProgressBar( window.getInternal(), value );
+		return UiStringView( ImUiToolboxTextEditStateBuffer( window.getInternal(), bufferSize ) );
 	}
 
-	void toolbox::progressBarMinMax( UiWindow& window, float value, float min, float max )
+	void toolbox::progressBar( UiWindow& window, float value, float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
 		ImUiToolboxProgressBarMinMax( window.getInternal(), value, min, max );
+	}
+
+	toolbox::UiToolboxLabel::UiToolboxLabel()
+	{
+	}
+
+	toolbox::UiToolboxLabel::UiToolboxLabel( UiWindow& window, const UiStringView& text )
+	{
+		begin( window, text );
+	}
+
+	toolbox::UiToolboxLabel::~UiToolboxLabel()
+	{
+		end();
+	}
+
+	void toolbox::UiToolboxLabel::begin( UiWindow& window, const UiStringView& text )
+	{
+		m_widget = ImUiToolboxLabelBegin( window.getInternal(), text );
+	}
+
+	void toolbox::UiToolboxLabel::beginFormat( UiWindow& window, const char* format, ... )
+	{
+		va_list args;
+		va_start( args, format );
+		m_widget = ImUiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
+		va_end( args );
+	}
+
+	void toolbox::UiToolboxLabel::end()
+	{
+		if( m_widget )
+		{
+			ImUiToolboxLabelEnd( m_widget );
+			m_widget = nullptr;
+		}
+	}
+
+	toolbox::UiToolboxScrollArea::UiToolboxScrollArea()
+	{
 	}
 
 	toolbox::UiToolboxScrollArea::UiToolboxScrollArea( UiWindow& window )
@@ -1015,19 +1070,23 @@ namespace imui
 
 	toolbox::UiToolboxScrollArea::~UiToolboxScrollArea()
 	{
-		ImUiToolboxScrollAreaEnd( m_widget );
-		m_widget = NULL;
+		if( m_widget )
+		{
+			ImUiToolboxScrollAreaEnd( m_widget );
+			m_widget = nullptr;
+		}
 	}
 
 	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount )
-		: UiToolboxScrollArea( window )
 	{
-		ImUiToolboxListBeginVertical( &m_list, window.getInternal(), itemSize, itemCount );
+		ImUiToolboxListBegin( &m_list, window.getInternal(), itemSize, itemCount );
+		m_widget = m_list.list;
 	}
 
 	toolbox::UiToolboxList::~UiToolboxList()
 	{
 		ImUiToolboxListEnd( &m_list );
+		m_widget = nullptr;
 	}
 
 	size_t toolbox::UiToolboxList::getBeginIndex() const
