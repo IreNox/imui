@@ -203,6 +203,9 @@ struct ImUiToolboxListContext
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
+void				ImUiToolboxSpacer( ImUiWindow* window, float width, float height );
+void				ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical );
+
 ImUiWidget*			ImUiToolboxButtonBegin( ImUiWindow* window );
 bool				ImUiToolboxButtonEnd( ImUiWidget* button );
 ImUiWidget*			ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text );
@@ -263,6 +266,7 @@ size_t				ImUiToolboxDropDownEnd( ImUiWidget* dropDown );
 size_t				ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
 
 ImUiWindow*			ImUiToolboxPopupBegin( ImUiWindow* window );
+ImUiWindow*			ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
 size_t				ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const ImUiStringView* buttons, size_t buttonCount );
 void				ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
 

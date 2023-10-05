@@ -75,7 +75,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
 	config->colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_SliderPivotClicked ]		= elementClickedColor;
-	config->colors[ ImUiToolboxColor_TextEditBackground ]		= backgroundColor;
+	config->colors[ ImUiToolboxColor_TextEditBackground ]		= elementClickedColor;
 	config->colors[ ImUiToolboxColor_TextEditText ]				= textColor;
 	config->colors[ ImUiToolboxColor_TextEditCursor ]			= textEditCursorColor;
 	config->colors[ ImUiToolboxColor_TextEditSelection ]		= elementColor;
@@ -86,7 +86,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_ListItemHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
 	config->colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	config->colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
+	config->colors[ ImUiToolboxColor_DropDown ]					= elementClickedColor;
 	config->colors[ ImUiToolboxColor_DropDownText ]				= textColor;
 	config->colors[ ImUiToolboxColor_DropDownHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
@@ -151,13 +151,13 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->dropDown.closeIcon		= image;
 	config->dropDown.height			= 25.0f;
 	config->dropDown.padding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
-	config->dropDown.listZOrder		= 10u;
+	config->dropDown.listZOrder		= 20u;
 	config->dropDown.maxListLength	= 12u;
 	config->dropDown.itemPadding	= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
 	config->dropDown.itemSize		= 25.0f;
 	config->dropDown.itemSpacing	= 8.0f;
 
-	config->popup.zOrder			= 20u;
+	config->popup.zOrder			= 10u;
 	config->popup.padding			= ImUiBorderCreateAll( 8.0f );
 	config->popup.buttonSpacing		= 4.0f;
 }
@@ -165,6 +165,20 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 void ImUiToolboxSetConfig( const ImUiToolboxConfig* config )
 {
 	s_config = *config;
+}
+
+void ImUiToolboxSpacer( ImUiWindow* window, float width, float height )
+{
+	ImUiWidget* widget = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( width, height ) );
+	ImUiWidgetEnd( widget );
+}
+
+void ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical )
+{
+	ImUiWidget* widget = ImUiWidgetBegin( window );
+	ImUiWidgetSetStretch( widget, ImUiSizeCreate( horizontal, vertical ) );
+	ImUiWidgetEnd( widget );
 }
 
 ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
@@ -208,6 +222,7 @@ ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text
 
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( buttonText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
+	ImUiWidgetSetAlign( buttonText, ImUiAlignCreateCenter() );
 	ImUiWidgetSetFixedSize( buttonText, textSize );
 
 	if( layout )
@@ -290,6 +305,7 @@ ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon )
 	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
 	ImUiWidget* buttonIcon = ImUiWidgetBegin( window );
+	ImUiWidgetSetAlign( buttonIcon, ImUiAlignCreateCenter() );
 	ImUiWidgetSetFixedSize( buttonIcon, icon.size );
 
 	ImUiDrawWidgetTexture( buttonIcon, icon );
@@ -1277,7 +1293,11 @@ size_t ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, siz
 
 ImUiWindow* ImUiToolboxPopupBegin( ImUiWindow* window )
 {
-	ImUiSurface* surface = ImUiWindowGetSurface( window );
+	return ImUiToolboxPopupBeginSurface( ImUiWindowGetSurface( window ) );
+}
+
+ImUiWindow* ImUiToolboxPopupBeginSurface( ImUiSurface* surface )
+{
 	const ImUiRect windowRect = ImUiRectCreatePosSize( ImUiPosCreateZero(), ImUiSurfaceGetSize( surface ) );
 	ImUiWindow* popupWindow = ImUiWindowBegin( surface, IMUI_STR( "popup" ), windowRect, s_config.popup.zOrder );
 

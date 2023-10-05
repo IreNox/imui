@@ -58,6 +58,8 @@ ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameter
 	font->texture			= parameters->texture;
 	font->codepoints		= IMUI_MEMORY_ARRAY_NEW( &imui->allocator, ImUiFontCodepoint, parameters->codepointCount );
 	font->codepointCount	= parameters->codepointCount;
+	font->fontSize			= parameters->fontSize;
+	font->lineGap			= parameters->lineGap;
 
 	if( !font->codepoints )
 	{
@@ -294,7 +296,8 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 		lineHeight = IMUI_MAX( lineHeight, cpHeight );
 	}
 
-	image->parameters.lineGap = lineGap;
+	image->parameters.fontSize	= fontSizeInPixel;
+	image->parameters.lineGap	= lineGap;
 
 	return image;
 }

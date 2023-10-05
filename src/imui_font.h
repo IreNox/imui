@@ -11,5 +11,8 @@ struct ImUiFont
 	ImUiFontCodepoint*	codepoints;
 	uintsize			codepointCount;
 
+	float				fontSize;
+	float				lineGap;
+
 	ImUiHashMap			codepointMap;
 };

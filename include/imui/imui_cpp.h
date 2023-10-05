@@ -13,12 +13,15 @@ namespace imui
 	struct UiStringView : public ImUiStringView
 	{
 						UiStringView();
+						UiStringView( const char* str, size_t _length );
 		template< size_t TLen >
 						UiStringView( const char (&str)[ TLen ] );
 		explicit		UiStringView( const ImUiStringView& value );
 
 		const char*		getData() const;
 		size_t			getLength() const;
+
+		bool			isEmpty() const;
 	};
 
 	struct UiAlign : public ImUiAlign
@@ -336,13 +339,47 @@ namespace imui
 						UiToolboxConfig( ImUiFont* font );
 		};
 
+		class UiToolboxWindow : public UiWindow
+		{
+		public:
+
+							UiToolboxWindow();
+							UiToolboxWindow( UiWindow& window );
+							UiToolboxWindow( ImUiWindow* window );
+							UiToolboxWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
+							UiToolboxWindow( UiSurface& surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
+
+			void			spacer( float width, float height );
+			void			strecher( float horizontal, float vertical );
+
+			bool			buttonLabel( const UiStringView& text );
+			bool			buttonLabelFormat( const char* format, ... );
+
+			bool			checkBox( bool& checked, const UiStringView& text );
+			bool			checkBoxState( const UiStringView& text, bool defaultValue = false );
+
+			void			label( const UiStringView& text );
+			void			labelFormat( const char* format, ... );
+
+			bool			slider( float& value, float min = 0.0f, float max = 1.0f );
+			float			sliderState( float min = 0.0f, float max = 1.0f );
+			float			sliderState( float min, float max, float defaultValue );
+
+			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength );
+			UiStringView	textEditState( size_t bufferSize );
+
+			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
+
+			size_t			dropDown( const UiStringView* items, size_t itemCount );
+		};
+
 		class UiToolboxButtonLabel : public UiWidget
 		{
 		public:
 
-			UiToolboxButtonLabel();
-			UiToolboxButtonLabel( UiWindow& window, const UiStringView& text );
-			~UiToolboxButtonLabel();
+						UiToolboxButtonLabel();
+						UiToolboxButtonLabel( UiWindow& window, const UiStringView& text );
+						~UiToolboxButtonLabel();
 
 			void		begin( UiWindow& window, const UiStringView& text );
 			void		beginFormat( UiWindow& window, const char* format, ... );
@@ -400,10 +437,11 @@ namespace imui
 						~UiToolboxDropdown();
 		};
 
-		class UiToolboxPopup : public UiWindow
+		class UiToolboxPopup : public UiToolboxWindow
 		{
 		public:
 
+						UiToolboxPopup( UiSurface& surface );
 						UiToolboxPopup( UiWindow& window );
 						~UiToolboxPopup();
 
@@ -412,26 +450,6 @@ namespace imui
 		};
 
 		void			setConfig( const UiToolboxConfig& config );
-
-		bool			buttonLabel( UiWindow& window, const UiStringView& text );
-		bool			buttonLabelFormat( UiWindow& window, const char* format, ... );
-
-		bool			checkBox( UiWindow& window, bool& checked, const UiStringView& text );
-		bool			checkBoxState( UiWindow& window, const UiStringView& text, bool defaultValue = false );
-
-		void			label( UiWindow& window, const UiStringView& text );
-		void			labelFormat( UiWindow& window, const char* format, ... );
-
-		bool			slider( UiWindow& window, float& value, float min = 0.0f, float max = 1.0f );
-		float			sliderState( UiWindow& window, float min = 0.0f, float max = 1.0f );
-		float			sliderState( UiWindow& window, float min, float max, float defaultValue );
-
-		bool			textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength );
-		UiStringView	textEditState( UiWindow& window, size_t bufferSize );
-
-		void			progressBar( UiWindow& window, float value, float min = 0.0f, float max = 1.0f );
-
-		size_t			dropDown( UiWindow& window, const UiStringView* items, size_t itemCount );
 	}
 
 	template< size_t TLen >

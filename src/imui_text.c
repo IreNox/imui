@@ -240,7 +240,7 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 	layout->text.length	= parameters->text.length;
 	layout->glyphs		= glyphs;
 	layout->glyphCount	= glyphCount;
-	layout->size		= ImUiSizeCreate( x, height );
+	layout->size		= ImUiSizeCreate( x, parameters->font->fontSize );
 	layout->frameIndex	= cache->frameIndex;
 
 	layout->prevLayout	= NULL;

@@ -19,6 +19,12 @@ namespace imui
 		length	= value.length;
 	}
 
+	UiStringView::UiStringView( const char* str, size_t _length )
+	{
+		data	= str;
+		length	= _length;
+	}
+
 	const char* UiStringView::getData() const
 	{
 		return data;
@@ -27,6 +33,11 @@ namespace imui
 	size_t UiStringView::getLength() const
 	{
 		return length;
+	}
+
+	bool UiStringView::isEmpty() const
+	{
+		return length == 0u;
 	}
 
 	UiAlign::UiAlign( float hAlign, float vAlign )
@@ -955,77 +966,112 @@ namespace imui
 		ImUiToolboxSetConfig( &config );
 	}
 
-	bool toolbox::buttonLabel( UiWindow& window, const UiStringView& text )
+	toolbox::UiToolboxWindow::UiToolboxWindow()
 	{
-		return ImUiToolboxButtonLabel( window.getInternal(), text );
 	}
 
-	bool toolbox::buttonLabelFormat( UiWindow& window, const char* format, ... )
+	toolbox::UiToolboxWindow::UiToolboxWindow( UiWindow& window )
+	{
+		m_window	= window.getInternal();
+		m_owner		= false;
+	}
+
+	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiWindow* window )
+		: UiWindow( window )
+	{
+	}
+
+	toolbox::UiToolboxWindow::UiToolboxWindow( UiSurface& surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder )
+		: UiWindow( surface, name, rect, zOrder )
+	{
+	}
+
+	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder )
+		: UiWindow( surface, name, rect, zOrder )
+	{
+	}
+
+	void toolbox::UiToolboxWindow::spacer( float width, float height )
+	{
+		ImUiToolboxSpacer( m_window, width, height );
+	}
+
+	void toolbox::UiToolboxWindow::strecher( float horizontal, float vertical )
+	{
+		ImUiToolboxStrecher( m_window, horizontal, vertical );
+	}
+
+	bool toolbox::UiToolboxWindow::buttonLabel( const UiStringView& text )
+	{
+		return ImUiToolboxButtonLabel( m_window, text );
+	}
+
+	bool toolbox::UiToolboxWindow::buttonLabelFormat( const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		const bool result = ImUiToolboxButtonLabelFormatArgs( window.getInternal(), format, args );
+		const bool result = ImUiToolboxButtonLabelFormatArgs( m_window, format, args );
 		va_end( args );
 
 		return result;
 	}
 
-	bool toolbox::checkBox( UiWindow& window, bool& checked, const UiStringView& text )
+	bool toolbox::UiToolboxWindow::checkBox( bool& checked, const UiStringView& text )
 	{
-		return ImUiToolboxCheckBox( window.getInternal(), &checked, text );
+		return ImUiToolboxCheckBox( m_window, &checked, text );
 	}
 
-	bool toolbox::checkBoxState( UiWindow& window, const UiStringView& text, bool defaultValue /*= false */ )
+	bool toolbox::UiToolboxWindow::checkBoxState( const UiStringView& text, bool defaultValue /*= false */ )
 	{
-		return ImUiToolboxCheckBoxStateDefault( window.getInternal(), text, defaultValue );
+		return ImUiToolboxCheckBoxStateDefault( m_window, text, defaultValue );
 	}
 
-	void toolbox::label( UiWindow& window, const UiStringView& text )
+	void toolbox::UiToolboxWindow::label( const UiStringView& text )
 	{
-		ImUiToolboxLabel( window.getInternal(), text );
+		ImUiToolboxLabel( m_window, text );
 	}
 
-	void toolbox::labelFormat( UiWindow& window, const char* format, ... )
+	void toolbox::UiToolboxWindow::labelFormat( const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		ImUiToolboxLabelFormatArgs( window.getInternal(), format, args);
+		ImUiToolboxLabelFormatArgs( m_window, format, args);
 		va_end( args );
 	}
 
-	bool toolbox::slider( UiWindow& window, float& value, float min /*= 0.0f*/, float max /*= 1.0f*/ )
+	bool toolbox::UiToolboxWindow::slider( float& value, float min /*= 0.0f*/, float max /*= 1.0f*/ )
 	{
-		return ImUiToolboxSliderMinMax( window.getInternal(), &value, min, max );
+		return ImUiToolboxSliderMinMax( m_window, &value, min, max );
 	}
 
-	float toolbox::sliderState( UiWindow& window, float min /*= 0.0f*/, float max /*= 1.0f */ )
+	float toolbox::UiToolboxWindow::sliderState( float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
-		return ImUiToolboxSliderStateMinMax( window.getInternal(), min, max );
+		return ImUiToolboxSliderStateMinMax( m_window, min, max );
 	}
 
-	float toolbox::sliderState( UiWindow& window, float min, float max, float defaultValue )
+	float toolbox::UiToolboxWindow::sliderState( float min, float max, float defaultValue )
 	{
-		return ImUiToolboxSliderStateMinMaxDefault( window.getInternal(), min, max, defaultValue );
+		return ImUiToolboxSliderStateMinMaxDefault( m_window, min, max, defaultValue );
 	}
 
-	bool toolbox::textEdit( UiWindow& window, char* buffer, size_t bufferSize, size_t* textLength )
+	bool toolbox::UiToolboxWindow::textEdit( char* buffer, size_t bufferSize, size_t* textLength )
 	{
-		return ImUiToolboxTextEdit( window.getInternal(), buffer, bufferSize, textLength );
+		return ImUiToolboxTextEdit( m_window, buffer, bufferSize, textLength );
 	}
 
-	UiStringView toolbox::textEditState( UiWindow& window, size_t bufferSize )
+	UiStringView toolbox::UiToolboxWindow::textEditState( size_t bufferSize )
 	{
-		return UiStringView( ImUiToolboxTextEditStateBuffer( window.getInternal(), bufferSize ) );
+		return UiStringView( ImUiToolboxTextEditStateBuffer( m_window, bufferSize ) );
 	}
 
-	void toolbox::progressBar( UiWindow& window, float value, float min /*= 0.0f*/, float max /*= 1.0f */ )
+	void toolbox::UiToolboxWindow::progressBar( float value, float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
-		ImUiToolboxProgressBarMinMax( window.getInternal(), value, min, max );
+		ImUiToolboxProgressBarMinMax( m_window, value, min, max );
 	}
 
-	size_t toolbox::dropDown( UiWindow& window, const UiStringView* items, size_t itemCount )
+	size_t toolbox::UiToolboxWindow::dropDown( const UiStringView* items, size_t itemCount )
 	{
-		return ImUiToolboxDropDown( window.getInternal(), items, itemCount );
+		return ImUiToolboxDropDown( m_window, items, itemCount );
 	}
 
 	toolbox::UiToolboxButtonLabel::UiToolboxButtonLabel()
@@ -1163,6 +1209,12 @@ namespace imui
 	{
 		ImUiToolboxDropDownEnd( m_widget );
 		m_widget = nullptr;
+	}
+
+	toolbox::UiToolboxPopup::UiToolboxPopup( UiSurface& surface )
+	{
+		m_window = ImUiToolboxPopupBeginSurface( surface.getInternal() );
+		m_owner = true;
 	}
 
 	toolbox::UiToolboxPopup::UiToolboxPopup( UiWindow& window )

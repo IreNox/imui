@@ -22,12 +22,12 @@ static ImUiTexture	s_skinLineTexture	= { NULL };
 
 static void			ImUiTestSetConfig();
 
-static void			ImUiTestDoButtonsAndCheckBoxes( UiWindow& window, UiWidget& vLayout );
-static void			ImUiTestDoSlidersAndProgressBars( UiWindow& window );
-static void			ImUiTestDoTextEdit( UiWindow& window );
-static void			ImUiTestDoDropDown( UiWindow& window );
-static void			ImUiTestDoPopup( UiWindow& window );
-static void			ImUiTestDoScrollAndList( UiWindow& window );
+static void			ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
+static void			ImUiTestDoSlidersAndProgressBars( UiToolboxWindow& window );
+static void			ImUiTestDoTextEdit( UiToolboxWindow& window );
+static void			ImUiTestDoDropDown( UiToolboxWindow& window );
+static void			ImUiTestDoPopup( UiToolboxWindow& window );
+static void			ImUiTestDoScrollAndList( UiToolboxWindow& window );
 
 static float		s_sliderValue1 = 2.5f;
 
@@ -52,7 +52,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 #endif
 
 	const UiSize surfaceSize = UiSize( ImUiSurfaceGetSize( surface ) );
-	UiWindow window( surface, "main", UiRect( UiPos::Zero, surfaceSize ), 1 );
+	UiToolboxWindow window( surface, "main", UiRect( UiPos::Zero, surfaceSize ), 1 );
 
 	UiWidget hLayout( window, "vMain" );
 	hLayout.setStretch( UiSize::One );
@@ -83,7 +83,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
 }
 
-static void ImUiTestDoButtonsAndCheckBoxes( UiWindow& window, UiWidget& vLayout )
+static void ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout )
 {
 	bool isNewState;
 	ImUiTestCheckBoxState* state = vLayout.newState< ImUiTestCheckBoxState >( isNewState );
@@ -97,17 +97,17 @@ static void ImUiTestDoButtonsAndCheckBoxes( UiWindow& window, UiWidget& vLayout 
 		buttonsLayout.setStretch( UiSize::Zero );
 		buttonsLayout.setLayoutHorizontalSpacing( 10.0f );
 
-		if( toolbox::buttonLabel( window, "Button 1" ) )
+		if( window.buttonLabel( "Button 1" ) )
 		{
 			state->checked[ 0u ] = !state->checked[ 0u ];
 		}
 
-		if( toolbox::buttonLabel( window, "Button 3" ) )
+		if( window.buttonLabel( "Button 3" ) )
 		{
 			state->checked[ 1u ] = !state->checked[ 1u ];
 		}
 
-		if( toolbox::buttonLabel( window, "Button 2" ) )
+		if( window.buttonLabel( "Button 2" ) )
 		{
 			state->checked[ 2u ] = !state->checked[ 2u ];
 		}
@@ -118,47 +118,47 @@ static void ImUiTestDoButtonsAndCheckBoxes( UiWindow& window, UiWidget& vLayout 
 		checkLayout.setStretch( UiSize::Horizontal );
 		checkLayout.setLayoutVerticalSpacing( 10.0f );
 
-		toolbox::checkBox( window, state->checked[ 0u ], "Check 1" );
-		toolbox::checkBox( window, state->checked[ 1u ], "Check 2" );
-		toolbox::checkBox( window, state->checked[ 2u ], "Check 3" );
+		window.checkBox( state->checked[ 0u ], "Check 1" );
+		window.checkBox( state->checked[ 1u ], "Check 2" );
+		window.checkBox( state->checked[ 2u ], "Check 3" );
 
-		toolbox::checkBoxState( window, "Check State" );
+		window.checkBoxState( "Check State" );
 
-		toolbox::labelFormat( window, "C1: %d, C2: %d, C3: %d", state->checked[ 0u ], state->checked[ 1u ], state->checked[ 2u ] );
+		window.labelFormat( "C1: %d, C2: %d, C3: %d", state->checked[ 0u ], state->checked[ 1u ], state->checked[ 2u ] );
 	}
 }
 
-static void ImUiTestDoSlidersAndProgressBars( UiWindow& window )
+static void ImUiTestDoSlidersAndProgressBars( UiToolboxWindow& window )
 {
 	UiWidget sliderLayout( window, "sliders" );
 	sliderLayout.setStretch( UiSize::Horizontal );
 	sliderLayout.setLayoutVerticalSpacing( 10.0f );
 
-	toolbox::slider( window, s_sliderValue1, 1.0f, 5.0f );
+	window.slider( s_sliderValue1, 1.0f, 5.0f );
 
-	const float value2 = toolbox::sliderState( window, 1.0f, 5.0f );
+	const float value2 = window.sliderState( 1.0f, 5.0f );
 
-	toolbox::labelFormat( window, "V1: %.2f, V2: %.2f", s_sliderValue1, value2 );
+	window.labelFormat( "V1: %.2f, V2: %.2f", s_sliderValue1, value2 );
 
-	toolbox::progressBar( window, s_sliderValue1, 0.0f, 5.0f );
-	toolbox::progressBar( window, -1.0f );
+	window.progressBar( s_sliderValue1, 0.0f, 5.0f );
+	window.progressBar( -1.0f );
 }
 
-static void ImUiTestDoTextEdit( UiWindow& window )
+static void ImUiTestDoTextEdit( UiToolboxWindow& window )
 {
-	toolbox::textEditState( window, 128u );
+	window.textEditState( 128u );
 }
 
-static void ImUiTestDoScrollAndList( UiWindow& window )
+static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
 {
 	UiWidget vLayout( window, "vLayout" );
 	vLayout.setStretch( UiSize::Horizontal );
 	vLayout.setLayoutVerticalSpacing( 10.0f );
 
-	toolbox::label( window, "Item count:" );
-	const float itemCount = toolbox::sliderState( window, 0.0f, 128.0f, 32.0f );
+	window.label( "Item count:" );
+	const float itemCount = window.sliderState( 0.0f, 128.0f, 32.0f );
 
-	const bool useList = toolbox::checkBoxState( window, "List", true );
+	const bool useList = window.checkBoxState( "List", true );
 
 	const size_t count = (size_t)itemCount;
 	if( useList )
@@ -187,12 +187,12 @@ static void ImUiTestDoScrollAndList( UiWindow& window )
 
 		for( size_t i = 0; i < itemCount; ++i )
 		{
-			toolbox::labelFormat( window, "Scroll Label %i", i );
+			window.labelFormat( "Scroll Label %i", i );
 		}
 	}
 }
 
-static void ImUiTestDoDropDown( UiWindow& window )
+static void ImUiTestDoDropDown( UiToolboxWindow& window )
 {
 	const UiStringView items[] =
 	{
@@ -212,10 +212,10 @@ static void ImUiTestDoDropDown( UiWindow& window )
 		"Item 14"
 	};
 
-	toolbox::dropDown( window, items, IMUI_ARRAY_COUNT( items ) );
+	window.dropDown( items, IMUI_ARRAY_COUNT( items ) );
 }
 
-static void ImUiTestDoPopup( UiWindow& window )
+static void ImUiTestDoPopup( UiToolboxWindow& window )
 {
 	UiToolboxButtonLabel button( window, "Open Popup" );
 	ImUiTestPopupState* state = button.newState< ImUiTestPopupState >();
@@ -235,7 +235,7 @@ static void ImUiTestDoPopup( UiWindow& window )
 
 		UiToolboxPopup popup( window );
 
-		toolbox::label( popup, "Hello from a popup window!" );
+		popup.label( "Hello from a popup window!" );
 
 		const size_t clickedButton = popup.end( buttons, IMUI_ARRAY_COUNT( buttons ) );
 		if( clickedButton < IMUI_ARRAY_COUNT( buttons ) )

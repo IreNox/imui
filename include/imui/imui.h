@@ -581,6 +581,7 @@ struct ImUiFontParameters
 	const ImUiFontCodepoint*	codepoints;
 	size_t						codepointCount;
 
+	float						fontSize;
 	float						lineGap;
 };
 

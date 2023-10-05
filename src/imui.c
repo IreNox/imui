@@ -586,12 +586,7 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	const float spacing				= widget->parent->layoutData.horizintalVertical.spacing * (parentContext->childCount - 1u);
 	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width - spacing) + minSize.width;
 	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( maxFreeWidth, parentInnerRect->size.height ) );
-	//{
-	//	IMUI_MIN( widget->maxSize.width, parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width )
-	//	IMUI_MIN( widget->maxSize.height, parentInnerRect->size.height )
-	//};
 
-	//const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeSub( ImUiSizeMax( parentInnerRect->size, ImUiSizeCreate( 0.0f, parentContext->childrenMinSize.height ) ), parentContext->childrenMinSize.width - parentContext->childrenMargin.width, 0.0f ) );
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
@@ -622,7 +617,11 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 	const float factorWidth			= parentContext->childrenMaxStretch.width ? widget->stretch.width / parentContext->childrenMaxStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenStretch.height ? widget->stretch.height / parentContext->childrenStretch.height : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
-	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeSub( ImUiSizeMax( parentInnerRect->size, ImUiSizeCreate( parentContext->childrenMinSize.width, 0.0f ) ), 0.0f, parentContext->childrenMinSize.height - parentContext->childrenMargin.height ) );
+
+	const float spacing				= widget->parent->layoutData.horizintalVertical.spacing * (parentContext->childCount - 1u);
+	const float maxFreeHeight		= (parentInnerRect->size.height - parentContext->childrenMinSize.height - parentContext->childrenMargin.height - spacing) + minSize.height;
+	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( parentInnerRect->size.width, maxFreeHeight ) );
+
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
 
 	ImUiPos pos;
