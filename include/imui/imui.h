@@ -12,7 +12,7 @@ extern "C"
 #define IMUI_DEFINES
 
 #ifdef IMUI_DEFINES
-#	define IMUI_STR( s ) ImUiStringViewCreate( s )
+#	define IMUI_STR( s ) ImUiStringViewCreateLength( s, sizeof( s ) - 1u )
 #endif
 
 #if !defined( IMUI_DEBUG )
@@ -269,6 +269,9 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
 float						ImUiWindowGetTime( const ImUiWindow* window );
 
+ImUiWidget*					ImUiWindowGetFirstChild( const ImUiWindow* window );
+ImUiWidget*					ImUiWindowGetLastChild( const ImUiWindow* window );
+
 //////////////////////////////////////////////////////////////////////////
 // Widget - A layout element in the tree
 
@@ -283,6 +286,7 @@ struct ImUiWidgetInputState
 	bool						wasMouseOver;
 	bool						isMouseOver;
 	bool						isMouseDown;
+	bool						hasMousePressed;
 	bool						hasMouseReleased;
 };
 
@@ -653,6 +657,7 @@ ImUiPos							ImUiSizeToPos( ImUiSize size );
 
 ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
 ImUiBorder						ImUiBorderCreateAll( float all );
+ImUiBorder						ImUiBorderCreateZero();
 ImUiBorder						ImUiBorderCreateHorizontalVertical( float horizontal, float vertical );
 ImUiSize						ImUiBorderGetMinSize( ImUiBorder border );
 

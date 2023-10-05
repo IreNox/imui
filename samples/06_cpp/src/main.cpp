@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IMUI_ARRAY_COUNT( arr ) (sizeof( arr ) / sizeof( *(arr) ))
+
 using namespace imui;
 using namespace imui::toolbox;
 
@@ -23,6 +25,8 @@ static void			ImUiTestSetConfig();
 static void			ImUiTestDoButtonsAndCheckBoxes( UiWindow& window, UiWidget& vLayout );
 static void			ImUiTestDoSlidersAndProgressBars( UiWindow& window );
 static void			ImUiTestDoTextEdit( UiWindow& window );
+static void			ImUiTestDoDropDown( UiWindow& window );
+static void			ImUiTestDoPopup( UiWindow& window );
 static void			ImUiTestDoScrollAndList( UiWindow& window );
 
 static float		s_sliderValue1 = 2.5f;
@@ -30,6 +34,11 @@ static float		s_sliderValue1 = 2.5f;
 struct ImUiTestCheckBoxState
 {
 	bool checked[ 3u ];
+};
+
+struct ImUiTestPopupState
+{
+	bool isOpen;
 };
 
 void ImUiFrameworkTick( ImUiSurface* surface )
@@ -58,6 +67,8 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
 		ImUiTestDoSlidersAndProgressBars( window );
 		ImUiTestDoTextEdit( window );
+		ImUiTestDoDropDown( window );
+		ImUiTestDoPopup( window );
 	}
 
 	ImUiTestDoScrollAndList( window );
@@ -181,6 +192,59 @@ static void ImUiTestDoScrollAndList( UiWindow& window )
 	}
 }
 
+static void ImUiTestDoDropDown( UiWindow& window )
+{
+	const UiStringView items[] =
+	{
+		"Item 1",
+		"Item 2",
+		"Item 3",
+		"Item 4",
+		"Item 5",
+		"Item 6",
+		"Item 7",
+		"Item 8",
+		"Item 9",
+		"Item 10",
+		"Item 11",
+		"Item 12",
+		"Item 13",
+		"Item 14"
+	};
+
+	toolbox::dropDown( window, items, IMUI_ARRAY_COUNT( items ) );
+}
+
+static void ImUiTestDoPopup( UiWindow& window )
+{
+	UiToolboxButtonLabel button( window, "Open Popup" );
+	ImUiTestPopupState* state = button.newState< ImUiTestPopupState >();
+
+	if( button.end() )
+	{
+		state->isOpen = !state->isOpen;
+	}
+
+	if( state->isOpen )
+	{
+		const UiStringView buttons[] =
+		{
+			"Ok",
+			"Cancel"
+		};
+
+		UiToolboxPopup popup( window );
+
+		toolbox::label( popup, "Hello from a popup window!" );
+
+		const size_t clickedButton = popup.end( buttons, IMUI_ARRAY_COUNT( buttons ) );
+		if( clickedButton < IMUI_ARRAY_COUNT( buttons ) )
+		{
+			state->isOpen = false;
+		}
+	}
+}
+
 bool ImUiFrameworkInitialize( ImUiContext* imui )
 {
 	if( !ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
@@ -215,7 +279,7 @@ static void ImUiTestSetConfig()
 	const ImUiColor textColor			= ImUiColorCreateWhite();
 	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
 	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
-	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
 	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
 	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
 	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
@@ -247,7 +311,19 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
 	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 26 );
+	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
+	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
+	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
+	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
+	config.colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemText ]		= textColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemHover ]		= elementHoverColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemClicked ]	= elementClickedColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
+	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
+	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 38 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -260,7 +336,13 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 11 );
+	config.skins[ ImUiToolboxSkin_DropDown ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_skinRect;
+	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
+	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+
+	const ImUiTexture image ={ NULL, { 16.0f, 16.0f } };
 
 	config.font						= s_font;
 
@@ -286,6 +368,20 @@ static void ImUiTestSetConfig()
 	config.scrollArea.barMinSize	= 20.0f;
 
 	config.list.itemSpacing			= 4.0f;
+
+	config.dropDown.openIcon		= image;
+	config.dropDown.closeIcon		= image;
+	config.dropDown.height			= 25.0f;
+	config.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
+	config.dropDown.listZOrder		= 10u;
+	config.dropDown.maxListLength	= 8u;
+	config.dropDown.itemPadding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
+	config.dropDown.itemSize		= 25.0f;
+	config.dropDown.itemSpacing		= 8.0f;
+
+	config.popup.zOrder				= 20u;
+	config.popup.padding			= ImUiBorderCreateAll( 8.0f );
+	config.popup.buttonSpacing		= 4.0f;
 
 	ImUiToolboxSetConfig( &config );
 }

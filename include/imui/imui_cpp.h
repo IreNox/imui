@@ -216,7 +216,7 @@ namespace imui
 		UiRect			getRect() const;
 		uint32_t		getZOrder() const;
 
-	private:
+	protected:
 
 		bool			m_owner;
 		ImUiWindow*		m_window;
@@ -336,6 +336,19 @@ namespace imui
 						UiToolboxConfig( ImUiFont* font );
 		};
 
+		class UiToolboxButtonLabel : public UiWidget
+		{
+		public:
+
+			UiToolboxButtonLabel();
+			UiToolboxButtonLabel( UiWindow& window, const UiStringView& text );
+			~UiToolboxButtonLabel();
+
+			void		begin( UiWindow& window, const UiStringView& text );
+			void		beginFormat( UiWindow& window, const char* format, ... );
+			bool		end();
+		};
+
 		class UiToolboxLabel : public UiWidget
 		{
 		public:
@@ -379,6 +392,25 @@ namespace imui
 			ImUiToolboxListContext	m_list;
 		};
 
+		class UiToolboxDropdown : public UiWidget
+		{
+		public:
+
+						UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount );
+						~UiToolboxDropdown();
+		};
+
+		class UiToolboxPopup : public UiWindow
+		{
+		public:
+
+						UiToolboxPopup( UiWindow& window );
+						~UiToolboxPopup();
+
+			size_t 		end( const UiStringView* buttons, size_t buttonCount );
+			void		end();
+		};
+
 		void			setConfig( const UiToolboxConfig& config );
 
 		bool			buttonLabel( UiWindow& window, const UiStringView& text );
@@ -398,6 +430,8 @@ namespace imui
 		UiStringView	textEditState( UiWindow& window, size_t bufferSize );
 
 		void			progressBar( UiWindow& window, float value, float min = 0.0f, float max = 1.0f );
+
+		size_t			dropDown( UiWindow& window, const UiStringView* items, size_t itemCount );
 	}
 
 	template< size_t TLen >

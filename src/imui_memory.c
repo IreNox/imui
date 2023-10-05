@@ -153,3 +153,10 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 
 	(*arrayCount)--;
 }
+
+void ImUiMemoryArrayFree( ImUiAllocator* allocator, void** memory, uintsize* capacity )
+{
+	ImUiMemoryFree( allocator, *memory );
+	*memory		= NULL;
+	*capacity	= 0u;
+}

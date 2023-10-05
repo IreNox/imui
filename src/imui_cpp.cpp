@@ -1023,6 +1023,51 @@ namespace imui
 		ImUiToolboxProgressBarMinMax( window.getInternal(), value, min, max );
 	}
 
+	size_t toolbox::dropDown( UiWindow& window, const UiStringView* items, size_t itemCount )
+	{
+		return ImUiToolboxDropDown( window.getInternal(), items, itemCount );
+	}
+
+	toolbox::UiToolboxButtonLabel::UiToolboxButtonLabel()
+	{
+	}
+
+	toolbox::UiToolboxButtonLabel::UiToolboxButtonLabel( UiWindow& window, const UiStringView& text )
+	{
+		begin( window, text );
+	}
+
+	toolbox::UiToolboxButtonLabel::~UiToolboxButtonLabel()
+	{
+		end();
+	}
+
+	void toolbox::UiToolboxButtonLabel::begin( UiWindow& window, const UiStringView& text )
+	{
+		m_widget = ImUiToolboxButtonLabelBegin( window.getInternal(), text );
+	}
+
+	void toolbox::UiToolboxButtonLabel::beginFormat( UiWindow& window, const char* format, ... )
+	{
+		va_list args;
+		va_start( args, format );
+		m_widget = ImUiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
+		va_end( args );
+	}
+
+	bool toolbox::UiToolboxButtonLabel::end()
+	{
+		if( m_widget )
+		{
+			const bool result = ImUiToolboxButtonLabelEnd( m_widget );
+			m_widget = nullptr;
+
+			return result;
+		}
+
+		return false;
+	}
+
 	toolbox::UiToolboxLabel::UiToolboxLabel()
 	{
 	}
@@ -1107,5 +1152,44 @@ namespace imui
 	ImUiWidget* toolbox::UiToolboxList::nextItem()
 	{
 		return ImUiToolboxListNextItem( &m_list );
+	}
+
+	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount )
+	{
+		m_widget = ImUiToolboxDropDownBegin( window.getInternal(), items, itemCount );
+	}
+
+	toolbox::UiToolboxDropdown::~UiToolboxDropdown()
+	{
+		ImUiToolboxDropDownEnd( m_widget );
+		m_widget = nullptr;
+	}
+
+	toolbox::UiToolboxPopup::UiToolboxPopup( UiWindow& window )
+	{
+		m_window = ImUiToolboxPopupBegin( window.getInternal() );
+		m_owner = true;
+	}
+
+	toolbox::UiToolboxPopup::~UiToolboxPopup()
+	{
+		end();
+	}
+
+	size_t toolbox::UiToolboxPopup::end( const UiStringView* buttons, size_t buttonCount )
+	{
+		const size_t result = ImUiToolboxPopupEndButtons( m_window, buttons, buttonCount );
+		m_window = nullptr;
+
+		return result;
+	}
+
+	void toolbox::UiToolboxPopup::end()
+	{
+		if( m_window )
+		{
+			ImUiToolboxPopupEnd( m_window );
+			m_window = nullptr;
+		}
 	}
 }

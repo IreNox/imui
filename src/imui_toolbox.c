@@ -41,6 +41,14 @@ struct ImUiToolboxListState
 	uintsize		selectedIndex;
 };
 
+typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
+struct ImUiToolboxDropDownState
+{
+	bool			isOpen;
+
+	uintsize		selectedIndex;
+};
+
 static void			ImUiToolboxListItemEndInternal( ImUiToolboxListContext* list );
 
 void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
@@ -78,7 +86,19 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_ListItemHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
 	config->colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 26 );
+	config->colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
+	config->colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config->colors[ ImUiToolboxColor_DropDownHover ]			= elementHoverColor;
+	config->colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
+	config->colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
+	config->colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
+	config->colors[ ImUiToolboxColor_DropDownListItemText ]		= textColor;
+	config->colors[ ImUiToolboxColor_DropDownListItemHover ]	= elementHoverColor;
+	config->colors[ ImUiToolboxColor_DropDownListItemClicked ]	= elementClickedColor;
+	config->colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
+	config->colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.2f );
+	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 38 );
 
 	const ImUiSkin skin = { NULL };
 
@@ -93,7 +113,13 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]	= skin;
 	config->skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= skin;
 	config->skins[ ImUiToolboxSkin_ListItem ]					= skin;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 11 );
+	config->skins[ ImUiToolboxSkin_DropDown ]					= skin;
+	config->skins[ ImUiToolboxSkin_DropDownList ]				= skin;
+	config->skins[ ImUiToolboxSkin_DropDownListItem ]			= skin;
+	config->skins[ ImUiToolboxSkin_Popup ]						= skin;
+	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+
+	const ImUiTexture image = { NULL, { 22.0f, 22.0f } };
 
 	config->font					= font;
 
@@ -120,6 +146,20 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->scrollArea.barMinSize	= 25.0f;
 
 	config->list.itemSpacing		= 8.0f;
+
+	config->dropDown.openIcon		= image;
+	config->dropDown.closeIcon		= image;
+	config->dropDown.height			= 25.0f;
+	config->dropDown.padding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
+	config->dropDown.listZOrder		= 10u;
+	config->dropDown.maxListLength	= 12u;
+	config->dropDown.itemPadding	= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
+	config->dropDown.itemSize		= 25.0f;
+	config->dropDown.itemSpacing	= 8.0f;
+
+	config->popup.zOrder			= 20u;
+	config->popup.padding			= ImUiBorderCreateAll( 8.0f );
+	config->popup.buttonSpacing		= 4.0f;
 }
 
 void ImUiToolboxSetConfig( const ImUiToolboxConfig* config )
@@ -127,13 +167,13 @@ void ImUiToolboxSetConfig( const ImUiToolboxConfig* config )
 	s_config = *config;
 }
 
-ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text )
+ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 {
-	ImUiWidget* buttonFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetPadding( buttonFrame, s_config.button.padding );
+	ImUiWidget* button = ImUiWidgetBegin( window );
+	ImUiWidgetSetPadding( button, s_config.button.padding );
 
 	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( buttonFrame, &inputState );
+	ImUiWidgetGetInputState( button, &inputState );
 
 	ImUiColor color = s_config.colors[ ImUiToolboxColor_Button ];
 	if( inputState.wasPressed && inputState.isMouseDown )
@@ -145,7 +185,24 @@ ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text
 		color = s_config.colors[ ImUiToolboxColor_ButtonHover ];
 	}
 
-	ImUiDrawWidgetSkinColor( buttonFrame, s_config.skins[ ImUiToolboxSkin_Button ], color );
+	ImUiDrawWidgetSkinColor( button, s_config.skins[ ImUiToolboxSkin_Button ], color );
+
+	return button;
+}
+
+bool ImUiToolboxButtonEnd( ImUiWidget* button )
+{
+	ImUiWidgetEnd( button );
+
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( button, &inputState );
+
+	return inputState.wasPressed && inputState.hasMouseReleased;
+}
+
+ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text )
+{
+	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
 	ImUiWidget* buttonText = ImUiWidgetBegin( window );
 
@@ -163,16 +220,48 @@ ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text
 	return buttonFrame;
 }
 
-bool ImUiToolboxButtonLabelEnd( ImUiWidget* button )
+ImUiWidget* ImUiToolboxButtonLabelBeginFormat( ImUiWindow* window, const char* format, ... )
 {
-	ImUiWidgetEnd( button );
+	va_list args;
+	va_start( args, format );
+	ImUiWidget* button = ImUiToolboxButtonLabelBeginFormatArgs( window, format, args );
+	va_end( args );
 
-	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( button, &inputState );
-
-	return inputState.wasPressed && inputState.hasMouseReleased;
+	return button;
 }
 
+ImUiWidget* ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args )
+{
+	char buffer[ 256u ];
+
+	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
+	if( length < 0 )
+	{
+		return false;
+	}
+	else if( length >= sizeof( buffer ) )
+	{
+		char* headBuffer = ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
+		if( !headBuffer )
+		{
+			return false;
+		}
+
+		length = vsnprintf( headBuffer, length + 1u, format, args );
+
+		ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, ImUiStringViewCreateLength( headBuffer, length ) );
+
+		ImUiMemoryFree( &window->imui->allocator, headBuffer );
+		return button;
+	}
+
+	return ImUiToolboxButtonLabelBegin( window, ImUiStringViewCreateLength( buffer, length ) );
+}
+
+bool ImUiToolboxButtonLabelEnd( ImUiWidget* button )
+{
+	return ImUiToolboxButtonEnd( button );
+}
 
 bool ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text )
 {
@@ -192,30 +281,33 @@ bool ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... )
 
 bool ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args )
 {
-	char buffer[ 256u ];
+	ImUiWidget* button = ImUiToolboxButtonLabelBeginFormatArgs( window, format, args );
+	return ImUiToolboxButtonLabelEnd( button );
+}
 
-	int length = vsnprintf( buffer, sizeof( buffer ), format, args );
-	if( length < 0 )
-	{
-		return false;
-	}
-	else if( length >= sizeof( buffer ) )
-	{
-		char* headBuffer = ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
-		if( !headBuffer )
-		{
-			return false;
-		}
+ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon )
+{
+	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
-		length = vsnprintf( headBuffer, length + 1u, format, args );
+	ImUiWidget* buttonIcon = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedSize( buttonIcon, icon.size );
 
-		const bool result = ImUiToolboxButtonLabel( window, ImUiStringViewCreateLength( headBuffer, length ) );
+	ImUiDrawWidgetTexture( buttonIcon, icon );
 
-		ImUiMemoryFree( &window->imui->allocator, headBuffer );
-		return result;
-	}
+	ImUiWidgetEnd( buttonIcon );
 
-	return ImUiToolboxButtonLabel( window, ImUiStringViewCreateLength( buffer, length ) );
+	return buttonFrame;
+}
+
+bool ImUiToolboxButtonIconEnd( ImUiWidget* button )
+{
+	return ImUiToolboxButtonEnd( button );
+}
+
+bool ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon )
+{
+	ImUiWidget* button = ImUiToolboxButtonIconBegin( window, icon );
+	return ImUiToolboxButtonIconEnd( button );
 }
 
 ImUiWidget* ImUiToolboxCheckBoxBegin( ImUiWindow* window )
@@ -948,6 +1040,8 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 
 	list->item			= NULL;
 	list->itemIndex		= list->beginIndex - 1u;
+
+	list->changed		= false;
 }
 
 size_t ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list )
@@ -963,6 +1057,11 @@ size_t ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list )
 size_t ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list )
 {
 	return list->state->selectedIndex;
+}
+
+void ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index )
+{
+	list->state->selectedIndex = index;
 }
 
 static void ImUiToolboxListItemEndInternal( ImUiToolboxListContext* list )
@@ -1007,15 +1106,16 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 		ImUiDrawWidgetSkinColor( item, s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemSelected ] );
 	}
 
-	if( inputState.wasPressed && inputState.hasMouseReleased )
+	if( inputState.hasMouseReleased )
 	{
 		list->state->selectedIndex = list->itemIndex;
+		list->changed = true;
 	}
 
 	return item;
 }
 
-void ImUiToolboxListEnd( ImUiToolboxListContext* list )
+bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 {
 	ImUiToolboxListItemEndInternal( list );
 
@@ -1024,4 +1124,205 @@ void ImUiToolboxListEnd( ImUiToolboxListContext* list )
 
 	ImUiToolboxScrollAreaEnd( list->list );
 	list->list = NULL;
+
+	return list->changed;
+}
+
+ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
+{
+	ImUiWidget* dropDown = ImUiWidgetBegin( window );
+	ImUiWidgetSetPadding( dropDown, s_config.dropDown.padding );
+	ImUiWidgetSetFixedHeight( dropDown, s_config.dropDown.height );
+
+	bool isNew;
+	ImUiToolboxDropDownState* state = (ImUiToolboxDropDownState*)ImUiWidgetAllocStateNew( dropDown, sizeof( *state ), &isNew );
+	if( isNew )
+	{
+		state->selectedIndex = (uintsize)-1;
+	}
+
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( dropDown, &inputState );
+
+	ImUiColor color = s_config.colors[ ImUiToolboxColor_DropDown ];
+	if( state->isOpen )
+	{
+		color = s_config.colors[ ImUiToolboxColor_DropDownOpen ];
+	}
+	else if( inputState.isMouseDown )
+	{
+		color = s_config.colors[ ImUiToolboxColor_DropDownClicked ];
+	}
+	else if( inputState.isMouseOver )
+	{
+		color = s_config.colors[ ImUiToolboxColor_DropDownHover ];
+	}
+
+	ImUiDrawWidgetSkinColor( dropDown, s_config.skins[ ImUiToolboxSkin_DropDown ], color );
+
+	ImUiWidget* icon = ImUiWidgetBegin( window );
+	const ImUiTexture iconImage = state->isOpen ? s_config.dropDown.closeIcon : s_config.dropDown.openIcon;
+	ImUiWidgetSetFixedSize( icon, iconImage.size );
+	ImUiWidgetSetHAlign( icon, 1.0f );
+	ImUiWidgetSetVAlign( icon, 0.5f );
+	ImUiDrawWidgetTexture( icon, iconImage );
+	ImUiWidgetEnd( icon );
+
+	ImUiSize maxSize = ImUiSizeCreateZero();
+	ImUiTextLayout* selectedTextLayout = NULL;
+	for( uintsize i = 0; i < itemCount; ++i )
+	{
+		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown, s_config.font, items[ i ] );
+
+		maxSize = ImUiSizeMax( maxSize, ImUiTextLayoutGetSize( textLayout ) );
+
+		if( i == state->selectedIndex )
+		{
+			selectedTextLayout = textLayout;
+		}
+	}
+
+	ImUiWidgetSetMinWidth( dropDown, maxSize.width + ImUiBorderGetMinSize( s_config.dropDown.padding ).width + s_config.dropDown.padding.left + ImUiWidgetGetSize( icon ).width );
+
+	ImUiWidget* text = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedSize( text, maxSize );
+	ImUiWidgetSetVAlign( text, 0.5f );
+
+	if( selectedTextLayout )
+	{
+		ImUiDrawWidgetTextColor( text, selectedTextLayout, s_config.colors[ ImUiToolboxColor_DropDownText ] );
+	}
+
+	ImUiWidgetEnd( text );
+
+	if( inputState.hasMousePressed )
+	{
+		state->isOpen = !state->isOpen;
+	}
+
+	if( state->isOpen )
+	{
+		ImUiSurface* surface = ImUiWindowGetSurface( window );
+		const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
+
+		const ImUiRect dropDownRect = ImUiWidgetGetRect( dropDown );
+
+		const float listHeight = (s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.maxListLength );
+		const float dropDownBottom = dropDownRect.pos.y + dropDownRect.size.height;
+		ImUiRect listRect;
+		if( dropDownBottom + listHeight > surfaceSize.height )
+		{
+			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownRect.pos.y - listHeight, dropDownRect.size.width, listHeight );
+		}
+		else
+		{
+			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownBottom, dropDownRect.size.width, listHeight  );
+		}
+		ImUiWindow* listWindow = ImUiWindowBegin( ImUiWindowGetSurface( window ), IMUI_STR( "dropDownList" ), listRect, s_config.dropDown.listZOrder );
+
+		ImUiToolboxListContext list;
+		ImUiToolboxListBegin( &list, listWindow, s_config.dropDown.itemSize, itemCount );
+		ImUiWidgetSetStretch( list.list, ImUiSizeCreateOne() );
+
+		ImUiWidgetInputState listInputState;
+		ImUiWidgetGetInputState( list.list, &listInputState );
+
+		ImUiDrawWidgetSkinColor( list.list, s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
+
+		ImUiToolboxListSetSelectedIndex( &list, state->selectedIndex );
+
+		for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
+		{
+			ImUiWidget* item = ImUiToolboxListNextItem( &list );
+			ImUiWidgetSetPadding( item, s_config.dropDown.itemPadding );
+
+			ImUiWidget* label = ImUiToolboxLabelBegin( listWindow, items[ i ] );
+			ImUiWidgetSetAlign( label, ImUiAlignCreate( 0.0f, 0.5f ) );
+			ImUiWidgetEnd( label );
+		}
+
+		state->selectedIndex = ImUiToolboxListGetSelectedIndex( &list );
+
+		if( ImUiToolboxListEnd( &list ) )
+		{
+			state->isOpen = false;
+		}
+
+		ImUiWindowEnd( listWindow );
+
+		if( !inputState.wasPressed &&
+			!listInputState.wasPressed &&
+			ImUiInputHasMouseButtonReleased( ImUiWindowGetContext( window ), ImUiInputMouseButton_Left ) )
+		{
+			state->isOpen = false;
+		}
+	}
+
+	return dropDown;
+}
+
+size_t ImUiToolboxDropDownEnd( ImUiWidget* dropDown )
+{
+	ImUiToolboxDropDownState* state = (ImUiToolboxDropDownState*)ImUiWidgetAllocState( dropDown, sizeof( *state ) );
+	ImUiWidgetEnd( dropDown );
+
+	return state->selectedIndex;
+}
+
+size_t ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
+{
+	ImUiWidget* dropDown = ImUiToolboxDropDownBegin( window, items, itemCount );
+	return ImUiToolboxDropDownEnd( dropDown );
+}
+
+ImUiWindow* ImUiToolboxPopupBegin( ImUiWindow* window )
+{
+	ImUiSurface* surface = ImUiWindowGetSurface( window );
+	const ImUiRect windowRect = ImUiRectCreatePosSize( ImUiPosCreateZero(), ImUiSurfaceGetSize( surface ) );
+	ImUiWindow* popupWindow = ImUiWindowBegin( surface, IMUI_STR( "popup" ), windowRect, s_config.popup.zOrder );
+
+	ImUiWidget* background = ImUiWidgetBegin( popupWindow );
+	ImUiWidgetSetStretch( background, ImUiSizeCreateOne() );
+
+	ImUiDrawWidgetColor( background, s_config.colors[ ImUiToolboxColor_PopupBackground ] );
+
+	ImUiWidget* popup = ImUiWidgetBegin( popupWindow );
+	ImUiWidgetSetAlign( popup, ImUiAlignCreateCenter() );
+	ImUiWidgetSetPadding( popup, s_config.popup.padding );
+	ImUiWidgetSetLayoutVertical( popup );
+
+	ImUiDrawWidgetSkinColor( popup, s_config.skins[ ImUiToolboxSkin_Popup ], s_config.colors[ ImUiToolboxColor_Popup ] );
+
+	return popupWindow;
+}
+
+size_t ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const ImUiStringView* buttons, size_t buttonCount )
+{
+	ImUiWidget* buttonsLayout = ImUiWidgetBegin( popupWindow );
+	ImUiWidgetSetHAlign( buttonsLayout, 1.0f );
+	ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, s_config.popup.buttonSpacing );
+
+	uintsize clickedButton = (uintsize)-1;
+	for( uintsize i = 0; i < buttonCount; ++i )
+	{
+		if( ImUiToolboxButtonLabel( popupWindow, buttons[ i ] ) )
+		{
+			clickedButton = i;
+		}
+	}
+
+	ImUiWidgetEnd( buttonsLayout );
+
+	ImUiToolboxPopupEnd( popupWindow );
+
+	return clickedButton;
+}
+
+void ImUiToolboxPopupEnd( ImUiWindow* popupWindow )
+{
+	ImUiWidget* background = ImUiWindowGetFirstChild( popupWindow );
+	ImUiWidget* popup = ImUiWidgetGetFirstChild( background );
+	ImUiWidgetEnd( popup );
+	ImUiWidgetEnd( background );
+	ImUiWindowEnd( popupWindow );
 }

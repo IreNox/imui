@@ -361,10 +361,18 @@ float ImUiWindowGetTime( const ImUiWindow* window )
 	return window->frame->timeInSeconds;
 }
 
+ImUiWidget* ImUiWindowGetFirstChild( const ImUiWindow* window )
+{
+	return window->rootWidget->firstChild;
+}
+
+ImUiWidget* ImUiWindowGetLastChild( const ImUiWindow* window )
+{
+	return window->rootWidget->lastChild;
+}
+
 static void ImUiWindowLayout( ImUiWindow* window )
 {
-	window->rootWidget->rect = ImUiRectCreate( 0.0f, 0.0f, window->rootWidget->maxSize.width, window->rootWidget->maxSize.height );
-
 	const bool update = !window->rootWidget->lastFrameWidget || (window->rootWidget->hash != window->rootWidget->lastFrameWidget->hash);
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
@@ -1103,13 +1111,32 @@ ImUiRect ImUiWidgetGetInnerRect( const ImUiWidget* widget )
 
 void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 {
-	ImUiContext* imui = widget->window->imui;
+	ImUiWindow* window = widget->window;
+	ImUiSurface* surface = window->surface;
+	ImUiContext* imui = window->imui;
 	ImUiInput* input = &imui->input;
+
+	bool hasOverlappingWindow = false;
+	if( surface->windowCount > 1u )
+	{
+		for( uintsize i = 0; i < surface->windowCount && !hasOverlappingWindow; ++i )
+		{
+			const ImUiWindow* testWindow = &surface->windows[ i ];
+			if( testWindow == window ||
+				testWindow->zOrder < window->zOrder )
+			{
+				continue;
+			}
+
+			hasOverlappingWindow |= ImUiRectIncludesPos( window->rect, input->currentState.mousePos );
+		}
+	}
 
 	target->relativeMousePos	= ImUiPosSubPos( input->currentState.mousePos, widget->rect.pos );
 
-	target->isMouseOver			= ImUiRectIncludesPos( widget->clipRect, input->currentState.mousePos );
+	target->isMouseOver			= !hasOverlappingWindow && ImUiRectIncludesPos( widget->clipRect, input->currentState.mousePos );
 	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
+	target->hasMousePressed		= target->isMouseOver && ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left );
 	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left );
 
 	if( (input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] || input->lastState.mouseButtons[ ImUiInputMouseButton_Left ]) &&

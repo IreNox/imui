@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define IMUI_ARRAY_COUNT( arr ) (sizeof( arr ) / sizeof( *(arr) ))
+
 static ImUiTexture	s_fontTexture		= { NULL };
 static ImUiFont*	s_font				= NULL;
 
@@ -21,9 +23,17 @@ static void			ImUiTestSetConfig();
 static void			ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
 static void			ImUiTestDoSlidersAndProgressBars( ImUiWindow* window );
 static void			ImUiTestDoTextEdit( ImUiWindow* window );
+static void			ImUiTestDoDropDown( ImUiWindow* window );
+static void			ImUiTestDoPopup( ImUiWindow* window );
 static void			ImUiTestDoScrollAndList( ImUiWindow* window );
 
 static float		s_sliderValue1 = 2.5f;
+
+typedef struct ImUiTestPopupState ImUiTestPopupState;
+struct ImUiTestPopupState
+{
+	bool isOpen;
+};
 
 void ImUiFrameworkTick( ImUiSurface* surface )
 {
@@ -50,6 +60,8 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
 	ImUiTestDoSlidersAndProgressBars( window );
 	ImUiTestDoTextEdit( window );
+	ImUiTestDoDropDown( window );
+	ImUiTestDoPopup( window );
 
 	ImUiWidgetEnd( vLayout );
 
@@ -61,7 +73,6 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiToolboxLabelEnd( mouseLabel );
 
 	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
-
 
 	ImUiWidgetEnd( hLayout );
 
@@ -129,7 +140,7 @@ static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window )
 
 	ImUiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", s_sliderValue1, value2 );
 
-	ImUiToolboxProgressBarMinMax( window, s_sliderValue1, 0.0f, 5.0f );
+	ImUiToolboxProgressBarMinMax( window, s_sliderValue1, 1.0f, 5.0f );
 	ImUiToolboxProgressBar( window, -1.0f );
 
 	ImUiWidgetEnd( sliderLayout );
@@ -191,6 +202,60 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 	ImUiWidgetEnd( vLayout );
 }
 
+static void ImUiTestDoDropDown( ImUiWindow* window )
+{
+	const ImUiStringView items[] =
+	{
+		IMUI_STR( "Item 1" ),
+		IMUI_STR( "Item 2" ),
+		IMUI_STR( "Item 3" ),
+		IMUI_STR( "Item 4" ),
+		IMUI_STR( "Item 5" ),
+		IMUI_STR( "Item 6" ),
+		IMUI_STR( "Item 7" ),
+		IMUI_STR( "Item 8" ),
+		IMUI_STR( "Item 9" ),
+		IMUI_STR( "Item 10" ),
+		IMUI_STR( "Item 11" ),
+		IMUI_STR( "Item 12" ),
+		IMUI_STR( "Item 13" ),
+		IMUI_STR( "Item 14" )
+	};
+
+	ImUiToolboxDropDown( window, items, IMUI_ARRAY_COUNT( items ) );
+}
+
+static void ImUiTestDoPopup( ImUiWindow* window )
+{
+	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, IMUI_STR( "Open Popup" ) );
+
+	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ) );
+
+	if( ImUiToolboxButtonLabelEnd( button ) )
+	{
+		state->isOpen = !state->isOpen;
+	}
+
+	if( state->isOpen )
+	{
+		const ImUiStringView buttons[] =
+		{
+			IMUI_STR( "Ok" ),
+			IMUI_STR( "Cancel" )
+		};
+
+		ImUiWindow* popup = ImUiToolboxPopupBegin( window );
+
+		ImUiToolboxLabel( popup, IMUI_STR( "Hello from a popup window!" ));
+
+		const size_t clickedButton = ImUiToolboxPopupEndButtons( popup, buttons, IMUI_ARRAY_COUNT( buttons ) );
+		if( clickedButton < IMUI_ARRAY_COUNT( buttons ) )
+		{
+			state->isOpen = false;
+		}
+	}
+}
+
 bool ImUiFrameworkInitialize( ImUiContext* imui )
 {
 	if( !ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
@@ -225,7 +290,7 @@ static void ImUiTestSetConfig()
 	const ImUiColor textColor			= ImUiColorCreateWhite();
 	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
 	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
-	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
 	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
 	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
 	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
@@ -257,7 +322,19 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
 	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 26 );
+	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
+	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
+	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
+	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
+	config.colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemText ]		= textColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemHover ]		= elementHoverColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemClicked ]	= elementClickedColor;
+	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
+	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
+	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 38 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -270,7 +347,13 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 11 );
+	config.skins[ ImUiToolboxSkin_DropDown ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_skinRect;
+	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
+	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+
+	const ImUiTexture image = { NULL, { 16.0f, 16.0f } };
 
 	config.font						= s_font;
 
@@ -296,6 +379,20 @@ static void ImUiTestSetConfig()
 	config.scrollArea.barMinSize	= 20.0f;
 
 	config.list.itemSpacing			= 4.0f;
+
+	config.dropDown.openIcon		= image;
+	config.dropDown.closeIcon		= image;
+	config.dropDown.height			= 25.0f;
+	config.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
+	config.dropDown.listZOrder		= 10u;
+	config.dropDown.maxListLength	= 8u;
+	config.dropDown.itemPadding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
+	config.dropDown.itemSize		= 25.0f;
+	config.dropDown.itemSpacing		= 8.0f;
+
+	config.popup.zOrder				= 20u;
+	config.popup.padding			= ImUiBorderCreateAll( 8.0f );
+	config.popup.buttonSpacing		= 4.0f;
 
 	ImUiToolboxSetConfig( &config );
 }

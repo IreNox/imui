@@ -467,20 +467,14 @@ void ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout,
 
 static void ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window )
 {
-	ImUiMemoryFree( draw->allocator, window->elements );
-	window->elements = NULL;
+	ImUiMemoryArrayFree( draw->allocator, &window->elements, &window->elementCapacity );
 }
 
 static void ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface )
 {
-	ImUiMemoryFree( draw->allocator, surface->commands );
-	surface->commands = NULL;
-
-	ImUiMemoryFree( draw->allocator, surface->vertexData );
-	surface->vertexData = NULL;
-
-	ImUiMemoryFree( draw->allocator, surface->indices );
-	surface->indices = NULL;
+	ImUiMemoryArrayFree( draw->allocator, &surface->commands, &surface->commandCapacity );
+	ImUiMemoryArrayFree( draw->allocator, &surface->vertexData, &surface->vertexDataCapacity );
+	ImUiMemoryArrayFree( draw->allocator, &surface->indices, &surface->indicesCapacity );
 }
 
 static ImUiDrawWindowData* ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget )

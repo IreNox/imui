@@ -44,6 +44,20 @@ enum ImUiToolboxColor
 	ImUiToolboxColor_ListItemClicked,
 	ImUiToolboxColor_ListItemSelected,
 
+	ImUiToolboxColor_DropDown,
+	ImUiToolboxColor_DropDownText,
+	ImUiToolboxColor_DropDownHover,
+	ImUiToolboxColor_DropDownClicked,
+	ImUiToolboxColor_DropDownOpen,
+	ImUiToolboxColor_DropDownList,
+	ImUiToolboxColor_DropDownListItemText,
+	ImUiToolboxColor_DropDownListItemHover,
+	ImUiToolboxColor_DropDownListItemClicked,
+	ImUiToolboxColor_DropDownListItemSelected,
+
+	ImUiToolboxColor_PopupBackground,
+	ImUiToolboxColor_Popup,
+
 	ImUiToolboxColor_MAX
 };
 
@@ -61,6 +75,10 @@ enum ImUiToolboxSkin
 	ImUiToolboxSkin_ScrollAreaBarBackground,
 	ImUiToolboxSkin_ScrollAreaBarPivot,
 	ImUiToolboxSkin_ListItem,
+	ImUiToolboxSkin_DropDown,
+	ImUiToolboxSkin_DropDownList,
+	ImUiToolboxSkin_DropDownListItem,
+	ImUiToolboxSkin_Popup,
 
 	ImUiToolboxSkin_MAX
 };
@@ -117,6 +135,32 @@ struct ImUiToolboxListConfig
 	float			itemSpacing;
 };
 
+typedef struct ImUiToolboxDropDownConfig ImUiToolboxDropDownConfig;
+struct ImUiToolboxDropDownConfig
+{
+	ImUiTexture		openIcon;
+	ImUiTexture		closeIcon;
+
+	float			height;
+	ImUiBorder		padding;
+
+	uint32_t		listZOrder;
+	size_t			maxListLength;
+
+	ImUiBorder		itemPadding;
+	float			itemSize;
+	float			itemSpacing;
+};
+
+typedef struct ImUiToolboxPopupConfig ImUiToolboxPopupConfig;
+struct ImUiToolboxPopupConfig
+{
+	uint32_t		zOrder;
+	ImUiBorder		padding;
+
+	float			buttonSpacing;
+};
+
 typedef struct ImUiToolboxConfig ImUiToolboxConfig;
 struct ImUiToolboxConfig
 {
@@ -132,6 +176,8 @@ struct ImUiToolboxConfig
 	ImUiToolboxProgressBarConfig	progressBar;
 	ImUiToolboxScrollAreaConfig		scrollArea;
 	ImUiToolboxListConfig			list;
+	ImUiToolboxDropDownConfig		dropDown;
+	ImUiToolboxPopupConfig			popup;
 };
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
@@ -150,16 +196,25 @@ struct ImUiToolboxListContext
 
 	size_t					beginIndex;
 	size_t					endIndex;
+
+	bool					changed;
 };
 
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
+ImUiWidget*			ImUiToolboxButtonBegin( ImUiWindow* window );
+bool				ImUiToolboxButtonEnd( ImUiWidget* button );
 ImUiWidget*			ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text );
+ImUiWidget*			ImUiToolboxButtonLabelBeginFormat( ImUiWindow* window, const char* format, ... );
+ImUiWidget*			ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
 bool				ImUiToolboxButtonLabelEnd( ImUiWidget* button );
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
 bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
+ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon );
+bool				ImUiToolboxButtonIconEnd( ImUiWidget* button );
+bool				ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon );
 
 ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
 bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );
@@ -199,8 +254,17 @@ void				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, 
 size_t				ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
 size_t				ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
 size_t				ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
+void				ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index );
 ImUiWidget*			ImUiToolboxListNextItem( ImUiToolboxListContext* list );
-void				ImUiToolboxListEnd( ImUiToolboxListContext* list );
+bool				ImUiToolboxListEnd( ImUiToolboxListContext* list );
+
+ImUiWidget*			ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
+size_t				ImUiToolboxDropDownEnd( ImUiWidget* dropDown );
+size_t				ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
+
+ImUiWindow*			ImUiToolboxPopupBegin( ImUiWindow* window );
+size_t				ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const ImUiStringView* buttons, size_t buttonCount );
+void				ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
 
 #ifdef __cplusplus
 }

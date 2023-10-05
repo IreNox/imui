@@ -339,6 +339,12 @@ ImUiBorder ImUiBorderCreateAll( float all )
 	return result;
 }
 
+ImUiBorder ImUiBorderCreateZero()
+{
+	const ImUiBorder result = { 0.0f, 0.0f, 0.0f, 0.0f };
+	return result;
+}
+
 ImUiBorder ImUiBorderCreateHorizontalVertical( float horizontal, float vertical )
 {
 	const ImUiBorder result = { vertical, horizontal, vertical, horizontal };
