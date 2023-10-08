@@ -336,7 +336,10 @@ namespace imui
 	{
 		struct UiToolboxConfig : public ImUiToolboxConfig
 		{
+						UiToolboxConfig();
 						UiToolboxConfig( ImUiFont* font );
+
+			void		setDefault( ImUiFont* font );
 		};
 
 		class UiToolboxWindow : public UiWindow

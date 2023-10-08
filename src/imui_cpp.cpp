@@ -956,7 +956,16 @@ namespace imui
 		setLayoutVerticalSpacing( spacing );
 	}
 
+	toolbox::UiToolboxConfig::UiToolboxConfig()
+	{
+	}
+
 	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* font )
+	{
+		setConfig( font );
+	}
+
+	void toolbox::UiToolboxConfig::setDefault( ImUiFont* font )
 	{
 		ImUiToolboxFillDefaultConfig( this, font );
 	}

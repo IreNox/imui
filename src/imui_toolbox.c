@@ -924,21 +924,6 @@ ImUiWidget* ImUiToolboxScrollAreaBegin( ImUiWindow* window )
 	return scrollFrame;
 }
 
-//ImUiWidget* ImUiToolboxScrollAreaBeginHorizontal( ImUiWindow* window )
-//{
-//	return ImUiToolboxScrollAreaBeginInternal( window, true, false );
-//}
-//
-//ImUiWidget* ImUiToolboxScrollAreaBeginVertical( ImUiWindow* window )
-//{
-//	return ImUiToolboxScrollAreaBeginInternal( window, false, true );
-//}
-//
-//ImUiWidget* ImUiToolboxScrollAreaBeginBoth( ImUiWindow* window )
-//{
-//	return ImUiToolboxScrollAreaBeginInternal( window, true, true );
-//}
-
 void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 {
 	ImUiToolboxScrollState* state = (ImUiToolboxScrollState*)ImUiWidgetGetState( scroll );
