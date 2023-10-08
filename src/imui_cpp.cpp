@@ -962,7 +962,7 @@ namespace imui
 
 	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* font )
 	{
-		setConfig( font );
+		setDefault( font );
 	}
 
 	void toolbox::UiToolboxConfig::setDefault( ImUiFont* font )
