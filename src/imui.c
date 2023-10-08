@@ -583,8 +583,7 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	const float factorHeight		= parentContext->childrenMaxStretch.height ? widget->stretch.height / parentContext->childrenMaxStretch.height : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
 
-	const float spacing				= widget->parent->layoutData.horizintalVertical.spacing * (parentContext->childCount - 1u);
-	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width - spacing) + minSize.width;
+	const float maxFreeWidth		= (parentInnerRect->size.width - parentContext->childrenMinSize.width - parentContext->childrenMargin.width) + minSize.width;
 	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( maxFreeWidth, parentInnerRect->size.height ) );
 
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
@@ -618,8 +617,7 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 	const float factorHeight		= parentContext->childrenStretch.height ? widget->stretch.height / parentContext->childrenStretch.height : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( widget->minSize, ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, widget->padding ) );
 
-	const float spacing				= widget->parent->layoutData.horizintalVertical.spacing * (parentContext->childCount - 1u);
-	const float maxFreeHeight		= (parentInnerRect->size.height - parentContext->childrenMinSize.height - parentContext->childrenMargin.height - spacing) + minSize.height;
+	const float maxFreeHeight		= (parentInnerRect->size.height - parentContext->childrenMinSize.height - parentContext->childrenMargin.height) + minSize.height;
 	const ImUiSize maxSize			= ImUiSizeMin( widget->maxSize, ImUiSizeCreate( parentInnerRect->size.width, maxFreeHeight ) );
 
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
