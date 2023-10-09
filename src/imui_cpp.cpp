@@ -40,6 +40,16 @@ namespace imui
 		return length == 0u;
 	}
 
+	bool UiStringView::operator!=( const UiStringView& rhs ) const
+	{
+		return ImUiStringViewIsEquals( *this, rhs );
+	}
+
+	bool UiStringView::operator==( const UiStringView& rhs ) const
+	{
+		return !ImUiStringViewIsEquals( *this, rhs );
+	}
+
 	UiAlign::UiAlign( float hAlign, float vAlign )
 	{
 		horizontal	= hAlign;
@@ -108,6 +118,39 @@ namespace imui
 	UiSize UiSize::expandBorder( const UiBorder& border ) const
 	{
 		return UiSize( width + border.left + border.right, height + border.top + border.bottom );
+	}
+
+	UiSize UiSize::operator+( const UiSize& rhs ) const
+	{
+		return add( rhs );
+	}
+
+	UiSize UiSize::operator-( const UiSize& rhs ) const
+	{
+		return sub( rhs );
+	}
+
+	UiSize UiSize::operator*( float rhs ) const
+	{
+		return scale( rhs );
+	}
+
+	UiSize& UiSize::operator-=( const UiSize& rhs )
+	{
+		*this = sub( rhs );
+		return *this;
+	}
+
+	UiSize& UiSize::operator+=( const UiSize& rhs )
+	{
+		*this = add( rhs );
+		return *this;
+	}
+
+	UiSize& UiSize::operator*=( float rhs )
+	{
+		*this = scale( rhs );
+		return *this;
 	}
 
 	UiSize UiSize::lerp( UiSize a, UiSize b, float t )
@@ -238,6 +281,39 @@ namespace imui
 		return UiPos( x * factor, y * factor );
 	}
 
+	UiPos UiPos::operator+( const UiPos& rhs ) const
+	{
+		return add( rhs );
+	}
+
+	UiPos UiPos::operator-( const UiPos& rhs ) const
+	{
+		return sub( rhs );
+	}
+
+	UiPos UiPos::operator*( float rhs ) const
+	{
+		return scale( rhs );
+	}
+
+	UiPos& UiPos::operator+=( const UiPos& rhs )
+	{
+		*this = add( rhs );
+		return *this;
+	}
+
+	UiPos& UiPos::operator-=( const UiPos& rhs )
+	{
+		*this = sub( rhs );
+		return *this;
+	}
+
+	UiPos& UiPos::operator*=( float rhs )
+	{
+		*this = scale( rhs );
+		return *this;
+	}
+
 	UiRect::UiRect()
 	{
 		pos		= UiPos::Zero;
@@ -361,27 +437,36 @@ namespace imui
 		return UiColor( ImUiColorCreateGrayA( gray, _alpha ) );
 	}
 
-	UiContext::UiContext()
-		: m_context( nullptr )
-	{
-	}
-
 	UiContextParameters::UiContextParameters()
 	{
 		memset( this, 0u, sizeof( *this ) );
 	}
 
+	UiContext::UiContext()
+		: m_owner( false )
+		, m_context( nullptr )
+	{
+	}
+
+	UiContext::UiContext( ImUiContext* context )
+		: m_owner( false )
+		, m_context( context )
+	{
+	}
+
 	UiContext::UiContext( const UiContextParameters& parameters )
 	{
+		m_owner = true;
 		m_context = ImUiCreate( &parameters );
 	}
 
 	UiContext::~UiContext()
 	{
-		if( m_context )
+		if( m_owner && m_context )
 		{
 			ImUiDestroy( m_context );
 			m_context = nullptr;
+			m_owner = false;
 		}
 	}
 
@@ -406,6 +491,11 @@ namespace imui
 		ImUiInputEnd( m_context );
 	}
 
+	UiInputState UiContext::getInput() const
+	{
+		return UiInputState( m_context );
+	}
+
 	UiFrame::UiFrame()
 		: m_owner( false )
 		, m_frame( nullptr )
@@ -417,6 +507,76 @@ namespace imui
 		, m_frame( nullptr )
 	{
 		beginFrame( context, timeInSeconds );
+	}
+
+	UiInputState::UiInputState( const ImUiContext* imui )
+		: m_context( imui )
+	{
+	}
+
+	uint32_t UiInputState::getKeyModifiers() const
+	{
+		return ImUiInputGetKeyModifiers( m_context );
+	}
+
+	bool UiInputState::isKeyDown( ImUiInputKey key ) const
+	{
+		return ImUiInputIsKeyDown( m_context, key );
+	}
+
+	bool UiInputState::isKeyUp( ImUiInputKey key ) const
+	{
+		return ImUiInputIsKeyUp( m_context, key );
+	}
+
+	bool UiInputState::hasKeyPressed( ImUiInputKey key ) const
+	{
+		return ImUiInputHasKeyPressed( m_context, key );
+	}
+
+	bool UiInputState::hasKeyReleased( ImUiInputKey key ) const
+	{
+		return ImUiInputHasKeyReleased( m_context, key );
+	}
+
+	UiStringView UiInputState::getText() const
+	{
+		return (UiStringView)ImUiInputGetText( m_context );
+	}
+
+	UiPos UiInputState::getMousePos() const
+	{
+		return (UiPos)ImUiInputGetMousePos( m_context );
+	}
+
+	bool UiInputState::isMouseInRect( UiRect rect ) const
+	{
+		return ImUiInputIsMouseInRect( m_context, rect );
+	}
+
+	bool UiInputState::isMouseButtonDown( ImUiInputMouseButton button ) const
+	{
+		return ImUiInputIsMouseButtonDown( m_context, button );
+	}
+
+	bool UiInputState::isMouseButtonUp( ImUiInputMouseButton button ) const
+	{
+		return ImUiInputIsMouseButtonUp( m_context, button );
+	}
+
+	bool UiInputState::hasMouseButtonPressed( ImUiInputMouseButton button ) const
+	{
+		return ImUiInputHasMouseButtonReleased( m_context, button );
+	}
+
+	bool UiInputState::hasMouseButtonReleased( ImUiInputMouseButton button ) const
+	{
+		return ImUiInputHasMouseButtonReleased( m_context, button );
+	}
+
+	UiPos UiInputState::getMouseScrollDelta() const
+	{
+		return ImUiInputGetMouseScrollDelta( m_context );
 	}
 
 	UiFrame::UiFrame( ImUiFrame* frame )
@@ -514,6 +674,11 @@ namespace imui
 		return m_surface;
 	}
 
+	UiContext UiSurface::getContext() const
+	{
+		return UiContext( ImUiSurfaceGetContext( m_surface ) );
+	}
+
 	float UiSurface::getTime() const
 	{
 		return ImUiSurfaceGetTime( m_surface );
@@ -593,6 +758,16 @@ namespace imui
 		return m_window;
 	}
 
+	UiContext UiWindow::getContext() const
+	{
+		return UiContext( ImUiWindowGetContext( m_window ) );
+	}
+
+	UiSurface UiWindow::getSurface() const
+	{
+		return UiSurface( ImUiWindowGetSurface( m_window ) );
+	}
+
 	float UiWindow::getTime() const
 	{
 		return m_window->frame->timeInSeconds;
@@ -667,6 +842,21 @@ namespace imui
 		return m_widget;
 	}
 
+	UiContext UiWidget::getContext() const
+	{
+		return UiContext( ImUiWidgetGetContext( m_widget ) );
+	}
+
+	UiSurface UiWidget::getSurface() const
+	{
+		return UiSurface( ImUiWidgetGetSurface( m_widget ) );
+	}
+
+	UiWindow UiWidget::getWindow() const
+	{
+		return UiWindow( ImUiWidgetGetWindow( m_widget ) );
+	}
+
 	void* UiWidget::allocState( size_t size )
 	{
 		return ImUiWidgetAllocState( m_widget, size );
@@ -677,7 +867,7 @@ namespace imui
 		return ImUiWidgetAllocStateNew( m_widget, size, &isNew );
 	}
 
-	ImUiLayout UiWidget::getLayout()
+	ImUiLayout UiWidget::getLayout() const
 	{
 		return ImUiWidgetGetLayout( m_widget );
 	}
@@ -722,7 +912,7 @@ namespace imui
 		return m_widget->window->frame->timeInSeconds;
 	}
 
-	UiBorder UiWidget::getMargin()
+	UiBorder UiWidget::getMargin() const
 	{
 		return (const UiBorder&)m_widget->margin;
 	}
@@ -732,7 +922,7 @@ namespace imui
 		ImUiWidgetSetMargin( m_widget, margin );
 	}
 
-	UiBorder UiWidget::getPadding()
+	UiBorder UiWidget::getPadding() const
 	{
 		return (const UiBorder&)m_widget->padding;
 	}
@@ -742,7 +932,7 @@ namespace imui
 		ImUiWidgetSetPadding( m_widget, padding );
 	}
 
-	UiSize UiWidget::getMinSize()
+	UiSize UiWidget::getMinSize() const
 	{
 		return (const UiSize&)m_widget->minSize;
 	}
@@ -762,7 +952,7 @@ namespace imui
 		ImUiWidgetSetMinSize( m_widget, size );
 	}
 
-	UiSize UiWidget::getMaxSize()
+	UiSize UiWidget::getMaxSize() const
 	{
 		return (const UiSize&)m_widget->maxSize;
 	}
@@ -797,7 +987,7 @@ namespace imui
 		ImUiWidgetSetFixedSize( m_widget, size );
 	}
 
-	UiSize UiWidget::getStretch()
+	UiSize UiWidget::getStretch() const
 	{
 		return (const UiSize&)m_widget->stretch;
 	}
@@ -807,7 +997,7 @@ namespace imui
 		ImUiWidgetSetStretch( m_widget, stretch );
 	}
 
-	UiAlign UiWidget::getAlign()
+	UiAlign UiWidget::getAlign() const
 	{
 		return (const UiAlign&)m_widget->align;
 	}
@@ -827,17 +1017,17 @@ namespace imui
 		ImUiWidgetSetVAlign( m_widget, align );
 	}
 
-	UiPos UiWidget::getPos()
+	UiPos UiWidget::getPos() const
 	{
 		return (const UiPos&)m_widget->rect.pos;
 	}
 
-	UiSize UiWidget::getSize()
+	UiSize UiWidget::getSize() const
 	{
 		return (const UiSize&)m_widget->rect.size;
 	}
 
-	UiRect UiWidget::getRect()
+	UiRect UiWidget::getRect() const
 	{
 		return (const UiRect&)m_widget->rect;
 	}
@@ -849,8 +1039,12 @@ namespace imui
 
 	//UiRect UiWidget::getInnerRect()
 	//{
-
 	//}
+
+	void UiWidget::getInputState( ImUiWidgetInputState& inputState ) const
+	{
+		ImUiWidgetGetInputState( m_widget, &inputState );
+	}
 
 	void UiWidget::drawLine( UiPos p0, UiPos p1, UiColor color )
 	{
@@ -1028,6 +1222,16 @@ namespace imui
 		va_end( args );
 
 		return result;
+	}
+
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiTexture& icon )
+	{
+		return ImUiToolboxButtonIcon( m_window, icon );
+	}
+
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiTexture& icon, UiSize iconSize )
+	{
+		return ImUiToolboxButtonIconSize( m_window, icon, iconSize );
 	}
 
 	bool toolbox::UiToolboxWindow::checkBox( bool& checked, const UiStringView& text )

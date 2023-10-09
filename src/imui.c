@@ -787,6 +787,11 @@ ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
 	return widget->window->imui;
 }
 
+ImUiSurface* ImUiWidgetGetSurface( const ImUiWidget* widget )
+{
+	return widget->window->surface;
+}
+
 ImUiWindow* ImUiWidgetGetWindow( const ImUiWidget* widget )
 {
 	return widget->window;

@@ -27,6 +27,7 @@ void ImUiInputNextTick( ImUiInput* input )
 	ImUiInputFreeText( input, &input->lastState );
 
 	input->lastState = input->currentState;
+	input->currentState.mouseScroll = ImUiPosCreateZero();
 
 	ImUiInputFreeText( input, &input->currentState );
 }
@@ -147,32 +148,32 @@ void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, flo
 	input->currentState.mouseScroll = ImUiPosAddPos( input->currentState.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
-uint32_t ImUiInputGetKeyModifiers( ImUiContext* imui )
+uint32_t ImUiInputGetKeyModifiers( const ImUiContext* imui )
 {
 	return imui->input.currentState.keyModifiers;
 }
 
-bool ImUiInputIsKeyDown( ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key )
 {
 	return imui->input.currentState.keys[ key ];
 }
 
-bool ImUiInputIsKeyUp( ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key )
 {
 	return !imui->input.currentState.keys[ key ];
 }
 
-bool ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key )
 {
 	return imui->input.currentState.keys[ key ] && !imui->input.lastState.keys[ key ];
 }
 
-bool ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key )
 {
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
-ImUiStringView ImUiInputGetText( ImUiContext* imui )
+ImUiStringView ImUiInputGetText( const ImUiContext* imui )
 {
 	if( imui->input.currentState.textCapacity > sizeof( imui->input.currentState.text.buffer ) )
 	{
@@ -182,34 +183,39 @@ ImUiStringView ImUiInputGetText( ImUiContext* imui )
 	return ImUiStringViewCreateLength( imui->input.currentState.text.buffer, imui->input.currentState.textSize );
 }
 
-ImUiPos ImUiInputGetMousePos( ImUiContext* imui )
+ImUiPos ImUiInputGetMousePos( const ImUiContext* imui )
 {
 	return imui->input.currentState.mousePos;
 }
 
-bool ImUiInputIsMouseInRect( ImUiContext* imui, ImUiRect rectangle )
+bool ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rectangle )
 {
 	return ImUiRectIncludesPos( rectangle, imui->input.currentState.mousePos );
 }
 
-bool ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseButton button )
 {
 	return imui->input.currentState.mouseButtons[ button ];
 }
 
-bool ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button )
 {
 	return !imui->input.currentState.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButton button )
 {
 	return imui->input.currentState.mouseButtons[ button ] && !imui->input.lastState.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button )
 {
 	return !imui->input.currentState.mouseButtons[ button ] && imui->input.lastState.mouseButtons[ button ];
+}
+
+ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )
+{
+	return imui->input.currentState.mouseScroll;
 }
 
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state )

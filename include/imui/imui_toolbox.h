@@ -215,9 +215,10 @@ bool				ImUiToolboxButtonLabelEnd( ImUiWidget* button );
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
 bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
-ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon );
+ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize );
 bool				ImUiToolboxButtonIconEnd( ImUiWidget* button );
 bool				ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon );
+bool				ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize );
 
 ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
 bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );

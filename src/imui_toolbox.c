@@ -300,13 +300,13 @@ bool ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, v
 	return ImUiToolboxButtonLabelEnd( button );
 }
 
-ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon )
+ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize )
 {
 	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
 	ImUiWidget* buttonIcon = ImUiWidgetBegin( window );
 	ImUiWidgetSetAlign( buttonIcon, ImUiAlignCreateCenter() );
-	ImUiWidgetSetFixedSize( buttonIcon, icon.size );
+	ImUiWidgetSetFixedSize( buttonIcon, iconSize );
 
 	ImUiDrawWidgetTexture( buttonIcon, icon );
 
@@ -322,7 +322,12 @@ bool ImUiToolboxButtonIconEnd( ImUiWidget* button )
 
 bool ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon )
 {
-	ImUiWidget* button = ImUiToolboxButtonIconBegin( window, icon );
+	return ImUiToolboxButtonIconSize( window, icon, icon.size );
+}
+
+bool ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize )
+{
+	ImUiWidget* button = ImUiToolboxButtonIconBegin( window, icon, iconSize );
 	return ImUiToolboxButtonIconEnd( button );
 }
 

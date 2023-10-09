@@ -299,6 +299,7 @@ ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
 
 ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
+ImUiSurface*				ImUiWidgetGetSurface( const ImUiWidget* widget );
 ImUiWindow*					ImUiWidgetGetWindow( const ImUiWidget* widget );
 
 ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
@@ -543,20 +544,21 @@ void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelt
 
 // Read
 
-uint32_t						ImUiInputGetKeyModifiers( ImUiContext* imui );	// returns ImUiInputModifier
-bool							ImUiInputIsKeyDown( ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputIsKeyUp( ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputHasKeyPressed( ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputHasKeyReleased( ImUiContext* imui, ImUiInputKey key );
+uint32_t						ImUiInputGetKeyModifiers( const ImUiContext* imui );	// returns ImUiInputModifier
+bool							ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
+bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
 
-ImUiStringView					ImUiInputGetText( ImUiContext* imui );
+ImUiStringView					ImUiInputGetText( const ImUiContext* imui );
 
-ImUiPos							ImUiInputGetMousePos( ImUiContext* imui );
-bool							ImUiInputIsMouseInRect( ImUiContext* imui, ImUiRect rect );
-bool							ImUiInputIsMouseButtonDown( ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputIsMouseButtonUp( ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonPressed( ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonReleased( ImUiContext* imui, ImUiInputMouseButton button );
+ImUiPos							ImUiInputGetMousePos( const ImUiContext* imui );
+bool							ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rect );
+bool							ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button );
+ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
 
 //////////////////////////////////////////////////////////////////////////
 // Font

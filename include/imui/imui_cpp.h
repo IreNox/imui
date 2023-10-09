@@ -8,6 +8,7 @@
 namespace imui
 {
 	class UiInput;
+	class UiInputState;
 	struct UiSize;
 
 	struct UiStringView : public ImUiStringView
@@ -22,6 +23,9 @@ namespace imui
 		size_t			getLength() const;
 
 		bool			isEmpty() const;
+
+		bool			operator==( const UiStringView& rhs ) const;
+		bool			operator!=( const UiStringView& rhs ) const;
 	};
 
 	struct UiAlign : public ImUiAlign
@@ -35,7 +39,7 @@ namespace imui
 						UiBorder( float all );
 						UiBorder( float horizontal, float vertical );
 						UiBorder( float _top, float _left, float _bottom, float _right );
-		explicit		UiBorder( const ImUiBorder& value );
+						UiBorder( const ImUiBorder& value );
 
 		UiSize			getMinSize() const;
 	};
@@ -45,13 +49,20 @@ namespace imui
 						UiPos();
 						UiPos( float all );
 						UiPos( float _x, float _y );
-		explicit		UiPos( const ImUiPos& value );
+						UiPos( const ImUiPos& value );
 
 		UiPos			add( float _x, float _y ) const;
 		UiPos			add( UiPos add ) const;
 		UiPos			sub( float _x, float _y ) const;
 		UiPos			sub( UiPos sub ) const;
 		UiPos			scale( float factor ) const;
+
+		UiPos			operator+( const UiPos& rhs ) const;
+		UiPos			operator-( const UiPos& rhs ) const;
+		UiPos			operator*( float rhs ) const;
+		UiPos&			operator+=( const UiPos& rhs );
+		UiPos&			operator-=( const UiPos& rhs );
+		UiPos&			operator*=( float rhs );
 
 		static UiPos	Zero;
 	};
@@ -61,7 +72,7 @@ namespace imui
 						UiRect();
 						UiRect( UiPos _pos, UiSize _size );
 						UiRect( float x, float y, float width, float height );
-		explicit		UiRect( const ImUiRect& value );
+						UiRect( const ImUiRect& value );
 
 		UiRect			shrinkBorder( const ImUiBorder& border ) const;
 
@@ -82,7 +93,7 @@ namespace imui
 						UiSize();
 						UiSize( float all );
 						UiSize( float _width, float _height );
-		explicit		UiSize( const ImUiSize& value );
+						UiSize( const ImUiSize& value );
 
 		UiSize			add( float _width, float _height ) const;
 		UiSize			add( UiSize add ) const;
@@ -91,6 +102,13 @@ namespace imui
 		UiSize			scale( float factor ) const;
 		UiSize			shrinkBorder( const UiBorder& border ) const;
 		UiSize			expandBorder( const UiBorder& border ) const;
+
+		UiSize			operator+( const UiSize& rhs ) const;
+		UiSize			operator-( const UiSize& rhs ) const;
+		UiSize			operator*( float rhs ) const;
+		UiSize&			operator+=( const UiSize& rhs );
+		UiSize&			operator-=( const UiSize& rhs );
+		UiSize&			operator*=( float rhs );
 
 		static UiSize	lerp( UiSize a, UiSize b, float t );
 		static UiSize	lerp( UiSize a, UiSize b, float widthT, float heightT );
@@ -136,6 +154,7 @@ namespace imui
 	public:
 
 						UiContext();
+						UiContext( ImUiContext* context );
 						UiContext( const UiContextParameters& parameters );
 						~UiContext();
 
@@ -145,9 +164,41 @@ namespace imui
 		UiInput&		beginInput();
 		void			endInput();
 
+		UiInputState	getInput() const;
+
 	private:
 
+		bool			m_owner;
 		ImUiContext*	m_context;
+	};
+
+	class UiInputState
+	{
+		friend class UiContext;
+
+	public:
+
+		uint32_t			getKeyModifiers() const;	// returns ImUiInputModifier
+		bool				isKeyDown( ImUiInputKey key ) const;
+		bool				isKeyUp( ImUiInputKey key ) const;
+		bool				hasKeyPressed( ImUiInputKey key ) const;
+		bool				hasKeyReleased( ImUiInputKey key ) const;
+
+		UiStringView		getText() const;
+
+		UiPos				getMousePos() const;
+		bool				isMouseInRect( UiRect rect ) const;
+		bool				isMouseButtonDown( ImUiInputMouseButton button ) const;
+		bool				isMouseButtonUp( ImUiInputMouseButton button ) const;
+		bool				hasMouseButtonPressed( ImUiInputMouseButton button ) const;
+		bool				hasMouseButtonReleased( ImUiInputMouseButton button ) const;
+		UiPos				getMouseScrollDelta() const;
+
+	private:
+
+							UiInputState( const ImUiContext* imui );
+
+		const ImUiContext*	m_context;
 	};
 
 	class UiFrame
@@ -187,6 +238,7 @@ namespace imui
 
 		bool			isValid() const;
 		ImUiSurface*	getInternal() const;
+		UiContext		getContext() const;
 
 		float			getTime() const;
 		UiRect			getRect() const;
@@ -215,6 +267,8 @@ namespace imui
 
 		bool			isValid() const;
 		ImUiWindow*		getInternal() const;
+		UiContext		getContext() const;
+		UiSurface		getSurface() const;
 
 		float			getTime() const;
 		UiRect			getRect() const;
@@ -243,6 +297,9 @@ namespace imui
 
 		bool			isValid() const;
 		ImUiWidget*		getInternal() const;
+		UiContext		getContext() const;
+		UiSurface		getSurface() const;
+		UiWindow		getWindow() const;
 
 		void*			allocState( size_t size );
 		void*			allocState( size_t size, bool& isNew );
@@ -251,7 +308,7 @@ namespace imui
 		template< class T >
 		T*				newState( bool& isNew );
 
-		ImUiLayout		getLayout();
+		ImUiLayout		getLayout() const;
 		void			setLayoutStack();							// default
 		void			setLayoutScroll( UiPos offset );
 		void			setLayoutHorizontal();
@@ -262,16 +319,16 @@ namespace imui
 
 		float			getTime();
 
-		UiBorder		getMargin();
+		UiBorder		getMargin() const;
 		void			setMargin( const UiBorder& margin );
-		UiBorder		getPadding();
+		UiBorder		getPadding() const;
 		void			setPadding( const UiBorder& padding );
 
-		UiSize			getMinSize();
+		UiSize			getMinSize() const;
 		void			setMinWidth( float value );
 		void			setMinHeight( float value );
 		void			setMinSize( UiSize size );
-		UiSize			getMaxSize();
+		UiSize			getMaxSize() const;
 		void			setMaxWidth( float value );
 		void			setMaxHeight( float value );
 		void			setMaxSize( UiSize size );
@@ -280,19 +337,21 @@ namespace imui
 		void			setFixedHeight( float value );
 		void			setFixedSize( UiSize size );
 
-		UiSize			getStretch();
+		UiSize			getStretch() const;
 		void			setStretch( UiSize stretch );
 
-		UiAlign			getAlign();
+		UiAlign			getAlign() const;
 		void			setAlign( UiAlign align );
 		void			setHAlign( float align );
 		void			setVAlign( float align );
 
-		UiPos			getPos();
-		UiSize			getSize();
-		UiRect			getRect();
+		UiPos			getPos() const;
+		UiSize			getSize() const;
+		UiRect			getRect() const;
 		UiSize			getInnerSize();
 		UiRect			getInnerRect();
+
+		void			getInputState( ImUiWidgetInputState& inputState ) const;
 
 		void			drawLine( UiPos p0, UiPos p1, UiColor color );
 		void			drawWidgetColor( UiColor color );
@@ -358,6 +417,8 @@ namespace imui
 
 			bool			buttonLabel( const UiStringView& text );
 			bool			buttonLabelFormat( const char* format, ... );
+			bool			buttonIcon( const ImUiTexture& icon );
+			bool			buttonIcon( const ImUiTexture& icon, UiSize iconSize );
 
 			bool			checkBox( bool& checked, const UiStringView& text );
 			bool			checkBoxState( const UiStringView& text, bool defaultValue = false );
@@ -437,8 +498,17 @@ namespace imui
 		{
 		public:
 
+						UiToolboxDropdown( UiWindow& window, const UiStringView& selectedItem, size_t itemCount );
 						UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount );
 						~UiToolboxDropdown();
+
+			bool		isOpen() const;
+
+			size_t		getBeginIndex() const;
+			size_t		getEndIndex() const;
+			size_t		getSelectedIndex() const;
+
+			void		nextItem( const UiStringView& item );
 		};
 
 		class UiToolboxPopup : public UiToolboxWindow
