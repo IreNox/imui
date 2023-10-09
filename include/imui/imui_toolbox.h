@@ -246,6 +246,7 @@ ImUiWidget*			ImUiToolboxTextEditBegin( ImUiWindow* window );
 bool				ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
 bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
 ImUiStringView		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
+ImUiStringView		ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, ImUiStringView defaultValue );
 
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );

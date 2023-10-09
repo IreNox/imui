@@ -626,6 +626,10 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	if( ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left ) )
 	{
 		state->hasFocus = inputState.hasMouseReleased;
+		if( state->hasFocus )
+		{
+			state->cursorPos = (uint32)textLengthInternal;
+		}
 	}
 
 	const ImUiRect textRect = ImUiWidgetGetRect( text );
@@ -847,10 +851,21 @@ bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, s
 
 ImUiStringView ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize )
 {
+	return ImUiToolboxTextEditStateBufferDefault( window, bufferSize, ImUiStringViewCreateEmpty() );
+}
+
+ImUiStringView ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, ImUiStringView defaultValue )
+{
 	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
 
 	bool isNew;
 	char* buffer = (char*)ImUiWidgetAllocStateNew( textEdit, bufferSize, &isNew );
+	if( isNew )
+	{
+		const size_t length = IMUI_MIN( bufferSize - 1u, defaultValue.length );
+		memcpy( buffer, defaultValue.data, length );
+		buffer[ length ] = '\0';
+	}
 
 	ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, NULL );
 	return ImUiStringViewCreate( buffer );

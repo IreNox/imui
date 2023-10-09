@@ -514,6 +514,11 @@ namespace imui
 		return m_surface;
 	}
 
+	float UiSurface::getTime() const
+	{
+		return ImUiSurfaceGetTime( m_surface );
+	}
+
 	UiRect UiSurface::getRect() const
 	{
 		return UiRect( UiPos::Zero, UiSize( m_surface->size ) );
@@ -1068,9 +1073,9 @@ namespace imui
 		return ImUiToolboxTextEdit( m_window, buffer, bufferSize, textLength );
 	}
 
-	UiStringView toolbox::UiToolboxWindow::textEditState( size_t bufferSize )
+	UiStringView toolbox::UiToolboxWindow::textEditState( size_t bufferSize, UiStringView defaultValue /* = UiStringView() */ )
 	{
-		return UiStringView( ImUiToolboxTextEditStateBuffer( m_window, bufferSize ) );
+		return UiStringView( ImUiToolboxTextEditStateBufferDefault( m_window, bufferSize, defaultValue ) );
 	}
 
 	void toolbox::UiToolboxWindow::progressBar( float value, float min /*= 0.0f*/, float max /*= 1.0f */ )

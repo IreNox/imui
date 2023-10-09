@@ -255,6 +255,9 @@ ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSiz
 const ImUiDrawData*			ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
+
+float						ImUiSurfaceGetTime( const ImUiSurface* surface );
+
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 

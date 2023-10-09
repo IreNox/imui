@@ -188,6 +188,7 @@ namespace imui
 		bool			isValid() const;
 		ImUiSurface*	getInternal() const;
 
+		float			getTime() const;
 		UiRect			getRect() const;
 		UiSize			getSize() const;
 		float			getDpiScale() const;
@@ -369,7 +370,7 @@ namespace imui
 			float			sliderState( float min, float max, float defaultValue );
 
 			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength );
-			UiStringView	textEditState( size_t bufferSize );
+			UiStringView	textEditState( size_t bufferSize, UiStringView defaultValue = UiStringView() );
 
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
 

@@ -267,6 +267,11 @@ ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
 	return surface->imui;
 }
 
+float ImUiSurfaceGetTime( const ImUiSurface* surface )
+{
+	return surface->imui->frame.timeInSeconds;
+}
+
 ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )
 {
 	return surface->size;
