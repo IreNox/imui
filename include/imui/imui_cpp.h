@@ -30,7 +30,10 @@ namespace imui
 
 	struct UiAlign : public ImUiAlign
 	{
+						UiAlign();
 						UiAlign( float hAlign, float vAlign );
+
+		static UiAlign	Center;
 	};
 
 	struct UiBorder : public ImUiBorder
@@ -50,6 +53,7 @@ namespace imui
 						UiPos( float all );
 						UiPos( float _x, float _y );
 						UiPos( const ImUiPos& value );
+		explicit		UiPos( const ImUiSize& value );
 
 		UiPos			add( float _x, float _y ) const;
 		UiPos			add( UiPos add ) const;
@@ -86,6 +90,8 @@ namespace imui
 		UiPos			getTopRight() const;
 		UiPos			getBottomLeft() const;
 		UiPos			getBottomRight() const;
+
+		UiSize			getSize() const;
 	};
 
 	struct UiSize : public ImUiSize
@@ -142,6 +148,9 @@ namespace imui
 
 	struct UiTexCoord : public ImUiTexCoord
 	{
+							UiTexCoord( float _u0, float _v0, float _u1, float _v1 );
+
+		static UiTexCoord	ZeroToOne;
 	};
 
 	struct UiContextParameters : public ImUiParameters
@@ -430,7 +439,7 @@ namespace imui
 			float			sliderState( float min = 0.0f, float max = 1.0f );
 			float			sliderState( float min, float max, float defaultValue );
 
-			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength );
+			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength = nullptr );
 			UiStringView	textEditState( size_t bufferSize, UiStringView defaultValue = UiStringView() );
 
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
@@ -498,17 +507,22 @@ namespace imui
 		{
 		public:
 
-						UiToolboxDropdown( UiWindow& window, const UiStringView& selectedItem, size_t itemCount );
 						UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount );
+						//UiToolboxDropdown( UiWindow& window, const UiStringView& selectedItem, size_t itemCount );
 						~UiToolboxDropdown();
 
-			bool		isOpen() const;
+			//bool		isOpen() const;
 
-			size_t		getBeginIndex() const;
-			size_t		getEndIndex() const;
+			//size_t		getBeginIndex() const;
+			//size_t		getEndIndex() const;
 			size_t		getSelectedIndex() const;
+			void		setSelectedIndex( size_t index );
 
-			void		nextItem( const UiStringView& item );
+			//void		nextItem( const UiStringView& item );
+
+		private:
+
+			ImUiToolboxDropDownContext	m_dropDown;
 		};
 
 		class UiToolboxPopup : public UiToolboxWindow

@@ -687,6 +687,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
+
+				changed = true;
 			}
 			else if( state->cursorPos > 0u )
 			{
@@ -697,6 +699,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 				textLengthInternal--;
 				state->cursorPos--;
+
+				changed = true;
 			}
 		}
 		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Delete ) )
@@ -708,6 +712,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
+
+				changed = true;
 			}
 			else if( textLengthInternal > state->cursorPos )
 			{
@@ -717,6 +723,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 				}
 
 				textLengthInternal--;
+
+				changed = true;
 			}
 		}
 
@@ -1149,24 +1157,24 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	return list->changed;
 }
 
-ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
+void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
 {
-	ImUiWidget* dropDown = ImUiWidgetBegin( window );
-	ImUiWidgetSetPadding( dropDown, s_config.dropDown.padding );
-	ImUiWidgetSetFixedHeight( dropDown, s_config.dropDown.height );
+	dropDown->dropDown = ImUiWidgetBegin( window );
+	ImUiWidgetSetPadding( dropDown->dropDown, s_config.dropDown.padding );
+	ImUiWidgetSetFixedHeight( dropDown->dropDown, s_config.dropDown.height );
 
 	bool isNew;
-	ImUiToolboxDropDownState* state = (ImUiToolboxDropDownState*)ImUiWidgetAllocStateNew( dropDown, sizeof( *state ), &isNew );
+	dropDown->state = (ImUiToolboxDropDownState*)ImUiWidgetAllocStateNew( dropDown->dropDown, sizeof( *dropDown->state ), &isNew );
 	if( isNew )
 	{
-		state->selectedIndex = (uintsize)-1;
+		dropDown->state->selectedIndex = (uintsize)-1;
 	}
 
 	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( dropDown, &inputState );
+	ImUiWidgetGetInputState( dropDown->dropDown, &inputState );
 
 	ImUiColor color = s_config.colors[ ImUiToolboxColor_DropDown ];
-	if( state->isOpen )
+	if( dropDown->state->isOpen )
 	{
 		color = s_config.colors[ ImUiToolboxColor_DropDownOpen ];
 	}
@@ -1179,10 +1187,10 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 		color = s_config.colors[ ImUiToolboxColor_DropDownHover ];
 	}
 
-	ImUiDrawWidgetSkinColor( dropDown, s_config.skins[ ImUiToolboxSkin_DropDown ], color );
+	ImUiDrawWidgetSkinColor( dropDown->dropDown, s_config.skins[ ImUiToolboxSkin_DropDown ], color );
 
 	ImUiWidget* icon = ImUiWidgetBegin( window );
-	const ImUiTexture iconImage = state->isOpen ? s_config.dropDown.closeIcon : s_config.dropDown.openIcon;
+	const ImUiTexture iconImage = dropDown->state->isOpen ? s_config.dropDown.closeIcon : s_config.dropDown.openIcon;
 	ImUiWidgetSetFixedSize( icon, iconImage.size );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );
@@ -1193,17 +1201,17 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 	ImUiTextLayout* selectedTextLayout = NULL;
 	for( uintsize i = 0; i < itemCount; ++i )
 	{
-		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown, s_config.font, items[ i ] );
+		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, items[ i ] );
 
 		maxSize = ImUiSizeMax( maxSize, ImUiTextLayoutGetSize( textLayout ) );
 
-		if( i == state->selectedIndex )
+		if( i == dropDown->state->selectedIndex )
 		{
 			selectedTextLayout = textLayout;
 		}
 	}
 
-	ImUiWidgetSetMinWidth( dropDown, maxSize.width + ImUiBorderGetMinSize( s_config.dropDown.padding ).width + s_config.dropDown.padding.left + ImUiWidgetGetSize( icon ).width );
+	ImUiWidgetSetMinWidth( dropDown->dropDown, maxSize.width + ImUiBorderGetMinSize( s_config.dropDown.padding ).width + s_config.dropDown.padding.left + ImUiWidgetGetSize( icon ).width );
 
 	ImUiWidget* text = ImUiWidgetBegin( window );
 	ImUiWidgetSetFixedSize( text, maxSize );
@@ -1218,15 +1226,15 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 
 	if( inputState.hasMousePressed )
 	{
-		state->isOpen = !state->isOpen;
+		dropDown->state->isOpen = !dropDown->state->isOpen;
 	}
 
-	if( state->isOpen )
+	if( dropDown->state->isOpen )
 	{
 		ImUiSurface* surface = ImUiWindowGetSurface( window );
 		const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 
-		const ImUiRect dropDownRect = ImUiWidgetGetRect( dropDown );
+		const ImUiRect dropDownRect = ImUiWidgetGetRect( dropDown->dropDown );
 
 		const float listHeight = (s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.maxListLength );
 		const float dropDownBottom = dropDownRect.pos.y + dropDownRect.size.height;
@@ -1250,7 +1258,7 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 
 		ImUiDrawWidgetSkinColor( list.list, s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
 
-		ImUiToolboxListSetSelectedIndex( &list, state->selectedIndex );
+		ImUiToolboxListSetSelectedIndex( &list, dropDown->state->selectedIndex );
 
 		for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 		{
@@ -1262,11 +1270,16 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 			ImUiWidgetEnd( label );
 		}
 
-		state->selectedIndex = ImUiToolboxListGetSelectedIndex( &list );
+		dropDown->state->selectedIndex = ImUiToolboxListGetSelectedIndex( &list );
 
 		if( ImUiToolboxListEnd( &list ) )
 		{
-			state->isOpen = false;
+			dropDown->state->isOpen = false;
+			dropDown->changed = true;
+		}
+		else
+		{
+			dropDown->changed = false;
 		}
 
 		ImUiWindowEnd( listWindow );
@@ -1275,25 +1288,35 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* 
 			!listInputState.wasPressed &&
 			ImUiInputHasMouseButtonReleased( ImUiWindowGetContext( window ), ImUiInputMouseButton_Left ) )
 		{
-			state->isOpen = false;
+			dropDown->state->isOpen = false;
 		}
 	}
-
-	return dropDown;
 }
 
-size_t ImUiToolboxDropDownEnd( ImUiWidget* dropDown )
+size_t ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown )
 {
-	ImUiToolboxDropDownState* state = (ImUiToolboxDropDownState*)ImUiWidgetAllocState( dropDown, sizeof( *state ) );
-	ImUiWidgetEnd( dropDown );
+	return dropDown->state->selectedIndex;
+}
 
-	return state->selectedIndex;
+void ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index )
+{
+	dropDown->state->selectedIndex = index;
+}
+
+bool ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown )
+{
+	ImUiWidgetEnd( dropDown->dropDown );
+
+	return dropDown->changed;
 }
 
 size_t ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
 {
-	ImUiWidget* dropDown = ImUiToolboxDropDownBegin( window, items, itemCount );
-	return ImUiToolboxDropDownEnd( dropDown );
+	ImUiToolboxDropDownContext dropDown;
+	ImUiToolboxDropDownBegin( &dropDown, window, items, itemCount );
+	const size_t selectedIndex = ImUiToolboxDropDownGetSelectedIndex( &dropDown );
+	ImUiToolboxDropDownEnd( &dropDown );
+	return selectedIndex;
 }
 
 ImUiWindow* ImUiToolboxPopupBegin( ImUiWindow* window )

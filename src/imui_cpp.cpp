@@ -50,6 +50,14 @@ namespace imui
 		return !ImUiStringViewIsEquals( *this, rhs );
 	}
 
+	UiAlign UiAlign::Center = UiAlign( 0.5f, 0.5f );
+
+	UiAlign::UiAlign()
+	{
+		horizontal	= 0.0f;
+		vertical	= 0.0f;
+	}
+
 	UiAlign::UiAlign( float hAlign, float vAlign )
 	{
 		horizontal	= hAlign;
@@ -256,6 +264,12 @@ namespace imui
 		y = value.y;
 	}
 
+	UiPos::UiPos( const ImUiSize& value )
+	{
+		x = value.width;
+		y = value.height;
+	}
+
 	UiPos UiPos::add( float _x, float _y ) const
 	{
 		return UiPos( x + _x, y + _y );
@@ -365,7 +379,7 @@ namespace imui
 
 	UiPos UiRect::getTopLeft() const
 	{
-		return (UiPos&)pos;
+		return (const UiPos&)pos;
 	}
 
 	UiPos UiRect::getTopRight() const
@@ -381,6 +395,11 @@ namespace imui
 	UiPos UiRect::getBottomRight() const
 	{
 		return UiPos( getRight(), getBottom() );
+	}
+
+	UiSize UiRect::getSize() const
+	{
+		return (const UiSize&)size;
 	}
 
 	UiColor UiColor::White				= UiColor( ImUiColorCreateWhite() );
@@ -1272,7 +1291,7 @@ namespace imui
 		return ImUiToolboxSliderStateMinMaxDefault( m_window, min, max, defaultValue );
 	}
 
-	bool toolbox::UiToolboxWindow::textEdit( char* buffer, size_t bufferSize, size_t* textLength )
+	bool toolbox::UiToolboxWindow::textEdit( char* buffer, size_t bufferSize, size_t* textLength /* = nullptr */ )
 	{
 		return ImUiToolboxTextEdit( m_window, buffer, bufferSize, textLength );
 	}
@@ -1420,13 +1439,24 @@ namespace imui
 
 	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount )
 	{
-		m_widget = ImUiToolboxDropDownBegin( window.getInternal(), items, itemCount );
+		ImUiToolboxDropDownBegin( &m_dropDown, window.getInternal(), items, itemCount );
+		m_widget = m_dropDown.dropDown;
 	}
 
 	toolbox::UiToolboxDropdown::~UiToolboxDropdown()
 	{
-		ImUiToolboxDropDownEnd( m_widget );
+		ImUiToolboxDropDownEnd( &m_dropDown );
 		m_widget = nullptr;
+	}
+
+	size_t toolbox::UiToolboxDropdown::getSelectedIndex() const
+	{
+		return ImUiToolboxDropDownGetSelectedIndex( &m_dropDown );
+	}
+
+	void toolbox::UiToolboxDropdown::setSelectedIndex( size_t index )
+	{
+		ImUiToolboxDropDownSetSelectedIndex( &m_dropDown, index );
 	}
 
 	toolbox::UiToolboxPopup::UiToolboxPopup( UiSurface& surface )
@@ -1461,5 +1491,15 @@ namespace imui
 			ImUiToolboxPopupEnd( m_window );
 			m_window = nullptr;
 		}
+	}
+
+	UiTexCoord UiTexCoord::ZeroToOne = UiTexCoord( 0.0f, 0.0f, 1.0f, 1.0f );
+
+	UiTexCoord::UiTexCoord( float _u0, float _v0, float _u1, float _v1 )
+	{
+		u0 = _u0;
+		v0 = _v0;
+		u1 = _u1;
+		v1 = _v1;
 	}
 }

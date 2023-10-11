@@ -200,6 +200,17 @@ struct ImUiToolboxListContext
 	bool					changed;
 };
 
+typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
+typedef struct ImUiToolboxDropDownContext ImUiToolboxDropDownContext;
+struct ImUiToolboxDropDownContext
+{
+	ImUiWidget*					dropDown;
+
+	ImUiToolboxDropDownState*	state;
+
+	bool						changed;
+};
+
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
@@ -263,8 +274,10 @@ void				ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t in
 ImUiWidget*			ImUiToolboxListNextItem( ImUiToolboxListContext* list );
 bool				ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
-ImUiWidget*			ImUiToolboxDropDownBegin( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
-size_t				ImUiToolboxDropDownEnd( ImUiWidget* dropDown );
+void				ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
+size_t				ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
+void				ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
+bool				ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
 size_t				ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
 
 ImUiWindow*			ImUiToolboxPopupBegin( ImUiWindow* window );
