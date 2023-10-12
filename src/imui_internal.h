@@ -134,8 +134,8 @@ struct ImUiWidget
 	ImUiAlign				align;
 
 	// generated data
-	ImUiWidget*				lastFrameWidget;
 	ImUiRect				rect;
+	ImUiWidget*				lastFrameWidget;
 	ImUiRect				clipRect;
 	ImUiLayoutContext		layoutContext;
 	ImUiWidgetInputContext	inputContext;

@@ -686,6 +686,7 @@ ImUiPos							ImUiRectGetTopLeft( ImUiRect rect );
 ImUiPos							ImUiRectGetTopRight( ImUiRect rect );
 ImUiPos							ImUiRectGetBottomLeft( ImUiRect rect );
 ImUiPos							ImUiRectGetBottomRight( ImUiRect rect );
+ImUiPos							ImUiRectGetCenter( ImUiRect rect );
 float							ImUiRectGetRight( ImUiRect rect );
 float							ImUiRectGetBottom( ImUiRect rect );
 

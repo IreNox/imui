@@ -488,6 +488,11 @@ ImUiPos ImUiRectGetBottomRight( ImUiRect rect )
 	return ImUiPosAdd( rect.pos, rect.size.width, rect.size.height );
 }
 
+ImUiPos ImUiRectGetCenter( ImUiRect rect )
+{
+	return ImUiPosAdd( rect.pos, rect.size.width * 0.5f, rect.size.height * 0.5f );
+}
+
 float ImUiRectGetRight( ImUiRect rect )
 {
 	return rect.pos.x + rect.size.width;
