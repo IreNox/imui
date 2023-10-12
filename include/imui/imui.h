@@ -375,8 +375,8 @@ void						ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture te
 void						ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv );
 void						ImUiDrawRectTextureColor( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color );
 void						ImUiDrawRectTextureColorUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color, ImUiTexCoord uv );
-void						ImUiDrawSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin );
-void						ImUiDrawSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color );
+void						ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin );
+void						ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color );
 void						ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout );
 void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout, ImUiColor color );
 

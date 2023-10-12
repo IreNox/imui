@@ -68,9 +68,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
 	config->colors[ ImUiToolboxColor_CheckBoxHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	config->colors[ ImUiToolboxColor_CheckBoxChecked ]			= backgroundColor;
-	config->colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= textEditCursorColor;
-	config->colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= elementClickedColor;
+	config->colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
 	config->colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
 	config->colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
 	config->colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
@@ -98,7 +96,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config->colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.2f );
 	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 38 );
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 36 );
 
 	const ImUiSkin skin = { NULL };
 
@@ -126,6 +124,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->button.height			= 25.0f;
 	config->button.padding			= ImUiBorderCreateAll( 8.0f );
 
+	config->checkBox.checkedIcon	= image;
 	config->checkBox.size			= ImUiSizeCreateAll( 25.0f );
 	config->checkBox.textSpacing	= 8.0f;
 
@@ -345,18 +344,24 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( checkBox, &inputState );
 
-	ImUiColor color = s_config.colors[ *checked ? ImUiToolboxColor_CheckBoxChecked : ImUiToolboxColor_CheckBox ];
+	ImUiColor color = s_config.colors[ ImUiToolboxColor_CheckBox ];
 	if( inputState.wasPressed && inputState.isMouseDown )
 	{
-		color = s_config.colors[ *checked ? ImUiToolboxColor_CheckBoxCheckedClicked : ImUiToolboxColor_CheckBoxClicked ];
+		color = s_config.colors[ ImUiToolboxColor_CheckBoxClicked ];
 	}
 	else if( inputState.isMouseOver )
 	{
-		color = s_config.colors[ *checked ? ImUiToolboxColor_CheckBoxCheckedHover : ImUiToolboxColor_CheckBoxHover ];
+		color = s_config.colors[ ImUiToolboxColor_CheckBoxHover ];
 	}
 
-	const ImUiRect rect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBox ), s_config.checkBox.size );
-	ImUiDrawSkinColor( checkBox, rect, s_config.skins[ *checked ? ImUiToolboxSkin_CheckBoxChecked : ImUiToolboxSkin_CheckBox ], color );
+	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBox ), s_config.checkBox.size );
+	ImUiDrawRectSkinColor( checkBox, checkBackgroundRect, s_config.skins[ ImUiToolboxSkin_CheckBox ], color );
+
+	if( *checked )
+	{
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), s_config.checkBox.checkedIcon.size );
+		ImUiDrawRectTextureColor( checkBox, checkIconRect, s_config.checkBox.checkedIcon, s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+	}
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
 
@@ -928,7 +933,7 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 		);
 	}
 
-	ImUiDrawSkinColor( progressBar, progressRect, s_config.skins[ ImUiToolboxSkin_ProgressBarProgress ], s_config.colors[ ImUiToolboxColor_ProgressBarProgress ] );
+	ImUiDrawRectSkinColor( progressBar, progressRect, s_config.skins[ ImUiToolboxSkin_ProgressBarProgress ], s_config.colors[ ImUiToolboxColor_ProgressBarProgress ] );
 
 	ImUiWidgetEnd( progressBar );
 }
@@ -970,6 +975,9 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 		areaSize.width	= IMUI_MAX( areaSize.width, childRect.size.width );
 		areaSize.height	= IMUI_MAX( areaSize.height, childRect.size.height );
 	}
+
+	ImUiWidgetInputState frameInputState;
+	ImUiWidgetGetInputState( scroll, &frameInputState );
 
 	const float barMargin		= s_config.scrollArea.barSize + s_config.scrollArea.barSpacing;
 	const bool hasHorizontalBar	= areaSize.width > frameRect.size.width;
@@ -1024,13 +1032,18 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 			state->wasPressedY = false;
 		}
 
-		state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameRect.size ) ) ) );
-
 		ImUiDrawWidgetSkinColor( scrollBar, s_config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ] );
-		ImUiDrawSkinColor( scrollBar, barPivotRect, s_config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ] );
+		ImUiDrawRectSkinColor( scrollBar, barPivotRect, s_config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ] );
 
 		ImUiWidgetEnd( scrollBar );
 	}
+
+	if( frameInputState.isMouseOver )
+	{
+		state->offset = ImUiPosSubPos( state->offset, ImUiPosScale( ImUiInputGetMouseScrollDelta( ImUiWindowGetContext( window ) ), 80.0f ) );
+	}
+
+	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameRect.size ) ) ) );
 
 	ImUiWidgetEnd( scroll );
 }
@@ -1048,7 +1061,7 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 	ImUiWidgetSetLayoutVerticalSpacing( list->listLayout, s_config.list.itemSpacing );
 	if( itemCount > 0u )
 	{
-		ImUiWidgetSetMinHeight( list->listLayout, (totalItemSize * itemCount) - s_config.list.itemSpacing );
+		ImUiWidgetSetFixedHeight( list->listLayout, (totalItemSize * itemCount) - s_config.list.itemSpacing );
 	}
 
 	bool isNew;
@@ -1113,9 +1126,10 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 	ImUiWidgetSetStretch( item, ImUiSizeCreate( 1.0f, 0.0f ) );
 	ImUiWidgetSetFixedHeight( item, list->itemSize );
 
-	const float totalItemSize = list->itemSize + s_config.list.itemSpacing;
-	if( list->itemIndex == list->beginIndex )
+	if( list->beginIndex > 0 &&
+		list->itemIndex == list->beginIndex )
 	{
+		const float totalItemSize = list->itemSize + s_config.list.itemSpacing;
 		ImUiWidgetSetMargin( item, ImUiBorderCreate( totalItemSize * list->beginIndex, 0.0f, 0.0f, 0.0f ) );
 	}
 

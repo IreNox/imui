@@ -1132,12 +1132,12 @@ namespace imui
 
 	void UiWidget::drawSkin( const UiRect& rect, const ImUiSkin& skin )
 	{
-		ImUiDrawSkin( m_widget, rect, skin );
+		ImUiDrawRectSkin( m_widget, rect, skin );
 	}
 
 	void UiWidget::drawSkinColor( const UiRect& rect, const ImUiSkin& skin, UiColor color )
 	{
-		ImUiDrawSkinColor( m_widget, rect, skin, color );
+		ImUiDrawRectSkinColor( m_widget, rect, skin, color );
 	}
 
 	void UiWidget::drawText( UiPos pos, ImUiTextLayout* layout )

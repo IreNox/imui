@@ -21,8 +21,6 @@ enum ImUiToolboxColor
 	ImUiToolboxColor_CheckBoxHover,
 	ImUiToolboxColor_CheckBoxClicked,
 	ImUiToolboxColor_CheckBoxChecked,
-	ImUiToolboxColor_CheckBoxCheckedHover,
-	ImUiToolboxColor_CheckBoxCheckedClicked,
 
 	ImUiToolboxColor_SliderBackground,
 	ImUiToolboxColor_SliderPivot,
@@ -93,6 +91,8 @@ struct ImUiToolboxButtonConfig
 typedef struct ImUiToolboxCheckBoxConfig ImUiToolboxCheckBoxConfig;
 struct ImUiToolboxCheckBoxConfig
 {
+	ImUiTexture		checkedIcon;
+
 	ImUiSize		size;
 	float			textSpacing;
 };
