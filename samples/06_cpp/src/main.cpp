@@ -293,9 +293,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
 	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= checkedColor;
-	config.colors[ ImUiToolboxColor_CheckBoxCheckedHover ]		= ImUiColorCreateFloat( 1.0f, 0.7f, 0.9f, 1.0f );
-	config.colors[ ImUiToolboxColor_CheckBoxCheckedClicked ]	= ImUiColorCreateFloat( 1.0f, 0.3f, 0.5f, 1.0f );
+	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
 	config.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
 	config.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
 	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
@@ -323,7 +321,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
 	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 38 );
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 36 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -348,6 +346,7 @@ static void ImUiTestSetConfig()
 
 	config.button.padding			= ImUiBorderCreateAll( 8.0f );
 
+	config.checkBox.checkedIcon		= image;
 	config.checkBox.size			= ImUiSizeCreateAll( 20.0f );
 	config.checkBox.textSpacing		= 5.0f;
 
