@@ -50,7 +50,7 @@ static void HwMinSizeHorizontal( ImUiWindow* window )
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( layout, 10.0f );
 
-	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( layout, ImUiColorCreateWhite() );
 
 	HwMinSizeElement( window );
 	HwMinSizeElement( window );

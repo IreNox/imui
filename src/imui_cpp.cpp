@@ -40,12 +40,12 @@ namespace imui
 		return length == 0u;
 	}
 
-	bool UiStringView::operator!=( const UiStringView& rhs ) const
+	bool UiStringView::operator==( const UiStringView& rhs ) const
 	{
 		return ImUiStringViewIsEquals( *this, rhs );
 	}
 
-	bool UiStringView::operator==( const UiStringView& rhs ) const
+	bool UiStringView::operator!=( const UiStringView& rhs ) const
 	{
 		return !ImUiStringViewIsEquals( *this, rhs );
 	}
@@ -456,6 +456,16 @@ namespace imui
 		return UiColor( ImUiColorCreateGrayA( gray, _alpha ) );
 	}
 
+	UiTexCoord UiTexCoord::ZeroToOne = UiTexCoord( 0.0f, 0.0f, 1.0f, 1.0f );
+
+	UiTexCoord::UiTexCoord( float _u0, float _v0, float _u1, float _v1 )
+	{
+		u0 = _u0;
+		v0 = _v0;
+		u1 = _u1;
+		v1 = _v1;
+	}
+
 	UiContextParameters::UiContextParameters()
 	{
 		memset( this, 0u, sizeof( *this ) );
@@ -513,6 +523,11 @@ namespace imui
 	UiInputState UiContext::getInput() const
 	{
 		return UiInputState( m_context );
+	}
+
+	void UiContext::setMouseCursor( ImUiInputMouseCursor cursor )
+	{
+		ImUiInputSetMouseCursor( m_context, cursor );
 	}
 
 	UiFrame::UiFrame()
@@ -1387,6 +1402,50 @@ namespace imui
 		}
 	}
 
+	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window )
+		: m_buffer( nullptr )
+		, m_bufferSize( 0u )
+	{
+		m_widget = ImUiToolboxTextEditBegin( window.getInternal() );
+	}
+
+	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window, size_t bufferSize )
+	{
+		m_widget		= ImUiToolboxTextEditBegin( window.getInternal() );
+		m_buffer		= (char*)ImUiWidgetAllocState( m_widget, bufferSize );
+		m_bufferSize	= bufferSize;
+	}
+
+	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window, char* buffer, size_t bufferSize )
+		: m_buffer( buffer )
+		, m_bufferSize( bufferSize )
+	{
+		m_widget = ImUiToolboxTextEditBegin( window.getInternal() );
+	}
+
+	toolbox::UiToolboxTextEdit::~UiToolboxTextEdit()
+	{
+		end();
+	}
+
+	void toolbox::UiToolboxTextEdit::setBuffer( char* buffer, size_t bufferSize )
+	{
+		m_buffer		= buffer;
+		m_bufferSize	= bufferSize;
+	}
+
+	bool toolbox::UiToolboxTextEdit::end( size_t* textLength /* = nullptr */ )
+	{
+		if( !m_widget )
+		{
+			return false;
+		}
+
+		const bool changed = ImUiToolboxTextEditEnd( m_widget, m_buffer, m_bufferSize, textLength );
+		m_widget = nullptr;
+		return changed;
+	}
+
 	toolbox::UiToolboxScrollArea::UiToolboxScrollArea()
 	{
 	}
@@ -1430,6 +1489,11 @@ namespace imui
 	size_t toolbox::UiToolboxList::getSelectedIndex() const
 	{
 		return ImUiToolboxListGetSelectedIndex( &m_list );
+	}
+
+	void toolbox::UiToolboxList::setSelectedIndex( size_t index )
+	{
+		ImUiToolboxListSetSelectedIndex( &m_list, index );
 	}
 
 	ImUiWidget* toolbox::UiToolboxList::nextItem()
@@ -1491,15 +1555,5 @@ namespace imui
 			ImUiToolboxPopupEnd( m_window );
 			m_window = nullptr;
 		}
-	}
-
-	UiTexCoord UiTexCoord::ZeroToOne = UiTexCoord( 0.0f, 0.0f, 1.0f, 1.0f );
-
-	UiTexCoord::UiTexCoord( float _u0, float _v0, float _u1, float _v1 )
-	{
-		u0 = _u0;
-		v0 = _v0;
-		u1 = _u1;
-		v1 = _v1;
 	}
 }

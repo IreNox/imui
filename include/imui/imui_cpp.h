@@ -174,6 +174,7 @@ namespace imui
 		void			endInput();
 
 		UiInputState	getInput() const;
+		void			setMouseCursor( ImUiInputMouseCursor cursor );
 
 	private:
 
@@ -473,6 +474,26 @@ namespace imui
 			void		end();
 		};
 
+		class UiToolboxTextEdit : public UiWidget
+		{
+		public:
+
+						UiToolboxTextEdit( UiWindow& window );
+						UiToolboxTextEdit( UiWindow& window, size_t bufferSize );
+						UiToolboxTextEdit( UiWindow& window, char* buffer, size_t bufferSize );
+						~UiToolboxTextEdit();
+
+			void		setBuffer( char* buffer, size_t bufferSize );
+
+			bool		end( size_t* textLength = nullptr );
+
+		private:
+
+			char*		m_buffer;
+			size_t		m_bufferSize;
+		};
+
+
 		class UiToolboxScrollArea : public UiWidget
 		{
 		public:
@@ -495,6 +516,7 @@ namespace imui
 			size_t		getBeginIndex() const;
 			size_t		getEndIndex() const;
 			size_t		getSelectedIndex() const;
+			void		setSelectedIndex( size_t index );
 
 			ImUiWidget*	nextItem();
 
