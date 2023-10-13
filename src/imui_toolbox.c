@@ -613,6 +613,9 @@ ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 
 bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength )
 {
+	IMUI_ASSERT( buffer );
+	IMUI_ASSERT( bufferSize > 0u );
+
 	ImUiContext* imui = ImUiWidgetGetContext( textEdit );
 
 	uintsize textLengthInternal;
@@ -627,6 +630,11 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( textEdit, &inputState );
+
+	if( inputState.isMouseOver )
+	{
+		ImUiInputSetMouseCursor( imui, ImUiInputMouseCursor_IBeam );
+	}
 
 	ImUiWidget* text = ImUiWidgetBegin( ImUiWidgetGetWindow( textEdit ) );
 

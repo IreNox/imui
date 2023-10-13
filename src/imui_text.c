@@ -114,6 +114,11 @@ ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, 
 
 ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters )
 {
+	if( parameters->text.length == 0u )
+	{
+		return NULL;
+	}
+
 	bool isNew = false;
 	ImUiTextLayout** mapLayout = (ImUiTextLayout**)ImUiHashMapInsertNew( &cache->layoutMap, &parameters, &isNew );
 	if( !mapLayout )

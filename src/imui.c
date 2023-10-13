@@ -233,6 +233,8 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize s
 
 		surface = &imui->surfaces[ imui->surfaceCount ];
 		imui->surfaceCount++;
+
+		memset( surface, 0, sizeof( *surface ) );
 	}
 
 	surface->inUse		= true;
@@ -310,6 +312,8 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 		window = &surface->windows[ surface->windowCount ];
 		surface->windowCount++;
+
+		memset( window, 0, sizeof( *window ) );
 	}
 
 	window->inUse		= true;
@@ -951,6 +955,8 @@ void ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget )
 
 void ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing )
 {
+	IMUI_ASSERT( spacing >= 0.0f );
+
 	widget->layout									= ImUiLayout_Horizontal;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
 }
@@ -963,12 +969,16 @@ void ImUiWidgetSetLayoutVertical( ImUiWidget* widget )
 
 void ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing )
 {
+	IMUI_ASSERT( spacing >= 0.0f );
+
 	widget->layout									= ImUiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
 }
 
 void ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount )
 {
+	IMUI_ASSERT( columnCount > 0u );
+
 	widget->layout									= ImUiLayout_Grid;
 	widget->layoutData.grid.columnCount				= columnCount;
 }
@@ -1071,6 +1081,18 @@ void ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch )
 {
 	IMUI_ASSERT( stretch.width >= 0.0f && stretch.height >= 0.0f );
 	widget->stretch = stretch;
+}
+
+void ImUiWidgetSetHStretch( ImUiWidget* widget, float stretch )
+{
+	IMUI_ASSERT( stretch >= 0.0f );
+	widget->stretch.width = stretch;
+}
+
+void ImUiWidgetSetVStretch( ImUiWidget* widget, float stretch )
+{
+	IMUI_ASSERT( stretch >= 0.0f );
+	widget->stretch.height = stretch;
 }
 
 ImUiAlign ImUiWidgetGetAlign( const ImUiWidget* widget )

@@ -344,6 +344,8 @@ void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
 
 ImUiSize					ImUiWidgetGetStretch( const ImUiWidget* widget );
 void						ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch );
+void						ImUiWidgetSetHStretch( ImUiWidget* widget, float stretch );
+void						ImUiWidgetSetVStretch( ImUiWidget* widget, float stretch );
 
 ImUiAlign					ImUiWidgetGetAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetAlign( ImUiWidget* widget, ImUiAlign align );
@@ -524,10 +526,30 @@ enum ImUiInputModifier
 	ImUiInputModifier_RightAlt		= 1u << 5u
 };
 
+typedef enum ImUiInputMouseCursor ImUiInputMouseCursor;
+enum ImUiInputMouseCursor
+{
+	ImUiInputMouseCursor_Arrow,
+	ImUiInputMouseCursor_Wait,
+	ImUiInputMouseCursor_WaitArrow,
+	ImUiInputMouseCursor_IBeam,
+	ImUiInputMouseCursor_Crooshair,
+	ImUiInputMouseCursor_Hand,
+	ImUiInputMouseCursor_ResizeNorthwestSoutheast,
+	ImUiInputMouseCursor_ResizeNortheastSouthwest,
+	ImUiInputMouseCursor_ResizeWestEast,
+	ImUiInputMouseCursor_ResizeNorthSouth,
+	ImUiInputMouseCursor_Move,
+
+	ImUiInputMouseCursor_MAX
+};
+
 // Push
 
 ImUiInput*						ImUiInputBegin( ImUiContext* imui );
 void							ImUiInputEnd( ImUiContext* imui );
+
+void							ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor );
 
 void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );
@@ -553,6 +575,7 @@ bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
 ImUiStringView					ImUiInputGetText( const ImUiContext* imui );
 
 ImUiPos							ImUiInputGetMousePos( const ImUiContext* imui );
+ImUiInputMouseCursor			ImUiInputGetMouseCursor( ImUiContext* imui );
 bool							ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rect );
 bool							ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button );

@@ -27,7 +27,8 @@ void ImUiInputNextTick( ImUiInput* input )
 	ImUiInputFreeText( input, &input->lastState );
 
 	input->lastState = input->currentState;
-	input->currentState.mouseScroll = ImUiPosCreateZero();
+	input->currentState.mouseScroll	= ImUiPosCreateZero();
+	input->currentState.mouseCursor	= ImUiInputMouseCursor_Arrow;
 
 	ImUiInputFreeText( input, &input->currentState );
 }
@@ -40,6 +41,11 @@ ImUiInput* ImUiInputBegin( ImUiContext* imui )
 
 void ImUiInputEnd( ImUiContext* imui )
 {
+}
+
+void ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor )
+{
+	imui->input.currentState.mouseCursor = cursor;
 }
 
 void ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key )
@@ -186,6 +192,11 @@ ImUiStringView ImUiInputGetText( const ImUiContext* imui )
 ImUiPos ImUiInputGetMousePos( const ImUiContext* imui )
 {
 	return imui->input.currentState.mousePos;
+}
+
+ImUiInputMouseCursor ImUiInputGetMouseCursor( ImUiContext* imui )
+{
+	return imui->input.currentState.mouseCursor;
 }
 
 bool ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rectangle )
