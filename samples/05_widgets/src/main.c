@@ -351,7 +351,7 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
 	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
 
-	const ImUiTexture image = { NULL, { 16.0f, 16.0f } };
+	const ImUiTexture image = { NULL, 16u, 16u };
 
 	config.images[ ImUiToolboxImage_CheckBoxChecked ] = image;
 	config.images[ ImUiToolboxImage_DropDownOpenIcon ] = image;

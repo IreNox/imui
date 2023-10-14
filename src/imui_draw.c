@@ -341,7 +341,7 @@ void ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin )
 	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= skin.texture.size;
+	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
 	skinData->color		= ImUiColorCreateWhite();
 }
 
@@ -352,7 +352,7 @@ void ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color
 	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= skin.texture.size;
+	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
 	skinData->color		= color;
 }
 
@@ -432,7 +432,7 @@ void ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin )
 	skinData->rect		= rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= skin.texture.size;
+	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
 	skinData->color		= ImUiColorCreateWhite();
 }
 
@@ -443,7 +443,7 @@ void ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, Im
 	skinData->rect		= rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= skin.texture.size;
+	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
 	skinData->color		= color;
 }
 

@@ -118,7 +118,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->skins[ ImUiToolboxSkin_Popup ]						= skin;
 	static_assert( ImUiToolboxSkin_MAX == 15, "more skins" );
 
-	const ImUiTexture image = { NULL, { 22.0f, 22.0f } };
+	const ImUiTexture image = { NULL, 22u, 22u };
 
 	config->images[ ImUiToolboxImage_CheckBoxChecked ] = image;
 	config->images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
@@ -323,7 +323,7 @@ bool ImUiToolboxButtonIconEnd( ImUiWidget* button )
 
 bool ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon )
 {
-	return ImUiToolboxButtonIconSize( window, icon, icon.size );
+	return ImUiToolboxButtonIconSize( window, icon, ImUiSizeCreateImage( icon ) );
 }
 
 bool ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize )
@@ -361,7 +361,7 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 
 	if( *checked )
 	{
-		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), s_config.images[ ImUiToolboxImage_CheckBoxChecked ].size);
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( s_config.images[ ImUiToolboxImage_CheckBoxChecked ] ) );
 		ImUiDrawRectTextureColor( checkBox, checkIconRect, s_config.images[ ImUiToolboxImage_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
 	}
 
@@ -1215,7 +1215,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 
 	ImUiWidget* icon = ImUiWidgetBegin( window );
 	const ImUiTexture iconImage = s_config.images[ dropDown->state->isOpen ? ImUiToolboxImage_DropDownCloseIcon : ImUiToolboxImage_DropDownOpenIcon ];
-	ImUiWidgetSetFixedSize( icon, iconImage.size );
+	ImUiWidgetSetFixedSize( icon, ImUiSizeCreateImage( iconImage ) );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );
 	ImUiDrawWidgetTexture( icon, iconImage );

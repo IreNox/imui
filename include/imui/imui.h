@@ -193,7 +193,8 @@ typedef struct ImUiTexture ImUiTexture;
 struct ImUiTexture
 {
 	void*					data;
-	ImUiSize				size;
+	uint32_t				width;
+	uint32_t				height;
 };
 
 typedef struct ImUiSkin ImUiSkin;
@@ -660,6 +661,7 @@ ImUiSize						ImUiSizeCreate( float width, float height );
 ImUiSize						ImUiSizeCreateAll( float value );
 ImUiSize						ImUiSizeCreateOne();
 ImUiSize						ImUiSizeCreateZero();
+ImUiSize						ImUiSizeCreateImage( ImUiTexture image );
 ImUiSize						ImUiSizeCreateHorizontal();				// x = 1, y = 0
 ImUiSize						ImUiSizeCreateVertical();				// x = 0, y = 1
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );

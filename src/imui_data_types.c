@@ -195,6 +195,12 @@ ImUiSize ImUiSizeCreateZero()
 	return size;
 }
 
+ImUiSize ImUiSizeCreateImage( ImUiTexture image )
+{
+	const ImUiSize size = { (float)image.width, (float)image.height };
+	return size;
+}
+
 ImUiSize ImUiSizeCreateHorizontal()
 {
 	const ImUiSize size = { 1.0f, 0.0f };

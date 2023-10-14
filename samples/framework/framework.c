@@ -757,8 +757,9 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char*
 		return false;
 	}
 
-	texture->data = ImUiFrameworkTextureCreate( textureData, width, height, true );
-	texture->size = ImUiSizeCreate( (float)width, (float)height );
+	texture->data	= ImUiFrameworkTextureCreate( textureData, width, height, true );
+	texture->width	= width;
+	texture->height	= height;
 
 	free( textureData );
 
@@ -868,8 +869,9 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t siz
 		}
 	}
 
-	texture->data = ImUiFrameworkTextureCreate( skinData, size, size, false );
-	texture->size = ImUiSizeCreate( (float)size, (float)size );
+	texture->data	= ImUiFrameworkTextureCreate( skinData, size, size, false );
+	texture->width	= size;
+	texture->height	= size;
 
 	free( skinData );
 

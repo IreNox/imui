@@ -100,6 +100,7 @@ namespace imui
 						UiSize( float all );
 						UiSize( float _width, float _height );
 						UiSize( const ImUiSize& value );
+						UiSize( const ImUiTexture& value );
 
 		UiSize			add( float _width, float _height ) const;
 		UiSize			add( UiSize add ) const;

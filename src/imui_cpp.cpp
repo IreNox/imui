@@ -93,6 +93,12 @@ namespace imui
 		height	= value.height;
 	}
 
+	UiSize::UiSize( const ImUiTexture& value )
+	{
+		width	= (float)value.width;
+		height	= (float)value.height;
+	}
+
 	UiSize UiSize::add( float _width, float _height ) const
 	{
 		return UiSize( width + _width, height + _height );
