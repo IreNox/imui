@@ -467,14 +467,14 @@ void ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout,
 
 static void ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window )
 {
-	ImUiMemoryArrayFree( draw->allocator, &window->elements, &window->elementCapacity );
+	IMUI_MEMORY_ARRAY_FREE( draw->allocator, window->elements, window->elementCapacity );
 }
 
 static void ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface )
 {
-	ImUiMemoryArrayFree( draw->allocator, &surface->commands, &surface->commandCapacity );
-	ImUiMemoryArrayFree( draw->allocator, &surface->vertexData, &surface->vertexDataCapacity );
-	ImUiMemoryArrayFree( draw->allocator, &surface->indices, &surface->indicesCapacity );
+	IMUI_MEMORY_ARRAY_FREE( draw->allocator, surface->commands, surface->commandCapacity );
+	IMUI_MEMORY_ARRAY_FREE( draw->allocator, surface->vertexData, surface->vertexDataCapacity );
+	IMUI_MEMORY_ARRAY_FREE( draw->allocator, surface->indices, surface->indicesCapacity );
 }
 
 static ImUiDrawWindowData* ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget )
@@ -673,6 +673,7 @@ static bool ImUiDrawSurfacePreparePushRects( ImUiDraw* draw, ImUiDrawSurfaceData
 	case ImUiDrawTopology_TriangleStrip:		elementCountPerRect = 4u; break;
 	case ImUiDrawTopology_IndexedTriangleList:	elementCountPerRect = 6u; break;
 	case ImUiDrawTopology_IndexedTriangleStrip:	elementCountPerRect = 4u; break;
+	case ImUiDrawTopology_MAX:					break;
 	}
 
 	return ImUiDrawSurfacePreparePushVertices( draw, surface, elementCountPerRect * rectCount );
@@ -1183,6 +1184,7 @@ static uintsize ImUiVertexElementTypeGetSize( ImUiVertexElementType type )
 	case ImUiVertexElementType_UInt2:	return 8u;
 	case ImUiVertexElementType_UInt3:	return 12u;
 	case ImUiVertexElementType_UInt4:	return 16u;
+	case ImUiVertexElementType_MAX:		break;
 	}
 
 	return 0u;
@@ -1249,6 +1251,9 @@ static uintsize ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* su
 			ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 		}
 		return 4u;
+
+	case ImUiDrawTopology_MAX:
+		break;
 	}
 
 	return 0u;

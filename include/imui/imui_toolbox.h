@@ -7,8 +7,9 @@ extern "C"
 {
 #endif
 
-typedef enum ImUiToolboxColor ImUiToolboxColor;
-enum ImUiToolboxColor
+#include <stdarg.h>
+
+typedef enum ImUiToolboxColor
 {
 	ImUiToolboxColor_Text,
 
@@ -57,10 +58,9 @@ enum ImUiToolboxColor
 	ImUiToolboxColor_Popup,
 
 	ImUiToolboxColor_MAX
-};
+} ImUiToolboxColor;
 
-typedef enum ImUiToolboxSkin ImUiToolboxSkin;
-enum ImUiToolboxSkin
+typedef enum ImUiToolboxSkin
 {
 	ImUiToolboxSkin_Button,
 	ImUiToolboxSkin_CheckBox,
@@ -79,17 +79,16 @@ enum ImUiToolboxSkin
 	ImUiToolboxSkin_Popup,
 
 	ImUiToolboxSkin_MAX
-};
+} ImUiToolboxSkin;
 
-typedef enum ImUiToolboxImage ImUiToolboxImage;
-enum ImUiToolboxImage
+typedef enum ImUiToolboxImage
 {
 	ImUiToolboxImage_CheckBoxChecked,
 	ImUiToolboxImage_DropDownOpenIcon,
 	ImUiToolboxImage_DropDownCloseIcon,
 
 	ImUiToolboxImage_MAX
-};
+} ImUiToolboxImage;
 
 typedef struct ImUiToolboxButtonConfig ImUiToolboxButtonConfig;
 struct ImUiToolboxButtonConfig

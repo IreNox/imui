@@ -354,7 +354,7 @@ namespace imui
 
 	UiRect UiRect::shrinkBorder( const ImUiBorder& border ) const
 	{
-		return (UiRect&)ImUiRectShrinkBorder( *this, border );
+		return (UiRect)ImUiRectShrinkBorder( *this, border );
 	}
 
 	bool UiRect::includesPos( ImUiPos _pos ) const

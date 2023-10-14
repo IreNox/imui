@@ -62,7 +62,6 @@ struct ImUiStringView
 	size_t						length;
 };
 
-typedef enum ImUiVertexElementType ImUiVertexElementType;
 enum ImUiVertexElementType
 {
 	ImUiVertexElementType_Float,
@@ -82,8 +81,8 @@ enum ImUiVertexElementType
 
 	ImUiVertexElementType_MAX
 };
+typedef enum ImUiVertexElementType ImUiVertexElementType;
 
-typedef enum ImUiVertexElementSemantic ImUiVertexElementSemantic;
 enum ImUiVertexElementSemantic
 {
 	ImUiVertexElementSemantic_None,
@@ -93,6 +92,7 @@ enum ImUiVertexElementSemantic
 	ImUiVertexElementSemantic_ColorRGBA,
 	ImUiVertexElementSemantic_ColorABGR
 };
+typedef enum ImUiVertexElementSemantic ImUiVertexElementSemantic;
 
 typedef struct ImUiVertexElement ImUiVertexElement;
 struct ImUiVertexElement
@@ -109,14 +109,13 @@ struct ImUiVertexFormat
 	size_t						elementCount;
 };
 
-typedef enum ImUiVertexType ImUiVertexType;
-enum ImUiVertexType
+typedef enum ImUiVertexType
 {
 	ImUiVertexType_VertexList,
 	ImUiVertexType_VertexStrip,
 	ImUiVertexType_IndexedVertexList,
 	ImUiVertexType_IndexedVertexStrip
-};
+} ImUiVertexType;
 
 typedef struct ImUiParameters ImUiParameters;
 struct ImUiParameters							// Fill with zero for default parameters
@@ -205,18 +204,16 @@ struct ImUiSkin
 	ImUiTexCoord			uv;
 };
 
-typedef enum ImUiLayout ImUiLayout;
-enum ImUiLayout
+typedef enum ImUiLayout
 {
 	ImUiLayout_Stack,
 	ImUiLayout_Scroll,
 	ImUiLayout_Horizontal,
 	ImUiLayout_Vertical,
 	ImUiLayout_Grid
-};
+} ImUiLayout;
 
-typedef enum ImUiDrawTopology ImUiDrawTopology;
-enum ImUiDrawTopology
+typedef enum ImUiDrawTopology
 {
 	ImUiDrawTopology_LineList,
 	ImUiDrawTopology_TriangleList,
@@ -225,7 +222,7 @@ enum ImUiDrawTopology
 	ImUiDrawTopology_IndexedTriangleStrip,
 
 	ImUiDrawTopology_MAX
-};
+} ImUiDrawTopology;
 
 typedef struct ImUiDrawCommand ImUiDrawCommand;
 struct ImUiDrawCommand
@@ -386,8 +383,7 @@ void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* la
 // Input
 // see imui_input.c
 
-typedef enum ImUiInputMouseButton ImUiInputMouseButton;
-enum ImUiInputMouseButton
+typedef enum ImUiInputMouseButton
 {
 	ImUiInputMouseButton_Left,
 	ImUiInputMouseButton_Right,
@@ -397,10 +393,9 @@ enum ImUiInputMouseButton
 	ImUiInputMouseButton_X2,
 
 	ImUiInputMouseButton_MAX
-};
+} ImUiInputMouseButton;
 
-typedef enum ImUiInputKey ImUiInputKey;
-enum ImUiInputKey
+typedef enum ImUiInputKey
 {
 	ImUiInputKey_None,
 
@@ -513,10 +508,9 @@ enum ImUiInputKey
 	ImUiInputKey_Numpad_Period,
 
 	ImUiInputKey_MAX
-};
+} ImUiInputKey;
 
-typedef enum ImUiInputModifier ImUiInputModifier;
-enum ImUiInputModifier
+typedef enum ImUiInputModifier
 {
 	ImUiInputModifier_LeftShift		= 1u << 0u,
 	ImUiInputModifier_RightShift	= 1u << 1u,
@@ -524,10 +518,9 @@ enum ImUiInputModifier
 	ImUiInputModifier_RightCtrl		= 1u << 3u,
 	ImUiInputModifier_LeftAlt		= 1u << 4u,
 	ImUiInputModifier_RightAlt		= 1u << 5u
-};
+} ImUiInputModifier;
 
-typedef enum ImUiInputMouseCursor ImUiInputMouseCursor;
-enum ImUiInputMouseCursor
+typedef enum ImUiInputMouseCursor
 {
 	ImUiInputMouseCursor_Arrow,
 	ImUiInputMouseCursor_Wait,
@@ -542,7 +535,7 @@ enum ImUiInputMouseCursor
 	ImUiInputMouseCursor_Move,
 
 	ImUiInputMouseCursor_MAX
-};
+} ImUiInputMouseCursor;
 
 // Push
 

@@ -4,6 +4,7 @@
 #include "imui_memory.h"
 #include "imui_types.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -96,9 +97,9 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config->colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.2f );
 	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 36 );
+	static_assert( ImUiToolboxColor_MAX == 36, "more colors" );
 
-	const ImUiSkin skin = { NULL };
+	const ImUiSkin skin = { { NULL } };
 
 	config->skins[ ImUiToolboxSkin_Button ]						= skin;
 	config->skins[ ImUiToolboxSkin_CheckBox ]					= skin;
@@ -115,7 +116,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->skins[ ImUiToolboxSkin_DropDownList ]				= skin;
 	config->skins[ ImUiToolboxSkin_DropDownListItem ]			= skin;
 	config->skins[ ImUiToolboxSkin_Popup ]						= skin;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+	static_assert( ImUiToolboxSkin_MAX == 15, "more skins" );
 
 	const ImUiTexture image = { NULL, { 22.0f, 22.0f } };
 
@@ -988,8 +989,8 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 	ImUiWidgetInputState frameInputState;
 	ImUiWidgetGetInputState( scroll, &frameInputState );
 
-	const float barMargin		= s_config.scrollArea.barSize + s_config.scrollArea.barSpacing;
-	const bool hasHorizontalBar	= areaSize.width > frameRect.size.width;
+	//const float barMargin		= s_config.scrollArea.barSize + s_config.scrollArea.barSpacing;
+	//const bool hasHorizontalBar	= areaSize.width > frameRect.size.width;
 	const bool hasVerticalBar	= areaSize.height > frameRect.size.height;
 
 	//ImUiWidgetSetPadding( scroll, ImUiBorderCreate( 0.0f, 0.0f, hasHorizontalBar * barMargin, hasVerticalBar * barMargin ) );

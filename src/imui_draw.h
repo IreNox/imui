@@ -4,14 +4,13 @@
 
 #include "imui_types.h"
 
-typedef enum ImUiDrawElementType ImUiDrawElementType;
-enum ImUiDrawElementType
+typedef enum ImUiDrawElementType
 {
 	ImUiDrawElementType_Line,
 	ImUiDrawElementType_Rectangle,
 	ImUiDrawElementType_Skin,
 	ImUiDrawElementType_Text,
-};
+} ImUiDrawElementType;
 
 struct ImUiDrawElementDataLine
 {

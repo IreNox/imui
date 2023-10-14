@@ -14,7 +14,7 @@
 #define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED( ARRAY, COUNT, INDEX )		ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), false )
 #define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( ARRAY, COUNT, INDEX )	ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), true )
 
-#define IMUI_MEMORY_ARRAY_FREE( ALLOCATOR, ARRAY, CAPACITY )			ImUiMemoryArrayFree( ALLOCATOR, &ARRAY, &COUNT )
+#define IMUI_MEMORY_ARRAY_FREE( ALLOCATOR, ARRAY, CAPACITY )			ImUiMemoryArrayFree( ALLOCATOR, (void**)&ARRAY, &CAPACITY )
 
 void	ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator );
 void	ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator );
