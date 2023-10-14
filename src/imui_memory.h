@@ -23,11 +23,6 @@
 void	imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
 void	imuiMemoryAllocatorFinalize( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
 
-void*	imuiMemoryDefaultAlloc( uintsize size, void* userData );
-void*	imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
-void*	imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
-void	imuiMemoryDefaultFree( void* memory, void* userData );
-
 void*	imuiMemoryAlloc( ImuiAllocator* allocator, uintsize size );
 void*	imuiMemoryAllocZero( ImuiAllocator* allocator, uintsize size );
 void*	imuiMemoryRealloc( ImuiAllocator* allocator, void* oldMemory, uintsize oldSize, uintsize newSize );
