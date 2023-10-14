@@ -18,7 +18,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
 	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
 
-	ImUiDrawWidgetColor( cLayout, ImUiColorCreateWhite( 1.0f ) );
+	ImUiDrawWidgetColor( cLayout, ImUiColorCreateWhite() );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
@@ -42,22 +42,22 @@ static void HwInputElement( ImUiWindow* window )
 	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
 
-	ImUiColor color = ImUiColorCreate( 0.1f, 0.5f, 0.8f, 1.0f );
+	ImUiColor color = ImUiColorCreateFloat( 0.1f, 0.5f, 0.8f, 1.0f );
 
-	ImUiInputWidgetState inputState;
-	ImUiInputGetWidgetState( widget, &inputState );
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( widget, &inputState );
 
 	if( inputState.hasMouseReleased )
 	{
-		color = ImUiColorCreate( 1.0f, 0.3f, 0.2f, 1.0f );
+		color = ImUiColorCreateFloat( 1.0f, 0.3f, 0.2f, 1.0f );
 	}
 	else if( inputState.isMouseDown )
 	{
-		color = ImUiColorCreate( 0.0f, 0.3f, 0.7f, 1.0f );
+		color = ImUiColorCreateFloat( 0.0f, 0.3f, 0.7f, 1.0f );
 	}
 	else if( inputState.isMouseOver )
 	{
-		color = ImUiColorCreate( 0.5f, 0.9f, 1.0f, 1.0f );
+		color = ImUiColorCreateFloat( 0.5f, 0.9f, 1.0f, 1.0f );
 	}
 
 	ImUiDrawWidgetColor( widget, color );

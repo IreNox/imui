@@ -202,6 +202,7 @@ int main( int argc, char* argv[] )
 		case ImUiInputKey_Numpad_9:			scanCode = SDL_SCANCODE_KP_9; break;
 		case ImUiInputKey_Numpad_0:			scanCode = SDL_SCANCODE_KP_0; break;
 		case ImUiInputKey_Numpad_Period:	scanCode = SDL_SCANCODE_KP_PERIOD; break;
+		case ImUiInputKey_MAX:				break;
 		}
 
 		s_inputKeyMapping[ scanCode ] = keyValue;

@@ -315,7 +315,7 @@ void ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture )
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
-	rectData->color		= ImUiColorCreateWhite( 1.0f );
+	rectData->color		= ImUiColorCreateWhite();
 	rectData->uv.u0		= 0.0f;
 	rectData->uv.v0		= 0.0f;
 	rectData->uv.u1		= 1.0f;
@@ -342,7 +342,7 @@ void ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin )
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
 	skinData->texSize	= skin.texture.size;
-	skinData->color		= ImUiColorCreateWhite( 1.0f );
+	skinData->color		= ImUiColorCreateWhite();
 }
 
 void ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color )
@@ -361,7 +361,7 @@ void ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout )
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= widget->rect.pos;
-	textData->color		= ImUiColorCreateWhite( 1.0f );
+	textData->color		= ImUiColorCreateWhite();
 	textData->layout	= layout;
 }
 
@@ -388,7 +388,7 @@ void ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
-	rectData->color		= ImUiColorCreateWhite( 1.0f );
+	rectData->color		= ImUiColorCreateWhite();
 	rectData->uv.u0		= 0.0f;
 	rectData->uv.v0		= 0.0f;
 	rectData->uv.u1		= 1.0f;
@@ -400,7 +400,7 @@ void ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture textu
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
-	rectData->color		= ImUiColorCreateWhite( 1.0f );
+	rectData->color		= ImUiColorCreateWhite();
 	rectData->uv		= uv;
 }
 
@@ -433,7 +433,7 @@ void ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin )
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
 	skinData->texSize	= skin.texture.size;
-	skinData->color		= ImUiColorCreateWhite( 1.0f );
+	skinData->color		= ImUiColorCreateWhite();
 }
 
 void ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color )
@@ -452,7 +452,7 @@ void ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout )
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= pos;
-	textData->color		= ImUiColorCreateWhite( 1.0f );;
+	textData->color		= ImUiColorCreateWhite();
 	textData->layout	= layout;
 }
 
