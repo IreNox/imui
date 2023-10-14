@@ -119,18 +119,21 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 
 	const ImUiTexture image = { NULL, { 22.0f, 22.0f } };
 
+	config->images[ ImUiToolboxImage_CheckBoxChecked ] = image;
+	config->images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
+	config->images[ ImUiToolboxImage_DropDownCloseIcon ] = image;
+
 	config->font					= font;
 
 	config->button.height			= 25.0f;
 	config->button.padding			= ImUiBorderCreateAll( 8.0f );
 
-	config->checkBox.checkedIcon	= image;
 	config->checkBox.size			= ImUiSizeCreateAll( 25.0f );
 	config->checkBox.textSpacing	= 8.0f;
 
 	config->slider.height			= 25.0f;
 	config->slider.padding			= ImUiBorderCreateHorizontalVertical( 5.0f, 0.0f );
-	config->slider.pivotSize		= 10.0f;
+	config->slider.pivotSize		= ImUiSizeCreate( 10.0f, 25.0f );
 
 	config->textEdit.height			= 25.0f;
 	config->textEdit.padding		= ImUiBorderCreateAll( 2.0f );
@@ -146,8 +149,6 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 
 	config->list.itemSpacing		= 8.0f;
 
-	config->dropDown.openIcon		= image;
-	config->dropDown.closeIcon		= image;
 	config->dropDown.height			= 25.0f;
 	config->dropDown.padding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
 	config->dropDown.listZOrder		= 20u;
@@ -359,8 +360,8 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 
 	if( *checked )
 	{
-		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), s_config.checkBox.checkedIcon.size );
-		ImUiDrawRectTextureColor( checkBox, checkIconRect, s_config.checkBox.checkedIcon, s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), s_config.images[ ImUiToolboxImage_CheckBoxChecked ].size);
+		ImUiDrawRectTextureColor( checkBox, checkIconRect, s_config.images[ ImUiToolboxImage_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
 	}
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
@@ -510,7 +511,7 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	ImUiDrawWidgetSkinColor( slider, s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
 
 	ImUiWidget* sliderPivot = ImUiWidgetBegin( ImUiWidgetGetWindow( slider ) );
-	ImUiWidgetSetFixedSize( sliderPivot, ImUiSizeCreate( s_config.slider.pivotSize, s_config.slider.height ) );
+	ImUiWidgetSetFixedSize( sliderPivot, s_config.slider.pivotSize );
 
 	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
 	const float normalizedValue		= (*value - min) / (max - min);
@@ -536,7 +537,7 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 
 	if( frameInputState.wasPressed )
 	{
-		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - (s_config.slider.pivotSize * 0.5f)) / (sliderInnerRect.size.width - s_config.slider.pivotSize);
+		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - s_config.slider.pivotSize.width) / (sliderInnerRect.size.width - s_config.slider.pivotSize.width);
 		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
 		IMUI_ASSERT( mouseValueNormClamp >= 0.0f && mouseValueNormClamp <= 1.0f );
 		const float mouseValue			= (mouseValueNormClamp * (max - min)) + min;
@@ -653,7 +654,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	const ImUiRect textRect = ImUiWidgetGetRect( text );
 	const ImUiRect textEditInnerRect = ImUiWidgetGetInnerRect( textEdit );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreate( buffer ) );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreateLength( buffer, textLengthInternal ) );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( text, textSize );
 
@@ -1212,7 +1213,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiDrawWidgetSkinColor( dropDown->dropDown, s_config.skins[ ImUiToolboxSkin_DropDown ], color );
 
 	ImUiWidget* icon = ImUiWidgetBegin( window );
-	const ImUiTexture iconImage = dropDown->state->isOpen ? s_config.dropDown.closeIcon : s_config.dropDown.openIcon;
+	const ImUiTexture iconImage = s_config.images[ dropDown->state->isOpen ? ImUiToolboxImage_DropDownCloseIcon : ImUiToolboxImage_DropDownOpenIcon ];
 	ImUiWidgetSetFixedSize( icon, iconImage.size );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );

@@ -81,6 +81,16 @@ enum ImUiToolboxSkin
 	ImUiToolboxSkin_MAX
 };
 
+typedef enum ImUiToolboxImage ImUiToolboxImage;
+enum ImUiToolboxImage
+{
+	ImUiToolboxImage_CheckBoxChecked,
+	ImUiToolboxImage_DropDownOpenIcon,
+	ImUiToolboxImage_DropDownCloseIcon,
+
+	ImUiToolboxImage_MAX
+};
+
 typedef struct ImUiToolboxButtonConfig ImUiToolboxButtonConfig;
 struct ImUiToolboxButtonConfig
 {
@@ -91,8 +101,6 @@ struct ImUiToolboxButtonConfig
 typedef struct ImUiToolboxCheckBoxConfig ImUiToolboxCheckBoxConfig;
 struct ImUiToolboxCheckBoxConfig
 {
-	ImUiTexture		checkedIcon;
-
 	ImUiSize		size;
 	float			textSpacing;
 };
@@ -102,7 +110,7 @@ struct ImUiToolboxSliderConfig
 {
 	float			height;
 	ImUiBorder		padding;
-	float			pivotSize;
+	ImUiSize		pivotSize;
 };
 
 typedef struct ImUiToolboxTextEditConfig ImUiToolboxTextEditConfig;
@@ -138,14 +146,11 @@ struct ImUiToolboxListConfig
 typedef struct ImUiToolboxDropDownConfig ImUiToolboxDropDownConfig;
 struct ImUiToolboxDropDownConfig
 {
-	ImUiTexture		openIcon;
-	ImUiTexture		closeIcon;
-
 	float			height;
 	ImUiBorder		padding;
 
 	uint32_t		listZOrder;
-	size_t			maxListLength;
+	uint32_t		maxListLength;
 
 	ImUiBorder		itemPadding;
 	float			itemSize;
@@ -166,6 +171,7 @@ struct ImUiToolboxConfig
 {
 	ImUiColor						colors[ ImUiToolboxColor_MAX ];
 	ImUiSkin						skins[ ImUiToolboxSkin_MAX ];
+	ImUiTexture						images[ ImUiToolboxImage_MAX ];
 
 	ImUiFont*						font;
 

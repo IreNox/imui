@@ -342,17 +342,20 @@ static void ImUiTestSetConfig()
 
 	const ImUiTexture image ={ NULL, { 16.0f, 16.0f } };
 
+	config.images[ ImUiToolboxImage_CheckBoxChecked ] = image;
+	config.images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
+	config.images[ ImUiToolboxImage_DropDownCloseIcon ] = image;
+
 	config.font						= s_font;
 
 	config.button.padding			= ImUiBorderCreateAll( 8.0f );
 
-	config.checkBox.checkedIcon		= image;
 	config.checkBox.size			= ImUiSizeCreateAll( 20.0f );
 	config.checkBox.textSpacing		= 5.0f;
 
-	config.slider.padding			= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
-	config.slider.pivotSize			= 12.0f;
 	config.slider.height			= 20.0f;
+	config.slider.padding			= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
+	config.slider.pivotSize			= ImUiSizeCreate( 12.0f, 20.0f );
 
 	config.textEdit.height			= 25.0f;
 	config.textEdit.padding			= ImUiBorderCreateAll( 4.0f );
@@ -368,8 +371,6 @@ static void ImUiTestSetConfig()
 
 	config.list.itemSpacing			= 4.0f;
 
-	config.dropDown.openIcon		= image;
-	config.dropDown.closeIcon		= image;
 	config.dropDown.height			= 25.0f;
 	config.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
 	config.dropDown.listZOrder		= 10u;
