@@ -1037,6 +1037,16 @@ namespace imui
 		ImUiWidgetSetStretch( m_widget, stretch );
 	}
 
+	void UiWidget::setStretchHorizontal()
+	{
+		ImUiWidgetSetStretch( m_widget, UiSize::Horizontal );
+	}
+
+	void UiWidget::setStretchVertival()
+	{
+		ImUiWidgetSetStretch( m_widget, UiSize::Vertical );
+	}
+
 	UiAlign UiWidget::getAlign() const
 	{
 		return (const UiAlign&)m_widget->align;
@@ -1452,22 +1462,24 @@ namespace imui
 		return changed;
 	}
 
-	toolbox::UiToolboxScrollArea::UiToolboxScrollArea()
-	{
-	}
-
 	toolbox::UiToolboxScrollArea::UiToolboxScrollArea( UiWindow& window )
 	{
-		m_widget = ImUiToolboxScrollAreaBegin( window.getInternal() );
+		ImUiToolboxScrollAreaBegin( &m_scrollArea, window.getInternal() );
+		m_widget = m_scrollArea.area;
 	}
 
 	toolbox::UiToolboxScrollArea::~UiToolboxScrollArea()
 	{
 		if( m_widget )
 		{
-			ImUiToolboxScrollAreaEnd( m_widget );
+			ImUiToolboxScrollAreaEnd( &m_scrollArea );
 			m_widget = nullptr;
 		}
+	}
+
+	void toolbox::UiToolboxScrollArea::enableSpacing( bool horizontal, bool vertical )
+	{
+		ImUiToolboxScrollAreaEnableSpacing( &m_scrollArea, horizontal, vertical );
 	}
 
 	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount )

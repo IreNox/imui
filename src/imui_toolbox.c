@@ -12,8 +12,7 @@
 
 static ImUiToolboxConfig s_config;
 
-typedef struct ImUiToolboxScrollState ImUiToolboxScrollState;
-struct ImUiToolboxScrollState
+struct ImUiToolboxScrollAreaState
 {
 	ImUiPos			offset;
 	bool			wasPressedX;
@@ -514,12 +513,8 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	ImUiWidget* sliderPivot = ImUiWidgetBegin( ImUiWidgetGetWindow( slider ) );
 	ImUiWidgetSetFixedSize( sliderPivot, s_config.slider.pivotSize );
 
-	const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
-	const float normalizedValue		= (*value - min) / (max - min);
-	//const float sliderPivotX		= (normalizedValue * (sliderInnerRect.size.width - s_config.slider.pivotSize));
-	//const float sliderPivotOffset	= sliderPivotX < 0.0f ? 0.0f : roundf( sliderPivotX );
-
-	ImUiWidgetSetHAlign( sliderPivot, normalizedValue ); // ImUiBorderCreate( 0.0f, sliderPivotOffset, 0.0f, 0.0f ) );
+	const float normalizedValue = (*value - min) / (max - min);
+	ImUiWidgetSetHAlign( sliderPivot, normalizedValue );
 
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( sliderPivot, &inputState );
@@ -538,6 +533,8 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 
 	if( frameInputState.wasPressed )
 	{
+		const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
+
 		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - s_config.slider.pivotSize.width) / (sliderInnerRect.size.width - s_config.slider.pivotSize.width);
 		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
 		IMUI_ASSERT( mouseValueNormClamp >= 0.0f && mouseValueNormClamp <= 1.0f );
@@ -948,59 +945,57 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 	ImUiWidgetEnd( progressBar );
 }
 
-ImUiWidget* ImUiToolboxScrollAreaBegin( ImUiWindow* window )
+void ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window )
 {
-	ImUiWidget* scrollFrame = ImUiWidgetBegin( window );
+	scrollArea->horizontalSpacing	= false;
+	scrollArea->verticalSpacing		= false;
+	scrollArea->area				= ImUiWidgetBegin( window );
+	scrollArea->state				= (ImUiToolboxScrollAreaState*)ImUiWidgetAllocState( scrollArea->area, sizeof( *scrollArea->state ) );
+	scrollArea->content				= ImUiWidgetBegin( window );
 
-	ImUiToolboxScrollState* state = ImUiWidgetAllocState( scrollFrame, sizeof( *state ) );
-	ImUiWidgetSetLayoutScroll( scrollFrame, state->offset );
-
-	//ImUiWidget* scrollArea = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll_area" ) );
-
-	//const ImUiRect frameRect = ImUiWidgetGetRect( scrollFrame );
-	//const ImUiSize maxSize = ImUiSizeCreate(
-	//	horizontal ? IMUI_FLOAT_MAX : frameRect.size.width,
-	//	vertical ? IMUI_FLOAT_MAX : frameRect.size.height
-	//);
-	//ImUiWidgetSetMaxSize( scrollArea, maxSize );
-
-	return scrollFrame;
+	ImUiWidgetSetStretch( scrollArea->content, ImUiSizeCreateOne() );
+	ImUiWidgetSetLayoutScroll( scrollArea->content, scrollArea->state->offset );
 }
 
-void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
+void ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical )
 {
-	ImUiToolboxScrollState* state = (ImUiToolboxScrollState*)ImUiWidgetGetState( scroll );
-	//ImUiWidget* scrollArea = ImUiWidgetGetFirstChild( scroll );
-	ImUiWindow* window = ImUiWidgetGetWindow( scroll );
+	scrollArea->horizontalSpacing	= horizontal;
+	scrollArea->verticalSpacing		= vertical;
+}
 
-	const ImUiRect frameRect = ImUiWidgetGetRect( scroll );
+void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
+{
+	ImUiWindow* window = ImUiWidgetGetWindow( scrollArea->area );
+	ImUiToolboxScrollAreaState* state = scrollArea->state;
+
+	const ImUiRect frameRect = ImUiWidgetGetRect( scrollArea->area );
 
 	ImUiSize areaSize = ImUiSizeCreateZero();
-	//const ImUiPos baseOffset = ImUiPosSubPos( state->offset, frameRect.pos );
-	for( ImUiWidget* child = ImUiWidgetGetFirstChild( scroll ); child; child = ImUiWidgetGetNextSibling( child ) )
+	for( ImUiWidget* child = ImUiWidgetGetFirstChild( scrollArea->content ); child; child = ImUiWidgetGetNextSibling( child ) )
 	{
 		const ImUiRect childRect = ImUiWidgetGetRect( child );
-		//const ImUiPos childBr = ImUiRectGetBottomRight( childRect );
 
 		areaSize.width	= IMUI_MAX( areaSize.width, childRect.size.width );
 		areaSize.height	= IMUI_MAX( areaSize.height, childRect.size.height );
 	}
 
-	ImUiWidgetInputState frameInputState;
-	ImUiWidgetGetInputState( scroll, &frameInputState );
+	ImUiWidgetInputState areaInputState;
+	ImUiWidgetGetInputState( scrollArea->area, &areaInputState );
 
-	//const float barMargin		= s_config.scrollArea.barSize + s_config.scrollArea.barSpacing;
-	//const bool hasHorizontalBar	= areaSize.width > frameRect.size.width;
+	const bool hasHorizontalBar	= areaSize.width > frameRect.size.width;
 	const bool hasVerticalBar	= areaSize.height > frameRect.size.height;
 
-	//ImUiWidgetSetPadding( scroll, ImUiBorderCreate( 0.0f, 0.0f, hasHorizontalBar * barMargin, hasVerticalBar * barMargin ) );
+	ImUiBorder margin = ImUiBorderCreateZero();
+	margin.right = (hasVerticalBar ? s_config.scrollArea.barSize + (scrollArea->horizontalSpacing ? s_config.scrollArea.barSpacing : 0.0f) : 0.0f) ;
+	margin.bottom = (hasHorizontalBar ? s_config.scrollArea.barSize + (scrollArea->verticalSpacing ? s_config.scrollArea.barSpacing : 0.0f) : 0.0f) ;
 
-	//ImUiWidgetEnd( scrollArea );
+	ImUiWidgetSetMargin( scrollArea->content, margin );
+	ImUiWidgetEnd( scrollArea->content );
+	scrollArea->content = NULL;
 
 	if( hasVerticalBar )
 	{
 		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll_bar" ) );
-		ImUiWidgetSetMargin( scrollBar, ImUiBorderCreate( state->offset.y, 0.0f, 0.0f, 0.0f ) );
 		ImUiWidgetSetHAlign( scrollBar, 1.0f );
 		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, frameRect.size.height ) );
 
@@ -1048,14 +1043,16 @@ void ImUiToolboxScrollAreaEnd( ImUiWidget* scroll )
 		ImUiWidgetEnd( scrollBar );
 	}
 
-	if( frameInputState.isMouseOver )
+	if( areaInputState.isMouseOver )
 	{
 		state->offset = ImUiPosSubPos( state->offset, ImUiPosScale( ImUiInputGetMouseScrollDelta( ImUiWindowGetContext( window ) ), 80.0f ) );
 	}
 
 	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameRect.size ) ) ) );
 
-	ImUiWidgetEnd( scroll );
+	ImUiWidgetEnd( scrollArea->area );
+	scrollArea->area = NULL;
+	scrollArea->state = NULL;
 }
 
 void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount )
@@ -1064,7 +1061,10 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 
 	const float totalItemSize = itemSize + s_config.list.itemSpacing;
 
-	list->list = ImUiToolboxScrollAreaBegin( window );
+	ImUiToolboxScrollAreaBegin( &list->scrollArea, window );
+	list->list = list->scrollArea.area;
+
+	ImUiToolboxScrollAreaEnableSpacing( &list->scrollArea, true, false );
 
 	list->listLayout = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( list->listLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
@@ -1175,7 +1175,7 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	ImUiWidgetEnd( list->listLayout );
 	list->listLayout = NULL;
 
-	ImUiToolboxScrollAreaEnd( list->list );
+	ImUiToolboxScrollAreaEnd( &list->scrollArea );
 	list->list = NULL;
 
 	return list->changed;
@@ -1253,14 +1253,14 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		dropDown->state->isOpen = !dropDown->state->isOpen;
 	}
 
-	if( dropDown->state->isOpen )
+	if( dropDown->state->isOpen && itemCount > 0u )
 	{
 		ImUiSurface* surface = ImUiWindowGetSurface( window );
 		const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 
 		const ImUiRect dropDownRect = ImUiWidgetGetRect( dropDown->dropDown );
 
-		const float listHeight = (s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.maxListLength );
+		const float listHeight = ((s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.maxListLength )) - s_config.dropDown.itemSpacing;
 		const float dropDownBottom = dropDownRect.pos.y + dropDownRect.size.height;
 		ImUiRect listRect;
 		if( dropDownBottom + listHeight > surfaceSize.height )

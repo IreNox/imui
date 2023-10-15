@@ -49,11 +49,11 @@ ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 {
 	// Murmur3
 	uint32 hash = seed;
-	uint32_t dataPart;
+	uint32 dataPart;
 	const uint8* bytes = (const uint8*)data;
-	for( size_t i = dataSize >> 2; i; --i )
+	for( uintsize i = dataSize >> 2; i; --i )
 	{
-		memcpy( &dataPart, bytes, sizeof( uint32 ) );
+		dataPart = *(uint32*)bytes;
 		bytes += sizeof( uint32 );
 
 		uint32 scramble = dataPart * 0xcc9e2d51;
@@ -66,7 +66,7 @@ ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 	}
 
 	dataPart = 0;
-	for( size_t i = dataSize & 3; i; --i )
+	for( uintsize i = dataSize & 3; i; --i )
 	{
 		dataPart <<= 8;
 		dataPart |= bytes[ i - 1 ];

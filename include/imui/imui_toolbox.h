@@ -185,24 +185,38 @@ struct ImUiToolboxConfig
 	ImUiToolboxPopupConfig			popup;
 };
 
+typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
+typedef struct ImUiToolboxScrollAreaContext ImUiToolboxScrollAreaContext;
+struct ImUiToolboxScrollAreaContext
+{
+	bool						horizontalSpacing;
+	bool						verticalSpacing;
+
+	ImUiWidget*					area;
+	ImUiWidget*					content;
+	ImUiToolboxScrollAreaState*	state;
+};
+
 typedef struct ImUiToolboxListState ImUiToolboxListState;
 typedef struct ImUiToolboxListContext ImUiToolboxListContext;
 struct ImUiToolboxListContext
 {
-	float					itemSize;
-	size_t					itemCount;
+	float							itemSize;
+	size_t							itemCount;
 
-	ImUiWidget*				list;
-	ImUiWidget*				listLayout;
-	ImUiToolboxListState*	state;
+	ImUiToolboxScrollAreaContext	scrollArea;
 
-	ImUiWidget*				item;
-	size_t					itemIndex;
+	ImUiWidget*						list;
+	ImUiWidget*						listLayout;
+	ImUiToolboxListState*			state;
 
-	size_t					beginIndex;
-	size_t					endIndex;
+	ImUiWidget*						item;
+	size_t							itemIndex;
 
-	bool					changed;
+	size_t							beginIndex;
+	size_t							endIndex;
+
+	bool							changed;
 };
 
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
@@ -268,8 +282,9 @@ ImUiStringView		ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_
 void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
 
-ImUiWidget*			ImUiToolboxScrollAreaBegin( ImUiWindow* window );
-void				ImUiToolboxScrollAreaEnd( ImUiWidget* scroll );
+void				ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
+void				ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
+void				ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
 
 void				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
 size_t				ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );

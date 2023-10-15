@@ -350,6 +350,8 @@ namespace imui
 
 		UiSize			getStretch() const;
 		void			setStretch( UiSize stretch );
+		void			setStretchHorizontal();
+		void			setStretchVertival();
 
 		UiAlign			getAlign() const;
 		void			setAlign( UiAlign align );
@@ -502,12 +504,14 @@ namespace imui
 						UiToolboxScrollArea( UiWindow& window );
 						~UiToolboxScrollArea();
 
-		protected:
+			void		enableSpacing( bool horizontal, bool vertical );
 
-						UiToolboxScrollArea();
+		private:
+
+			ImUiToolboxScrollAreaContext m_scrollArea;
 		};
 
-		class UiToolboxList : public UiToolboxScrollArea
+		class UiToolboxList : public UiWidget
 		{
 		public:
 

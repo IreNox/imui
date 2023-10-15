@@ -183,8 +183,9 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 	}
 	else
 	{
-		ImUiWidget* scrollArea = ImUiToolboxScrollAreaBegin( window );
-		ImUiWidgetSetMinSize( scrollArea, ImUiSizeCreateAll( 200.0f ) );
+		ImUiToolboxScrollAreaContext scrollArea;
+		ImUiToolboxScrollAreaBegin( &scrollArea, window );
+		ImUiWidgetSetMinSize( scrollArea.area, ImUiSizeCreateAll( 200.0f ) );
 
 		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll" ) );
 		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizontal() );
@@ -196,7 +197,7 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 		}
 
 		ImUiWidgetEnd( scrollLayout );
-		ImUiToolboxScrollAreaEnd( scrollArea );
+		ImUiToolboxScrollAreaEnd( &scrollArea );
 	}
 
 	ImUiWidgetEnd( vLayout );

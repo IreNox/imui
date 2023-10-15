@@ -462,6 +462,9 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 		ImUiWidgetUpdateLayoutContext( childWidget, true );
 	}
 
+	context->childrenStretch.width		= IMUI_MAX( 1.0f, context->childrenStretch.width );
+	context->childrenStretch.height		= IMUI_MAX( 1.0f, context->childrenStretch.height );
+
 	switch( widget->parent->layout )
 	{
 	case ImUiLayout_Stack:
