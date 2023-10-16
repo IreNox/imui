@@ -1,5 +1,6 @@
 #include "imui_font.h"
 
+#include "imui_internal.h"
 #include "imui_memory.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION

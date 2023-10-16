@@ -1,7 +1,5 @@
 -- imui
 
-module.module_type = ModuleTypes.FilesModule
-
 module:add_include_dir( "include" )
 
 module:add_files( "include/imui/*.h" )

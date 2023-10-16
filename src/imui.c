@@ -745,7 +745,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 			widget->layoutContext	= lastFrameWidget->layoutContext;
 			widget->rect			= lastFrameWidget->rect;
 			widget->clipRect		= lastFrameWidget->clipRect;
-			widget->inputContext		= lastFrameWidget->inputContext;
+			widget->inputContext	= lastFrameWidget->inputContext;
 		}
 	}
 

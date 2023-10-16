@@ -16,7 +16,7 @@ extern "C"
 #endif
 
 #if !defined( IMUI_DEBUG )
-#	if defined( _DEBUG ) || defined( __DEBUG__ )
+#	if defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )
 #		define IMUI_DEBUG 1
 #	else
 #		define IMUI_DEBUG 0

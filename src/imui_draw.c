@@ -1,8 +1,8 @@
 #include "imui_draw.h"
 
 #include "imui_font.h"
+#include "imui_internal.h"
 #include "imui_memory.h"
-#include "imui_text.h"
 
 #include <string.h>
 

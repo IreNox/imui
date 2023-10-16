@@ -1,6 +1,8 @@
 #pragma once
 
-#include "imui_internal.h"
+#include "imui/imui.h"
+
+#include "imui_types.h"
 
 #define IMUI_MEMORY_NEW( ALLOCATOR, TYPE )		(TYPE*)ImUiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) )
 #define IMUI_MEMORY_NEW_ZERO( ALLOCATOR, TYPE )	(TYPE*)ImUiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) )
