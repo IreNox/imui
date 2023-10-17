@@ -37,3 +37,4 @@ jobs:
       with:
         name: ${{matrix.PROJECT}}_${{matrix.CONFIG}}_${{matrix.PLATFORM}}.exe
         path: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022/${{matrix.PLATFORM}}/${{matrix.CONFIG}}/${{matrix.PROJECT}}.exe
+        retention-days: 2
