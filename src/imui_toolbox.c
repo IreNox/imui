@@ -126,7 +126,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->font					= font;
 
 	config->button.height			= 25.0f;
-	config->button.padding			= ImUiBorderCreateAll( 8.0f );
+	config->button.padding			= ImUiBorderCreate( 0.0f, 8.0f, 0.0f, 8.0f );
 
 	config->checkBox.size			= ImUiSizeCreateAll( 25.0f );
 	config->checkBox.textSpacing	= 8.0f;
@@ -184,6 +184,7 @@ void ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical )
 ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 {
 	ImUiWidget* button = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedHeight( button, s_config.button.height );
 	ImUiWidgetSetPadding( button, s_config.button.padding );
 
 	ImUiWidgetInputState inputState;
@@ -336,6 +337,7 @@ ImUiWidget* ImUiToolboxCheckBoxBegin( ImUiWindow* window )
 	ImUiWidget* checkBoxFrame = ImUiWidgetBegin( window );
 	ImUiWidgetSetPadding( checkBoxFrame, ImUiBorderCreate( 0.0f, s_config.checkBox.size.width + s_config.checkBox.textSpacing, 0.0f, 0.0f ) );
 	ImUiWidgetSetFixedHeight( checkBoxFrame, s_config.checkBox.size.height );
+	ImUiWidgetSetVAlign( checkBoxFrame, 0.5f );
 
 	return checkBoxFrame;
 }
@@ -422,6 +424,7 @@ ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text )
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( label, textSize );
+	ImUiWidgetSetVAlign( label, 0.5f );
 
 	if( layout )
 	{
