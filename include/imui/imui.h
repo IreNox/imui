@@ -189,21 +189,25 @@ struct ImUiTexCoord
 	float					v1;
 };
 
-typedef struct ImUiTexture ImUiTexture;
-struct ImUiTexture
+typedef struct ImUiTexture
 {
 	void*					data;
-	uint32_t				width;
-	uint32_t				height;
-};
+	uint16_t				width;
+	uint16_t				height;
+} ImUiTexture;
 
-typedef struct ImUiSkin ImUiSkin;
-struct ImUiSkin
+typedef struct ImUiImage
 {
 	ImUiTexture				texture;
-	ImUiBorder				border;
 	ImUiTexCoord			uv;
-};
+} ImUiImage;
+
+typedef struct ImUiSkin
+{
+	ImUiTexture				texture;
+	ImUiTexCoord			uv;
+	ImUiBorder				border;
+} ImUiSkin;
 
 typedef enum ImUiLayout
 {

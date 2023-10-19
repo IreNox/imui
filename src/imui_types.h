@@ -24,6 +24,8 @@ typedef int64_t		sint64;
 
 typedef size_t		uintsize;
 
+typedef uint8_t		byte;
+
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
 #	define IMUI_DEFAULT_ARRAY_CAPACITY				16u
 #endif

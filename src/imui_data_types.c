@@ -42,6 +42,16 @@ bool ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 )
 		return false;
 	}
 
+		if( string1.length == 0u )
+	{
+		return true;
+	}
+
+	if( string1.data[ 0u ] != string2.data[ 0u ] )
+	{
+		return false;
+	}
+
 	return memcmp( string1.data, string2.data, string1.length ) == 0u;
 }
 
