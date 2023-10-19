@@ -7,7 +7,7 @@
 
 struct ImUiFont
 {
-	ImUiTexture			texture;
+	ImUiImage			image;
 	ImUiFontCodepoint*	codepoints;
 	uintsize			codepointCount;
 

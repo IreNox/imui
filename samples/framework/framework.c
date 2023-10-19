@@ -48,7 +48,7 @@ struct ImUiFrameworkContext
 	GLuint						vertexBuffer;
 	GLuint						elementBuffer;
 
-	ImUiFrameworkTexture			whiteTexture;
+	ImUiFrameworkTexture		whiteTexture;
 
 	ImUiContext*				imui;
 };
@@ -698,7 +698,7 @@ void ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture )
 	free( texture );
 }
 
-bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char* fontFilename, float fontSize )
+bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiImage* image, const char* fontFilename, float fontSize )
 {
 	uint8_t* fileData;
 	size_t fileSize;
@@ -749,28 +749,32 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char*
 		return false;
 	}
 
-	ImUiFontTrueTypeImage* image = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
-	if( !image )
+	ImUiFontTrueTypeImage* ttfImage = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
+	if( !ttfImage )
 	{
 		ImUiFontTrueTypeDataDestroy( ttf );
 		free( fileData );
 		return false;
 	}
 
-	texture->data	= ImUiFrameworkTextureCreate( textureData, width, height, true );
-	texture->width	= width;
-	texture->height	= height;
+	image->textureData	= ImUiFrameworkTextureCreate( textureData, width, height, true );
+	image->width		= width;
+	image->height		= height;
+	image->uv.u0		= 0.0f;
+	image->uv.v0		= 0.0f;
+	image->uv.u1		= 1.0f;
+	image->uv.v1		= 1.0f;
 
 	free( textureData );
 
-	if( !texture->data )
+	if( !image->textureData )
 	{
 		ImUiFontTrueTypeDataDestroy( ttf );
 		free( fileData );
 		return false;
 	}
 
-	*font = ImUiFontCreateTrueType( s_context.imui, image, *texture );
+	*font = ImUiFontCreateTrueType( s_context.imui, ttfImage, *image );
 
 	ImUiFontTrueTypeDataDestroy( ttf );
 	free( fileData );
@@ -778,16 +782,16 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiTexture* texture, const char*
 	return *font != NULL;
 }
 
-void ImUiFrameworkFontDestroy( ImUiFont** font, ImUiTexture* texture )
+void ImUiFrameworkFontDestroy( ImUiFont** font, ImUiImage* image )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)texture->data );
+	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)image->textureData );
 	ImUiFontDestroy( s_context.imui, *font );
 
-	texture->data = NULL;
+	image->textureData = NULL;
 	*font = NULL;
 }
 
-bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t size, float radius, float factor, bool horizontal )
+bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiImage* image, uint32_t size, float radius, float factor, bool horizontal )
 {
 	uint8_t* skinData = malloc( size * size * 4u );
 	if( !skinData )
@@ -869,17 +873,20 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t siz
 		}
 	}
 
-	texture->data	= ImUiFrameworkTextureCreate( skinData, size, size, false );
-	texture->width	= size;
-	texture->height	= size;
+	image->textureData	= ImUiFrameworkTextureCreate( skinData, size, size, false );
+	image->width	= size;
+	image->height	= size;
+	image->uv.u0	= 0.0f;
+	image->uv.v0	= 0.0f;
+	image->uv.u1	= 1.0f;
+	image->uv.v1	= 1.0f;
 
 	free( skinData );
 
-	skin->texture	= *texture;
-	skin->uv.u0		= 0.0f;
-	skin->uv.v0		= 0.0f;
-	skin->uv.u1		= 1.0f;
-	skin->uv.v1		= 1.0f;
+	skin->textureData	= image->textureData;
+	skin->width			= image->width;
+	skin->height		= image->height;
+	skin->uv			= image->uv;
 
 	if( horizontal )
 	{
@@ -890,11 +897,11 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiTexture* texture, uint32_t siz
 		skin->border	= ImUiBorderCreateAll( radius );
 	}
 
-	return texture->data != NULL;
+	return image->textureData != NULL;
 }
 
-void ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiTexture* texture )
+void ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiImage* image )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)texture->data );
-	texture->data = NULL;
+	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)image->textureData );
+	image->textureData = NULL;
 }

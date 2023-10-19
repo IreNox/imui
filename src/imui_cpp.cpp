@@ -93,7 +93,13 @@ namespace imui
 		height	= value.height;
 	}
 
-	UiSize::UiSize( const ImUiTexture& value )
+	UiSize::UiSize( const ImUiSkin& value )
+	{
+		width	= (float)value.width;
+		height	= (float)value.height;
+	}
+
+	UiSize::UiSize( const ImUiImage& value )
 	{
 		width	= (float)value.width;
 		height	= (float)value.height;
@@ -1106,14 +1112,14 @@ namespace imui
 		ImUiDrawWidgetColor( m_widget, color );
 	}
 
-	void UiWidget::drawWidgetTexture( const ImUiTexture& texture )
+	void UiWidget::drawWidgetImage( const ImUiImage& image )
 	{
-		ImUiDrawWidgetTexture( m_widget, texture );
+		ImUiDrawWidgetImage( m_widget, image );
 	}
 
-	void UiWidget::drawWidgetTextureColor( const ImUiTexture& texture, UiColor color )
+	void UiWidget::drawWidgetImage( const ImUiImage& image, UiColor color )
 	{
-		ImUiDrawWidgetTextureColor( m_widget, texture, color );
+		ImUiDrawWidgetImageColor( m_widget, image, color );
 	}
 
 	void UiWidget::drawWidgetSkin( const ImUiSkin& skin )
@@ -1141,24 +1147,14 @@ namespace imui
 		ImUiDrawRectColor( m_widget, rect, color );
 	}
 
-	void UiWidget::drawRectTexture( const UiRect& rect, const ImUiTexture& texture )
+	void UiWidget::drawRectImage( const UiRect& rect, const ImUiImage& image )
 	{
-		ImUiDrawRectTexture( m_widget, rect, texture );
+		ImUiDrawRectImage( m_widget, rect, image );
 	}
 
-	void UiWidget::drawRectTextureUv( const UiRect& rect, const ImUiTexture& texture, const UiTexCoord& uv )
+	void UiWidget::drawRectImage( const UiRect& rect, const ImUiImage& image, UiColor color )
 	{
-		ImUiDrawRectTextureUv( m_widget, rect, texture, uv );
-	}
-
-	void UiWidget::drawRectTextureColor( const UiRect& rect, const ImUiTexture& texture, UiColor color )
-	{
-		ImUiDrawRectTextureColor( m_widget, rect, texture, color );
-	}
-
-	void UiWidget::drawRectTextureColorUv( const UiRect& rect, const ImUiTexture& texture, UiColor color, const UiTexCoord& uv )
-	{
-		ImUiDrawRectTextureColorUv( m_widget, rect, texture, color, uv );
+		ImUiDrawRectImageColor( m_widget, rect, image, color );
 	}
 
 	void UiWidget::drawSkin( const UiRect& rect, const ImUiSkin& skin )
@@ -1274,12 +1270,12 @@ namespace imui
 		return result;
 	}
 
-	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiTexture& icon )
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon )
 	{
 		return ImUiToolboxButtonIcon( m_window, icon );
 	}
 
-	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiTexture& icon, UiSize iconSize )
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon, UiSize iconSize )
 	{
 		return ImUiToolboxButtonIconSize( m_window, icon, iconSize );
 	}

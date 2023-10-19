@@ -205,9 +205,17 @@ ImUiSize ImUiSizeCreateZero()
 	return size;
 }
 
-ImUiSize ImUiSizeCreateImage( ImUiTexture image )
+ImUiSize ImUiSizeCreateSkin( const ImUiSkin* skin )
 {
-	const ImUiSize size = { (float)image.width, (float)image.height };
+	IMUI_ASSERT( skin );
+	const ImUiSize size = { (float)skin->width, (float)skin->height };
+	return size;
+}
+
+ImUiSize ImUiSizeCreateImage( const ImUiImage* image )
+{
+	IMUI_ASSERT( image );
+	const ImUiSize size = { (float)image->width, (float)image->height };
 	return size;
 }
 

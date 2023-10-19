@@ -56,7 +56,7 @@ ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameter
 		return NULL;
 	}
 
-	font->texture			= parameters->texture;
+	font->image				= parameters->image;
 	font->codepoints		= IMUI_MEMORY_ARRAY_NEW( &imui->allocator, ImUiFontCodepoint, parameters->codepointCount );
 	font->codepointCount	= parameters->codepointCount;
 	font->fontSize			= parameters->fontSize;
@@ -79,9 +79,9 @@ ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameter
 	return font;
 }
 
-ImUiFont* ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiTexture texture )
+ImUiFont* ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiImage image )
 {
-	ttfImage->parameters.texture = texture;
+	ttfImage->parameters.image = image;
 
 	ImUiFont* font = ImUiFontCreate( imui, &ttfImage->parameters );
 

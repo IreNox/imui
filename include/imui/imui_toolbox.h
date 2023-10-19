@@ -90,60 +90,52 @@ typedef enum ImUiToolboxImage
 	ImUiToolboxImage_MAX
 } ImUiToolboxImage;
 
-typedef struct ImUiToolboxButtonConfig ImUiToolboxButtonConfig;
-struct ImUiToolboxButtonConfig
+typedef struct ImUiToolboxButtonConfig
 {
 	float			height;
 	ImUiBorder		padding;
-};
+} ImUiToolboxButtonConfig;
 
-typedef struct ImUiToolboxCheckBoxConfig ImUiToolboxCheckBoxConfig;
-struct ImUiToolboxCheckBoxConfig
+typedef struct ImUiToolboxCheckBoxConfig
 {
 	ImUiSize		size;
 	float			textSpacing;
-};
+} ImUiToolboxCheckBoxConfig;
 
-typedef struct ImUiToolboxSliderConfig ImUiToolboxSliderConfig;
-struct ImUiToolboxSliderConfig
+typedef struct ImUiToolboxSliderConfig
 {
 	float			height;
 	ImUiBorder		padding;
 	ImUiSize		pivotSize;
-};
+} ImUiToolboxSliderConfig;
 
-typedef struct ImUiToolboxTextEditConfig ImUiToolboxTextEditConfig;
-struct ImUiToolboxTextEditConfig
+typedef struct ImUiToolboxTextEditConfig
 {
 	float			height;
 	ImUiBorder		padding;
 	ImUiSize		cursorSize;
 	float			blinkTime;
-};
+} ImUiToolboxTextEditConfig;
 
-typedef struct ImUiToolboxProgressBarConfig ImUiToolboxProgressBarConfig;
-struct ImUiToolboxProgressBarConfig
+typedef struct ImUiToolboxProgressBarConfig
 {
 	float			height;
 	ImUiBorder		padding;
-};
+} ImUiToolboxProgressBarConfig;
 
-typedef struct ImUiToolboxScrollAreaConfig ImUiToolboxScrollAreaConfig;
-struct ImUiToolboxScrollAreaConfig
+typedef struct ImUiToolboxScrollAreaConfig
 {
 	float			barSize;
 	float			barSpacing;
 	float			barMinSize;
-};
+} ImUiToolboxScrollAreaConfig;
 
-typedef struct ImUiToolboxListConfig ImUiToolboxListConfig;
-struct ImUiToolboxListConfig
+typedef struct ImUiToolboxListConfig
 {
 	float			itemSpacing;
-};
+} ImUiToolboxListConfig;
 
-typedef struct ImUiToolboxDropDownConfig ImUiToolboxDropDownConfig;
-struct ImUiToolboxDropDownConfig
+typedef struct ImUiToolboxDropDownConfig
 {
 	float			height;
 	ImUiBorder		padding;
@@ -154,23 +146,21 @@ struct ImUiToolboxDropDownConfig
 	ImUiBorder		itemPadding;
 	float			itemSize;
 	float			itemSpacing;
-};
+} ImUiToolboxDropDownConfig;
 
-typedef struct ImUiToolboxPopupConfig ImUiToolboxPopupConfig;
-struct ImUiToolboxPopupConfig
+typedef struct ImUiToolboxPopupConfig
 {
 	uint32_t		zOrder;
 	ImUiBorder		padding;
 
 	float			buttonSpacing;
-};
+} ImUiToolboxPopupConfig;
 
-typedef struct ImUiToolboxConfig ImUiToolboxConfig;
-struct ImUiToolboxConfig
+typedef struct ImUiToolboxConfig
 {
 	ImUiColor						colors[ ImUiToolboxColor_MAX ];
 	ImUiSkin						skins[ ImUiToolboxSkin_MAX ];
-	ImUiTexture						images[ ImUiToolboxImage_MAX ];
+	ImUiImage						images[ ImUiToolboxImage_MAX ];
 
 	ImUiFont*						font;
 
@@ -183,11 +173,10 @@ struct ImUiToolboxConfig
 	ImUiToolboxListConfig			list;
 	ImUiToolboxDropDownConfig		dropDown;
 	ImUiToolboxPopupConfig			popup;
-};
+} ImUiToolboxConfig;
 
 typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
-typedef struct ImUiToolboxScrollAreaContext ImUiToolboxScrollAreaContext;
-struct ImUiToolboxScrollAreaContext
+typedef struct ImUiToolboxScrollAreaContext
 {
 	bool						horizontalSpacing;
 	bool						verticalSpacing;
@@ -195,11 +184,10 @@ struct ImUiToolboxScrollAreaContext
 	ImUiWidget*					area;
 	ImUiWidget*					content;
 	ImUiToolboxScrollAreaState*	state;
-};
+} ImUiToolboxScrollAreaContext;
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
-typedef struct ImUiToolboxListContext ImUiToolboxListContext;
-struct ImUiToolboxListContext
+typedef struct ImUiToolboxListContext
 {
 	float							itemSize;
 	size_t							itemCount;
@@ -217,18 +205,17 @@ struct ImUiToolboxListContext
 	size_t							endIndex;
 
 	bool							changed;
-};
+} ImUiToolboxListContext;
 
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
-typedef struct ImUiToolboxDropDownContext ImUiToolboxDropDownContext;
-struct ImUiToolboxDropDownContext
+typedef struct ImUiToolboxDropDownContext
 {
 	ImUiWidget*					dropDown;
 
 	ImUiToolboxDropDownState*	state;
 
 	bool						changed;
-};
+} ImUiToolboxDropDownContext;
 
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
@@ -245,10 +232,10 @@ bool				ImUiToolboxButtonLabelEnd( ImUiWidget* button );
 bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
 bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
 bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
-ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize );
+ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
 bool				ImUiToolboxButtonIconEnd( ImUiWidget* button );
-bool				ImUiToolboxButtonIcon( ImUiWindow* window, ImUiTexture icon );
-bool				ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiTexture icon, ImUiSize iconSize );
+bool				ImUiToolboxButtonIcon( ImUiWindow* window, ImUiImage icon );
+bool				ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
 
 ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
 bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );

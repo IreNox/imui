@@ -100,7 +100,8 @@ namespace imui
 						UiSize( float all );
 						UiSize( float _width, float _height );
 						UiSize( const ImUiSize& value );
-						UiSize( const ImUiTexture& value );
+						UiSize( const ImUiSkin& value );
+						UiSize( const ImUiImage& value );
 
 		UiSize			add( float _width, float _height ) const;
 		UiSize			add( UiSize add ) const;
@@ -368,17 +369,15 @@ namespace imui
 
 		void			drawLine( UiPos p0, UiPos p1, UiColor color );
 		void			drawWidgetColor( UiColor color );
-		void			drawWidgetTexture( const ImUiTexture& texture );
-		void			drawWidgetTextureColor( const ImUiTexture& texture, UiColor color );
+		void			drawWidgetImage( const ImUiImage& image );
+		void			drawWidgetImage( const ImUiImage& image, UiColor color );
 		void			drawWidgetSkin( const ImUiSkin& skin );
 		void			drawWidgetSkinColor( const ImUiSkin& skin, UiColor color );
 		void			drawWidgetText( ImUiTextLayout* layout );
 		void			drawWidgetTextColor( ImUiTextLayout* layout, UiColor color );
 		void			drawRectColor( const UiRect& rect, ImUiColor color );
-		void			drawRectTexture( const UiRect& rect, const ImUiTexture& texture );
-		void			drawRectTextureUv( const UiRect& rect, const ImUiTexture& texture, const UiTexCoord& uv );
-		void			drawRectTextureColor( const UiRect& rect, const ImUiTexture& texture, UiColor color );
-		void			drawRectTextureColorUv( const UiRect& rect, const ImUiTexture& texture, UiColor color, const UiTexCoord& uv );
+		void			drawRectImage( const UiRect& rect, const ImUiImage& image );
+		void			drawRectImage( const UiRect& rect, const ImUiImage& image, UiColor color );
 		void			drawSkin( const UiRect& rect, const ImUiSkin& skin );
 		void			drawSkinColor( const UiRect& rect, const ImUiSkin& skin, UiColor color );
 		void			drawText( UiPos pos, ImUiTextLayout* layout );
@@ -430,8 +429,8 @@ namespace imui
 
 			bool			buttonLabel( const UiStringView& text );
 			bool			buttonLabelFormat( const char* format, ... );
-			bool			buttonIcon( const ImUiTexture& icon );
-			bool			buttonIcon( const ImUiTexture& icon, UiSize iconSize );
+			bool			buttonIcon( const ImUiImage& icon );
+			bool			buttonIcon( const ImUiImage& icon, UiSize iconSize );
 
 			bool			checkBox( bool& checked, const UiStringView& text );
 			bool			checkBoxState( const UiStringView& text, bool defaultValue = false );

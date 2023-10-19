@@ -684,14 +684,7 @@ static ImUiSize ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, I
 ImUiWidget* ImUiWidgetBegin( ImUiWindow* window )
 {
 	IMUI_ASSERT( window );
-
-	ImUiId id = 0u;
-	if( window->currentWidget->lastChild )
-	{
-		id = window->currentWidget->lastChild->id + 1u;
-	}
-
-	return ImUiWidgetBeginId( window, id );
+	return ImUiWidgetBeginId( window, 0u );
 }
 
 ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
@@ -702,6 +695,11 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 	if( widget == NULL )
 	{
 		return NULL;
+	}
+
+	if( window->currentWidget->lastChild )
+	{
+		id += window->currentWidget->lastChild->id + 1u;
 	}
 
 	ImUiWidget* parent = window->currentWidget;

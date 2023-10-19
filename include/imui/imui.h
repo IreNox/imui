@@ -39,8 +39,7 @@ typedef void*(*ImUiAllocatorMallocFunc)(size_t size, void* userData);
 typedef void*(*ImUiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
 typedef void( *ImUiAllocatorFreeFunc )(void* memory, void* userData);
 
-typedef struct ImUiAllocator ImUiAllocator;
-struct ImUiAllocator
+typedef struct ImUiAllocator
 {
 	ImUiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
 	ImUiAllocatorReallocFunc	reallocFunc;	// can be NULL
@@ -53,16 +52,15 @@ struct ImUiAllocator
 	size_t						allocationSize;
 	size_t						maxAllocationSize;
 #endif
-};
+} ImUiAllocator;
 
-typedef struct ImUiStringView ImUiStringView;
-struct ImUiStringView
+typedef struct ImUiStringView
 {
 	const char*					data;
 	size_t						length;
-};
+} ImUiStringView;
 
-enum ImUiVertexElementType
+typedef enum ImUiVertexElementType
 {
 	ImUiVertexElementType_Float,
 	ImUiVertexElementType_Float2,
@@ -80,10 +78,9 @@ enum ImUiVertexElementType
 	ImUiVertexElementType_UInt4,
 
 	ImUiVertexElementType_MAX
-};
-typedef enum ImUiVertexElementType ImUiVertexElementType;
+} ImUiVertexElementType;
 
-enum ImUiVertexElementSemantic
+typedef enum ImUiVertexElementSemantic
 {
 	ImUiVertexElementSemantic_None,
 	ImUiVertexElementSemantic_PositionScreenSpace,
@@ -91,23 +88,20 @@ enum ImUiVertexElementSemantic
 	ImUiVertexElementSemantic_TextureCoordinate,
 	ImUiVertexElementSemantic_ColorRGBA,
 	ImUiVertexElementSemantic_ColorABGR
-};
-typedef enum ImUiVertexElementSemantic ImUiVertexElementSemantic;
+} ImUiVertexElementSemantic;
 
-typedef struct ImUiVertexElement ImUiVertexElement;
-struct ImUiVertexElement
+typedef struct ImUiVertexElement
 {
 	uint32_t					align;
 	ImUiVertexElementType		type;
 	ImUiVertexElementSemantic	semantic;
-};
+} ImUiVertexElement;
 
-typedef struct ImUiVertexFormat ImUiVertexFormat;
-struct ImUiVertexFormat
+typedef struct ImUiVertexFormat
 {
 	const ImUiVertexElement*	elements;
 	size_t						elementCount;
-};
+} ImUiVertexFormat;
 
 typedef enum ImUiVertexType
 {
@@ -134,77 +128,67 @@ void						ImUiEnd( ImUiFrame* frame );
 //////////////////////////////////////////////////////////////////////////
 // Types
 
-typedef struct ImUiAlign ImUiAlign;
-struct ImUiAlign
+typedef struct ImUiAlign
 {
 	float					horizontal;
 	float					vertical;
-};
+} ImUiAlign;
 
-typedef struct ImUiBorder ImUiBorder;
-struct ImUiBorder
+typedef struct ImUiBorder
 {
 	float					top;
 	float					left;
 	float					bottom;
 	float					right;
-};
+} ImUiBorder;
 
-typedef struct ImUiColor ImUiColor;
-struct ImUiColor
+typedef struct ImUiColor
 {
 	uint8_t					red;
 	uint8_t					green;
 	uint8_t					blue;
 	uint8_t					alpha;
-};
+} ImUiColor;
 
-typedef struct ImUiPos ImUiPos;
-struct ImUiPos
+typedef struct ImUiPos
 {
 	float					x;
 	float					y;
-};
+} ImUiPos;
 
-typedef struct ImUiSize ImUiSize;
-struct ImUiSize
+typedef struct ImUiSize
 {
 	float					width;
 	float					height;
-};
+} ImUiSize;
 
-typedef struct ImUiRect ImUiRect;
-struct ImUiRect
+typedef struct ImUiRect
 {
 	ImUiPos					pos;
 	ImUiSize				size;
-};
+} ImUiRect;
 
-typedef struct ImUiTexCoord ImUiTexCoord;
-struct ImUiTexCoord
+typedef struct ImUiTexCoord
 {
 	float					u0;
 	float					v0;
 	float					u1;
 	float					v1;
-};
-
-typedef struct ImUiTexture
-{
-	void*					data;
-	uint16_t				width;
-	uint16_t				height;
-} ImUiTexture;
+} ImUiTexCoord;
 
 typedef struct ImUiImage
 {
-	ImUiTexture				texture;
+	void*					textureData;
+	uint32_t				width;
+	uint32_t				height;
 	ImUiTexCoord			uv;
 } ImUiImage;
 
 typedef struct ImUiSkin
 {
-	ImUiTexture				texture;
+	void*					textureData;
+	uint32_t				width;
+	uint32_t				height;
 	ImUiTexCoord			uv;
 	ImUiBorder				border;
 } ImUiSkin;
@@ -229,17 +213,15 @@ typedef enum ImUiDrawTopology
 	ImUiDrawTopology_MAX
 } ImUiDrawTopology;
 
-typedef struct ImUiDrawCommand ImUiDrawCommand;
-struct ImUiDrawCommand
+typedef struct ImUiDrawCommand
 {
 	ImUiDrawTopology		topology;
 	void*					texture;
 	ImUiRect				clipRect;
 	size_t					count;				// index count if index buffer is used otherwise vertex count
-};
+} ImUiDrawCommand;
 
-typedef struct ImUiDrawData ImUiDrawData;
-struct ImUiDrawData
+typedef struct ImUiDrawData
 {
 	const void*				vertexData;
 	size_t					vertexDataSize;
@@ -248,7 +230,7 @@ struct ImUiDrawData
 
 	const ImUiDrawCommand*	commands;
 	size_t					commandCount;
-};
+} ImUiDrawData;
 
 //////////////////////////////////////////////////////////////////////////
 // Surface - Presents a OS window or a screen
@@ -282,8 +264,7 @@ ImUiWidget*					ImUiWindowGetLastChild( const ImUiWindow* window );
 
 typedef void(*ImUiStateDestructFunc)( void* state );
 
-typedef struct ImUiWidgetInputState ImUiWidgetInputState;
-struct ImUiWidgetInputState
+typedef struct ImUiWidgetInputState
 {
 	ImUiPos						relativeMousePos;
 
@@ -293,7 +274,7 @@ struct ImUiWidgetInputState
 	bool						isMouseDown;
 	bool						hasMousePressed;
 	bool						hasMouseReleased;
-};
+} ImUiWidgetInputState;
 
 ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
 ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
@@ -368,17 +349,15 @@ void						ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* tar
 
 void						ImUiDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color );
 void						ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color );
-void						ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture );
-void						ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiColor color );
+void						ImUiDrawWidgetImage( ImUiWidget* widget, ImUiImage image );
+void						ImUiDrawWidgetImageColor( ImUiWidget* widget, ImUiImage image, ImUiColor color );
 void						ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin );
 void						ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color );
 void						ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout );
 void						ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
 void						ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color );
-void						ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture );
-void						ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv );
-void						ImUiDrawRectTextureColor( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color );
-void						ImUiDrawRectTextureColorUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color, ImUiTexCoord uv );
+void						ImUiDrawRectImage( ImUiWidget* widget, ImUiRect rect, ImUiImage image );
+void						ImUiDrawRectImageColor( ImUiWidget* widget, ImUiRect rect, ImUiImage image, ImUiColor color );
 void						ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin );
 void						ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color );
 void						ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout );
@@ -589,30 +568,28 @@ typedef struct ImUiFont ImUiFont;
 typedef struct ImUiFontTrueTypeData ImUiFontTrueTypeData;
 typedef struct ImUiFontTrueTypeImage ImUiFontTrueTypeImage;
 
-typedef struct ImUiFontCodepoint ImUiFontCodepoint;
-struct ImUiFontCodepoint
+typedef struct ImUiFontCodepoint
 {
 	uint32_t					codepoint;
 	float						width;
 	float						height;
 	float						advance;
 	float						ascentOffset;
-	ImUiTexCoord		uv;
-};
+	ImUiTexCoord				uv;
+} ImUiFontCodepoint;
 
-typedef struct ImUiFontParameters ImUiFontParameters;
-struct ImUiFontParameters
+typedef struct ImUiFontParameters
 {
-	ImUiTexture					texture;
+	ImUiImage					image;
 	const ImUiFontCodepoint*	codepoints;
 	size_t						codepointCount;
 
 	float						fontSize;
 	float						lineGap;
-};
+} ImUiFontParameters;
 
 ImUiFont*						ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters );
-ImUiFont*						ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiTexture texture );
+ImUiFont*						ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiImage image );
 void							ImUiFontDestroy( ImUiContext* imui, ImUiFont* font );
 
 ImUiFontTrueTypeData*			ImUiFontTrueTypeDataCreate( ImUiContext* imui, const void* data, size_t dataSize  ); // data must stay valid
@@ -665,7 +642,8 @@ ImUiSize						ImUiSizeCreate( float width, float height );
 ImUiSize						ImUiSizeCreateAll( float value );
 ImUiSize						ImUiSizeCreateOne();
 ImUiSize						ImUiSizeCreateZero();
-ImUiSize						ImUiSizeCreateImage( ImUiTexture image );
+ImUiSize						ImUiSizeCreateSkin( const ImUiSkin* skin );
+ImUiSize						ImUiSizeCreateImage( const ImUiImage* image );
 ImUiSize						ImUiSizeCreateHorizontal();				// x = 1, y = 0
 ImUiSize						ImUiSizeCreateVertical();				// x = 0, y = 1
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );

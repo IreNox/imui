@@ -310,55 +310,49 @@ void ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color )
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiDrawWidgetTexture( ImUiWidget* widget, ImUiTexture texture )
+void ImUiDrawWidgetImage( ImUiWidget* widget, ImUiImage image )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, image.textureData );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
 	rectData->color		= ImUiColorCreateWhite();
-	rectData->uv.u0		= 0.0f;
-	rectData->uv.v0		= 0.0f;
-	rectData->uv.u1		= 1.0f;
-	rectData->uv.v1		= 1.0f;
+	rectData->uv		= image.uv;
 }
 
-void ImUiDrawWidgetTextureColor( ImUiWidget* widget, ImUiTexture texture, ImUiColor color )
+void ImUiDrawWidgetImageColor( ImUiWidget* widget, ImUiImage image, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, image.textureData );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= widget->rect;
 	rectData->color		= color;
-	rectData->uv.u0		= 0.0f;
-	rectData->uv.v0		= 0.0f;
-	rectData->uv.u1		= 1.0f;
-	rectData->uv.v1		= 1.0f;
+	rectData->uv		= image.uv;
 }
 
 void ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.textureData );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
+	skinData->texSize	= ImUiSizeCreateSkin( &skin );
 	skinData->color		= ImUiColorCreateWhite();
 }
 
 void ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.textureData );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->rect		= widget->rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
+	skinData->texSize	= ImUiSizeCreateSkin( &skin );
 	skinData->color		= color;
 }
 
 void ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->image.textureData );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= widget->rect.pos;
 	textData->color		= ImUiColorCreateWhite();
@@ -367,7 +361,7 @@ void ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout )
 
 void ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->image.textureData );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= widget->rect.pos;
 	textData->color		= color;
@@ -383,73 +377,49 @@ void ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color )
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiDrawRectTexture( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture )
+void ImUiDrawRectImage( ImUiWidget* widget, ImUiRect rect, ImUiImage image )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, image.textureData );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
 	rectData->color		= ImUiColorCreateWhite();
-	rectData->uv.u0		= 0.0f;
-	rectData->uv.v0		= 0.0f;
-	rectData->uv.u1		= 1.0f;
-	rectData->uv.v1		= 1.0f;
+	rectData->uv		= image.uv;
 }
 
-void ImUiDrawRectTextureUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiTexCoord uv )
+void ImUiDrawRectImageColor( ImUiWidget* widget, ImUiRect rect, ImUiImage image, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
-	rectData->rect		= rect;
-	rectData->color		= ImUiColorCreateWhite();
-	rectData->uv		= uv;
-}
-
-void ImUiDrawRectTextureColor( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color )
-{
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, image.textureData );
 	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
 	rectData->rect		= rect;
 	rectData->color		= color;
-	rectData->uv.u0		= 0.0f;
-	rectData->uv.v0		= 0.0f;
-	rectData->uv.u1		= 1.0f;
-	rectData->uv.v1		= 1.0f;
-}
-
-void ImUiDrawRectTextureColorUv( ImUiWidget* widget, ImUiRect rect, ImUiTexture texture, ImUiColor color, ImUiTexCoord uv )
-{
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rectangle, texture.data );
-	struct ImUiDrawElementDataRectangle* rectData = &element->data.rect;
-	rectData->rect		= rect;
-	rectData->color		= color;
-	rectData->uv		= uv;
+	rectData->uv		= image.uv;
 }
 
 void ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.textureData );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->rect		= rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
+	skinData->texSize	= ImUiSizeCreateSkin( &skin );
 	skinData->color		= ImUiColorCreateWhite();
 }
 
 void ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin.textureData );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->rect		= rect;
 	skinData->border	= skin.border;
 	skinData->uv		= skin.uv;
-	skinData->texSize	= ImUiSizeCreateImage( skin.texture );
+	skinData->texSize	= ImUiSizeCreateSkin( &skin );
 	skinData->color		= color;
 }
 
 void ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->image.textureData );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= pos;
 	textData->color		= ImUiColorCreateWhite();
@@ -458,7 +428,7 @@ void ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout )
 
 void ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->texture.data );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Text, layout->font->image.textureData );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->pos		= pos;
 	textData->color		= color;
@@ -550,11 +520,14 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 		{
 			const struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 
+			const float uScale = (skinData->uv.u1 - skinData->uv.u0) / skinData->texSize.width;
+			const float vScale = (skinData->uv.v1 - skinData->uv.v0) / skinData->texSize.height;
+
 			ImUiBorder uvBorder = skinData->border;
-			uvBorder.top	/= skinData->texSize.height;
-			uvBorder.left	/= skinData->texSize.width;
-			uvBorder.bottom	/= skinData->texSize.height;
-			uvBorder.right	/= skinData->texSize.width;
+			uvBorder.top	*= vScale;
+			uvBorder.left	*= uScale;
+			uvBorder.bottom	*= vScale;
+			uvBorder.right	*= uScale;
 
 			const ImUiSize borderSize = ImUiBorderGetMinSize( skinData->border );
 			const float xScale = skinData->rect.size.width >= borderSize.width ? 1.0f : skinData->rect.size.width / borderSize.width;

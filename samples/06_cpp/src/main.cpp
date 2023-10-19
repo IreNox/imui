@@ -12,13 +12,13 @@
 using namespace imui;
 using namespace imui::toolbox;
 
-static ImUiTexture	s_fontTexture		= { NULL };
+static ImUiImage	s_fontTexture		= { NULL };
 static ImUiFont*	s_font				= NULL;
 
 static ImUiSkin		s_skinRect			= { NULL };
-static ImUiTexture	s_skinRectTexture	= { NULL };
+static ImUiImage	s_skinRectTexture	= { NULL };
 static ImUiSkin		s_skinLine			= { NULL };
-static ImUiTexture	s_skinLineTexture	= { NULL };
+static ImUiImage	s_skinLineTexture	= { NULL };
 
 static void			ImUiTestSetConfig();
 
@@ -78,6 +78,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		UiToolboxLabel mouseLabel;
 		mouseLabel.beginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
 		mouseLabel.setMinWidth( 100.0f );
+		mouseLabel.setVAlign( 0.0f );
 	}
 
 	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
@@ -340,7 +341,7 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
 	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
 
-	const ImUiTexture image ={ NULL, 16u, 16u };
+	const ImUiImage image = { NULL, 16u, 16u };
 
 	config.images[ ImUiToolboxImage_CheckBoxChecked ] = image;
 	config.images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
@@ -348,6 +349,7 @@ static void ImUiTestSetConfig()
 
 	config.font						= s_font;
 
+	config.button.height			= 20.0f;
 	config.button.padding			= ImUiBorderCreateAll( 8.0f );
 
 	config.checkBox.size			= ImUiSizeCreateAll( 20.0f );
