@@ -324,9 +324,9 @@ namespace imui
 		void			setLayoutStack();							// default
 		void			setLayoutScroll( UiPos offset );
 		void			setLayoutHorizontal();
-		void			setLayoutHorizontalSpacing( float spacing );
+		void			setLayoutHorizontal( float spacing );
 		void			setLayoutVertical();
-		void			setLayoutVerticalSpacing( float spacing );
+		void			setLayoutVertical( float spacing );
 		void			setLayoutGrid( size_t columnCount );
 
 		float			getTime();
@@ -368,20 +368,17 @@ namespace imui
 		void			getInputState( ImUiWidgetInputState& inputState ) const;
 
 		void			drawLine( UiPos p0, UiPos p1, UiColor color );
-		void			drawWidgetColor( UiColor color );
-		void			drawWidgetImage( const ImUiImage& image );
-		void			drawWidgetImage( const ImUiImage& image, UiColor color );
-		void			drawWidgetSkin( const ImUiSkin& skin );
-		void			drawWidgetSkinColor( const ImUiSkin& skin, UiColor color );
-		void			drawWidgetText( ImUiTextLayout* layout );
-		void			drawWidgetTextColor( ImUiTextLayout* layout, UiColor color );
-		void			drawRectColor( const UiRect& rect, ImUiColor color );
-		void			drawRectImage( const UiRect& rect, const ImUiImage& image );
-		void			drawRectImage( const UiRect& rect, const ImUiImage& image, UiColor color );
-		void			drawSkin( const UiRect& rect, const ImUiSkin& skin );
-		void			drawSkinColor( const UiRect& rect, const ImUiSkin& skin, UiColor color );
-		void			drawText( UiPos pos, ImUiTextLayout* layout );
-		void			drawTextColor( UiPos pos, ImUiTextLayout* layout, UiColor color );
+		void			drawTriangle( UiPos p0, UiPos p1, UiPos p2, UiColor color );
+		void			drawColor( UiColor color );
+		void			drawImage( const ImUiImage& image );
+		void			drawImage( const ImUiImage& image, UiColor color );
+		void			drawSkin( const ImUiSkin& skin, UiColor color );
+		void			drawText( ImUiTextLayout* layout, UiColor color );
+		void			drawPartialColor( const UiRect& rect, ImUiColor color );
+		void			drawPartialImage( const UiRect& rect, const ImUiImage& image );
+		void			drawPartialImage( const UiRect& rect, const ImUiImage& image, UiColor color );
+		void			drawPartialSkin( const UiRect& rect, const ImUiSkin& skin, UiColor color );
+		void			drawPositionText( UiPos pos, ImUiTextLayout* layout, UiColor color );
 
 	protected:
 

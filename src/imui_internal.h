@@ -15,9 +15,10 @@ struct ImUiSurface
 	ImUiContext*	imui;
 
 	ImUiStringView	name;
-
 	ImUiSize		size;
 	float			dpiScale;
+
+	uintsize		drawIndex;
 
 	ImUiWindow*		windows;
 	uintsize		windowCapacity;
@@ -29,14 +30,12 @@ struct ImUiWindow
 	bool			inUse;
 
 	ImUiContext*	imui;
-	ImUiFrame*		frame;
 	ImUiSurface*	surface;
 
-	ImUiHash		hash;
 	ImUiStringView	name;
-
 	ImUiRect		rect;
 	uint32			zOrder;
+
 	uintsize		drawIndex;
 
 	ImUiWidget*		rootWidget;
@@ -80,18 +79,41 @@ union ImUiLayoutData
 	struct ImUiLayoutGridData				grid;
 };
 
+typedef struct ImUiLayoutGridElement ImUiLayoutGridElement;
+struct ImUiLayoutGridElement
+{
+	float				marginSize;
+	//float				minOuterSize;
+	float				childrenStretch;
+	//float				childrenMaxStretch;
+	float				childrenMinSize;
+	//float				childrenMargin;
+};
+
+typedef struct ImUiLayoutGridContext ImUiLayoutGridContext;
+struct ImUiLayoutGridContext
+{
+	ImUiLayoutGridContext*	nextContext;
+	ImUiLayoutGridContext*	prevContext;
+
+	ImUiLayoutGridElement*	columns;
+	uintsize				columnCount;
+
+	ImUiLayoutGridElement*	rows;
+	uintsize				rowCount;
+};
+
 typedef struct ImUiLayoutContext ImUiLayoutContext;
 struct ImUiLayoutContext
 {
-	//ImUiRect		minInnerRect;
-	//ImUiRect		maxInnerRect;
-	ImUiSize		marginSize;
-	ImUiSize		minOuterSize;
-	size_t			childCount;
-	ImUiSize		childrenStretch;
-	ImUiSize		childrenMaxStretch;
-	ImUiSize		childrenMinSize;
-	ImUiSize		childrenMargin;
+	ImUiSize				marginSize;
+	ImUiSize				minOuterSize;
+	ImUiSize				childrenStretch;
+	ImUiSize				childrenMaxStretch;
+	ImUiSize				childrenMinSize;
+	ImUiSize				childrenMargin;
+
+	ImUiLayoutGridContext*	gridContext;
 };
 
 typedef struct ImUiWidgetInputContext ImUiWidgetInputContext;
@@ -112,6 +134,7 @@ struct ImUiWidget
 
 	ImUiWidget*				firstChild;
 	ImUiWidget*				lastChild;
+	uintsize				childCount;
 
 	ImUiHash				hash;
 	ImUiId					id;
@@ -177,4 +200,7 @@ struct ImUiContext
 
 	ImUiWidgetState*		firstState;
 	ImUiWidgetState*		firstUnusedState;
+
+	ImUiLayoutGridContext*	firstGridContext;
+	ImUiLayoutGridContext*	firstUnusedGridContext;
 };

@@ -200,7 +200,7 @@ ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 		color = s_config.colors[ ImUiToolboxColor_ButtonHover ];
 	}
 
-	ImUiDrawWidgetSkinColor( button, s_config.skins[ ImUiToolboxSkin_Button ], color );
+	ImUiWidgetDrawSkin( button, &s_config.skins[ ImUiToolboxSkin_Button ], color );
 
 	return button;
 }
@@ -228,7 +228,7 @@ ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text
 
 	if( layout )
 	{
-		ImUiDrawWidgetTextColor( buttonText, layout, s_config.colors[ ImUiToolboxColor_ButtonText ] );
+		ImUiWidgetDrawText( buttonText, layout, s_config.colors[ ImUiToolboxColor_ButtonText ] );
 	}
 
 	ImUiWidgetEnd( buttonText );
@@ -257,7 +257,7 @@ ImUiWidget* ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const cha
 	}
 	else if( length >= sizeof( buffer ) )
 	{
-		char* headBuffer = ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
+		char* headBuffer = (char*)ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
 		if( !headBuffer )
 		{
 			return false;
@@ -309,7 +309,7 @@ ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiImage icon, ImUi
 	ImUiWidgetSetAlign( buttonIcon, ImUiAlignCreateCenter() );
 	ImUiWidgetSetFixedSize( buttonIcon, iconSize );
 
-	ImUiDrawWidgetImage( buttonIcon, icon );
+	ImUiWidgetDrawImage( buttonIcon, &icon );
 
 	ImUiWidgetEnd( buttonIcon );
 
@@ -357,13 +357,13 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 		color = s_config.colors[ ImUiToolboxColor_CheckBoxHover ];
 	}
 
-	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiWidgetGetPos( checkBox ), s_config.checkBox.size );
-	ImUiDrawRectSkinColor( checkBox, checkBackgroundRect, s_config.skins[ ImUiToolboxSkin_CheckBox ], color );
+	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreateZero(), s_config.checkBox.size );
+	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_config.skins[ ImUiToolboxSkin_CheckBox ], color );
 
 	if( *checked )
 	{
 		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( &s_config.images[ ImUiToolboxImage_CheckBoxChecked ] ) );
-		ImUiDrawRectImageColor( checkBox, checkIconRect, s_config.images[ ImUiToolboxImage_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, &s_config.images[ ImUiToolboxImage_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
 	}
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
@@ -375,7 +375,7 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 
 	if( layout )
 	{
-		ImUiDrawWidgetTextColor( checkBoxText, layout, s_config.colors[ ImUiToolboxColor_Text ] );
+		ImUiWidgetDrawText( checkBoxText, layout, s_config.colors[ ImUiToolboxColor_Text ] );
 	}
 
 	ImUiWidgetEnd( checkBoxText );
@@ -407,7 +407,7 @@ bool ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, ImUiStringView text, b
 	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
 
 	bool isNew;
-	bool* checked = ImUiWidgetAllocStateNew( checkBox, sizeof( bool ), &isNew );
+	bool* checked = (bool*)ImUiWidgetAllocStateNew( checkBox, sizeof( bool ), &isNew );
 	if( isNew )
 	{
 		*checked = defaultValue;
@@ -428,7 +428,7 @@ ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text )
 
 	if( layout )
 	{
-		ImUiDrawWidgetTextColor( label, layout, s_config.colors[ ImUiToolboxColor_Text ] );
+		ImUiWidgetDrawText( label, layout, s_config.colors[ ImUiToolboxColor_Text ] );
 	}
 
 	return label;
@@ -454,7 +454,7 @@ ImUiWidget* ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* for
 	}
 	else if( length >= sizeof( buffer ) )
 	{
-		char* headBuffer = ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
+		char* headBuffer = (char*)ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
 		if( !headBuffer )
 		{
 			return NULL;
@@ -511,7 +511,7 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	ImUiWidgetInputState frameInputState;
 	ImUiWidgetGetInputState( slider, &frameInputState );
 
-	ImUiDrawWidgetSkinColor( slider, s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
+	ImUiWidgetDrawSkin( slider, &s_config.skins[ ImUiToolboxSkin_SliderBackground ], s_config.colors[ ImUiToolboxColor_SliderBackground ] );
 
 	ImUiWidget* sliderPivot = ImUiWidgetBegin( ImUiWidgetGetWindow( slider ) );
 	ImUiWidgetSetFixedSize( sliderPivot, s_config.slider.pivotSize );
@@ -547,7 +547,7 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 		changed = true;
 	}
 
-	ImUiDrawWidgetSkinColor( sliderPivot, s_config.skins[ ImUiToolboxSkin_SliderPivot ], color );
+	ImUiWidgetDrawSkin( sliderPivot, &s_config.skins[ ImUiToolboxSkin_SliderPivot ], color );
 
 	ImUiWidgetEnd( sliderPivot );
 
@@ -591,7 +591,7 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 	ImUiWidget* sliderFrame = ImUiToolboxSliderBegin( window );
 
 	bool isNew;
-	float* value = ImUiWidgetAllocStateNew( sliderFrame, sizeof( float ), &isNew );
+	float* value = (float*)ImUiWidgetAllocStateNew( sliderFrame, sizeof( float ), &isNew );
 	if( isNew )
 	{
 		*value = defaultValue;
@@ -608,7 +608,7 @@ ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 	ImUiWidgetSetPadding( textEditFrame, s_config.textEdit.padding );
 	ImUiWidgetSetFixedHeight( textEditFrame, s_config.textEdit.height );
 
-	ImUiDrawWidgetSkinColor( textEditFrame, s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
+	ImUiWidgetDrawSkin( textEditFrame, &s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
 
 	return textEditFrame;
 }
@@ -642,7 +642,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	ImUiWidgetSetVAlign( text, 0.5f );
 
 	bool isNew;
-	ImUiToolboxTextEditState* state = ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
+	ImUiToolboxTextEditState* state = (ImUiToolboxTextEditState*)ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
 
 	if( ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left ) )
 	{
@@ -653,7 +653,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		}
 	}
 
-	const ImUiRect textRect = ImUiWidgetGetRect( text );
+	const ImUiRect textEditRect = ImUiWidgetGetRect( textEdit );
 	const ImUiRect textEditInnerRect = ImUiWidgetGetInnerRect( textEdit );
 
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreateLength( buffer, textLengthInternal ) );
@@ -833,18 +833,18 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd );
 
 			const ImUiRect selection = ImUiRectCreate(
-				textRect.pos.x + startPos.x,
+				startPos.x,
 				textEditInnerRect.pos.y,
 				endPos.x - startPos.x,
 				textEditInnerRect.size.height
 			);
-			ImUiDrawRectColor( textEdit, selection, s_config.colors[ ImUiToolboxColor_TextEditSelection ] );
+			ImUiWidgetDrawPartialColor( textEdit, selection, s_config.colors[ ImUiToolboxColor_TextEditSelection ] );
 		}
 	}
 
 	if( layout )
 	{
-		ImUiDrawWidgetTextColor( text, layout, s_config.colors[ ImUiToolboxColor_Text ] );
+		ImUiWidgetDrawText( text, layout, s_config.colors[ ImUiToolboxColor_Text ] );
 	}
 
 	if( state->hasFocus )
@@ -854,9 +854,9 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		if( blink )
 		{
 			const ImUiPos cursorPos			= ImUiTextLayoutGetGlyphPos( layout, state->cursorPos );
-			const ImUiPos cursorPosTop		= ImUiPosCreate( textRect.pos.x + cursorPos.x, textEditInnerRect.pos.y );
-			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height );
-			ImUiDrawLine( textEdit, cursorPosTop, cursorPosBottom, s_config.colors[ ImUiToolboxColor_TextEditCursor ] );
+			const ImUiPos cursorPosTop		= ImUiPosCreate( (textEditInnerRect.pos.x - textEditRect.pos.x) + cursorPos.x, s_config.textEdit.padding.top );
+			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height - s_config.textEdit.padding.bottom );
+			ImUiWidgetDrawLine( textEdit, cursorPosTop, cursorPosBottom, s_config.colors[ ImUiToolboxColor_TextEditCursor ] );
 		}
 	}
 
@@ -912,7 +912,7 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 	ImUiWidgetSetPadding( progressBar, s_config.progressBar.padding );
 	ImUiWidgetSetFixedHeight( progressBar, s_config.progressBar.height );
 
-	ImUiDrawWidgetSkinColor( progressBar, s_config.skins[ ImUiToolboxSkin_ProgressBarBackground ], s_config.colors[ ImUiToolboxColor_ProgressBarBackground ] );
+	ImUiWidgetDrawSkin( progressBar, &s_config.skins[ ImUiToolboxSkin_ProgressBarBackground ], s_config.colors[ ImUiToolboxColor_ProgressBarBackground ] );
 
 	const ImUiRect barRect = ImUiWidgetGetInnerRect( progressBar );
 
@@ -926,8 +926,8 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 		const float margin		= floorf( sin * (barRect.size.width - width) );
 
 		progressRect = ImUiRectCreate(
-			barRect.pos.x + margin,
-			barRect.pos.y,
+			margin,
+			s_config.progressBar.padding.top,
 			width,
 			barRect.size.height
 		);
@@ -937,14 +937,15 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 		const float valueNorm	= (value - min) / (max - min);
 		const float width		= ceilf( barRect.size.width * valueNorm );
 
-		progressRect = ImUiRectCreatePos(
-			barRect.pos,
+		progressRect = ImUiRectCreate(
+			s_config.progressBar.padding.left,
+			s_config.progressBar.padding.top,
 			width,
 			barRect.size.height
 		);
 	}
 
-	ImUiDrawRectSkinColor( progressBar, progressRect, s_config.skins[ ImUiToolboxSkin_ProgressBarProgress ], s_config.colors[ ImUiToolboxColor_ProgressBarProgress ] );
+	ImUiWidgetDrawPartialSkin( progressBar, progressRect, &s_config.skins[ ImUiToolboxSkin_ProgressBarProgress ], s_config.colors[ ImUiToolboxColor_ProgressBarProgress ] );
 
 	ImUiWidgetEnd( progressBar );
 }
@@ -1009,8 +1010,8 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		const float barOffset		= (state->offset.y / areaSize.height) * frameRect.size.height;
 
 		const ImUiRect barPivotRect = ImUiRectCreate(
-			barRect.pos.x,
-			frameRect.pos.y + barOffset,
+			0.0f,
+			barOffset,
 			s_config.scrollArea.barSize,
 			barSize
 		);
@@ -1021,7 +1022,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		if( inputState.wasPressed )
 		{
 			if( !state->wasPressedY &&
-				ImUiRectIncludesPos( barPivotRect, ImUiInputGetMousePos( ImUiWidgetGetContext( scrollBar ) ) ) )
+				ImUiRectIncludesPos( barPivotRect, inputState.relativeMousePos ) )
 			{
 				state->pressPoint.y	= inputState.relativeMousePos.y;
 				state->pressPoint.y	-= barOffset;
@@ -1041,8 +1042,8 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 			state->wasPressedY = false;
 		}
 
-		ImUiDrawWidgetSkinColor( scrollBar, s_config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ] );
-		ImUiDrawRectSkinColor( scrollBar, barPivotRect, s_config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ] );
+		ImUiWidgetDrawSkin( scrollBar, &s_config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ] );
+		ImUiWidgetDrawPartialSkin( scrollBar, barPivotRect, &s_config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ] );
 
 		ImUiWidgetEnd( scrollBar );
 	}
@@ -1152,15 +1153,15 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 
 	if( inputState.isMouseDown )
 	{
-		ImUiDrawWidgetSkinColor( item, s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemClicked ] );
+		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemClicked ] );
 	}
 	else if( inputState.isMouseOver )
 	{
-		ImUiDrawWidgetSkinColor( item, s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemHover ] );
+		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemHover ] );
 	}
 	else if( list->itemIndex == list->state->selectedIndex )
 	{
-		ImUiDrawWidgetSkinColor( item, s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemSelected ] );
+		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemSelected ] );
 	}
 
 	if( inputState.hasMouseReleased )
@@ -1215,14 +1216,14 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		color = s_config.colors[ ImUiToolboxColor_DropDownHover ];
 	}
 
-	ImUiDrawWidgetSkinColor( dropDown->dropDown, s_config.skins[ ImUiToolboxSkin_DropDown ], color );
+	ImUiWidgetDrawSkin( dropDown->dropDown, &s_config.skins[ ImUiToolboxSkin_DropDown ], color );
 
 	ImUiWidget* icon = ImUiWidgetBegin( window );
 	const ImUiImage iconImage = s_config.images[ dropDown->state->isOpen ? ImUiToolboxImage_DropDownCloseIcon : ImUiToolboxImage_DropDownOpenIcon ];
 	ImUiWidgetSetFixedSize( icon, ImUiSizeCreateImage( &iconImage ) );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );
-	ImUiDrawWidgetImage( icon, iconImage );
+	ImUiWidgetDrawImage( icon, &iconImage );
 	ImUiWidgetEnd( icon );
 
 	ImUiSize maxSize = ImUiSizeCreateZero();
@@ -1247,7 +1248,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 
 	if( selectedTextLayout )
 	{
-		ImUiDrawWidgetTextColor( text, selectedTextLayout, s_config.colors[ ImUiToolboxColor_DropDownText ] );
+		ImUiWidgetDrawText( text, selectedTextLayout, s_config.colors[ ImUiToolboxColor_DropDownText ] );
 	}
 
 	ImUiWidgetEnd( text );
@@ -1284,7 +1285,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		ImUiWidgetInputState listInputState;
 		ImUiWidgetGetInputState( list.list, &listInputState );
 
-		ImUiDrawWidgetSkinColor( list.list, s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
+		ImUiWidgetDrawSkin( list.list, &s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
 
 		ImUiToolboxListSetSelectedIndex( &list, dropDown->state->selectedIndex );
 
@@ -1360,14 +1361,14 @@ ImUiWindow* ImUiToolboxPopupBeginSurface( ImUiSurface* surface )
 	ImUiWidget* background = ImUiWidgetBegin( popupWindow );
 	ImUiWidgetSetStretch( background, ImUiSizeCreateOne() );
 
-	ImUiDrawWidgetColor( background, s_config.colors[ ImUiToolboxColor_PopupBackground ] );
+	ImUiWidgetDrawColor( background, s_config.colors[ ImUiToolboxColor_PopupBackground ] );
 
 	ImUiWidget* popup = ImUiWidgetBegin( popupWindow );
 	ImUiWidgetSetAlign( popup, ImUiAlignCreateCenter() );
 	ImUiWidgetSetPadding( popup, s_config.popup.padding );
 	ImUiWidgetSetLayoutVertical( popup );
 
-	ImUiDrawWidgetSkinColor( popup, s_config.skins[ ImUiToolboxSkin_Popup ], s_config.colors[ ImUiToolboxColor_Popup ] );
+	ImUiWidgetDrawSkin( popup, &s_config.skins[ ImUiToolboxSkin_Popup ], s_config.colors[ ImUiToolboxColor_Popup ] );
 
 	return popupWindow;
 }

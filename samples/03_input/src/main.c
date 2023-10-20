@@ -18,7 +18,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
 	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
 
-	ImUiDrawWidgetColor( cLayout, ImUiColorCreateWhite() );
+	ImUiWidgetDrawColor( cLayout, ImUiColorCreateWhite() );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
@@ -60,7 +60,7 @@ static void HwInputElement( ImUiWindow* window )
 		color = ImUiColorCreateFloat( 0.5f, 0.9f, 1.0f, 1.0f );
 	}
 
-	ImUiDrawWidgetColor( widget, color );
+	ImUiWidgetDrawColor( widget, color );
 
 	ImUiWidgetEnd( widget );
 }

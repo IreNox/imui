@@ -816,7 +816,7 @@ namespace imui
 
 	float UiWindow::getTime() const
 	{
-		return m_window->frame->timeInSeconds;
+		return m_window->imui->frame.timeInSeconds;
 	}
 
 	UiRect UiWindow::getRect() const
@@ -933,7 +933,7 @@ namespace imui
 		ImUiWidgetSetLayoutHorizontal( m_widget );
 	}
 
-	void UiWidget::setLayoutHorizontalSpacing( float spacing )
+	void UiWidget::setLayoutHorizontal( float spacing )
 	{
 		ImUiWidgetSetLayoutHorizontalSpacing( m_widget, spacing );
 	}
@@ -943,7 +943,7 @@ namespace imui
 		ImUiWidgetSetLayoutVertical( m_widget );
 	}
 
-	void UiWidget::setLayoutVerticalSpacing( float spacing )
+	void UiWidget::setLayoutVertical( float spacing )
 	{
 		ImUiWidgetSetLayoutVerticalSpacing( m_widget, spacing );
 	}
@@ -955,7 +955,7 @@ namespace imui
 
 	float UiWidget::getTime()
 	{
-		return m_widget->window->frame->timeInSeconds;
+		return m_widget->window->imui->frame.timeInSeconds;
 	}
 
 	UiBorder UiWidget::getMargin() const
@@ -1104,77 +1104,62 @@ namespace imui
 
 	void UiWidget::drawLine( UiPos p0, UiPos p1, UiColor color )
 	{
-		ImUiDrawLine( m_widget, p0, p1, color );
+		ImUiWidgetDrawLine( m_widget, p0, p1, color );
 	}
 
-	void UiWidget::drawWidgetColor( UiColor color )
+	void UiWidget::drawTriangle( UiPos p0, UiPos p1, UiPos p2, UiColor color )
 	{
-		ImUiDrawWidgetColor( m_widget, color );
+		ImUiWidgetDrawTriangle( m_widget, p0, p1, p2, color );
 	}
 
-	void UiWidget::drawWidgetImage( const ImUiImage& image )
+	void UiWidget::drawColor( UiColor color )
 	{
-		ImUiDrawWidgetImage( m_widget, image );
+		ImUiWidgetDrawColor( m_widget, color );
 	}
 
-	void UiWidget::drawWidgetImage( const ImUiImage& image, UiColor color )
+	void UiWidget::drawImage( const ImUiImage& image )
 	{
-		ImUiDrawWidgetImageColor( m_widget, image, color );
+		ImUiWidgetDrawImage( m_widget, &image );
 	}
 
-	void UiWidget::drawWidgetSkin( const ImUiSkin& skin )
+	void UiWidget::drawImage( const ImUiImage& image, UiColor color )
 	{
-		ImUiDrawWidgetSkin( m_widget, skin );
+		ImUiWidgetDrawImageColor( m_widget, &image, color );
 	}
 
-	void UiWidget::drawWidgetSkinColor( const ImUiSkin& skin, UiColor color )
+	void UiWidget::drawSkin( const ImUiSkin& skin, UiColor color )
 	{
-		ImUiDrawWidgetSkinColor( m_widget, skin, color );
+		ImUiWidgetDrawSkin( m_widget, &skin, color );
 	}
 
-	void UiWidget::drawWidgetText( ImUiTextLayout* layout )
+	void UiWidget::drawText( ImUiTextLayout* layout, UiColor color )
 	{
-		ImUiDrawWidgetText( m_widget, layout );
+		ImUiWidgetDrawText( m_widget, layout, color );
 	}
 
-	void UiWidget::drawWidgetTextColor( ImUiTextLayout* layout, UiColor color )
+	void UiWidget::drawPartialColor( const UiRect& rect, ImUiColor color )
 	{
-		ImUiDrawWidgetTextColor( m_widget, layout, color );
+		ImUiWidgetDrawPartialColor( m_widget, rect, color );
 	}
 
-	void UiWidget::drawRectColor( const UiRect& rect, ImUiColor color )
+	void UiWidget::drawPartialImage( const UiRect& rect, const ImUiImage& image )
 	{
-		ImUiDrawRectColor( m_widget, rect, color );
+		ImUiWidgetDrawPartialImage( m_widget, rect, &image );
 	}
 
-	void UiWidget::drawRectImage( const UiRect& rect, const ImUiImage& image )
+	void UiWidget::drawPartialImage( const UiRect& rect, const ImUiImage& image, UiColor color )
 	{
-		ImUiDrawRectImage( m_widget, rect, image );
+		ImUiWidgetDrawPartialImageColor( m_widget, rect, &image, color );
 	}
 
-	void UiWidget::drawRectImage( const UiRect& rect, const ImUiImage& image, UiColor color )
+	void UiWidget::drawPartialSkin( const UiRect& rect, const ImUiSkin& skin, UiColor color )
 	{
-		ImUiDrawRectImageColor( m_widget, rect, image, color );
+		ImUiWidgetDrawPartialSkin( m_widget, rect, &skin, color );
 	}
 
-	void UiWidget::drawSkin( const UiRect& rect, const ImUiSkin& skin )
+	void UiWidget::drawPositionText( UiPos pos, ImUiTextLayout* layout, UiColor color )
 	{
-		ImUiDrawRectSkin( m_widget, rect, skin );
-	}
-
-	void UiWidget::drawSkinColor( const UiRect& rect, const ImUiSkin& skin, UiColor color )
-	{
-		ImUiDrawRectSkinColor( m_widget, rect, skin, color );
-	}
-
-	void UiWidget::drawText( UiPos pos, ImUiTextLayout* layout )
-	{
-		ImUiDrawText( m_widget, pos, layout );
-	}
-
-	void UiWidget::drawTextColor( UiPos pos, ImUiTextLayout* layout, UiColor color )
-	{
-		ImUiDrawTextColor( m_widget, pos, layout, color );
+		ImUiWidgetDrawPositionText( m_widget, pos, layout, color );
 	}
 
 	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window )
@@ -1186,7 +1171,7 @@ namespace imui
 	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing )
 		: UiWidget( window )
 	{
-		setLayoutHorizontalSpacing( spacing );
+		setLayoutHorizontal( spacing );
 	}
 
 	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window )
@@ -1198,7 +1183,7 @@ namespace imui
 	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing )
 		: UiWidget( window )
 	{
-		setLayoutVerticalSpacing( spacing );
+		setLayoutVertical( spacing );
 	}
 
 	toolbox::UiToolboxConfig::UiToolboxConfig()

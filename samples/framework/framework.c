@@ -71,7 +71,7 @@ static void ImFrameworkLoop();
 static bool ImFrameworkRendererInitialize( ImUiFrameworkContext* context );
 static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShaderCode );
 static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context );
-static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDrawData* drawData );
+static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface* surface );
 
 int main( int argc, char* argv[] )
 {
@@ -351,9 +351,9 @@ static void ImFrameworkLoop()
 
 	ImUiFrameworkTick( surface );
 
-	const ImUiDrawData* drawData = ImUiSurfaceEnd( surface );
+	ImUiSurfaceEnd( surface );
 
-	ImFrameworkRendererDraw( &s_context, drawData );
+	ImFrameworkRendererDraw( &s_context, surface );
 
 	ImUiEnd( frame );
 
@@ -575,7 +575,7 @@ static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context )
 	}
 }
 
-static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDrawData* drawData )
+static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface* surface )
 {
 	glViewport( 0, 0, context->windowWidth, context->windowHeight );
 
@@ -604,21 +604,20 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, const ImUiDr
 	// bind buffers
 	glBindVertexArray( context->vertexArray );
 	glBindBuffer( GL_ARRAY_BUFFER, context->vertexBuffer );
-	//glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, context->elementBuffer );
 
-	glBufferData( GL_ARRAY_BUFFER, drawData->vertexDataSize, NULL, GL_STREAM_DRAW );
-	//glBufferData( GL_ELEMENT_ARRAY_BUFFER, drawData->indexCount * 4u, NULL, GL_STREAM_DRAW );
+	uintsize vertexDataSize = 0u;
+	ImUiSurfaceGetMaxBufferSizes( surface, &vertexDataSize, NULL );
+
+	glBufferData( GL_ARRAY_BUFFER, vertexDataSize, NULL, GL_STREAM_DRAW );
 
 	// upload
+	const ImUiDrawData* drawData;
 	{
-		void* vertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, drawData->vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
-		//void* pElementData = glMapBufferRange( GL_ELEMENT_ARRAY_BUFFER, 0, drawData->indexCount * 4u, GL_MAP_WRITE_BIT | GL_MAP_UNSYNCHRONIZED_BIT );
+		void* vertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
 
-		memcpy( vertexData, drawData->vertexData, drawData->vertexDataSize );
-		//memcpy( pElementData, drawData->indexData, drawData->indexCount * 4u );
+		drawData = ImUiSurfaceGenerateDrawData( surface, vertexData, &vertexDataSize, NULL, NULL );
 
 		glUnmapBuffer( GL_ARRAY_BUFFER );
-		//glUnmapBuffer( GL_ELEMENT_ARRAY_BUFFER );
 	}
 
 	GLint offset = 0;

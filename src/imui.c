@@ -1,6 +1,7 @@
 #include "imui/imui.h"
 
 #include "imui_draw.h"
+#include "imui_font.h"
 #include "imui_internal.h"
 #include "imui_memory.h"
 
@@ -11,7 +12,7 @@ static void			ImUiWindowLayout( ImUiWindow* window );
 
 static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
 static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update );
-static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
+static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, bool update );
 static void			ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
@@ -242,26 +243,24 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize s
 	surface->name		= ImUiStringPoolAdd( &imui->strings, name );
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
+	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
 
 	return surface;
 }
 
-const ImUiDrawData* ImUiSurfaceEnd( ImUiSurface* surface )
+void ImUiSurfaceEnd( ImUiSurface* surface )
 {
-	// sort windows by zOrder
-	for( uintsize i = 1u; i < surface->windowCount; ++i )
-	{
-		while( surface->windows[ i - 1u ].zOrder > surface->windows[ i ].zOrder && i > 0u )
-		{
-			ImUiWindow tempWindow = surface->windows[ i ];
-			surface->windows[ i ]		= surface->windows[ i - 1u ];
-			surface->windows[ i - 1u ]	= tempWindow;
+	ImUiDrawSurfaceEnd( &surface->imui->draw, surface->drawIndex );
+}
 
-			i--;
-		}
-	}
+void ImUiSurfaceGetMaxBufferSizes( ImUiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize )
+{
+	ImUiDrawGetSurfaceMaxBufferSizes( &surface->imui->draw, surface->drawIndex, outVertexDataSize, outIndexDataSize );
+}
 
-	return ImUiDrawGenerateSurfaceData( &surface->imui->draw, surface );
+const ImUiDrawData* ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize )
+{
+	return ImUiDrawGenerateSurfaceData( &surface->imui->draw, surface->drawIndex, outVertexData, inOutVertexDataSize, outIndexData, inOutIndexDataSize );
 }
 
 ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
@@ -318,13 +317,11 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 
 	window->inUse		= true;
 	window->imui		= imui;
-	window->frame		= &imui->frame;
 	window->surface		= surface;
 	window->name		= ImUiStringPoolAdd( &imui->strings, name );
-	window->hash		= ImUiHashString( name, 0 );
 	window->rect		= rect;
 	window->zOrder		= zOrder;
-	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->hash );
+	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
 
 	ImUiWidget* rootWidget = ImUiWidgetAlloc( imui );
 	rootWidget->window		= window;
@@ -367,7 +364,7 @@ ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
 
 float ImUiWindowGetTime( const ImUiWindow* window )
 {
-	return window->frame->timeInSeconds;
+	return window->imui->frame.timeInSeconds;
 }
 
 ImUiWidget* ImUiWindowGetFirstChild( const ImUiWindow* window )
@@ -390,7 +387,7 @@ static void ImUiWindowLayout( ImUiWindow* window )
 
 	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
-		ImUiWidgetLayout( widget, &window->rootWidget->rect, window->surface->dpiScale );
+		ImUiWidgetLayout( widget, &window->rootWidget->rect, window->surface->dpiScale, update );
 	}
 }
 
@@ -451,7 +448,21 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 	context->marginSize		= ImUiBorderGetMinSize( widget->margin );
 	context->minOuterSize	= ImUiSizeAddSize( ImUiSizeCeil( widget->minSize ), context->marginSize );
 
-	parentContext->childCount++;
+	if( widget->layout == ImUiLayout_Grid )
+	{
+		const uintsize rowCount = (widget->childCount + widget->layoutData.grid.columnCount - 1u) / widget->layoutData.grid.columnCount;
+		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
+		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAlloc( &widget->window->imui->allocator, contextSize );
+
+		gridContext->columns		= (ImUiLayoutGridElement*)&context->gridContext[ 1u ];
+		gridContext->columnCount	= widget->layoutData.grid.columnCount;
+
+		gridContext->rows			= gridContext->columns + gridContext->columnCount;
+		gridContext->rowCount		= rowCount;
+
+		context->gridContext = gridContext;
+	}
+
 	parentContext->childrenStretch.width		+= widget->stretch.width;
 	parentContext->childrenStretch.height		+= widget->stretch.height;
 	parentContext->childrenMaxStretch.width		= IMUI_MAX( parentContext->childrenMaxStretch.width, widget->stretch.width );
@@ -506,8 +517,18 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, bool update )
 	}
 }
 
-static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, bool update )
 {
+	if( !update && widget->lastFrameWidget && widget->hash == widget->lastFrameWidget->hash )
+	{
+		const ImUiRect innerRect = ImUiRectShrinkBorder( widget->rect, widget->padding );
+		for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+		{
+			ImUiWidgetLayout( childWidget, &innerRect, dpiScale, update );
+		}
+		return;
+	}
+
 	switch( widget->parent->layout )
 	{
 	case ImUiLayout_Stack:
@@ -539,7 +560,7 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 	const ImUiRect innerRect = ImUiRectShrinkBorder( widget->rect, widget->padding );
 	for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 	{
-		ImUiWidgetLayout( childWidget, &innerRect, dpiScale );
+		ImUiWidgetLayout( childWidget, &innerRect, dpiScale, true );
 	}
 }
 
@@ -720,6 +741,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 
 		parent->lastChild = widget;
 	}
+	parent->childCount++;
 
 	window->currentWidget = widget;
 
@@ -782,6 +804,12 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 		widget->parent->hash = ImUiHashMix( widget->parent->hash, widget->hash );
 	}
 
+	// TODO
+	//if( hash != last_hash )
+	//{
+	//	ImUiWidgetUpdateLayoutContext( widget );
+	//}
+
 	widget->window->currentWidget = widget->parent;
 	if( widget->window->lastFrameCurrentWidget )
 	{
@@ -832,7 +860,7 @@ ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
 
 float ImUiWidgetGetTime( const ImUiWidget* widget )
 {
-	return widget->window->frame->timeInSeconds;
+	return widget->window->imui->frame.timeInSeconds;
 }
 
 void* ImUiWidgetGetState( ImUiWidget* widget )
@@ -907,7 +935,7 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* is
 		return widget->state->data;
 	}
 
-	ImUiWidgetState* newState = ImUiMemoryAllocZero( &widget->window->imui->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
+	ImUiWidgetState* newState = (ImUiWidgetState*)ImUiMemoryAllocZero( &widget->window->imui->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
 	if( !newState )
 	{
 		return NULL;
@@ -1187,4 +1215,124 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 	target->wasMouseOver	= widget->inputContext.wasMouseOver;
 
 	widget->inputContext.lastFrameIndex = imui->frame.index;
+}
+
+void ImUiWidgetDrawColor( ImUiWidget* widget, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, NULL );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->color = color;
+	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
+}
+
+void ImUiWidgetDrawImage( ImUiWidget* widget, const ImUiImage* image )
+{
+	IMUI_ASSERT( image );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureData );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->color		= ImUiColorCreateWhite();
+	rectData->uv		= image->uv;
+}
+
+void ImUiWidgetDrawImageColor( ImUiWidget* widget, const ImUiImage* image, ImUiColor color )
+{
+	IMUI_ASSERT( image );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureData );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->color		= color;
+	rectData->uv		= image->uv;
+}
+
+void ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor color )
+{
+	IMUI_ASSERT( skin );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin->textureData );
+	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
+	skinData->border	= skin->border;
+	skinData->uv		= skin->uv;
+	skinData->texSize	= ImUiSizeCreateSkin( skin );
+	skinData->color		= color;
+}
+
+void ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_Text, layout );
+	struct ImUiDrawElementDataText* textData = &element->data.text;
+	textData->color		= color;
+	textData->layout	= layout;
+}
+
+void ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, NULL );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->relativRect	= relativRect;
+	rectData->color			= color;
+	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
+}
+
+void ImUiWidgetDrawPartialImage( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image )
+{
+	IMUI_ASSERT( image );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureData );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->relativRect	= relativRect;
+	rectData->color			= ImUiColorCreateWhite();
+	rectData->uv			= image->uv;
+}
+
+void ImUiWidgetDrawPartialImageColor( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image, ImUiColor color )
+{
+	IMUI_ASSERT( image );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureData );
+	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->relativRect	= relativRect;
+	rectData->color			= color;
+	rectData->uv			= image->uv;
+}
+
+void ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const ImUiSkin* skin, ImUiColor color )
+{
+	IMUI_ASSERT( skin );
+
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_SkinPartial, skin->textureData );
+	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
+	skinData->relativRect	= relativRect;
+	skinData->border		= skin->border;
+	skinData->uv			= skin->uv;
+	skinData->texSize		= ImUiSizeCreateSkin( skin );
+	skinData->color			= color;
+}
+
+void ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_TextOffset, layout );
+	struct ImUiDrawElementDataText* textData = &element->data.text;
+	textData->relativPos	= offset;
+	textData->color			= color;
+	textData->layout		= layout;
+}
+
+void ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Line, NULL );
+	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
+	primitiveData->p0		= p0;
+	primitiveData->p1		= p1;
+	primitiveData->color	= color;
+}
+
+void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color )
+{
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Triangle, NULL );
+	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
+	primitiveData->p0		= p0;
+	primitiveData->p1		= p1;
+	primitiveData->p2		= p2;
+	primitiveData->color	= color;
 }

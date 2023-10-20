@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <math.h>
 
-static ImUiTexture s_fontTexture;
+static ImUiImage s_fontTexture;
 static ImUiFont* s_font = NULL;
 
 void ImUiFrameworkTick( ImUiSurface* surface )
@@ -55,13 +55,13 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
 			ImUiWidgetSetFixedSize( hCenter, ImUiSizeExpandBorder( ImUiTextLayoutGetSize( textLayout ), ImUiBorderCreateAll( 50.0f ) ) );
 
-			ImUiDrawWidgetColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
+			ImUiWidgetDrawColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
 			ImUiWidget* text = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
 			ImUiWidgetSetFixedSize( text, ImUiTextLayoutGetSize( textLayout ) );
 			ImUiWidgetSetAlign( text, ImUiAlignCreate( timeLeft, timeTop ) );
 
-			ImUiDrawText( text, ImUiWidgetGetPos( text ), textLayout );
+			ImUiWidgetDrawText( text, textLayout, ImUiColorCreateWhite() );
 
 			ImUiWidgetEnd( text );
 

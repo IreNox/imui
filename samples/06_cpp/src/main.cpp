@@ -57,12 +57,12 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	UiWidget hLayout( window, "vMain" );
 	hLayout.setStretch( UiSize::One );
 	hLayout.setMargin( UiBorder( 25.0f ) );
-	hLayout.setLayoutHorizontalSpacing( 10.0f );
+	hLayout.setLayoutHorizontal( 10.0f );
 
 	{
 		UiWidget vLayout( window, "vMain" );
 		vLayout.setStretch( UiSize::Horizontal );
-		vLayout.setLayoutVerticalSpacing( 10.0f );
+		vLayout.setLayoutVertical( 10.0f );
 
 		ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
 		ImUiTestDoSlidersAndProgressBars( window );
@@ -96,7 +96,7 @@ static void ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& v
 	{
 		UiWidget buttonsLayout( window, "buttons" );
 		buttonsLayout.setStretch( UiSize::Zero );
-		buttonsLayout.setLayoutHorizontalSpacing( 10.0f );
+		buttonsLayout.setLayoutHorizontal( 10.0f );
 
 		if( window.buttonLabel( "Button 1" ) )
 		{
@@ -117,7 +117,7 @@ static void ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& v
 	{
 		UiWidget checkLayout( window, "checks" );
 		checkLayout.setStretch( UiSize::Horizontal );
-		checkLayout.setLayoutVerticalSpacing( 10.0f );
+		checkLayout.setLayoutVertical( 10.0f );
 
 		window.checkBox( state->checked[ 0u ], "Check 1" );
 		window.checkBox( state->checked[ 1u ], "Check 2" );
@@ -133,7 +133,7 @@ static void ImUiTestDoSlidersAndProgressBars( UiToolboxWindow& window )
 {
 	UiWidget sliderLayout( window, "sliders" );
 	sliderLayout.setStretch( UiSize::Horizontal );
-	sliderLayout.setLayoutVerticalSpacing( 10.0f );
+	sliderLayout.setLayoutVertical( 10.0f );
 
 	window.slider( s_sliderValue1, 1.0f, 5.0f );
 
@@ -154,7 +154,7 @@ static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
 {
 	UiWidget vLayout( window, "vLayout" );
 	vLayout.setStretch( UiSize::Horizontal );
-	vLayout.setLayoutVerticalSpacing( 10.0f );
+	vLayout.setLayoutVertical( 10.0f );
 
 	window.label( "Item count:" );
 	const float itemCount = window.sliderState( 0.0f, 128.0f, 32.0f );
@@ -184,7 +184,7 @@ static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
 
 		UiWidget scrollLayout( window, "scroll" );
 		scrollLayout.setStretch( UiSize::Horizontal );
-		scrollLayout.setLayoutVerticalSpacing( 4.0f );
+		scrollLayout.setLayoutVertical( 4.0f );
 
 		for( size_t i = 0; i < itemCount; ++i )
 		{

@@ -106,9 +106,7 @@ typedef struct ImUiVertexFormat
 typedef enum ImUiVertexType
 {
 	ImUiVertexType_VertexList,
-	ImUiVertexType_VertexStrip,
-	ImUiVertexType_IndexedVertexList,
-	ImUiVertexType_IndexedVertexStrip
+	ImUiVertexType_IndexedVertexList
 } ImUiVertexType;
 
 typedef struct ImUiParameters ImUiParameters;
@@ -206,9 +204,7 @@ typedef enum ImUiDrawTopology
 {
 	ImUiDrawTopology_LineList,
 	ImUiDrawTopology_TriangleList,
-	ImUiDrawTopology_TriangleStrip,
 	ImUiDrawTopology_IndexedTriangleList,
-	ImUiDrawTopology_IndexedTriangleStrip,
 
 	ImUiDrawTopology_MAX
 } ImUiDrawTopology;
@@ -223,11 +219,6 @@ typedef struct ImUiDrawCommand
 
 typedef struct ImUiDrawData
 {
-	const void*				vertexData;
-	size_t					vertexDataSize;
-	const uint32_t*			indexData;
-	size_t					indexDataSize;
-
 	const ImUiDrawCommand*	commands;
 	size_t					commandCount;
 } ImUiDrawData;
@@ -236,7 +227,7 @@ typedef struct ImUiDrawData
 // Surface - Presents a OS window or a screen
 
 ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale );
-const ImUiDrawData*			ImUiSurfaceEnd( ImUiSurface* surface );
+void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 
@@ -244,6 +235,11 @@ float						ImUiSurfaceGetTime( const ImUiSurface* surface );
 
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
+
+// call after surface end but before end frame
+void						ImUiSurfaceGetMaxBufferSizes( ImUiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize );
+const ImUiDrawData*			ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize );
+
 
 //////////////////////////////////////////////////////////////////////////
 // Window - A part of a Surface with z ordering
@@ -343,25 +339,19 @@ ImUiRect					ImUiWidgetGetInnerRect( const ImUiWidget* widget );
 
 void						ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target );
 
-//////////////////////////////////////////////////////////////////////////
-// Widget Draw
-// see imui_draw.c
-
-void						ImUiDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color );
-void						ImUiDrawWidgetColor( ImUiWidget* widget, ImUiColor color );
-void						ImUiDrawWidgetImage( ImUiWidget* widget, ImUiImage image );
-void						ImUiDrawWidgetImageColor( ImUiWidget* widget, ImUiImage image, ImUiColor color );
-void						ImUiDrawWidgetSkin( ImUiWidget* widget, ImUiSkin skin );
-void						ImUiDrawWidgetSkinColor( ImUiWidget* widget, ImUiSkin skin, ImUiColor color );
-void						ImUiDrawWidgetText( ImUiWidget* widget, ImUiTextLayout* layout );
-void						ImUiDrawWidgetTextColor( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
-void						ImUiDrawRectColor( ImUiWidget* widget, ImUiRect rect, ImUiColor color );
-void						ImUiDrawRectImage( ImUiWidget* widget, ImUiRect rect, ImUiImage image );
-void						ImUiDrawRectImageColor( ImUiWidget* widget, ImUiRect rect, ImUiImage image, ImUiColor color );
-void						ImUiDrawRectSkin( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin );
-void						ImUiDrawRectSkinColor( ImUiWidget* widget, ImUiRect rect, ImUiSkin skin, ImUiColor color );
-void						ImUiDrawText( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout );
-void						ImUiDrawTextColor( ImUiWidget* widget, ImUiPos pos, ImUiTextLayout* layout, ImUiColor color );
+// all positions are relative to the widget
+void						ImUiWidgetDrawColor( ImUiWidget* widget, ImUiColor color );
+void						ImUiWidgetDrawImage( ImUiWidget* widget, const ImUiImage* image);
+void						ImUiWidgetDrawImageColor( ImUiWidget* widget, const ImUiImage* image, ImUiColor color );
+void						ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor color );
+void						ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
+void						ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color );
+void						ImUiWidgetDrawPartialImage( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image );
+void						ImUiWidgetDrawPartialImageColor( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image, ImUiColor color );
+void						ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const ImUiSkin* skin, ImUiColor color );
+void						ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color );
+void						ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color );
+void						ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
