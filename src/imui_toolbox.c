@@ -639,6 +639,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	}
 
 	ImUiWidget* text = ImUiWidgetBegin( ImUiWidgetGetWindow( textEdit ) );
+	ImUiWidgetSetVAlign( text, 0.5f );
 
 	bool isNew;
 	ImUiToolboxTextEditState* state = ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
