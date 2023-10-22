@@ -994,26 +994,86 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	margin.right = (hasVerticalBar ? s_config.scrollArea.barSize + (scrollArea->horizontalSpacing ? s_config.scrollArea.barSpacing : 0.0f) : 0.0f) ;
 	margin.bottom = (hasHorizontalBar ? s_config.scrollArea.barSize + (scrollArea->verticalSpacing ? s_config.scrollArea.barSpacing : 0.0f) : 0.0f) ;
 
+	const ImUiSize frameAreaSize = ImUiSizeMax( ImUiSizeCreateZero(), ImUiSizeShrinkBorder( frameRect.size, margin ) );
+
 	ImUiWidgetSetMargin( scrollArea->content, margin );
 	ImUiWidgetEnd( scrollArea->content );
 	scrollArea->content = NULL;
 
-	if( hasVerticalBar )
+	if( hasHorizontalBar )
 	{
-		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll_bar" ) );
-		ImUiWidgetSetHAlign( scrollBar, 1.0f );
-		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, frameRect.size.height ) );
+		float barWidth = frameRect.size.width - (hasVerticalBar ? s_config.scrollArea.barSize : 0.0f);
+		barWidth = IMUI_MAX( 0.0f, barWidth );
+
+		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "h_scroll_bar" ) );
+		ImUiWidgetSetVAlign( scrollBar, 1.0f );
+		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( barWidth, s_config.scrollArea.barSize ) );
 
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
-		const float barSizeFactor	= frameRect.size.height / areaSize.height;
-		const float barSize			= IMUI_MAX( frameRect.size.height * barSizeFactor, s_config.scrollArea.barMinSize );
-		const float barOffset		= (state->offset.y / areaSize.height) * frameRect.size.height;
+		const float pivotSizeFactor	= frameAreaSize.width / areaSize.width;
+		const float pivotSize		= barWidth * pivotSizeFactor;
+		const float pivotSizeFinal	= IMUI_MAX( pivotSize, s_config.scrollArea.barMinSize );
+		const float pivotOffset		= (state->offset.x / areaSize.width) * (barWidth - (pivotSizeFinal - pivotSize));
+
+		const ImUiRect barPivotRect = ImUiRectCreate(
+			pivotOffset,
+			0.0f,
+			pivotSizeFinal,
+			s_config.scrollArea.barSize
+		);
+
+		ImUiWidgetInputState inputState;
+		ImUiWidgetGetInputState( scrollBar, &inputState );
+
+		if( inputState.wasPressed )
+		{
+			if( !state->wasPressedX &&
+				ImUiRectIncludesPos( barPivotRect, inputState.relativeMousePos ) )
+			{
+				state->pressPoint.x	= inputState.relativeMousePos.x;
+				state->pressPoint.x	-= pivotOffset;
+				state->wasPressedX	= true;
+			}
+
+			if( state->wasPressedX )
+			{
+				const float newBarOffset	= inputState.relativeMousePos.x - state->pressPoint.x;
+				const float newOffset		= (newBarOffset / barRect.size.width) * areaSize.width;
+
+				state->offset.x = newOffset;
+			}
+		}
+		else
+		{
+			state->wasPressedX = false;
+		}
+
+		ImUiWidgetDrawSkin( scrollBar, &s_config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ] );
+		ImUiWidgetDrawPartialSkin( scrollBar, barPivotRect, &s_config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ], s_config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ] );
+
+		ImUiWidgetEnd( scrollBar );
+	}
+
+	if( hasVerticalBar )
+	{
+		float barHeight = frameRect.size.height - (hasHorizontalBar ? s_config.scrollArea.barSize : 0.0f);
+		barHeight = IMUI_MAX( 0.0f, barHeight );
+
+		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "v_scroll_bar" ) );
+		ImUiWidgetSetHAlign( scrollBar, 1.0f );
+		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, barHeight ) );
+
+		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
+		const float pivotSizeFactor	= frameAreaSize.height / areaSize.height;
+		const float pivotSize		= barHeight * pivotSizeFactor;
+		const float pivotSizeFinal	= IMUI_MAX( pivotSize, s_config.scrollArea.barMinSize );
+		const float pivotOffset		= (state->offset.y / areaSize.height) * (barHeight - (pivotSizeFinal - pivotSize));
 
 		const ImUiRect barPivotRect = ImUiRectCreate(
 			0.0f,
-			barOffset,
+			pivotOffset,
 			s_config.scrollArea.barSize,
-			barSize
+			pivotSizeFinal
 		);
 
 		ImUiWidgetInputState inputState;
@@ -1025,7 +1085,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 				ImUiRectIncludesPos( barPivotRect, inputState.relativeMousePos ) )
 			{
 				state->pressPoint.y	= inputState.relativeMousePos.y;
-				state->pressPoint.y	-= barOffset;
+				state->pressPoint.y	-= pivotOffset;
 				state->wasPressedY	= true;
 			}
 
@@ -1053,7 +1113,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		state->offset = ImUiPosSubPos( state->offset, ImUiPosScale( ImUiInputGetMouseScrollDelta( ImUiWindowGetContext( window ) ), 80.0f ) );
 	}
 
-	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameRect.size ) ) ) );
+	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameAreaSize ) ) ) );
 
 	ImUiWidgetEnd( scrollArea->area );
 	scrollArea->area = NULL;

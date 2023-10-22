@@ -323,11 +323,9 @@ namespace imui
 		ImUiLayout		getLayout() const;
 		void			setLayoutStack();							// default
 		void			setLayoutScroll( UiPos offset );
-		void			setLayoutHorizontal();
-		void			setLayoutHorizontal( float spacing );
-		void			setLayoutVertical();
-		void			setLayoutVertical( float spacing );
-		void			setLayoutGrid( size_t columnCount );
+		void			setLayoutHorizontal( float spacing = 0.0f );
+		void			setLayoutVertical( float spacing = 0.0f );
+		void			setLayoutGrid( uint32_t columnCount, float colSpacing, float rowSpacing );
 
 		float			getTime();
 

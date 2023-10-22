@@ -928,29 +928,19 @@ namespace imui
 		ImUiWidgetSetLayoutScroll( m_widget, offset );
 	}
 
-	void UiWidget::setLayoutHorizontal()
-	{
-		ImUiWidgetSetLayoutHorizontal( m_widget );
-	}
-
-	void UiWidget::setLayoutHorizontal( float spacing )
+	void UiWidget::setLayoutHorizontal( float spacing /* = 0.0f */ )
 	{
 		ImUiWidgetSetLayoutHorizontalSpacing( m_widget, spacing );
 	}
 
-	void UiWidget::setLayoutVertical()
-	{
-		ImUiWidgetSetLayoutVertical( m_widget );
-	}
-
-	void UiWidget::setLayoutVertical( float spacing )
+	void UiWidget::setLayoutVertical( float spacing /* = 0.0f */ )
 	{
 		ImUiWidgetSetLayoutVerticalSpacing( m_widget, spacing );
 	}
 
-	void UiWidget::setLayoutGrid( size_t columnCount )
+	void UiWidget::setLayoutGrid( uint32_t columnCount, float colSpacing, float rowSpacing )
 	{
-		ImUiWidgetSetLayoutGrid( m_widget, columnCount );
+		ImUiWidgetSetLayoutGrid( m_widget, columnCount, colSpacing, rowSpacing );
 	}
 
 	float UiWidget::getTime()

@@ -45,7 +45,7 @@ struct ImUiWindow
 };
 
 typedef struct ImUiWidgetState ImUiWidgetState;
-struct ImUiWidgetState
+typedef struct ImUiWidgetState
 {
 	ImUiWidgetState*		prevState;
 	ImUiWidgetState*		nextState;
@@ -54,40 +54,40 @@ struct ImUiWidgetState
 	ImUiStateDestructFunc	stateDestructFunc;
 
 	uint8					data[ 1u ];
-};
+} ImUiWidgetState;
 
-struct ImUiLayoutScrollData
+typedef struct ImUiLayoutScrollData
 {
-	ImUiPos									offset;
-};
+	ImUiPos								offset;
+} ImUiLayoutScrollData;
 
-struct ImUiLayoutHorizontalVerticalData
+typedef struct ImUiLayoutHorizontalVerticalData
 {
-	float									spacing;
-};
+	float								spacing;
+} ImUiLayoutHorizontalVerticalData;
 
-struct ImUiLayoutGridData
+typedef struct ImUiLayoutGridData
 {
-	size_t									columnCount;
-};
+	uint32								columnCount;
+	float								colSpacing;
+	float								rowSpacing;
+} ImUiLayoutGridData;
 
-typedef union ImUiLayoutData ImUiLayoutData;
-union ImUiLayoutData
+typedef union ImUiLayoutData
 {
-	struct ImUiLayoutScrollData				scroll;
-	struct ImUiLayoutHorizontalVerticalData	horizintalVertical;
-	struct ImUiLayoutGridData				grid;
-};
+	ImUiLayoutScrollData				scroll;
+	ImUiLayoutHorizontalVerticalData	horizintalVertical;
+	ImUiLayoutGridData					grid;
+} ImUiLayoutData;
 
 typedef struct ImUiLayoutGridElement ImUiLayoutGridElement;
 struct ImUiLayoutGridElement
 {
-	float				marginSize;
-	//float				minOuterSize;
-	float				childrenStretch;
-	//float				childrenMaxStretch;
+	float				childrenMaxStretch;
 	float				childrenMinSize;
-	//float				childrenMargin;
+
+	float				pos;
+	float				size;
 };
 
 typedef struct ImUiLayoutGridContext ImUiLayoutGridContext;
@@ -101,19 +101,17 @@ struct ImUiLayoutGridContext
 
 	ImUiLayoutGridElement*	rows;
 	uintsize				rowCount;
+
+	uint32					frameIndex;
 };
 
 typedef struct ImUiLayoutContext ImUiLayoutContext;
 struct ImUiLayoutContext
 {
-	ImUiSize				marginSize;
 	ImUiSize				minOuterSize;
 	ImUiSize				childrenStretch;
 	ImUiSize				childrenMaxStretch;
 	ImUiSize				childrenMinSize;
-	ImUiSize				childrenMargin;
-
-	ImUiLayoutGridContext*	gridContext;
 };
 
 typedef struct ImUiWidgetInputContext ImUiWidgetInputContext;
@@ -158,9 +156,10 @@ struct ImUiWidget
 
 	// generated data
 	ImUiRect				rect;
-	ImUiWidget*				lastFrameWidget;
 	ImUiRect				clipRect;
+	ImUiWidget*				lastFrameWidget;
 	ImUiLayoutContext		layoutContext;
+	ImUiLayoutGridContext*	gridContext;
 	ImUiWidgetInputContext	inputContext;
 };
 

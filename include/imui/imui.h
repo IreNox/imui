@@ -301,7 +301,7 @@ void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutVertical( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
-void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, size_t columnCount );
+void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, uint32_t columnCount, float colSpacing, float rowSpacing );
 
 ImUiBorder					ImUiWidgetGetMargin( const ImUiWidget* widget );
 void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin );
