@@ -262,14 +262,14 @@ typedef void(*ImUiStateDestructFunc)( void* state );
 
 typedef struct ImUiWidgetInputState
 {
-	ImUiPos						relativeMousePos;
+	ImUiPos					relativeMousePos;
 
-	bool						wasPressed;
-	bool						wasMouseOver;
-	bool						isMouseOver;
-	bool						isMouseDown;
-	bool						hasMousePressed;
-	bool						hasMouseReleased;
+	bool					wasPressed;
+	bool					wasMouseOver;
+	bool					isMouseOver;
+	bool					isMouseDown;
+	bool					hasMousePressed;
+	bool					hasMouseReleased;
 } ImUiWidgetInputState;
 
 ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
