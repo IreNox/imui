@@ -26,6 +26,9 @@ static float		ImUiWidgetLayoutPositionY( ImUiWidget* widget, const ImUiRect* par
 
 static ImUiSize		ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight );
 
+static void			ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState );
+static void			ImUiLayoutGridContextFreeList( ImUiAllocator* allocator, ImUiLayoutGridContext* firstContext );
+
 static const ImUiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
 {
 	.childrenMaxStretch =
@@ -89,22 +92,11 @@ void ImUiDestroy( ImUiContext* imui )
 	}
 	ImUiMemoryFree( &imui->allocator, imui->surfaces );
 
-	ImUiWidgetState* state = imui->firstState;
-	ImUiWidgetState* nextState = NULL;
-	while( state )
-	{
-		nextState = state->nextState;
-		ImUiMemoryFree( &imui->allocator, state );
-		state = nextState;
-	}
+	ImUiWidgetStateFreeList( &imui->allocator, imui->firstState );
+	ImUiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
 
-	state = imui->firstUnusedState;
-	while( state )
-	{
-		nextState = state->nextState;
-		ImUiMemoryFree( &imui->allocator, state );
-		state = nextState;
-	}
+	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstGridContext );
+	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
 
 	for( ImUiWidgetChunk* pChunk = imui->firstChunk; pChunk != NULL; )
 	{
@@ -202,44 +194,28 @@ void ImUiEnd( ImUiFrame* frame )
 	}
 
 	// free unused states
-	{
-		ImUiWidgetState* unusedState = imui->firstUnusedState;
-		ImUiWidgetState* nextUnusedState = NULL;
-		while( unusedState )
-		{
-			nextUnusedState = unusedState->nextState;
-			ImUiMemoryFree( &imui->allocator, unusedState );
-			unusedState = nextUnusedState;
-		}
-		imui->firstUnusedState	= imui->firstState;
-		imui->firstState		= NULL;
-	}
+	ImUiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
+	imui->firstUnusedState	= imui->firstState;
+	imui->firstState		= NULL;
+
 
 	// free unused grid context
-	{
-		ImUiLayoutGridContext* unusedContext = imui->firstUnusedGridContext;
-		ImUiLayoutGridContext* nextUnusedContext = NULL;
-		while( unusedContext )
-		{
-			nextUnusedContext = unusedContext->nextContext;
-			ImUiMemoryFree( &imui->allocator, unusedContext );
-			unusedContext = nextUnusedContext;
-		}
-		imui->firstUnusedGridContext	= imui->firstGridContext;
-		imui->firstGridContext			= NULL;
-	}
+	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
+	imui->firstUnusedGridContext	= imui->firstGridContext;
+	imui->firstGridContext			= NULL;
 
 	ImUiTextLayoutCacheEndFrame( &imui->layoutCache );
 }
 
-ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale )
+ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
 	ImUiContext* imui = frame->imui;
+	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
 	ImUiSurface* surface = NULL;
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		if( !ImUiStringViewIsEquals( imui->surfaces[ surfaceIndex ].name, name ) )
+		if( !ImUiStringViewIsEquals( imui->surfaces[ surfaceIndex ].name, nameView ) )
 		{
 			continue;
 		}
@@ -264,7 +240,7 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize s
 
 	surface->inUse		= true;
 	surface->imui		= imui;
-	surface->name		= ImUiStringPoolAdd( &imui->strings, name );
+	surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
 	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
@@ -307,16 +283,17 @@ float ImUiSurfaceGetDpiScale( const ImUiSurface* surface )
 	return surface->dpiScale;
 }
 
-ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect rect, uint32_t zOrder )
+ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder )
 {
 	IMUI_ASSERT( surface );
 
 	ImUiContext* imui = surface->imui;
+	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
 	ImUiWindow* window = NULL;
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
-		if( !ImUiStringViewIsEquals( surface->windows[ windowIndex ].name, name ) )
+		if( !ImUiStringViewIsEquals( surface->windows[ windowIndex ].name, nameView ) )
 		{
 			continue;
 		}
@@ -342,7 +319,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect
 	window->inUse		= true;
 	window->imui		= imui;
 	window->surface		= surface;
-	window->name		= ImUiStringPoolAdd( &imui->strings, name );
+	window->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	window->rect		= rect;
 	window->zOrder		= zOrder;
 	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
@@ -561,7 +538,7 @@ static void ImUiWidgetUpdateGridContextState( ImUiWidget* widget )
 	{
 		const uintsize rowCount = (widget->childCount + widget->layoutData.grid.columnCount - 1u) / widget->layoutData.grid.columnCount;
 		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
-		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAlloc( &widget->window->imui->allocator, contextSize );
+		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->imui->allocator, contextSize );
 
 		gridContext->columns		= (ImUiLayoutGridElement*)&gridContext[ 1u ];
 		gridContext->columnCount	= widget->layoutData.grid.columnCount;
@@ -601,6 +578,9 @@ static void ImUiWidgetUpdateGridContextState( ImUiWidget* widget )
 			imui->firstUnusedGridContext = gridContext->nextContext;
 		}
 
+		memset( gridContext->columns, 0, sizeof( *gridContext->columns ) * gridContext->columnCount );
+		memset( gridContext->rows, 0, sizeof( *gridContext->rows ) * gridContext->rowCount );
+
 		gridContext->frameIndex = imui->frame.index;
 
 		gridContext->nextContext = imui->firstGridContext;
@@ -638,8 +618,8 @@ static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
 	}
 	context->childrenMinSize.height += widget->layoutData.grid.rowSpacing * (gridContext->rowCount - 1u);
 
-	context->childrenMaxStretch.width	= IMUI_MAX( (float)gridContext->columnCount, context->childrenMaxStretch.width );
-	context->childrenMaxStretch.height	= IMUI_MAX( (float)gridContext->rowCount, context->childrenMaxStretch.height);
+	context->childrenMaxStretch.width	= IMUI_MAX( 1.0f, context->childrenMaxStretch.width );
+	context->childrenMaxStretch.height	= IMUI_MAX( 1.0f, context->childrenMaxStretch.height );
 }
 
 static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update )
@@ -701,8 +681,8 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 	ImUiLayoutContext* context = &widget->layoutContext;
 	ImUiLayoutGridContext* gridContext = widget->gridContext;
 
-	const float maxFreeWidth		= parentInnerRect->size.width - (widget->layoutData.grid.colSpacing * (gridContext->columnCount - 1u));
-	const float maxFreeHeight		= parentInnerRect->size.height - (widget->layoutData.grid.rowSpacing * (gridContext->rowCount - 1u));
+	const float maxFreeWidth		= parentInnerRect->size.width - context->childrenMinSize.width;
+	const float maxFreeHeight		= parentInnerRect->size.height - context->childrenMinSize.height;
 
 	float pos = parentInnerRect->pos.x;
 	for( uintsize col = 0u; col < gridContext->columnCount; ++col )
@@ -710,8 +690,11 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 		ImUiLayoutGridElement* colElement = &gridContext->columns[ col ];
 
 		colElement->pos = pos;
-		pos += (maxFreeWidth / context->childrenMaxStretch.width) * colElement->childrenMaxStretch;
-		colElement->size = pos - colElement->pos;
+
+		const float strechSize	= ((maxFreeWidth / context->childrenMaxStretch.width) * colElement->childrenMaxStretch) + colElement->childrenMinSize;
+		const float size		= IMUI_MAX( strechSize, colElement->childrenMinSize );
+		pos += size;
+		colElement->size = size;
 		pos += widget->layoutData.grid.colSpacing;
 	}
 
@@ -721,8 +704,11 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 		ImUiLayoutGridElement* rowElement = &gridContext->rows[ row ];
 
 		rowElement->pos = pos;
-		pos += (maxFreeHeight / context->childrenMaxStretch.height) * rowElement->childrenMaxStretch;
-		rowElement->size = pos - rowElement->pos;
+
+		const float strechSize	= ((maxFreeHeight / context->childrenMaxStretch.height) * rowElement->childrenMaxStretch) + rowElement->childrenMinSize;
+		const float size		= IMUI_MAX( strechSize, rowElement->childrenMinSize );
+		pos += size;
+		rowElement->size = size;
 		pos += widget->layoutData.grid.rowSpacing;
 	}
 }
@@ -854,8 +840,8 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 	ImUiLayoutGridElement* colElement	= &widget->parent->gridContext->columns[ colIndex ];
 	ImUiLayoutGridElement* rowElement	= &widget->parent->gridContext->rows[ rowIndex ];
 
-	const float factorWidth			= widget->stretch.width / colElement->childrenMaxStretch;
-	const float factorHeight		= widget->stretch.height / rowElement->childrenMaxStretch;
+	const float factorWidth			= colElement->childrenMaxStretch ? widget->stretch.width / colElement->childrenMaxStretch : 0.0f;
+	const float factorHeight		= rowElement->childrenMaxStretch ? widget->stretch.height / rowElement->childrenMaxStretch : 0.0f;
 	const ImUiSize minSize			= ImUiSizeMax( context->minOuterSize, ImUiSizeExpandBorder( context->childrenMinSize, widget->padding ) );
 	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), ImUiSizeCreate( colElement->size, rowElement->size ) );
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight );
@@ -973,21 +959,17 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 	return widget;
 }
 
-ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name )
+ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, const char* name )
 {
-	ImUiId id = ImUiHashString( name, 0u );
-	if( window->currentWidget->lastChild )
-	{
-		id += window->currentWidget->lastChild->id + 1u;
-	}
+	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
-	ImUiWidget* widget = ImUiWidgetBeginId( window, id );
+	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( nameView, 0u ) );
 	if( widget == NULL )
 	{
 		return NULL;
 	}
 
-	widget->name = ImUiStringPoolAdd( &window->imui->strings, name );
+	widget->name = ImUiStringPoolAdd( &window->imui->strings, nameView );
 
 	return widget;
 }
@@ -1011,6 +993,12 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	{
 		widget->window->lastFrameCurrentWidget = widget->window->lastFrameCurrentWidget->parent;
 	}
+}
+
+void ImUiWidgetSetName( ImUiWidget* widget, const char* name )
+{
+	const ImUiStringView nameView = ImUiStringViewCreate( name );
+	widget->name = ImUiStringPoolAdd( &widget->window->imui->strings, nameView );
 }
 
 ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
@@ -1533,4 +1521,28 @@ void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos
 	primitiveData->p1		= p1;
 	primitiveData->p2		= p2;
 	primitiveData->color	= color;
+}
+
+static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState )
+{
+	ImUiWidgetState* state = firstState;
+	ImUiWidgetState* nextState = NULL;
+	while( state )
+	{
+		nextState = state->nextState;
+		ImUiMemoryFree( allocator, state );
+		state = nextState;
+	}
+}
+
+static void ImUiLayoutGridContextFreeList( ImUiAllocator* allocator, ImUiLayoutGridContext* firstContext )
+{
+	ImUiLayoutGridContext* gridContext = firstContext;
+	ImUiLayoutGridContext* nextGridContext = NULL;
+	while( gridContext )
+	{
+		nextGridContext = gridContext->nextContext;
+		ImUiMemoryFree( allocator, gridContext );
+		gridContext = nextGridContext;
+	}
 }

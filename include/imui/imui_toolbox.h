@@ -45,6 +45,7 @@ typedef enum ImUiToolboxColor
 
 	ImUiToolboxColor_DropDown,
 	ImUiToolboxColor_DropDownText,
+	ImUiToolboxColor_DropDownIcon,
 	ImUiToolboxColor_DropDownHover,
 	ImUiToolboxColor_DropDownClicked,
 	ImUiToolboxColor_DropDownOpen,
@@ -73,6 +74,7 @@ typedef enum ImUiToolboxSkin
 	ImUiToolboxSkin_ScrollAreaBarBackground,
 	ImUiToolboxSkin_ScrollAreaBarPivot,
 	ImUiToolboxSkin_ListItem,
+	ImUiToolboxSkin_ListItemSelected,
 	ImUiToolboxSkin_DropDown,
 	ImUiToolboxSkin_DropDownList,
 	ImUiToolboxSkin_DropDownListItem,
@@ -219,6 +221,8 @@ typedef struct ImUiToolboxDropDownContext
 
 void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
 void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
+
+const ImUiToolboxConfig*	ImUiToolboxGetConfig();
 
 void				ImUiToolboxSpacer( ImUiWindow* window, float width, float height );
 void				ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical );

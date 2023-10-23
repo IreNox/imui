@@ -226,7 +226,7 @@ typedef struct ImUiDrawData
 //////////////////////////////////////////////////////////////////////////
 // Surface - Presents a OS window or a screen
 
-ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, ImUiStringView name, ImUiSize size, float dpiScale );
+ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale );
 void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
@@ -244,7 +244,7 @@ const ImUiDrawData*			ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* o
 //////////////////////////////////////////////////////////////////////////
 // Window - A part of a Surface with z ordering
 
-ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, ImUiStringView name, ImUiRect rect, uint32_t zOrder );
+ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder );
 void						ImUiWindowEnd( ImUiWindow* window );
 
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
@@ -274,8 +274,10 @@ typedef struct ImUiWidgetInputState
 
 ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
 ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
-ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, ImUiStringView name );
+ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, const char* name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
+
+void						ImUiWidgetSetName( ImUiWidget* widget, const char* name );
 
 ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
 ImUiSurface*				ImUiWidgetGetSurface( const ImUiWidget* widget );

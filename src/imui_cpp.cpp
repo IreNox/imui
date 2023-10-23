@@ -691,7 +691,7 @@ namespace imui
 
 	void UiSurface::beginSurface( ImUiFrame* frame, const UiStringView& name, const UiSize& size, float dpiScale )
 	{
-		m_surface = ImUiSurfaceBegin( frame, name, size, dpiScale );
+		m_surface = ImUiSurfaceBegin( frame, name.data, size, dpiScale );
 		m_owner = true;
 	}
 
@@ -775,7 +775,7 @@ namespace imui
 
 	void UiWindow::beginWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder )
 	{
-		m_window = ImUiWindowBegin( surface, name, rect, zOrder );
+		m_window = ImUiWindowBegin( surface, name.data, rect, zOrder );
 		m_owner = true;
 	}
 
@@ -866,7 +866,7 @@ namespace imui
 
 	void UiWidget::beginWidget( UiWindow& window, const UiStringView& name )
 	{
-		m_widget = ImUiWidgetBeginNamed( window.getInternal(), name );
+		m_widget = ImUiWidgetBeginNamed( window.getInternal(), name.data );
 	}
 
 	void UiWidget::endWidget()
@@ -938,7 +938,7 @@ namespace imui
 		ImUiWidgetSetLayoutVerticalSpacing( m_widget, spacing );
 	}
 
-	void UiWidget::setLayoutGrid( uint32_t columnCount, float colSpacing, float rowSpacing )
+	void UiWidget::setLayoutGrid( uint32_t columnCount, float colSpacing /* = 0.0f */, float rowSpacing /* = 0.0f */ )
 	{
 		ImUiWidgetSetLayoutGrid( m_widget, columnCount, colSpacing, rowSpacing );
 	}
@@ -1152,28 +1152,22 @@ namespace imui
 		ImUiWidgetDrawPositionText( m_widget, pos, layout, color );
 	}
 
-	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window )
-		: UiWidget( window )
-	{
-		setLayoutHorizontal();
-	}
-
-	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing )
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing /* = 0.0f */ )
 		: UiWidget( window )
 	{
 		setLayoutHorizontal( spacing );
 	}
 
-	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window )
-		: UiWidget( window )
-	{
-		setLayoutVertical();
-	}
-
-	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing )
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing /* = 0.0f */ )
 		: UiWidget( window )
 	{
 		setLayoutVertical( spacing );
+	}
+
+	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
+		: UiWidget( window )
+	{
+		setLayoutGrid( columnCount, colSpacing, rowSpacing );
 	}
 
 	toolbox::UiToolboxConfig::UiToolboxConfig()
@@ -1188,6 +1182,26 @@ namespace imui
 	void toolbox::UiToolboxConfig::setDefault( ImUiFont* font )
 	{
 		ImUiToolboxFillDefaultConfig( this, font );
+	}
+
+	const UiColor& toolbox::UiToolboxConfig::getColor( ImUiToolboxColor color )
+	{
+		return (const UiColor&)ImUiToolboxGetConfig()->colors[ color ];
+	}
+
+	const ImUiSkin& toolbox::UiToolboxConfig::getSkin( ImUiToolboxSkin skin )
+	{
+		return ImUiToolboxGetConfig()->skins[ skin ];
+	}
+
+	const ImUiImage& toolbox::UiToolboxConfig::getImage( ImUiToolboxImage image )
+	{
+		return ImUiToolboxGetConfig()->images[ image ];
+	}
+
+	const ImUiToolboxConfig& toolbox::UiToolboxConfig::getConfig()
+	{
+		return *ImUiToolboxGetConfig();
 	}
 
 	void toolbox::setConfig( const UiToolboxConfig& config )

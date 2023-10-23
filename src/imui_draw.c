@@ -240,7 +240,7 @@ void ImUiDrawSurfaceEnd( ImUiDraw* draw, uintsize surfaceIndex )
 	// sort windows by zOrder
 	for( uintsize i = 1u; i < surface->windowCount; ++i )
 	{
-		while( draw->windows[ surface->windows[ i - 1u ] ].zOrder > draw->windows[ surface->windows[ i ] ].zOrder && i > 0u )
+		while( i > 0u && draw->windows[ surface->windows[ i - 1u ] ].zOrder > draw->windows[ surface->windows[ i ] ].zOrder )
 		{
 			uint32 tempWindowIndex = surface->windows[ i ];
 			surface->windows[ i ]		= surface->windows[ i - 1u ];
@@ -551,8 +551,8 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 		{
 			const struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 
-			const float uScale = (skinData->uv.u1 - skinData->uv.u0) / skinData->texSize.width;
-			const float vScale = (skinData->uv.v1 - skinData->uv.v0) / skinData->texSize.height;
+			const float uScale = skinData->texSize.width ? (skinData->uv.u1 - skinData->uv.u0) / skinData->texSize.width : 0.0f;
+			const float vScale = skinData->texSize.height ? (skinData->uv.v1 - skinData->uv.v0) / skinData->texSize.height : 0.0f;
 
 			ImUiBorder uvBorder = skinData->border;
 			uvBorder.top	*= vScale;

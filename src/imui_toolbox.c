@@ -86,6 +86,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
 	config->colors[ ImUiToolboxColor_DropDown ]					= elementClickedColor;
 	config->colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config->colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
 	config->colors[ ImUiToolboxColor_DropDownHover ]			= elementHoverColor;
 	config->colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
 	config->colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
@@ -96,7 +97,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config->colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.2f );
 	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
-	static_assert( ImUiToolboxColor_MAX == 36, "more colors" );
+	static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
 
 	const ImUiSkin skin = { { NULL } };
 
@@ -111,11 +112,12 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]	= skin;
 	config->skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= skin;
 	config->skins[ ImUiToolboxSkin_ListItem ]					= skin;
+	config->skins[ ImUiToolboxSkin_ListItemSelected ]			= skin;
 	config->skins[ ImUiToolboxSkin_DropDown ]					= skin;
 	config->skins[ ImUiToolboxSkin_DropDownList ]				= skin;
 	config->skins[ ImUiToolboxSkin_DropDownListItem ]			= skin;
 	config->skins[ ImUiToolboxSkin_Popup ]						= skin;
-	static_assert( ImUiToolboxSkin_MAX == 15, "more skins" );
+	static_assert( ImUiToolboxSkin_MAX == 16, "more skins" );
 
 	const ImUiImage image = { NULL, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
@@ -165,6 +167,11 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 void ImUiToolboxSetConfig( const ImUiToolboxConfig* config )
 {
 	s_config = *config;
+}
+
+const ImUiToolboxConfig* ImUiToolboxGetConfig()
+{
+	return &s_config;
 }
 
 void ImUiToolboxSpacer( ImUiWindow* window, float width, float height )
@@ -907,7 +914,7 @@ void ImUiToolboxProgressBar( ImUiWindow* window, float value )
 
 void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max )
 {
-	ImUiWidget* progressBar = ImUiWidgetBeginNamed( window, IMUI_STR( "progress_bar" ));
+	ImUiWidget* progressBar = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( progressBar, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetPadding( progressBar, s_config.progressBar.padding );
 	ImUiWidgetSetFixedHeight( progressBar, s_config.progressBar.height );
@@ -1005,7 +1012,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		float barWidth = frameRect.size.width - (hasVerticalBar ? s_config.scrollArea.barSize : 0.0f);
 		barWidth = IMUI_MAX( 0.0f, barWidth );
 
-		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "h_scroll_bar" ) );
+		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
 		ImUiWidgetSetVAlign( scrollBar, 1.0f );
 		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( barWidth, s_config.scrollArea.barSize ) );
 
@@ -1059,7 +1066,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		float barHeight = frameRect.size.height - (hasHorizontalBar ? s_config.scrollArea.barSize : 0.0f);
 		barHeight = IMUI_MAX( 0.0f, barHeight );
 
-		ImUiWidget* scrollBar = ImUiWidgetBeginNamed( window, IMUI_STR( "v_scroll_bar" ) );
+		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
 		ImUiWidgetSetHAlign( scrollBar, 1.0f );
 		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, barHeight ) );
 
@@ -1213,7 +1220,7 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 
 	if( inputState.isMouseDown )
 	{
-		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemClicked ] );
+		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItemSelected ], s_config.colors[ ImUiToolboxColor_ListItemClicked ] );
 	}
 	else if( inputState.isMouseOver )
 	{
@@ -1221,7 +1228,7 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 	}
 	else if( list->itemIndex == list->state->selectedIndex )
 	{
-		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItem ], s_config.colors[ ImUiToolboxColor_ListItemSelected ] );
+		ImUiWidgetDrawSkin( item, &s_config.skins[ ImUiToolboxSkin_ListItemSelected ], s_config.colors[ ImUiToolboxColor_ListItemSelected ] );
 	}
 
 	if( inputState.hasMouseReleased )
@@ -1283,7 +1290,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiWidgetSetFixedSize( icon, ImUiSizeCreateImage( &iconImage ) );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );
-	ImUiWidgetDrawImage( icon, &iconImage );
+	ImUiWidgetDrawImageColor( icon, &iconImage, s_config.colors[ ImUiToolboxColor_DropDownIcon ] );
 	ImUiWidgetEnd( icon );
 
 	ImUiSize maxSize = ImUiSizeCreateZero();
@@ -1336,7 +1343,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		{
 			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownBottom, dropDownRect.size.width, listHeight  );
 		}
-		ImUiWindow* listWindow = ImUiWindowBegin( ImUiWindowGetSurface( window ), IMUI_STR( "dropDownList" ), listRect, s_config.dropDown.listZOrder );
+		ImUiWindow* listWindow = ImUiWindowBegin( ImUiWindowGetSurface( window ), "dropDownList", listRect, s_config.dropDown.listZOrder );
 
 		ImUiToolboxListContext list;
 		ImUiToolboxListBegin( &list, listWindow, s_config.dropDown.itemSize, itemCount );
@@ -1416,7 +1423,7 @@ ImUiWindow* ImUiToolboxPopupBegin( ImUiWindow* window )
 ImUiWindow* ImUiToolboxPopupBeginSurface( ImUiSurface* surface )
 {
 	const ImUiRect windowRect = ImUiRectCreatePosSize( ImUiPosCreateZero(), ImUiSurfaceGetSize( surface ) );
-	ImUiWindow* popupWindow = ImUiWindowBegin( surface, IMUI_STR( "popup" ), windowRect, s_config.popup.zOrder );
+	ImUiWindow* popupWindow = ImUiWindowBegin( surface, "popup", windowRect, s_config.popup.zOrder );
 
 	ImUiWidget* background = ImUiWidgetBegin( popupWindow );
 	ImUiWidgetSetStretch( background, ImUiSizeCreateOne() );

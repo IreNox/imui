@@ -325,7 +325,7 @@ namespace imui
 		void			setLayoutScroll( UiPos offset );
 		void			setLayoutHorizontal( float spacing = 0.0f );
 		void			setLayoutVertical( float spacing = 0.0f );
-		void			setLayoutGrid( uint32_t columnCount, float colSpacing, float rowSpacing );
+		void			setLayoutGrid( uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 
 		float			getTime();
 
@@ -387,16 +387,21 @@ namespace imui
 	{
 	public:
 
-						UiWidgetLayoutHorizontal( UiWindow& window );
-						UiWidgetLayoutHorizontal( UiWindow& window, float spacing );
+						UiWidgetLayoutHorizontal( UiWindow& window, float spacing = 0.0f );
 	};
 
 	class UiWidgetLayoutVertical : public UiWidget
 	{
 	public:
 
-						UiWidgetLayoutVertical( UiWindow& window );
-						UiWidgetLayoutVertical( UiWindow& window, float spacing );
+						UiWidgetLayoutVertical( UiWindow& window, float spacing = 0.0f );
+	};
+
+	class UiWidgetLayoutGrid : public UiWidget
+	{
+	public:
+
+		UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 	};
 
 	namespace toolbox
@@ -407,6 +412,12 @@ namespace imui
 						UiToolboxConfig( ImUiFont* font );
 
 			void		setDefault( ImUiFont* font );
+
+			static const UiColor&			getColor( ImUiToolboxColor color );
+			static const ImUiSkin&			getSkin( ImUiToolboxSkin skin );
+			static const ImUiImage&			getImage( ImUiToolboxImage image );
+
+			static const ImUiToolboxConfig& getConfig();
 		};
 
 		class UiToolboxWindow : public UiWindow
