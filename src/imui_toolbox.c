@@ -651,21 +651,17 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	bool isNew;
 	ImUiToolboxTextEditState* state = (ImUiToolboxTextEditState*)ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
 
-	if( ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left ) )
-	{
-		state->hasFocus = inputState.hasMouseReleased;
-		if( state->hasFocus )
-		{
-			state->cursorPos = (uint32)textLengthInternal;
-		}
-	}
-
 	const ImUiRect textEditRect = ImUiWidgetGetRect( textEdit );
 	const ImUiRect textEditInnerRect = ImUiWidgetGetInnerRect( textEdit );
 
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreateLength( buffer, textLengthInternal ) );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( text, textSize );
+
+	if( ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left ) )
+	{
+		state->hasFocus = inputState.hasMousePressed;
+	}
 
 	bool changed = false;
 	if( state->hasFocus )
@@ -787,13 +783,28 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			nextCursorPos = (sint32)textLengthInternal;
 		}
 
+		if( inputState.wasPressed )
+		{
+			ImUiWidgetInputState textInputState;
+			ImUiWidgetGetInputState( text, &textInputState );
+			nextCursorPos = ImUiTextLayoutFindGlyphIndex( layout, textInputState.relativeMousePos );
+
+			if( inputState.hasMousePressed )
+			{
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
+				state->cursorPos		= nextCursorPos;
+			}
+		}
+
 		if( nextCursorPos != (sint32)state->cursorPos )
 		{
 			nextCursorPos = IMUI_MAX( nextCursorPos, 0 );
 			nextCursorPos = IMUI_MIN( nextCursorPos, (sint32)textLengthInternal );
 
 			const uint32 nextCursorPosU = (uint32)nextCursorPos;
-			if( mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift) )
+			if( mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift) ||
+				inputState.wasPressed )
 			{
 				if( state->selectionStart == state->selectionEnd )
 				{
@@ -840,8 +851,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd );
 
 			const ImUiRect selection = ImUiRectCreate(
-				startPos.x,
-				textEditInnerRect.pos.y,
+				(textEditInnerRect.pos.x - textEditRect.pos.x) + startPos.x,
+				textEditInnerRect.pos.y - textEditRect.pos.y,
 				endPos.x - startPos.x,
 				textEditInnerRect.size.height
 			);

@@ -273,6 +273,25 @@ ImUiSize ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const Im
 	return ImUiTextLayoutGetSize( layout );
 }
 
+size_t ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout )
+{
+	return layout->glyphCount;
+}
+
+size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos )
+{
+	for( uintsize i = 0u; i < layout->glyphCount; ++i )
+	{
+		const ImUiTextGlyph* glyph = &layout->glyphs[ i ];
+		if( glyph->pos.x + (glyph->size.width * 0.5f)  > pos.x )
+		{
+			return i;
+		}
+	}
+
+	return layout->glyphCount;
+}
+
 ImUiSize ImUiTextLayoutGetSize( const ImUiTextLayout* layout )
 {
 	if( !layout )

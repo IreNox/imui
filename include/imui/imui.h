@@ -601,6 +601,8 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text );
 ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text );
 
+size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
+size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos );
 ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
 ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex );
 
