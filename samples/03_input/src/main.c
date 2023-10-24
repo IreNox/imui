@@ -12,15 +12,15 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, "hMain" );
 	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
 	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
 
 	ImUiWidgetDrawColor( cLayout, ImUiColorCreateWhite() );
 
-	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
 	ImUiWidgetSetPadding( hLayout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );

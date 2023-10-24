@@ -179,14 +179,14 @@ bool ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key )
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
 }
 
-ImUiStringView ImUiInputGetText( const ImUiContext* imui )
+const char* ImUiInputGetText( const ImUiContext* imui )
 {
 	if( imui->input.currentState.textCapacity > sizeof( imui->input.currentState.text.buffer ) )
 	{
-		return ImUiStringViewCreateLength( imui->input.currentState.text.pointer, imui->input.currentState.textSize );
+		return imui->input.currentState.text.pointer;
 	}
 
-	return ImUiStringViewCreateLength( imui->input.currentState.text.buffer, imui->input.currentState.textSize );
+	return imui->input.currentState.text.buffer;
 }
 
 ImUiPos ImUiInputGetMousePos( const ImUiContext* imui )

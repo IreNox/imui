@@ -222,13 +222,13 @@ bool ImUiToolboxButtonEnd( ImUiWidget* button )
 	return inputState.wasPressed && inputState.hasMouseReleased;
 }
 
-ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text )
+ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
 	ImUiWidget* buttonText = ImUiWidgetBegin( window );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( buttonText, s_config.font, text );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( buttonText, s_config.font, ImUiStringViewCreate( text ) );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetAlign( buttonText, ImUiAlignCreateCenter() );
 	ImUiWidgetSetFixedSize( buttonText, textSize );
@@ -272,13 +272,13 @@ ImUiWidget* ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const cha
 
 		length = vsnprintf( headBuffer, length + 1u, format, args );
 
-		ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, ImUiStringViewCreateLength( headBuffer, length ) );
+		ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, headBuffer );
 
 		ImUiMemoryFree( &window->imui->allocator, headBuffer );
 		return button;
 	}
 
-	return ImUiToolboxButtonLabelBegin( window, ImUiStringViewCreateLength( buffer, length ) );
+	return ImUiToolboxButtonLabelBegin( window, buffer );
 }
 
 bool ImUiToolboxButtonLabelEnd( ImUiWidget* button )
@@ -286,7 +286,7 @@ bool ImUiToolboxButtonLabelEnd( ImUiWidget* button )
 	return ImUiToolboxButtonEnd( button );
 }
 
-bool ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text )
+bool ImUiToolboxButtonLabel( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, text );
 	return ImUiToolboxButtonLabelEnd( button );
@@ -349,7 +349,7 @@ ImUiWidget* ImUiToolboxCheckBoxBegin( ImUiWindow* window )
 	return checkBoxFrame;
 }
 
-bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text )
+bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* text )
 {
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( checkBox, &inputState );
@@ -375,7 +375,7 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, text );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, ImUiStringViewCreate( text ) );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( checkBoxText, textSize );
 	ImUiWidgetSetVAlign( checkBoxText, 0.5f );
@@ -398,18 +398,18 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView
 	return false;
 }
 
-bool ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text )
+bool ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, const char* text )
 {
 	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
 	return ImUiToolboxCheckBoxEnd( checkBox, checked, text);
 }
 
-bool ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text )
+bool ImUiToolboxCheckBoxState( ImUiWindow* window, const char* text )
 {
 	return ImUiToolboxCheckBoxStateDefault( window, text, false );
 }
 
-bool ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, ImUiStringView text, bool defaultValue )
+bool ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, const char* text, bool defaultValue )
 {
 	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
 
@@ -424,11 +424,11 @@ bool ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, ImUiStringView text, b
 	return *checked;
 }
 
-ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text )
+ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* label = ImUiWidgetBegin( window );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_config.font, text );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_config.font, ImUiStringViewCreate( text ) );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( label, textSize );
 	ImUiWidgetSetVAlign( label, 0.5f );
@@ -469,13 +469,13 @@ ImUiWidget* ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* for
 
 		length = vsnprintf( headBuffer, length + 1u, format, args );
 
-		ImUiWidget* label = ImUiToolboxLabelBegin( window, ImUiStringViewCreateLength( headBuffer, length ) );
+		ImUiWidget* label = ImUiToolboxLabelBegin( window, headBuffer );
 
 		ImUiMemoryFree( &window->imui->allocator, headBuffer );
 		return label;
 	}
 
-	return ImUiToolboxLabelBegin( window, ImUiStringViewCreateLength( buffer, length ) );
+	return ImUiToolboxLabelBegin( window, buffer );
 }
 
 void ImUiToolboxLabelEnd( ImUiWidget* label )
@@ -483,7 +483,7 @@ void ImUiToolboxLabelEnd( ImUiWidget* label )
 	ImUiWidgetEnd( label );
 }
 
-void ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text )
+void ImUiToolboxLabel( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* label = ImUiToolboxLabelBegin( window, text );
 	ImUiToolboxLabelEnd( label );
@@ -668,11 +668,12 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	{
 		const uint32 mods = ImUiInputGetKeyModifiers( imui );
 
-		const ImUiStringView textInput = ImUiInputGetText( imui );
-		if( textInput.length > 0u )
+		const char* textInput = ImUiInputGetText( imui );
+		if( textInput && *textInput )
 		{
 			const uintsize remainingSize	= bufferSize - textLengthInternal - 1u;
-			const uintsize newSize			= IMUI_MIN( textInput.length, remainingSize );
+			const uintsize inputLength		= strlen( textInput );
+			const uintsize newSize			= IMUI_MIN( inputLength, remainingSize );
 
 			if( state->selectionStart != state->selectionEnd )
 			{
@@ -688,7 +689,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 				memmove( buffer + state->cursorPos + newSize, buffer + state->cursorPos, textLengthInternal - state->cursorPos );
 			}
 
-			memcpy( buffer + state->cursorPos, textInput.data, newSize );
+			memcpy( buffer + state->cursorPos, textInput, newSize );
 			textLengthInternal += newSize;
 			buffer[ textLengthInternal ] = '\0';
 
@@ -787,7 +788,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			ImUiWidgetInputState textInputState;
 			ImUiWidgetGetInputState( text, &textInputState );
-			nextCursorPos = ImUiTextLayoutFindGlyphIndex( layout, textInputState.relativeMousePos );
+			nextCursorPos = (sint32)ImUiTextLayoutFindGlyphIndex( layout, textInputState.relativeMousePos );
 
 			if( inputState.hasMousePressed )
 			{
@@ -896,26 +897,24 @@ bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, s
 	return ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, textLength );
 }
 
-ImUiStringView ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize )
+const char* ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize )
 {
-	return ImUiToolboxTextEditStateBufferDefault( window, bufferSize, ImUiStringViewCreateEmpty() );
+	return ImUiToolboxTextEditStateBufferDefault( window, bufferSize, NULL );
 }
 
-ImUiStringView ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, ImUiStringView defaultValue )
+const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue )
 {
 	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
 
 	bool isNew;
 	char* buffer = (char*)ImUiWidgetAllocStateNew( textEdit, bufferSize, &isNew );
-	if( isNew )
+	if( isNew && defaultValue )
 	{
-		const size_t length = IMUI_MIN( bufferSize - 1u, defaultValue.length );
-		memcpy( buffer, defaultValue.data, length );
-		buffer[ length ] = '\0';
+		strncpy( buffer, defaultValue, bufferSize );
 	}
 
 	ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, NULL );
-	return ImUiStringViewCreate( buffer );
+	return buffer;
 }
 
 void ImUiToolboxProgressBar( ImUiWindow* window, float value )
@@ -1264,7 +1263,7 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	return list->changed;
 }
 
-void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
+void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount )
 {
 	dropDown->dropDown = ImUiWidgetBegin( window );
 	ImUiWidgetSetPadding( dropDown->dropDown, s_config.dropDown.padding );
@@ -1308,7 +1307,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiTextLayout* selectedTextLayout = NULL;
 	for( uintsize i = 0; i < itemCount; ++i )
 	{
-		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, items[ i ] );
+		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, ImUiStringViewCreate( items[ i ] ) );
 
 		maxSize = ImUiSizeMax( maxSize, ImUiTextLayoutGetSize( textLayout ) );
 
@@ -1417,7 +1416,7 @@ bool ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown )
 	return dropDown->changed;
 }
 
-size_t ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount )
+size_t ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount )
 {
 	ImUiToolboxDropDownContext dropDown;
 	ImUiToolboxDropDownBegin( &dropDown, window, items, itemCount );
@@ -1451,7 +1450,7 @@ ImUiWindow* ImUiToolboxPopupBeginSurface( ImUiSurface* surface )
 	return popupWindow;
 }
 
-size_t ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const ImUiStringView* buttons, size_t buttonCount )
+size_t ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** buttons, size_t buttonCount )
 {
 	ImUiWidget* buttonsLayout = ImUiWidgetBegin( popupWindow );
 	ImUiWidgetSetHAlign( buttonsLayout, 1.0f );

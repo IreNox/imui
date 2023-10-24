@@ -195,7 +195,7 @@ static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
 
 static void ImUiTestDoDropDown( UiToolboxWindow& window )
 {
-	const UiStringView items[] =
+	const char* items[] =
 	{
 		"Item 1",
 		"Item 2",
@@ -228,7 +228,7 @@ static void ImUiTestDoPopup( UiToolboxWindow& window )
 
 	if( state->isOpen )
 	{
-		const UiStringView buttons[] =
+		const char* buttons[] =
 		{
 			"Ok",
 			"Cancel"

@@ -20,20 +20,20 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretch( vMain, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutVerticalSpacing( vMain, 0.0f );
 
 	{
-		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 		ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 50.0f ) );
 		ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
 		ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 50.0f );
 
 		{
-			ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vLeft" ) );
+			ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLeft" );
 			ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
 			ImUiWidgetSetLayoutVerticalSpacing( vLayout, 50.0f );
 
@@ -59,7 +59,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 static void HwMinSizeHorizontal( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "min_horizontal" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "min_horizontal" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( layout, 10.0f );
 
@@ -74,7 +74,7 @@ static void HwMinSizeHorizontal( ImUiWindow* window )
 
 static void HwMinSizeVertical( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "min_vertical" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "min_vertical" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( layout, 10.0f );
 
@@ -100,7 +100,7 @@ static void HwMinSizeElement( ImUiWindow* window )
 
 static void HwStretchStack( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "stack" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "stack" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 
@@ -143,7 +143,7 @@ static void HwStretchStack( ImUiWindow* window )
 
 static void HwStretchHorizontal( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "horizontal" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "horizontal" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutHorizontalSpacing( layout, 10.0f );
@@ -157,7 +157,7 @@ static void HwStretchHorizontal( ImUiWindow* window )
 
 static void HwStretchVertical( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vertical" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "vertical" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutVerticalSpacing( layout, 10.0f );
@@ -171,7 +171,7 @@ static void HwStretchVertical( ImUiWindow* window )
 
 static void HwStretchGrid( ImUiWindow* window )
 {
-	ImUiWidget* layout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "grid" ) );
+	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "grid" );
 	//ImUiWidgetSetMargin( layout, ImUiBorderCreateAll( 50.0f ) );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetStretch( layout, ImUiSizeCreate( 1.0f, 1.0f ) );

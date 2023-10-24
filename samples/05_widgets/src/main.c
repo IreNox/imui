@@ -46,14 +46,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 #endif
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
 	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateHorizontal() );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
@@ -90,21 +90,21 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 	}
 
 	{
-		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "buttons" ) );
+		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, "buttons" );
 		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateZero() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
-		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 1" ) ) )
+		if( ImUiToolboxButtonLabel( window, "Button 1" ) )
 		{
 			checked[ 0u ] = !checked[ 0u ];
 		}
 
-		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 2" ) ) )
+		if( ImUiToolboxButtonLabel( window, "Button 2" ) )
 		{
 			checked[ 1u ] = !checked[ 1u ];
 		}
 
-		if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 3" ) ) )
+		if( ImUiToolboxButtonLabel( window, "Button 3" ) )
 		{
 			checked[ 2u ] = !checked[ 2u ];
 		}
@@ -113,15 +113,15 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 	}
 
 	{
-		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "checks" ) );
+		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, "checks" );
 		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizontal() );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
-		ImUiToolboxCheckBox( window, &checked[ 0u ], IMUI_STR( "Check 1" ) );
-		ImUiToolboxCheckBox( window, &checked[ 1u ], IMUI_STR( "Check 2" ) );
-		ImUiToolboxCheckBox( window, &checked[ 2u ], IMUI_STR( "Check 3" ) );
+		ImUiToolboxCheckBox( window, &checked[ 0u ], "Check 1" );
+		ImUiToolboxCheckBox( window, &checked[ 1u ], "Check 2" );
+		ImUiToolboxCheckBox( window, &checked[ 2u ], "Check 3" );
 
-		ImUiToolboxCheckBoxState( window, IMUI_STR( "Check State" ) );
+		ImUiToolboxCheckBoxState( window, "Check State" );
 
 		ImUiToolboxLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
 
@@ -131,7 +131,7 @@ static void ImUiTestDoButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLay
 
 static void ImUiTestDoSlidersAndProgressBars( ImUiWindow* window )
 {
-	ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "sliders" ) );
+	ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, "sliders" );
 	ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
@@ -154,14 +154,14 @@ static void ImUiTestDoTextEdit( ImUiWindow* window )
 
 static void ImUiTestDoScrollAndList( ImUiWindow* window )
 {
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vLayout" ) );
+	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	ImUiToolboxLabel( window, IMUI_STR( "Item count:" ) );
+	ImUiToolboxLabel( window, "Item count:" );
 	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
-	const bool useList = ImUiToolboxCheckBoxStateDefault( window, IMUI_STR( "List" ), true );
+	const bool useList = ImUiToolboxCheckBoxStateDefault( window, "List", true );
 
 	const size_t count = (size_t)itemCount;
 	if( useList )
@@ -188,7 +188,7 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 		ImUiToolboxScrollAreaBegin( &scrollArea, window );
 		ImUiWidgetSetMinSize( scrollArea.area, ImUiSizeCreateAll( 200.0f ) );
 
-		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "scroll" ) );
+		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, "scroll" );
 		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizontal() );
 		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
@@ -206,22 +206,22 @@ static void ImUiTestDoScrollAndList( ImUiWindow* window )
 
 static void ImUiTestDoDropDown( ImUiWindow* window )
 {
-	const ImUiStringView items[] =
+	const char* items[] =
 	{
-		IMUI_STR( "Item 1" ),
-		IMUI_STR( "Item 2" ),
-		IMUI_STR( "Item 3" ),
-		IMUI_STR( "Item 4" ),
-		IMUI_STR( "Item 5" ),
-		IMUI_STR( "Item 6" ),
-		IMUI_STR( "Item 7" ),
-		IMUI_STR( "Item 8" ),
-		IMUI_STR( "Item 9" ),
-		IMUI_STR( "Item 10" ),
-		IMUI_STR( "Item 11" ),
-		IMUI_STR( "Item 12" ),
-		IMUI_STR( "Item 13" ),
-		IMUI_STR( "Item 14" )
+		"Item 1",
+		"Item 2",
+		"Item 3",
+		"Item 4",
+		"Item 5",
+		"Item 6",
+		"Item 7",
+		"Item 8",
+		"Item 9",
+		"Item 10",
+		"Item 11",
+		"Item 12",
+		"Item 13",
+		"Item 14"
 	};
 
 	ImUiToolboxDropDown( window, items, IMUI_ARRAY_COUNT( items ) );
@@ -229,7 +229,7 @@ static void ImUiTestDoDropDown( ImUiWindow* window )
 
 static void ImUiTestDoPopup( ImUiWindow* window )
 {
-	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, IMUI_STR( "Open Popup" ) );
+	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, "Open Popup" );
 
 	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ) );
 
@@ -240,15 +240,15 @@ static void ImUiTestDoPopup( ImUiWindow* window )
 
 	if( state->isOpen )
 	{
-		const ImUiStringView buttons[] =
+		const char* buttons[] =
 		{
-			IMUI_STR( "Ok" ),
-			IMUI_STR( "Cancel" )
+			"Ok",
+			"Cancel"
 		};
 
 		ImUiWindow* popup = ImUiToolboxPopupBegin( window );
 
-		ImUiToolboxLabel( popup, IMUI_STR( "Hello from a popup window!" ));
+		ImUiToolboxLabel( popup, "Hello from a popup window!" );
 
 		const size_t clickedButton = ImUiToolboxPopupEndButtons( popup, buttons, IMUI_ARRAY_COUNT( buttons ) );
 		if( clickedButton < IMUI_ARRAY_COUNT( buttons ) )
@@ -324,6 +324,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
 	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
 	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config.colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
 	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
 	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
@@ -334,7 +335,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
 	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 36 );
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 37 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -347,11 +348,12 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDown ]					= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 16 );
 
 	const ImUiImage image = { NULL, 16u, 16u };
 

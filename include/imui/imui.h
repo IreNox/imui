@@ -9,12 +9,6 @@ extern "C"
 #include <stddef.h>
 #include <stdint.h>
 
-#define IMUI_DEFINES
-
-#ifdef IMUI_DEFINES
-#	define IMUI_STR( s ) ImUiStringViewCreateLength( s, sizeof( s ) - 1u )
-#endif
-
 #if !defined( IMUI_DEBUG )
 #	if defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )
 #		define IMUI_DEBUG 1
@@ -541,7 +535,7 @@ bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
 
-ImUiStringView					ImUiInputGetText( const ImUiContext* imui );
+const char*						ImUiInputGetText( const ImUiContext* imui );
 
 ImUiPos							ImUiInputGetMousePos( const ImUiContext* imui );
 ImUiInputMouseCursor			ImUiInputGetMouseCursor( ImUiContext* imui );

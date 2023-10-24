@@ -4,6 +4,7 @@
 #include "imui_internal.h"
 #include "imui_memory.h"
 
+#include <math.h>
 #include <string.h>
 
 static ImUiHash ImUiTextLayoutCacheHash( const void* entry )
@@ -275,11 +276,21 @@ ImUiSize ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const Im
 
 size_t ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout )
 {
+	if( !layout )
+	{
+		return 0u;
+	}
+
 	return layout->glyphCount;
 }
 
 size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos )
 {
+	if( !layout )
+	{
+		return 0u;
+	}
+
 	for( uintsize i = 0u; i < layout->glyphCount; ++i )
 	{
 		const ImUiTextGlyph* glyph = &layout->glyphs[ i ];

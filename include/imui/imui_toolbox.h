@@ -219,82 +219,82 @@ typedef struct ImUiToolboxDropDownContext
 	bool						changed;
 } ImUiToolboxDropDownContext;
 
-void				ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
-void				ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
-
 const ImUiToolboxConfig*	ImUiToolboxGetConfig();
 
-void				ImUiToolboxSpacer( ImUiWindow* window, float width, float height );
-void				ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical );
+void			ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font );
+void			ImUiToolboxSetConfig( const ImUiToolboxConfig* config );
 
-ImUiWidget*			ImUiToolboxButtonBegin( ImUiWindow* window );
-bool				ImUiToolboxButtonEnd( ImUiWidget* button );
-ImUiWidget*			ImUiToolboxButtonLabelBegin( ImUiWindow* window, ImUiStringView text );
-ImUiWidget*			ImUiToolboxButtonLabelBeginFormat( ImUiWindow* window, const char* format, ... );
-ImUiWidget*			ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
-bool				ImUiToolboxButtonLabelEnd( ImUiWidget* button );
-bool				ImUiToolboxButtonLabel( ImUiWindow* window, ImUiStringView text );
-bool				ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
-bool				ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
-ImUiWidget*			ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
-bool				ImUiToolboxButtonIconEnd( ImUiWidget* button );
-bool				ImUiToolboxButtonIcon( ImUiWindow* window, ImUiImage icon );
-bool				ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
+void			ImUiToolboxSpacer( ImUiWindow* window, float width, float height );
+void			ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical );
 
-ImUiWidget*			ImUiToolboxCheckBoxBegin( ImUiWindow* window );
-bool				ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, ImUiStringView text );
-bool				ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, ImUiStringView text );
-bool				ImUiToolboxCheckBoxState( ImUiWindow* window, ImUiStringView text );
-bool				ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, ImUiStringView text, bool defaultValue );
+ImUiWidget*		ImUiToolboxButtonBegin( ImUiWindow* window );
+bool			ImUiToolboxButtonEnd( ImUiWidget* button );
+ImUiWidget*		ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text );
+ImUiWidget*		ImUiToolboxButtonLabelBeginFormat( ImUiWindow* window, const char* format, ... );
+ImUiWidget*		ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
+bool			ImUiToolboxButtonLabelEnd( ImUiWidget* button );
+bool			ImUiToolboxButtonLabel( ImUiWindow* window, const char* text );
+bool			ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
+bool			ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
+ImUiWidget*		ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
+bool			ImUiToolboxButtonIconEnd( ImUiWidget* button );
+bool			ImUiToolboxButtonIcon( ImUiWindow* window, ImUiImage icon );
+bool			ImUiToolboxButtonIconSize( ImUiWindow* window, ImUiImage icon, ImUiSize iconSize );
 
-ImUiWidget*			ImUiToolboxLabelBegin( ImUiWindow* window, ImUiStringView text );
-ImUiWidget*			ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
-ImUiWidget*			ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
-void				ImUiToolboxLabelEnd( ImUiWidget* label );
-void				ImUiToolboxLabel( ImUiWindow* window, ImUiStringView text );
-void				ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
-void				ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
+ImUiWidget*		ImUiToolboxCheckBoxBegin( ImUiWindow* window );
+bool			ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* text );
+bool			ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, const char* text );
+bool			ImUiToolboxCheckBoxState( ImUiWindow* window, const char* text );
+bool			ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, const char* text, bool defaultValue );
 
-ImUiWidget*			ImUiToolboxSliderBegin( ImUiWindow* window );
-bool				ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max );
-bool				ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
-bool				ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);
-float				ImUiToolboxSliderState( ImUiWindow* window );										// value range is 0 to 1
-float				ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue );			// value range is 0 to 1
-float				ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
-float				ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
+ImUiWidget*		ImUiToolboxLabelBegin( ImUiWindow* window, const char* text );
+ImUiWidget*		ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
+ImUiWidget*		ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
+void			ImUiToolboxLabelEnd( ImUiWidget* label );
+void			ImUiToolboxLabel( ImUiWindow* window, const char* text );
+void			ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
+void			ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
 
-ImUiWidget*			ImUiToolboxTextEditBegin( ImUiWindow* window );
-bool				ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
-bool				ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
-ImUiStringView		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
-ImUiStringView		ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, ImUiStringView defaultValue );
+ImUiWidget*		ImUiToolboxSliderBegin( ImUiWindow* window );
+bool			ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max );
+bool			ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
+bool			ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);
+float			ImUiToolboxSliderState( ImUiWindow* window );										// value range is 0 to 1
+float			ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue );			// value range is 0 to 1
+float			ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
+float			ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
-void				ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
-void				ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
+ImUiWidget*		ImUiToolboxTextEditBegin( ImUiWindow* window );
+bool			ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
+bool			ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
+const char*		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
+const char*		ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue );
 
-void				ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
-void				ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
-void				ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
+void			ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
+void			ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
 
-void				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
-size_t				ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
-size_t				ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
-size_t				ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
-void				ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index );
-ImUiWidget*			ImUiToolboxListNextItem( ImUiToolboxListContext* list );
-bool				ImUiToolboxListEnd( ImUiToolboxListContext* list );
+void			ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
+void			ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
+void			ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
 
-void				ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
-size_t				ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
-void				ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
-bool				ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
-size_t				ImUiToolboxDropDown( ImUiWindow* window, const ImUiStringView* items, size_t itemCount );
+void			ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
+size_t			ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
+size_t			ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
+size_t			ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
+void			ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index );
+ImUiWidget*		ImUiToolboxListNextItem( ImUiToolboxListContext* list );
+bool			ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
-ImUiWindow*			ImUiToolboxPopupBegin( ImUiWindow* window );
-ImUiWindow*			ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
-size_t				ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const ImUiStringView* buttons, size_t buttonCount );
-void				ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
+void			ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount );
+size_t			ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
+void			ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
+bool			ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
+size_t			ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount );
+
+ImUiWindow*		ImUiToolboxPopupBegin( ImUiWindow* window );
+ImUiWindow*		ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
+size_t			ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** buttons, size_t buttonCount );
+void			ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
 
 #ifdef __cplusplus
 }

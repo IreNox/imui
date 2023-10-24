@@ -11,22 +11,22 @@ namespace imui
 	class UiInputState;
 	struct UiSize;
 
-	struct UiStringView : public ImUiStringView
-	{
-						UiStringView();
-						UiStringView( const char* str, size_t _length );
-		template< size_t TLen >
-						UiStringView( const char (&str)[ TLen ] );
-		explicit		UiStringView( const ImUiStringView& value );
+	//struct UiStringView : public ImUiStringView
+	//{
+	//					UiStringView();
+	//					UiStringView( const char* str, size_t _length );
+	//	template< size_t TLen >
+	//					UiStringView( const char (&str)[ TLen ] );
+	//	explicit		UiStringView( const ImUiStringView& value );
 
-		const char*		getData() const;
-		size_t			getLength() const;
+	//	const char*		getData() const;
+	//	size_t			getLength() const;
 
-		bool			isEmpty() const;
+	//	bool			isEmpty() const;
 
-		bool			operator==( const UiStringView& rhs ) const;
-		bool			operator!=( const UiStringView& rhs ) const;
-	};
+	//	bool			operator==( const char* rhs ) const;
+	//	bool			operator!=( const char* rhs ) const;
+	//};
 
 	struct UiAlign : public ImUiAlign
 	{
@@ -196,7 +196,7 @@ namespace imui
 		bool				hasKeyPressed( ImUiInputKey key ) const;
 		bool				hasKeyReleased( ImUiInputKey key ) const;
 
-		UiStringView		getText() const;
+		const char*			getText() const;
 
 		UiPos				getMousePos() const;
 		bool				isMouseInRect( UiRect rect ) const;
@@ -240,12 +240,12 @@ namespace imui
 
 						UiSurface();
 						UiSurface( ImUiSurface* surface );
-						UiSurface( ImUiFrame* frame, const UiStringView& name, const UiSize& size, float dpiScale );
-						UiSurface( UiFrame& frame, const UiStringView& name, const UiSize& size, float dpiScale );
+						UiSurface( ImUiFrame* frame, const char* name, const UiSize& size, float dpiScale );
+						UiSurface( UiFrame& frame, const char* name, const UiSize& size, float dpiScale );
 						~UiSurface();
 
-		void			beginSurface( ImUiFrame* frame, const UiStringView& name, const UiSize& size, float dpiScale );
-		void			beginSurface( UiFrame& frame, const UiStringView& name, const UiSize& size, float dpiScale );
+		void			beginSurface( ImUiFrame* frame, const char* name, const UiSize& size, float dpiScale );
+		void			beginSurface( UiFrame& frame, const char* name, const UiSize& size, float dpiScale );
 		void			endSurface();
 
 		bool			isValid() const;
@@ -269,12 +269,12 @@ namespace imui
 
 						UiWindow();
 						UiWindow( ImUiWindow* window );
-						UiWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
-						UiWindow( UiSurface& surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
+						UiWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder );
+						UiWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder );
 						~UiWindow();
 
-		void			beginWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
-		void			beginWindow( UiSurface& surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
+		void			beginWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder );
+		void			beginWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder );
 		void			endWindow();
 
 		bool			isValid() const;
@@ -299,12 +299,12 @@ namespace imui
 						UiWidget();
 						UiWidget( UiWindow& window );
 						UiWidget( UiWindow& window, ImUiId id );
-						UiWidget( UiWindow& window, const UiStringView& name );
+						UiWidget( UiWindow& window, const char* name );
 						~UiWidget();
 
 		void			beginWidget( UiWindow& window );
 		void			beginWidget( UiWindow& window, ImUiId id );
-		void			beginWidget( UiWindow& window, const UiStringView& name );
+		void			beginWidget( UiWindow& window, const char* name );
 		void			endWidget();
 
 		bool			isValid() const;
@@ -427,21 +427,21 @@ namespace imui
 							UiToolboxWindow();
 							UiToolboxWindow( UiWindow& window );
 							UiToolboxWindow( ImUiWindow* window );
-							UiToolboxWindow( ImUiSurface* surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
-							UiToolboxWindow( UiSurface& surface, const UiStringView& name, const UiRect& rect, uint32_t zOrder );
+							UiToolboxWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder );
+							UiToolboxWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder );
 
 			void			spacer( float width, float height );
 			void			strecher( float horizontal, float vertical );
 
-			bool			buttonLabel( const UiStringView& text );
+			bool			buttonLabel( const char* text );
 			bool			buttonLabelFormat( const char* format, ... );
 			bool			buttonIcon( const ImUiImage& icon );
 			bool			buttonIcon( const ImUiImage& icon, UiSize iconSize );
 
-			bool			checkBox( bool& checked, const UiStringView& text );
-			bool			checkBoxState( const UiStringView& text, bool defaultValue = false );
+			bool			checkBox( bool& checked, const char* text );
+			bool			checkBoxState( const char* text, bool defaultValue = false );
 
-			void			label( const UiStringView& text );
+			void			label( const char* text );
 			void			labelFormat( const char* format, ... );
 
 			bool			slider( float& value, float min = 0.0f, float max = 1.0f );
@@ -449,11 +449,11 @@ namespace imui
 			float			sliderState( float min, float max, float defaultValue );
 
 			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength = nullptr );
-			UiStringView	textEditState( size_t bufferSize, UiStringView defaultValue = UiStringView() );
+			const char*		textEditState( size_t bufferSize, const char* defaultValue = NULL );
 
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
 
-			size_t			dropDown( const UiStringView* items, size_t itemCount );
+			size_t			dropDown( const char** items, size_t itemCount );
 		};
 
 		class UiToolboxButtonLabel : public UiWidget
@@ -461,10 +461,10 @@ namespace imui
 		public:
 
 						UiToolboxButtonLabel();
-						UiToolboxButtonLabel( UiWindow& window, const UiStringView& text );
+						UiToolboxButtonLabel( UiWindow& window, const char* text );
 						~UiToolboxButtonLabel();
 
-			void		begin( UiWindow& window, const UiStringView& text );
+			void		begin( UiWindow& window, const char* text );
 			void		beginFormat( UiWindow& window, const char* format, ... );
 			bool		end();
 		};
@@ -474,10 +474,10 @@ namespace imui
 		public:
 
 						UiToolboxLabel();
-						UiToolboxLabel( UiWindow& window, const UiStringView& text );
+						UiToolboxLabel( UiWindow& window, const char* text );
 						~UiToolboxLabel();
 
-			void		begin( UiWindow& window, const UiStringView& text );
+			void		begin( UiWindow& window, const char* text );
 			void		beginFormat( UiWindow& window, const char* format, ... );
 			void		end();
 		};
@@ -539,8 +539,8 @@ namespace imui
 		{
 		public:
 
-						UiToolboxDropdown( UiWindow& window, const UiStringView* items, size_t itemCount );
-						//UiToolboxDropdown( UiWindow& window, const UiStringView& selectedItem, size_t itemCount );
+						UiToolboxDropdown( UiWindow& window, const char** items, size_t itemCount );
+						//UiToolboxDropdown( UiWindow& window, const char* selectedItem, size_t itemCount );
 						~UiToolboxDropdown();
 
 			//bool		isOpen() const;
@@ -550,7 +550,7 @@ namespace imui
 			size_t		getSelectedIndex() const;
 			void		setSelectedIndex( size_t index );
 
-			//void		nextItem( const UiStringView& item );
+			//void		nextItem( const char* item );
 
 		private:
 
@@ -565,19 +565,19 @@ namespace imui
 						UiToolboxPopup( UiWindow& window );
 						~UiToolboxPopup();
 
-			size_t 		end( const UiStringView* buttons, size_t buttonCount );
+			size_t 		end( const char** buttons, size_t buttonCount );
 			void		end();
 		};
 
 		void			setConfig( const UiToolboxConfig& config );
 	}
 
-	template< size_t TLen >
-	UiStringView::UiStringView( const char( &str )[ TLen ] )
-	{
-		data	= str;
-		length	= TLen - 1u;
-	}
+	//template< size_t TLen >
+	//UiStringView::UiStringView( const char( &str )[ TLen ] )
+	//{
+	//	data	= str;
+	//	length	= TLen - 1u;
+	//}
 
 	template< class T >
 	T* UiWidget::newState()
