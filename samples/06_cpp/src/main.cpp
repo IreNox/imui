@@ -312,6 +312,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
 	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
 	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
+	config.colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
 	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
 	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
 	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
@@ -322,7 +323,7 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
 	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
 	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 36 );
+	_STATIC_ASSERT( ImUiToolboxColor_MAX == 37 );
 
 	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
 	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
@@ -335,11 +336,12 @@ static void ImUiTestSetConfig()
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
+	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDown ]					= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_skinRect;
 	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_skinRect;
 	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 15 );
+	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 16 );
 
 	const ImUiImage image = { NULL, 16u, 16u };
 

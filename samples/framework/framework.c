@@ -347,7 +347,7 @@ static void ImFrameworkLoop()
 	SDL_GetWindowSize( s_context.window, &s_context.windowWidth, &s_context.windowHeight );
 
 	ImUiFrame* frame = ImUiBegin( s_context.imui, SDL_GetTicks64() / 1000.0f );
-	ImUiSurface* surface = ImUiSurfaceBegin( frame, ImUiStringViewCreate( "main" ), ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), 1.0f );
+	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), 1.0f );
 
 	ImUiFrameworkTick( surface );
 
