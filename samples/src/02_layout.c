@@ -1,21 +1,21 @@
-﻿#include "../../framework/framework.h"
+﻿#include "00_samples.h"
 
 #include "imui/imui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-static void HwMinSizeHorizontal( ImUiWindow* window );
-static void HwMinSizeVertical( ImUiWindow* window );
-static void HwMinSizeElement( ImUiWindow* window );
+static void ImUiLayoutSampleMinSizeHorizontal( ImUiWindow* window );
+static void ImUiLayoutSampleMinSizeVertical( ImUiWindow* window );
+static void ImUiLayoutSampleMinSizeElement( ImUiWindow* window );
 
-static void HwStretchStack( ImUiWindow* window );
-static void HwStretchHorizontal( ImUiWindow* window );
-static void HwStretchVertical( ImUiWindow* window );
-static void HwStretchGrid( ImUiWindow* window );
-static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
+static void ImUiLayoutSampleStretchStack( ImUiWindow* window );
+static void ImUiLayoutSampleStretchHorizontal( ImUiWindow* window );
+static void ImUiLayoutSampleStretchVertical( ImUiWindow* window );
+static void ImUiLayoutSampleStretchGrid( ImUiWindow* window );
+static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
 
-void ImUiFrameworkTick( ImUiSurface* surface )
+void ImUiLayoutSampleTick( ImUiSurface* surface )
 {
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
@@ -37,27 +37,27 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 			ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
 			ImUiWidgetSetLayoutVerticalSpacing( vLayout, 50.0f );
 
-			HwMinSizeHorizontal( window );
-			HwStretchStack( window );
-			HwStretchHorizontal( window );
+			ImUiLayoutSampleMinSizeHorizontal( window );
+			ImUiLayoutSampleStretchStack( window );
+			ImUiLayoutSampleStretchHorizontal( window );
 
 			ImUiWidgetEnd( vLayout );
 		}
 
-		HwStretchVertical( window );
-		HwMinSizeVertical( window );
+		ImUiLayoutSampleStretchVertical( window );
+		ImUiLayoutSampleMinSizeVertical( window );
 
 		ImUiWidgetEnd( hLayout );
 	}
 
-	HwStretchGrid( window );
+	ImUiLayoutSampleStretchGrid( window );
 
 	ImUiWidgetEnd( vMain );
 
 	ImUiWindowEnd( window );
 }
 
-static void HwMinSizeHorizontal( ImUiWindow* window )
+static void ImUiLayoutSampleMinSizeHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "min_horizontal" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
@@ -65,14 +65,14 @@ static void HwMinSizeHorizontal( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	HwMinSizeElement( window );
-	HwMinSizeElement( window );
-	HwMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
 
 	ImUiWidgetEnd( layout );
 }
 
-static void HwMinSizeVertical( ImUiWindow* window )
+static void ImUiLayoutSampleMinSizeVertical( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "min_vertical" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
@@ -80,14 +80,14 @@ static void HwMinSizeVertical( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	HwMinSizeElement( window );
-	HwMinSizeElement( window );
-	HwMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
+	ImUiLayoutSampleMinSizeElement( window );
 
 	ImUiWidgetEnd( layout );
 }
 
-static void HwMinSizeElement( ImUiWindow* window )
+static void ImUiLayoutSampleMinSizeElement( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetMargin( widget, ImUiBorderCreateAll( 10.0f ) );
@@ -98,7 +98,7 @@ static void HwMinSizeElement( ImUiWindow* window )
 	ImUiWidgetEnd( widget );
 }
 
-static void HwStretchStack( ImUiWindow* window )
+static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "stack" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
@@ -141,7 +141,7 @@ static void HwStretchStack( ImUiWindow* window )
 	ImUiWidgetEnd( layout );
 }
 
-static void HwStretchHorizontal( ImUiWindow* window )
+static void ImUiLayoutSampleStretchHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "horizontal" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
@@ -150,12 +150,12 @@ static void HwStretchHorizontal( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	HwStretchElements( window, ImUiSizeCreate( 0.5f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 0.5f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
 	ImUiWidgetEnd( layout );
 }
 
-static void HwStretchVertical( ImUiWindow* window )
+static void ImUiLayoutSampleStretchVertical( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "vertical" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
@@ -164,12 +164,12 @@ static void HwStretchVertical( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
 	ImUiWidgetEnd( layout );
 }
 
-static void HwStretchGrid( ImUiWindow* window )
+static void ImUiLayoutSampleStretchGrid( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "grid" );
 	//ImUiWidgetSetMargin( layout, ImUiBorderCreateAll( 50.0f ) );
@@ -179,15 +179,15 @@ static void HwStretchGrid( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
-	HwStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 1.0f, 0.5f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
 
 	ImUiWidgetEnd( layout );
 }
 
-static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 )
+static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 )
 {
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
@@ -221,11 +221,11 @@ static void HwStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize s
 	}
 }
 
-bool ImUiFrameworkInitialize( ImUiContext* imui )
+bool ImUiLayoutSampleInitialize( ImUiContext* imui )
 {
 	return true;
 }
 
-void ImUiFrameworkShutdown( ImUiContext* imui )
+void ImUiLayoutSampleShutdown( ImUiContext* imui )
 {
 }

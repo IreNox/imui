@@ -1,33 +1,33 @@
-﻿#include "../framework/framework.h"
+﻿#include "00_samples.h"
 
 #include "imui/imui.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-static void HwInputElement( ImUiWindow* window );
+static void ImUiInputSampleElement( ImUiWindow* window );
 
-void ImUiFrameworkTick( ImUiSurface* surface )
+void ImUiInputSampleTick( ImUiSurface* surface )
 {
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, "hMain" );
 	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
 	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
 
-	ImUiDrawWidgetColor( cLayout, ImUiColorCreateWhite() );
+	ImUiWidgetDrawColor( cLayout, ImUiColorCreateWhite() );
 
-	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
 	ImUiWidgetSetPadding( hLayout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );
 
 	for( size_t i = 0u; i < 5u; ++i )
 	{
-		HwInputElement( window );
+		ImUiInputSampleElement( window );
 	}
 
 	ImUiWidgetEnd( hLayout );
@@ -37,7 +37,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWindowEnd( window );
 }
 
-static void HwInputElement( ImUiWindow* window )
+static void ImUiInputSampleElement( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
@@ -60,16 +60,16 @@ static void HwInputElement( ImUiWindow* window )
 		color = ImUiColorCreateFloat( 0.5f, 0.9f, 1.0f, 1.0f );
 	}
 
-	ImUiDrawWidgetColor( widget, color );
+	ImUiWidgetDrawColor( widget, color );
 
 	ImUiWidgetEnd( widget );
 }
 
-bool ImUiFrameworkInitialize( ImUiContext* imui )
+bool ImUiInputSampleInitialize( ImUiContext* imui )
 {
 	return true;
 }
 
-void ImUiFrameworkShutdown( ImUiContext* imui )
+void ImUiInputSampleShutdown( ImUiContext* imui )
 {
 }

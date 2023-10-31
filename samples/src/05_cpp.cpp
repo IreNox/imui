@@ -1,4 +1,6 @@
-﻿#include "../../framework/framework.h"
+﻿#include "00_samples.h"
+
+#include "framework.h"
 
 #include "imui/imui_cpp.h"
 
@@ -12,24 +14,29 @@
 using namespace imui;
 using namespace imui::toolbox;
 
-static ImUiImage	s_fontTexture		= { NULL };
-static ImUiFont*	s_font				= NULL;
+typedef struct ImUiToolboxCppSampleContext
+{
+	float		sliderValue1;
 
-static ImUiSkin		s_skinRect			= { NULL };
-static ImUiImage	s_skinRectTexture	= { NULL };
-static ImUiSkin		s_skinLine			= { NULL };
-static ImUiImage	s_skinLineTexture	= { NULL };
+	ImUiFont*	font;
+	ImUiImage	fontTexture;
 
-static void			ImUiTestSetConfig();
+	ImUiSkin	skinRect;
+	ImUiImage	skinRectTexture;
+	ImUiSkin	skinLine;
+	ImUiImage	skinLineTexture;
+} ImUiToolboxCppSampleContext;
 
-static void			ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
-static void			ImUiTestDoSlidersAndProgressBars( UiToolboxWindow& window );
-static void			ImUiTestDoTextEdit( UiToolboxWindow& window );
-static void			ImUiTestDoDropDown( UiToolboxWindow& window );
-static void			ImUiTestDoPopup( UiToolboxWindow& window );
-static void			ImUiTestDoScrollAndList( UiToolboxWindow& window );
+static ImUiToolboxCppSampleContext s_toolboxCppContext = { 2.5f, NULL };
 
-static float		s_sliderValue1 = 2.5f;
+static void			ImUiToolboxCppSampleSetConfig();
+
+static void			ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
+static void			ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window );
+static void			ImUiToolboxCppSampleTextEdit( UiToolboxWindow& window );
+static void			ImUiToolboxCppSampleDropDown( UiToolboxWindow& window );
+static void			ImUiToolboxCppSamplePopup( UiToolboxWindow& window );
+static void			ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window );
 
 struct ImUiTestCheckBoxState
 {
@@ -41,14 +48,10 @@ struct ImUiTestPopupState
 	bool isOpen;
 };
 
-void ImUiFrameworkTick( ImUiSurface* surface )
+void ImUiToolboxCppSampleTick( ImUiSurface* surface )
 {
-#if 0
-	ImUiFrameworkShutdown( ImUiSurfaceGetContext( surface ) );
-	ImUiFrameworkInitialize( ImUiSurfaceGetContext( surface ) );
-#endif
 #if 1
-	ImUiTestSetConfig();
+	ImUiToolboxCppSampleSetConfig();
 #endif
 
 	const UiSize surfaceSize = UiSize( ImUiSurfaceGetSize( surface ) );
@@ -64,14 +67,14 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		vLayout.setStretch( UiSize::Horizontal );
 		vLayout.setLayoutVertical( 10.0f );
 
-		ImUiTestDoButtonsAndCheckBoxes( window, vLayout );
-		ImUiTestDoSlidersAndProgressBars( window );
-		ImUiTestDoTextEdit( window );
-		ImUiTestDoDropDown( window );
-		ImUiTestDoPopup( window );
+		ImUiToolboxCppSampleButtonsAndCheckBoxes( window, vLayout );
+		ImUiToolboxCppSampleSlidersAndProgressBars( window );
+		ImUiToolboxCppSampleTextEdit( window );
+		ImUiToolboxCppSampleDropDown( window );
+		ImUiToolboxCppSamplePopup( window );
 	}
 
-	ImUiTestDoScrollAndList( window );
+	ImUiToolboxCppSampleScrollAndList( window );
 
 	{
 		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window.getInternal() ) );
@@ -81,10 +84,10 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		mouseLabel.setVAlign( 0.0f );
 	}
 
-	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_fontTexture.size ), s_fontTexture );
+	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_toolboxCppContext.fontTexture.size ), s_toolboxCppContext.fontTexture );
 }
 
-static void ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout )
+static void ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout )
 {
 	bool isNewState;
 	ImUiTestCheckBoxState* state = vLayout.newState< ImUiTestCheckBoxState >( isNewState );
@@ -129,28 +132,28 @@ static void ImUiTestDoButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& v
 	}
 }
 
-static void ImUiTestDoSlidersAndProgressBars( UiToolboxWindow& window )
+static void ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window )
 {
 	UiWidget sliderLayout( window, "sliders" );
 	sliderLayout.setStretch( UiSize::Horizontal );
 	sliderLayout.setLayoutVertical( 10.0f );
 
-	window.slider( s_sliderValue1, 1.0f, 5.0f );
+	window.slider( s_toolboxCppContext.sliderValue1, 1.0f, 5.0f );
 
 	const float value2 = window.sliderState( 1.0f, 5.0f );
 
-	window.labelFormat( "V1: %.2f, V2: %.2f", s_sliderValue1, value2 );
+	window.labelFormat( "V1: %.2f, V2: %.2f", s_toolboxCppContext.sliderValue1, value2 );
 
-	window.progressBar( s_sliderValue1, 0.0f, 5.0f );
+	window.progressBar( s_toolboxCppContext.sliderValue1, 0.0f, 5.0f );
 	window.progressBar( -1.0f );
 }
 
-static void ImUiTestDoTextEdit( UiToolboxWindow& window )
+static void ImUiToolboxCppSampleTextEdit( UiToolboxWindow& window )
 {
 	window.textEditState( 128u );
 }
 
-static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
+static void ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window )
 {
 	UiWidget vLayout( window, "vLayout" );
 	vLayout.setStretch( UiSize::Horizontal );
@@ -193,7 +196,7 @@ static void ImUiTestDoScrollAndList( UiToolboxWindow& window )
 	}
 }
 
-static void ImUiTestDoDropDown( UiToolboxWindow& window )
+static void ImUiToolboxCppSampleDropDown( UiToolboxWindow& window )
 {
 	const char* items[] =
 	{
@@ -216,7 +219,7 @@ static void ImUiTestDoDropDown( UiToolboxWindow& window )
 	window.dropDown( items, IMUI_ARRAY_COUNT( items ) );
 }
 
-static void ImUiTestDoPopup( UiToolboxWindow& window )
+static void ImUiToolboxCppSamplePopup( UiToolboxWindow& window )
 {
 	UiToolboxButtonLabel button( window, "Open Popup" );
 	ImUiTestPopupState* state = button.newState< ImUiTestPopupState >();
@@ -246,36 +249,36 @@ static void ImUiTestDoPopup( UiToolboxWindow& window )
 	}
 }
 
-bool ImUiFrameworkInitialize( ImUiContext* imui )
+bool ImUiToolboxCppSampleInitialize( ImUiContext* imui )
 {
-	if( !ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
+	if( !ImUiFrameworkFontCreate( &s_toolboxCppContext.font, &s_toolboxCppContext.fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
 	{
 		return false;
 	}
 
-	if( !ImUiFrameworkSkinCreate( &s_skinRect, &s_skinRectTexture, 32u, 8.0f, 128.0f, false ) )
+	if( !ImUiFrameworkSkinCreate( &s_toolboxCppContext.skinRect, &s_toolboxCppContext.skinRectTexture, 32u, 8.0f, 128.0f, false ) )
 	{
 		return false;
 	}
 
-	if( !ImUiFrameworkSkinCreate( &s_skinLine, &s_skinLineTexture, 32u, 6.0f, 64.0f, true ) )
+	if( !ImUiFrameworkSkinCreate( &s_toolboxCppContext.skinLine, &s_toolboxCppContext.skinLineTexture, 32u, 6.0f, 64.0f, true ) )
 	{
 		return false;
 	}
 
-	ImUiTestSetConfig();
+	ImUiToolboxCppSampleSetConfig();
 
 	return true;
 }
 
-void ImUiFrameworkShutdown( ImUiContext* imui )
+void ImUiToolboxCppSampleShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &s_font, &s_fontTexture );
-	ImUiFrameworkSkinDestroy( &s_skinRect, &s_skinRectTexture );
-	ImUiFrameworkSkinDestroy( &s_skinLine, &s_skinLineTexture );
+	ImUiFrameworkFontDestroy( &s_toolboxCppContext.font, &s_toolboxCppContext.fontTexture );
+	ImUiFrameworkSkinDestroy( &s_toolboxCppContext.skinRect, &s_toolboxCppContext.skinRectTexture );
+	ImUiFrameworkSkinDestroy( &s_toolboxCppContext.skinLine, &s_toolboxCppContext.skinLineTexture );
 }
 
-static void ImUiTestSetConfig()
+static void ImUiToolboxCppSampleSetConfig()
 {
 	const ImUiColor textColor			= ImUiColorCreateWhite();
 	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
@@ -325,22 +328,22 @@ static void ImUiTestSetConfig()
 	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
 	_STATIC_ASSERT( ImUiToolboxColor_MAX == 37 );
 
-	config.skins[ ImUiToolboxSkin_Button ]						= s_skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_skinRect;
-	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_skinLine;
-	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_skinRect;
-	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_skinLine;
-	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ListItem ]					= s_skinRect;
-	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_DropDown ]					= s_skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_skinRect;
-	config.skins[ ImUiToolboxSkin_Popup ]						= s_skinRect;
+	config.skins[ ImUiToolboxSkin_Button ]						= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_toolboxCppContext.skinLine;
+	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_toolboxCppContext.skinLine;
+	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_ListItem ]					= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_DropDown ]					= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_toolboxCppContext.skinRect;
+	config.skins[ ImUiToolboxSkin_Popup ]						= s_toolboxCppContext.skinRect;
 	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 16 );
 
 	const ImUiImage image = { NULL, 16u, 16u };
@@ -349,7 +352,7 @@ static void ImUiTestSetConfig()
 	config.images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
 	config.images[ ImUiToolboxImage_DropDownCloseIcon ] = image;
 
-	config.font						= s_font;
+	config.font						= s_toolboxCppContext.font;
 
 	config.button.height			= 20.0f;
 	config.button.padding			= ImUiBorderCreateAll( 8.0f );

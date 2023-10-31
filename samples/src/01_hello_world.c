@@ -1,4 +1,6 @@
-﻿#include "../../framework/framework.h"
+﻿#include "00_samples.h"
+
+#include "framework.h"
 
 #include "imui/imui.h"
 
@@ -6,17 +8,22 @@
 #include <stdio.h>
 #include <math.h>
 
-static ImUiImage s_fontTexture;
-static ImUiFont* s_font = NULL;
+typedef struct ImUiHelloWorldSampleContext
+{
+	ImUiFont*	font;
+	ImUiImage	fontTexture;
+} ImUiHelloWorldSampleContext;
 
-void ImUiFrameworkTick( ImUiSurface* surface )
+static ImUiHelloWorldSampleContext s_helloWorldContext = { NULL };
+
+void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 {
 	ImUiContext* imui = ImUiSurfaceGetContext( surface );
 
-	ImUiTextLayout* textLayout = ImUiTextLayoutCreate( imui, s_font, ImUiStringViewCreate( u8"ΑΒΓΔ Hello World! ΦΧΨΩ" ) );
+	ImUiTextLayout* textLayout = ImUiTextLayoutCreate( imui, s_helloWorldContext.font, u8"ΑΒΓΔ Hello World! ΦΧΨΩ" );
 
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, ImUiStringViewCreate( "main" ), ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	const float time	= ImUiWindowGetTime( window );
 	const float timeSin = sinf( time / -2.0f ) * 0.5f + 0.5f;
@@ -31,33 +38,33 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	const float timeG		= (timeCos * 0.5f) + 0.5f;
 	const float timeB		= ((2.0f - (timeSin + timeCos)) * 0.25f) + 0.5f;
 
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vMain" ) );
+	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
 	ImUiWidgetSetLayoutVertical( vLayout );
 
 	{
-		ImUiWidget* vTop = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vTop" ) );
+		ImUiWidget* vTop = ImUiWidgetBeginNamed( window, "vTop" );
 		ImUiWidgetSetStretch( vTop, ImUiSizeCreate( 1.0f, timeTop ) );
 		ImUiWidgetEnd( vTop );
 	}
 
 	{
-		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hMain" ) );
+		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 		ImUiWidgetSetStretch( hLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
 		ImUiWidgetSetLayoutHorizontal( hLayout );
 
 		{
-			ImUiWidget* hLeft = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hLeft" ) );
+			ImUiWidget* hLeft = ImUiWidgetBeginNamed( window, "hLeft" );
 			ImUiWidgetSetStretch( hLeft, ImUiSizeCreate( timeLeft, 1.0f ) );
 			ImUiWidgetEnd( hLeft );
 
-			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hCenter" ) );
+			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, "hCenter" );
 			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
 			ImUiWidgetSetFixedSize( hCenter, ImUiSizeExpandBorder( ImUiTextLayoutGetSize( textLayout ), ImUiBorderCreateAll( 50.0f ) ) );
 
 			ImUiWidgetDrawColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
-			ImUiWidget* text = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "centerText" ) );
+			ImUiWidget* text = ImUiWidgetBeginNamed( window, "centerText" );
 			ImUiWidgetSetFixedSize( text, ImUiTextLayoutGetSize( textLayout ) );
 			ImUiWidgetSetAlign( text, ImUiAlignCreate( timeLeft, timeTop ) );
 
@@ -67,7 +74,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 
 			ImUiWidgetEnd( hCenter );
 
-			ImUiWidget* hRight = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "hRight" ) );
+			ImUiWidget* hRight = ImUiWidgetBeginNamed( window, "hRight" );
 			ImUiWidgetSetStretch( hRight, ImUiSizeCreate( timeRight, 1.0f ) );
 			ImUiWidgetEnd( hRight );
 		}
@@ -76,7 +83,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	}
 
 	{
-		ImUiWidget* vBottom = ImUiWidgetBeginNamed( window, ImUiStringViewCreate( "vBottom" ) );
+		ImUiWidget* vBottom = ImUiWidgetBeginNamed( window, "vBottom" );
 		ImUiWidgetSetStretch( vBottom, ImUiSizeCreate( 1.0f, timeBottom ) );
 		ImUiWidgetEnd( vBottom );
 	}
@@ -86,12 +93,12 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 	ImUiWindowEnd( window );
 }
 
-bool ImUiFrameworkInitialize( ImUiContext* imui )
+bool ImUiHelloWorldSampleInitialize( ImUiContext* imui )
 {
-	return ImUiFrameworkFontCreate( &s_font, &s_fontTexture, "c:/windows/fonts/arial.ttf", 32.0f );
+	return ImUiFrameworkFontCreate( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture, "c:/windows/fonts/arial.ttf", 32.0f );
 }
 
-void ImUiFrameworkShutdown( ImUiContext* imui )
+void ImUiHelloWorldSampleShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &s_font, &s_fontTexture );
+	ImUiFrameworkFontDestroy( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture );
 }
