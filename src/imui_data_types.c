@@ -107,18 +107,6 @@ ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )
 	return hash1 ^ hash2;
 }
 
-ImUiAlign ImUiAlignCreate( float horizontal, float vertical )
-{
-	const ImUiAlign align = { horizontal, vertical };
-	return align;
-}
-
-ImUiAlign ImUiAlignCreateCenter()
-{
-	const ImUiAlign align = { 0.5f, 0.5f };
-	return align;
-}
-
 ImUiPos ImUiPosCreate( float x, float y )
 {
 	const ImUiPos pos = { x, y };
@@ -216,18 +204,6 @@ ImUiSize ImUiSizeCreateImage( const ImUiImage* image )
 {
 	IMUI_ASSERT( image );
 	const ImUiSize size = { (float)image->width, (float)image->height };
-	return size;
-}
-
-ImUiSize ImUiSizeCreateHorizontal()
-{
-	const ImUiSize size = { 1.0f, 0.0f };
-	return size;
-}
-
-ImUiSize ImUiSizeCreateVertical()
-{
-	const ImUiSize size = { 0.0f, 1.0f };
 	return size;
 }
 

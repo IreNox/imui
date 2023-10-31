@@ -11,31 +11,6 @@ namespace imui
 	class UiInputState;
 	struct UiSize;
 
-	//struct UiStringView : public ImUiStringView
-	//{
-	//					UiStringView();
-	//					UiStringView( const char* str, size_t _length );
-	//	template< size_t TLen >
-	//					UiStringView( const char (&str)[ TLen ] );
-	//	explicit		UiStringView( const ImUiStringView& value );
-
-	//	const char*		getData() const;
-	//	size_t			getLength() const;
-
-	//	bool			isEmpty() const;
-
-	//	bool			operator==( const char* rhs ) const;
-	//	bool			operator!=( const char* rhs ) const;
-	//};
-
-	struct UiAlign : public ImUiAlign
-	{
-						UiAlign();
-						UiAlign( float hAlign, float vAlign );
-
-		static UiAlign	Center;
-	};
-
 	struct UiBorder : public ImUiBorder
 	{
 						UiBorder();
@@ -125,8 +100,6 @@ namespace imui
 
 		static UiSize	Zero;
 		static UiSize	One;
-		static UiSize	Horizontal;
-		static UiSize	Vertical;
 	};
 
 	struct UiColor : public ImUiColor
@@ -313,8 +286,8 @@ namespace imui
 		UiSurface		getSurface() const;
 		UiWindow		getWindow() const;
 
-		void*			allocState( size_t size );
-		void*			allocState( size_t size, bool& isNew );
+		void*			allocState( size_t size, ImUiId stateId );
+		void*			allocState( size_t size, ImUiId stateId, bool& isNew );
 		template< class T >
 		T*				newState();
 		template< class T >
@@ -322,7 +295,7 @@ namespace imui
 
 		ImUiLayout		getLayout() const;
 		void			setLayoutStack();							// default
-		void			setLayoutScroll( UiPos offset );
+		void			setLayoutScroll( float offsetX, float offsetY );
 		void			setLayoutHorizontal( float spacing = 0.0f );
 		void			setLayoutVertical( float spacing = 0.0f );
 		void			setLayoutGrid( uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
@@ -347,14 +320,17 @@ namespace imui
 		void			setFixedHeight( float value );
 		void			setFixedSize( UiSize size );
 
-		UiSize			getStretch() const;
-		void			setStretch( UiSize stretch );
-		void			setStretchHorizontal();
-		void			setStretchVertival();
+		void			setStretch( float horizontal, float vertical );
+		void			setStretchOne();
+		float			getHStretch() const;
+		void			setHStretch( float stretch );
+		float			getVStretch() const;
+		void			setVStretch( float stretch );
 
-		UiAlign			getAlign() const;
-		void			setAlign( UiAlign align );
+		void			setAlign( float horizontal, float vertical );
+		float			getHAlign() const;
 		void			setHAlign( float align );
+		float			getVAlign() const;
 		void			setVAlign( float align );
 
 		UiPos			getPos() const;
@@ -572,13 +548,6 @@ namespace imui
 		void			setConfig( const UiToolboxConfig& config );
 	}
 
-	//template< size_t TLen >
-	//UiStringView::UiStringView( const char( &str )[ TLen ] )
-	//{
-	//	data	= str;
-	//	length	= TLen - 1u;
-	//}
-
 	template< class T >
 	T* UiWidget::newState()
 	{
@@ -596,7 +565,9 @@ namespace imui
 	template< class T >
 	T* UiWidget::newState( bool& isNew )
 	{
-		void* memory = ImUiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), &isNew, &callDestructor< T > );
+		void (*destructFunc)( void* ) = &callDestructor< T >;
+		const ImUiId stateId = (ImUiId)(size_t)destructFunc;
+		void* memory = ImUiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), stateId, &isNew, destructFunc );
 		if( !memory )
 		{
 			return nullptr;

@@ -7,67 +7,8 @@
 
 namespace imui
 {
-	//UiStringView::UiStringView()
-	//{
-	//	data	= nullptr;
-	//	length	= 0u;
-	//}
-
-	//UiStringView::UiStringView( const ImUiStringView& value )
-	//{
-	//	data	= value.data;
-	//	length	= value.length;
-	//}
-
-	//UiStringView::UiStringView( const char* str, size_t _length )
-	//{
-	//	data	= str;
-	//	length	= _length;
-	//}
-
-	//const char* UiStringView::getData() const
-	//{
-	//	return data;
-	//}
-
-	//size_t UiStringView::getLength() const
-	//{
-	//	return length;
-	//}
-
-	//bool UiStringView::isEmpty() const
-	//{
-	//	return length == 0u;
-	//}
-
-	//bool UiStringView::operator==( const char* rhs ) const
-	//{
-	//	return ImUiStringViewIsEquals( *this, rhs );
-	//}
-
-	//bool UiStringView::operator!=( const char* rhs ) const
-	//{
-	//	return !ImUiStringViewIsEquals( *this, rhs );
-	//}
-
-	UiAlign UiAlign::Center = UiAlign( 0.5f, 0.5f );
-
-	UiAlign::UiAlign()
-	{
-		horizontal	= 0.0f;
-		vertical	= 0.0f;
-	}
-
-	UiAlign::UiAlign( float hAlign, float vAlign )
-	{
-		horizontal	= hAlign;
-		vertical	= vAlign;
-	}
-
 	UiSize UiSize::Zero			= UiSize();
 	UiSize UiSize::One			= UiSize( 1.0f );
-	UiSize UiSize::Horizontal	= UiSize( 1.0f, 0.0f );
-	UiSize UiSize::Vertical		= UiSize( 0.0f, 1.0f );
 
 	UiSize::UiSize()
 	{
@@ -903,14 +844,14 @@ namespace imui
 		return UiWindow( ImUiWidgetGetWindow( m_widget ) );
 	}
 
-	void* UiWidget::allocState( size_t size )
+	void* UiWidget::allocState( size_t size, ImUiId stateId )
 	{
-		return ImUiWidgetAllocState( m_widget, size );
+		return ImUiWidgetAllocState( m_widget, size, stateId );
 	}
 
-	void* UiWidget::allocState( size_t size, bool& isNew )
+	void* UiWidget::allocState( size_t size, ImUiId stateId, bool& isNew )
 	{
-		return ImUiWidgetAllocStateNew( m_widget, size, &isNew );
+		return ImUiWidgetAllocStateNew( m_widget, size, stateId, &isNew );
 	}
 
 	ImUiLayout UiWidget::getLayout() const
@@ -923,9 +864,9 @@ namespace imui
 		ImUiWidgetSetLayoutStack( m_widget );
 	}
 
-	void UiWidget::setLayoutScroll( UiPos offset )
+	void UiWidget::setLayoutScroll( float offsetX, float offsetY )
 	{
-		ImUiWidgetSetLayoutScroll( m_widget, offset );
+		ImUiWidgetSetLayoutScroll( m_widget, offsetX, offsetY );
 	}
 
 	void UiWidget::setLayoutHorizontal( float spacing /* = 0.0f */ )
@@ -985,7 +926,7 @@ namespace imui
 
 	void UiWidget::setMinSize( UiSize size )
 	{
-		ImUiWidgetSetMinSize( m_widget, size );
+		ImUiWidgetSetMinSize( m_widget, size.width, size.height );
 	}
 
 	UiSize UiWidget::getMaxSize() const
@@ -1005,7 +946,7 @@ namespace imui
 
 	void UiWidget::setMaxSize( UiSize size )
 	{
-		ImUiWidgetSetMaxSize( m_widget, size );
+		ImUiWidgetSetMaxSize( m_widget, size.width, size.height );
 	}
 
 	void UiWidget::setFixedWidth( float value )
@@ -1023,34 +964,44 @@ namespace imui
 		ImUiWidgetSetFixedSize( m_widget, size );
 	}
 
-	UiSize UiWidget::getStretch() const
+	void UiWidget::setStretch( float horizontal, float vertical )
 	{
-		return (const UiSize&)m_widget->stretch;
+		ImUiWidgetSetStretch( m_widget, horizontal, vertical );
 	}
 
-	void UiWidget::setStretch( UiSize stretch )
+	void UiWidget::setStretchOne()
 	{
-		ImUiWidgetSetStretch( m_widget, stretch );
+		ImUiWidgetSetStretchOne( m_widget );
 	}
 
-	void UiWidget::setStretchHorizontal()
+	float UiWidget::getHStretch() const
 	{
-		ImUiWidgetSetStretch( m_widget, UiSize::Horizontal );
+		return ImUiWidgetGetHStretch( m_widget );
 	}
 
-	void UiWidget::setStretchVertival()
+	void UiWidget::setHStretch( float stretch )
 	{
-		ImUiWidgetSetStretch( m_widget, UiSize::Vertical );
+		ImUiWidgetSetHStretch( m_widget, stretch );
 	}
 
-	UiAlign UiWidget::getAlign() const
+	float UiWidget::getVStretch() const
 	{
-		return (const UiAlign&)m_widget->align;
+		return ImUiWidgetGetVStretch( m_widget );
 	}
 
-	void UiWidget::setAlign( UiAlign align )
+	void UiWidget::setVStretch( float stretch )
 	{
-		ImUiWidgetSetAlign( m_widget, align );
+		ImUiWidgetSetVStretch( m_widget, stretch );
+	}
+
+	void UiWidget::setAlign( float horizontal, float vertical )
+	{
+		ImUiWidgetSetAlign( m_widget, horizontal, vertical );
+	}
+
+	float UiWidget::getHAlign() const
+	{
+		return ImUiWidgetGetHAlign( m_widget );
 	}
 
 	void UiWidget::setHAlign( float align )
@@ -1413,7 +1364,7 @@ namespace imui
 	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window, size_t bufferSize )
 	{
 		m_widget		= ImUiToolboxTextEditBegin( window.getInternal() );
-		m_buffer		= (char*)ImUiWidgetAllocState( m_widget, bufferSize );
+		m_buffer		= (char*)ImUiWidgetAllocState( m_widget, bufferSize, IMUI_ID_STR( "text buffer" ) );
 		m_bufferSize	= bufferSize;
 	}
 

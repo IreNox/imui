@@ -95,7 +95,7 @@ void ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cache )
 	cache->frameIndex++;
 }
 
-ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text )
+ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const char* text )
 {
 	if( !font )
 	{
@@ -104,12 +104,12 @@ ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStr
 
 	ImUiTextLayoutParameters parameters;
 	parameters.font	= font;
-	parameters.text	= text;
+	parameters.text	= ImUiStringViewCreate( text );
 
 	return ImUiTextLayoutCacheCreateLayout( &imui->layoutCache, &parameters );
 }
 
-ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text )
+ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text )
 {
 	return ImUiTextLayoutCreate( widget->window->imui, font, text );
 }

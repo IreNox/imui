@@ -8,8 +8,7 @@ typedef struct ImUiAllocator ImUiAllocator;
 typedef ImUiHash(*ImUiHashMapEntryHashFunc)( const void* entry );
 typedef bool(*ImUiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
 
-typedef struct ImUiHashMap ImUiHashMap;
-struct ImUiHashMap
+typedef struct ImUiHashMap
 {
 	ImUiAllocator*				allocator;
 
@@ -21,7 +20,7 @@ struct ImUiHashMap
 	uintsize					entrySize;
 	ImUiHashMapEntryHashFunc	entryHashFunc;
 	ImUiHashMapIsKeyEqualsFunc	entryKeyEqualsFunc;
-};
+} ImUiHashMap;
 
 bool			ImUiHashMapConstructSize( ImUiHashMap* hashMap, ImUiAllocator* allocator, uintsize entrySize, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc, uintsize initialSize );
 bool			ImUiHashMapConstructStatic( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
@@ -40,16 +39,14 @@ uintsize		ImUiHashMapFindNextIndex( ImUiHashMap* hashMap, uintsize entry );
 void*			ImUiHashMapGetEntry( ImUiHashMap* hashMap, uintsize index );
 
 typedef struct ImUiStringPoolChunk ImUiStringPoolChunk;
-typedef struct ImUiStringPoolKey ImUiStringPoolKey;
 
-typedef struct ImUiStringPool ImUiStringPool;
-struct ImUiStringPool
+typedef struct ImUiStringPool
 {
 	ImUiAllocator*			allocator;
 	ImUiStringPoolChunk*	firstChunk;
 
 	ImUiHashMap				keyMap;
-};
+} ImUiStringPool;
 
 bool						ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator );
 void						ImUiStringPoolDestruct( ImUiStringPool* stringPool );

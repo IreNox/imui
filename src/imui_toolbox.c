@@ -177,14 +177,14 @@ const ImUiToolboxConfig* ImUiToolboxGetConfig()
 void ImUiToolboxSpacer( ImUiWindow* window, float width, float height )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
-	ImUiWidgetSetFixedSize( widget, ImUiSizeCreate( width, height ) );
+	ImUiWidgetSetFixedSizeFloat( widget, width, height );
 	ImUiWidgetEnd( widget );
 }
 
 void ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( widget, ImUiSizeCreate( horizontal, vertical ) );
+	ImUiWidgetSetStretch( widget, horizontal, vertical );
 	ImUiWidgetEnd( widget );
 }
 
@@ -228,9 +228,9 @@ ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text )
 
 	ImUiWidget* buttonText = ImUiWidgetBegin( window );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( buttonText, s_config.font, ImUiStringViewCreate( text ) );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( buttonText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
-	ImUiWidgetSetAlign( buttonText, ImUiAlignCreateCenter() );
+	ImUiWidgetSetAlign( buttonText, 0.5f, 0.5f );
 	ImUiWidgetSetFixedSize( buttonText, textSize );
 
 	if( layout )
@@ -313,7 +313,7 @@ ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, ImUiImage icon, ImUi
 	ImUiWidget* buttonFrame = ImUiToolboxButtonBegin( window );
 
 	ImUiWidget* buttonIcon = ImUiWidgetBegin( window );
-	ImUiWidgetSetAlign( buttonIcon, ImUiAlignCreateCenter() );
+	ImUiWidgetSetAlign( buttonIcon, 0.5f, 0.5f );
 	ImUiWidgetSetFixedSize( buttonIcon, iconSize );
 
 	ImUiWidgetDrawImage( buttonIcon, &icon );
@@ -375,7 +375,7 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, ImUiStringViewCreate( text ) );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( checkBoxText, textSize );
 	ImUiWidgetSetVAlign( checkBoxText, 0.5f );
@@ -414,7 +414,7 @@ bool ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, const char* text, bool
 	ImUiWidget* checkBox = ImUiToolboxCheckBoxBegin( window );
 
 	bool isNew;
-	bool* checked = (bool*)ImUiWidgetAllocStateNew( checkBox, sizeof( bool ), &isNew );
+	bool* checked = (bool*)ImUiWidgetAllocStateNew( checkBox, sizeof( bool ), IMUI_ID_STR( "check box" ), &isNew);
 	if( isNew )
 	{
 		*checked = defaultValue;
@@ -428,7 +428,7 @@ ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* label = ImUiWidgetBegin( window );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_config.font, ImUiStringViewCreate( text ) );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_config.font, text );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( label, textSize );
 	ImUiWidgetSetVAlign( label, 0.5f );
@@ -506,7 +506,7 @@ void ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list
 ImUiWidget* ImUiToolboxSliderBegin( ImUiWindow* window )
 {
 	ImUiWidget* slider = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( slider, ImUiSizeCreateHorizontal() );
+	ImUiWidgetSetHStretch( slider, 1.0f );
 	ImUiWidgetSetPadding( slider, s_config.slider.padding );
 	ImUiWidgetSetFixedHeight( slider, s_config.slider.height );
 
@@ -598,7 +598,7 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 	ImUiWidget* sliderFrame = ImUiToolboxSliderBegin( window );
 
 	bool isNew;
-	float* value = (float*)ImUiWidgetAllocStateNew( sliderFrame, sizeof( float ), &isNew );
+	float* value = (float*)ImUiWidgetAllocStateNew( sliderFrame, sizeof( float ), IMUI_ID_STR( "slider" ), &isNew );
 	if( isNew )
 	{
 		*value = defaultValue;
@@ -611,7 +611,7 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 {
 	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( textEditFrame, ImUiSizeCreateHorizontal() );
+	ImUiWidgetSetHStretch( textEditFrame, 1.0f );
 	ImUiWidgetSetPadding( textEditFrame, s_config.textEdit.padding );
 	ImUiWidgetSetFixedHeight( textEditFrame, s_config.textEdit.height );
 
@@ -649,12 +649,12 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	ImUiWidgetSetVAlign( text, 0.5f );
 
 	bool isNew;
-	ImUiToolboxTextEditState* state = (ImUiToolboxTextEditState*)ImUiWidgetAllocStateNew( text, sizeof( *state ), &isNew );
+	ImUiToolboxTextEditState* state = (ImUiToolboxTextEditState*)ImUiWidgetAllocStateNew( text, sizeof( *state ), IMUI_ID_STR( "text edit" ), &isNew );
 
 	const ImUiRect textEditRect = ImUiWidgetGetRect( textEdit );
 	const ImUiRect textEditInnerRect = ImUiWidgetGetInnerRect( textEdit );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, ImUiStringViewCreateLength( buffer, textLengthInternal ) );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( text, s_config.font, buffer );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( text, textSize );
 
@@ -907,7 +907,7 @@ const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bu
 	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
 
 	bool isNew;
-	char* buffer = (char*)ImUiWidgetAllocStateNew( textEdit, bufferSize, &isNew );
+	char* buffer = (char*)ImUiWidgetAllocStateNew( textEdit, bufferSize, IMUI_ID_STR( "text buffer" ), &isNew );
 	if( isNew && defaultValue )
 	{
 		strncpy( buffer, defaultValue, bufferSize );
@@ -925,7 +925,7 @@ void ImUiToolboxProgressBar( ImUiWindow* window, float value )
 void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max )
 {
 	ImUiWidget* progressBar = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( progressBar, ImUiSizeCreateHorizontal() );
+	ImUiWidgetSetHStretch( progressBar, 1.0f );
 	ImUiWidgetSetPadding( progressBar, s_config.progressBar.padding );
 	ImUiWidgetSetFixedHeight( progressBar, s_config.progressBar.height );
 
@@ -972,11 +972,11 @@ void ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiW
 	scrollArea->horizontalSpacing	= false;
 	scrollArea->verticalSpacing		= false;
 	scrollArea->area				= ImUiWidgetBegin( window );
-	scrollArea->state				= (ImUiToolboxScrollAreaState*)ImUiWidgetAllocState( scrollArea->area, sizeof( *scrollArea->state ) );
+	scrollArea->state				= (ImUiToolboxScrollAreaState*)ImUiWidgetAllocState( scrollArea->area, sizeof( *scrollArea->state ), IMUI_ID_STR( "scroll area" ) );
 	scrollArea->content				= ImUiWidgetBegin( window );
 
-	ImUiWidgetSetStretch( scrollArea->content, ImUiSizeCreateOne() );
-	ImUiWidgetSetLayoutScroll( scrollArea->content, scrollArea->state->offset );
+	ImUiWidgetSetStretch( scrollArea->content, 1.0f, 1.0f );
+	ImUiWidgetSetLayoutScroll( scrollArea->content, scrollArea->state->offset.x, scrollArea->state->offset.y );
 }
 
 void ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical )
@@ -1149,7 +1149,7 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 	ImUiToolboxScrollAreaEnableSpacing( &list->scrollArea, true, false );
 
 	list->listLayout = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( list->listLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+	ImUiWidgetSetHStretch( list->listLayout, 1.0f );
 	ImUiWidgetSetLayoutVerticalSpacing( list->listLayout, s_config.list.itemSpacing );
 	if( itemCount > 0u )
 	{
@@ -1157,7 +1157,7 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 	}
 
 	bool isNew;
-	list->state = (ImUiToolboxListState*)ImUiWidgetAllocStateNew( list->listLayout, sizeof( ImUiToolboxListState ), &isNew );
+	list->state = (ImUiToolboxListState*)ImUiWidgetAllocStateNew( list->listLayout, sizeof( ImUiToolboxListState ), IMUI_ID_STR( "list" ), &isNew );
 	if( isNew )
 	{
 		list->state->selectedIndex = (uintsize)-1;
@@ -1215,7 +1215,7 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 	list->itemIndex++;
 
 	ImUiWidget* item = ImUiWidgetBegin( ImUiWidgetGetWindow( list->list ) );
-	ImUiWidgetSetStretch( item, ImUiSizeCreate( 1.0f, 0.0f ) );
+	ImUiWidgetSetHStretch( item, 1.0f );
 	ImUiWidgetSetFixedHeight( item, list->itemSize );
 
 	if( list->beginIndex > 0 &&
@@ -1270,7 +1270,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiWidgetSetFixedHeight( dropDown->dropDown, s_config.dropDown.height );
 
 	bool isNew;
-	dropDown->state = (ImUiToolboxDropDownState*)ImUiWidgetAllocStateNew( dropDown->dropDown, sizeof( *dropDown->state ), &isNew );
+	dropDown->state = (ImUiToolboxDropDownState*)ImUiWidgetAllocStateNew( dropDown->dropDown, sizeof( *dropDown->state ), IMUI_ID_STR( "drop down" ), &isNew );
 	if( isNew )
 	{
 		dropDown->state->selectedIndex = (uintsize)-1;
@@ -1307,7 +1307,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiTextLayout* selectedTextLayout = NULL;
 	for( uintsize i = 0; i < itemCount; ++i )
 	{
-		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, ImUiStringViewCreate( items[ i ] ) );
+		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, items[ i ] );
 
 		maxSize = ImUiSizeMax( maxSize, ImUiTextLayoutGetSize( textLayout ) );
 
@@ -1357,7 +1357,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 
 		ImUiToolboxListContext list;
 		ImUiToolboxListBegin( &list, listWindow, s_config.dropDown.itemSize, itemCount );
-		ImUiWidgetSetStretch( list.list, ImUiSizeCreateOne() );
+		ImUiWidgetSetStretch( list.list, 1.0f, 1.0f );
 
 		ImUiWidgetInputState listInputState;
 		ImUiWidgetGetInputState( list.list, &listInputState );
@@ -1372,7 +1372,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 			ImUiWidgetSetPadding( item, s_config.dropDown.itemPadding );
 
 			ImUiWidget* label = ImUiToolboxLabelBegin( listWindow, items[ i ] );
-			ImUiWidgetSetAlign( label, ImUiAlignCreate( 0.0f, 0.5f ) );
+			ImUiWidgetSetVAlign( label, 0.5f );
 			ImUiWidgetEnd( label );
 		}
 
@@ -1436,12 +1436,12 @@ ImUiWindow* ImUiToolboxPopupBeginSurface( ImUiSurface* surface )
 	ImUiWindow* popupWindow = ImUiWindowBegin( surface, "popup", windowRect, s_config.popup.zOrder );
 
 	ImUiWidget* background = ImUiWidgetBegin( popupWindow );
-	ImUiWidgetSetStretch( background, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretch( background, 1.0f, 1.0f );
 
 	ImUiWidgetDrawColor( background, s_config.colors[ ImUiToolboxColor_PopupBackground ] );
 
 	ImUiWidget* popup = ImUiWidgetBegin( popupWindow );
-	ImUiWidgetSetAlign( popup, ImUiAlignCreateCenter() );
+	ImUiWidgetSetAlign( popup, 0.5f, 0.5f );
 	ImUiWidgetSetPadding( popup, s_config.popup.padding );
 	ImUiWidgetSetLayoutVertical( popup );
 

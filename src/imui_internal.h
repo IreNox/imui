@@ -47,11 +47,14 @@ struct ImUiWindow
 typedef struct ImUiWidgetState ImUiWidgetState;
 typedef struct ImUiWidgetState
 {
-	ImUiWidgetState*		prevState;
-	ImUiWidgetState*		nextState;
+	ImUiWidgetState*		prevUsageState;
+	ImUiWidgetState*		nextUsageState;
+	ImUiWidgetState*		prevWidgetState;
+	ImUiWidgetState*		nextWidgetState;
 
-	uintsize				stateSize;
-	ImUiStateDestructFunc	stateDestructFunc;
+	ImUiId					id;
+	uintsize				size;
+	ImUiStateDestructFunc	destructFunc;
 
 	uint8					data[ 1u ];
 } ImUiWidgetState;
@@ -138,21 +141,21 @@ struct ImUiWidget
 	ImUiId					id;
 	ImUiStringView			name;
 
-	ImUiWidgetState*		state;
+	ImUiWidgetState*		firstState;
 
 	ImUiBorder				margin;
 	ImUiBorder				padding;
 
 	ImUiSize				minSize;
 	ImUiSize				maxSize;
-
-	ImUiSize				stretch;
-	ImUiPos					offset;
+	float					stretchH;
+	float					stretchV;
 
 	ImUiLayout				layout;
 	ImUiLayoutData			layoutData;
 
-	ImUiAlign				align;
+	float					alignH;
+	float					alignV;
 
 	// generated data
 	ImUiRect				rect;
@@ -203,3 +206,10 @@ struct ImUiContext
 	ImUiLayoutGridContext*	firstGridContext;
 	ImUiLayoutGridContext*	firstUnusedGridContext;
 };
+
+ImUiStringView				ImUiStringViewCreate( const char* str );
+ImUiStringView				ImUiStringViewCreateLength( const char* str, size_t length );
+ImUiStringView				ImUiStringViewCreateEmpty();
+bool						ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
+
+ImUiHash					ImUiHashString( ImUiStringView string, ImUiHash seed );

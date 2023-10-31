@@ -17,6 +17,9 @@ extern "C"
 #	endif
 #endif
 
+#define IMUI_ID_STR( STR ) (ImUiId)(size_t)(STR)
+#define IMUI_ID_TYPE( TYPE ) (ImUiId)(size_t)(#TYPE)
+
 typedef struct ImUiContext ImUiContext;
 typedef struct ImUiDraw ImUiDraw;
 typedef struct ImUiFrame ImUiFrame;
@@ -47,12 +50,6 @@ typedef struct ImUiAllocator
 	size_t						maxAllocationSize;
 #endif
 } ImUiAllocator;
-
-typedef struct ImUiStringView
-{
-	const char*					data;
-	size_t						length;
-} ImUiStringView;
 
 typedef enum ImUiVertexElementType
 {
@@ -119,12 +116,6 @@ void						ImUiEnd( ImUiFrame* frame );
 
 //////////////////////////////////////////////////////////////////////////
 // Types
-
-typedef struct ImUiAlign
-{
-	float					horizontal;
-	float					vertical;
-} ImUiAlign;
 
 typedef struct ImUiBorder
 {
@@ -271,8 +262,6 @@ ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
 ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, const char* name );
 void						ImUiWidgetEnd( ImUiWidget* widget );
 
-void						ImUiWidgetSetName( ImUiWidget* widget, const char* name );
-
 ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
 ImUiSurface*				ImUiWidgetGetSurface( const ImUiWidget* widget );
 ImUiWindow*					ImUiWidgetGetWindow( const ImUiWidget* widget );
@@ -285,14 +274,13 @@ ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
 
 float						ImUiWidgetGetTime( const ImUiWidget* widget );
 
-void*						ImUiWidgetGetState( ImUiWidget* widget );
-void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size );
-void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, bool* isNew );
-void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, bool* isNew, ImUiStateDestructFunc destructFunc );
+void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId );
+void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew );
+void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc );
 
 ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
-void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );							// default
-void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, ImUiPos offset );
+void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );		// default
+void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, float offsetX, float offsetY );
 void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
 void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
 void						ImUiWidgetSetLayoutVertical( ImUiWidget* widget );
@@ -307,28 +295,35 @@ void						ImUiWidgetSetPadding( ImUiWidget* widget, ImUiBorder padding );
 ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMinWidth( ImUiWidget* widget, float value );
 void						ImUiWidgetSetMinHeight( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
+void						ImUiWidgetSetMinSize( ImUiWidget* widget, float width, float height );
 ImUiSize					ImUiWidgetGetMaxSize( const ImUiWidget* widget );
 void						ImUiWidgetSetMaxWidth( ImUiWidget* widget, float value );
 void						ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size );
-
+void						ImUiWidgetSetMaxSize( ImUiWidget* widget, float width, float height );
 void						ImUiWidgetSetFixedWidth( ImUiWidget* widget, float value );
 void						ImUiWidgetSetFixedHeight( ImUiWidget* widget, float value );
 void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
+void						ImUiWidgetSetFixedSizeFloat( ImUiWidget* widget, float width, float height );
 
-ImUiSize					ImUiWidgetGetStretch( const ImUiWidget* widget );
-void						ImUiWidgetSetStretch( ImUiWidget* widget, ImUiSize stretch );
+void						ImUiWidgetSetStretch( ImUiWidget* widget, float horizontal, float vertical );
+void						ImUiWidgetSetStretchOne( ImUiWidget* widget );
+float						ImUiWidgetGetHStretch( const ImUiWidget* widget );
 void						ImUiWidgetSetHStretch( ImUiWidget* widget, float stretch );
+float						ImUiWidgetGetVStretch( const ImUiWidget* widget );
 void						ImUiWidgetSetVStretch( ImUiWidget* widget, float stretch );
 
-ImUiAlign					ImUiWidgetGetAlign( const ImUiWidget* widget );
-void						ImUiWidgetSetAlign( ImUiWidget* widget, ImUiAlign align );
+void						ImUiWidgetSetAlign( ImUiWidget* widget, float horizontal, float vertical );
+float						ImUiWidgetGetHAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetHAlign( ImUiWidget* widget, float align );
+float						ImUiWidgetGetVAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetVAlign( ImUiWidget* widget, float align );
 
 ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
+float						ImUiWidgetGetPosX( const ImUiWidget* widget );
+float						ImUiWidgetGetPosY( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
+float						ImUiWidgetGetSizeWidth( const ImUiWidget* widget );
+float						ImUiWidgetGetSizeHeight( const ImUiWidget* widget );
 ImUiRect					ImUiWidgetGetRect( const ImUiWidget* widget );
 ImUiSize					ImUiWidgetGetInnerSize( const ImUiWidget* widget );
 ImUiRect					ImUiWidgetGetInnerRect( const ImUiWidget* widget );
@@ -592,8 +587,8 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 // Text
 // see imui_text.c
 
-ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, ImUiStringView text );
-ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, ImUiStringView text );
+ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const char* text );
+ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text );
 
 size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
 size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos );
@@ -604,17 +599,8 @@ ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t gl
 // Data Type Functions
 // see imui_data_types.c
 
-ImUiStringView					ImUiStringViewCreate( const char* str );
-ImUiStringView					ImUiStringViewCreateLength( const char* str, size_t length );
-ImUiStringView					ImUiStringViewCreateEmpty();
-bool							ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
-
 ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed );
-ImUiHash						ImUiHashString( ImUiStringView string, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
-
-ImUiAlign						ImUiAlignCreate( float horizontal, float vertical );
-ImUiAlign						ImUiAlignCreateCenter();
 
 ImUiPos							ImUiPosCreate( float x, float y );
 ImUiPos							ImUiPosCreateZero();
@@ -632,8 +618,6 @@ ImUiSize						ImUiSizeCreateOne();
 ImUiSize						ImUiSizeCreateZero();
 ImUiSize						ImUiSizeCreateSkin( const ImUiSkin* skin );
 ImUiSize						ImUiSizeCreateImage( const ImUiImage* image );
-ImUiSize						ImUiSizeCreateHorizontal();				// x = 1, y = 0
-ImUiSize						ImUiSizeCreateVertical();				// x = 0, y = 1
 ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
 ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
 ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );

@@ -26,6 +26,12 @@ typedef size_t		uintsize;
 
 typedef uint8_t		byte;
 
+typedef struct ImUiStringView
+{
+	const char*		data;
+	size_t			length;
+} ImUiStringView;
+
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
 #	define IMUI_DEFAULT_ARRAY_CAPACITY				16u
 #endif

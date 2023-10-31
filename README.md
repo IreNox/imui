@@ -54,7 +54,6 @@ To build the samples is current [tiki_build](https://github.com/IreNox/tiki_buil
 
 ## TODO
 
-- State id to allow multiple states per widget
 - fix dpi scale
 - fix layout bugs
 - multiline text
