@@ -52,12 +52,12 @@ void ImUiToolboxSampleTick( ImUiSurface* surface )
 	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
-	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( hLayout );
 	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateHorizontal() );
+	ImUiWidgetSetHStretch( vLayout, 1.0f );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
 	ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
@@ -86,7 +86,7 @@ void ImUiToolboxSampleTick( ImUiSurface* surface )
 static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout )
 {
 	bool isNewState;
-	bool* checked = (bool*)ImUiWidgetAllocStateNew( vLayout, sizeof( bool ) * 3u, &isNewState );
+	bool* checked = (bool*)ImUiWidgetAllocStateNew( vLayout, sizeof( bool ) * 3u, IMUI_ID_STR( "check" ), &isNewState);
 	if( isNewState )
 	{
 		checked[ 1u ] = true;
@@ -94,7 +94,6 @@ static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidge
 
 	{
 		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, "buttons" );
-		ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateZero() );
 		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
 		if( ImUiToolboxButtonLabel( window, "Button 1" ) )
@@ -117,7 +116,7 @@ static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidge
 
 	{
 		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, "checks" );
-		ImUiWidgetSetStretch( checkLayout, ImUiSizeCreateHorizontal() );
+		ImUiWidgetSetHStretch( checkLayout, 1.0f );
 		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
 		ImUiToolboxCheckBox( window, &checked[ 0u ], "Check 1" );
@@ -135,7 +134,7 @@ static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidge
 static void ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window )
 {
 	ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, "sliders" );
-	ImUiWidgetSetStretch( sliderLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+	ImUiWidgetSetHStretch( sliderLayout, 1.0f );
 	ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
 	ImUiToolboxSliderMinMax( window, &s_toolboxContext.sliderValue1, 1.0f, 5.0f );
@@ -158,7 +157,7 @@ static void ImUiToolboxSampleTextEdit( ImUiWindow* window )
 static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 {
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
-	ImUiWidgetSetStretch( vLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+	ImUiWidgetSetHStretch( vLayout, 1.0f );
 	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
 	ImUiToolboxLabel( window, "Item count:" );
@@ -171,7 +170,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	{
 		ImUiToolboxListContext list;
 		ImUiToolboxListBegin( &list, window, 25.0f, count );
-		ImUiWidgetSetMinSize( list.list, ImUiSizeCreateAll( 200.0f ) );
+		ImUiWidgetSetMinSize( list.list, 200.0f, 200.0f );
 
 		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 		{
@@ -189,10 +188,10 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	{
 		ImUiToolboxScrollAreaContext scrollArea;
 		ImUiToolboxScrollAreaBegin( &scrollArea, window );
-		ImUiWidgetSetMinSize( scrollArea.area, ImUiSizeCreateAll( 200.0f ) );
+		ImUiWidgetSetMinSize( scrollArea.area, 200.0f, 200.0f );
 
 		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, "scroll" );
-		ImUiWidgetSetStretch( scrollLayout, ImUiSizeCreateHorizontal() );
+		ImUiWidgetSetHStretch( scrollLayout, 1.0f );
 		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
 		for( size_t i = 0; i < itemCount; ++i )
@@ -234,7 +233,7 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 {
 	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, "Open Popup" );
 
-	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ) );
+	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ), IMUI_ID_TYPE( ImUiTestPopupState ) );
 
 	if( ImUiToolboxButtonLabelEnd( button ) )
 	{

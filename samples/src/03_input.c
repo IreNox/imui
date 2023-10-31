@@ -15,13 +15,13 @@ void ImUiInputSampleTick( ImUiSurface* surface )
 	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, "hMain" );
-	ImUiWidgetSetStretch( cLayout, ImUiSizeCreate( 0.5f, 0.25f ) );
-	ImUiWidgetSetAlign( cLayout, ImUiAlignCreateCenter() );
+	ImUiWidgetSetStretch( cLayout, 0.5f, 0.25f );
+	ImUiWidgetSetAlign( cLayout, 0.5f, 0.5f );
 
 	ImUiWidgetDrawColor( cLayout, ImUiColorCreateWhite() );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( hLayout );
 	ImUiWidgetSetPadding( hLayout, ImUiBorderCreateAll( 20.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );
 
@@ -40,7 +40,7 @@ void ImUiInputSampleTick( ImUiSurface* surface )
 static void ImUiInputSampleElement( ImUiWindow* window )
 {
 	ImUiWidget* widget = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretch( widget, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( widget );
 
 	ImUiColor color = ImUiColorCreateFloat( 0.1f, 0.5f, 0.8f, 1.0f );
 

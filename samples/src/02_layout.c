@@ -23,18 +23,18 @@ void ImUiLayoutSampleTick( ImUiSurface* surface )
 	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretch( vMain, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( vMain );
 	ImUiWidgetSetLayoutVerticalSpacing( vMain, 0.0f );
 
 	{
 		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 		ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 50.0f ) );
-		ImUiWidgetSetStretch( hLayout, ImUiSizeCreateOne() );
+		ImUiWidgetSetStretchOne( hLayout );
 		ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 50.0f );
 
 		{
 			ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLeft" );
-			ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
+			ImUiWidgetSetStretchOne( vLayout );
 			ImUiWidgetSetLayoutVerticalSpacing( vLayout, 50.0f );
 
 			ImUiLayoutSampleMinSizeHorizontal( window );
@@ -102,14 +102,14 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "stack" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
-	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( layout );
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
+		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
@@ -119,8 +119,8 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
-		ImUiWidgetSetAlign( widget2, ImUiAlignCreate( 1.0f, 1.0f ) );
+		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
+		ImUiWidgetSetAlign( widget2, 1.0f, 1.0f );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
@@ -130,8 +130,8 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, ImUiSizeCreate( 0.5f, 0.5f ) );
-		ImUiWidgetSetAlign( widget2, ImUiAlignCreateCenter() );
+		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
+		ImUiWidgetSetAlign( widget2, 0.5f, 0.5f );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
@@ -145,7 +145,7 @@ static void ImUiLayoutSampleStretchHorizontal( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "horizontal" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
-	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( layout );
 	ImUiWidgetSetLayoutHorizontalSpacing( layout, 10.0f );
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
@@ -159,7 +159,7 @@ static void ImUiLayoutSampleStretchVertical( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "vertical" );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
-	ImUiWidgetSetStretch( layout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( layout );
 	ImUiWidgetSetLayoutVerticalSpacing( layout, 10.0f );
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
@@ -172,9 +172,8 @@ static void ImUiLayoutSampleStretchVertical( ImUiWindow* window )
 static void ImUiLayoutSampleStretchGrid( ImUiWindow* window )
 {
 	ImUiWidget* layout = ImUiWidgetBeginNamed( window, "grid" );
-	//ImUiWidgetSetMargin( layout, ImUiBorderCreateAll( 50.0f ) );
 	ImUiWidgetSetPadding( layout, ImUiBorderCreateAll( 20.0f ) );
-	ImUiWidgetSetStretch( layout, ImUiSizeCreate( 1.0f, 1.0f ) );
+	ImUiWidgetSetStretchOne( layout );
 	ImUiWidgetSetLayoutGrid( layout, 4u, 10.0f, 20.0f );
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
@@ -192,7 +191,7 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, stretch1 );
+		ImUiWidgetSetStretch( widget2, stretch1.width, stretch1.height );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
@@ -202,7 +201,7 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, stretch2 );
+		ImUiWidgetSetStretch( widget2, stretch2.width, stretch2.height );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
@@ -212,8 +211,8 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 	{
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
-		ImUiWidgetSetStretch( widget2, stretch3 );
-		ImUiWidgetSetAlign( widget2, ImUiAlignCreateCenter() );
+		ImUiWidgetSetStretch( widget2, stretch3.width, stretch3.height );
+		ImUiWidgetSetAlign( widget2, 0.5f, 0.5f );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 

@@ -39,34 +39,33 @@ void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 	const float timeB		= ((2.0f - (timeSin + timeCos)) * 0.25f) + 0.5f;
 
 	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretch( vLayout, ImUiSizeCreateOne() );
+	ImUiWidgetSetStretchOne( vLayout );
 	ImUiWidgetSetLayoutVertical( vLayout );
 
 	{
 		ImUiWidget* vTop = ImUiWidgetBeginNamed( window, "vTop" );
-		ImUiWidgetSetStretch( vTop, ImUiSizeCreate( 1.0f, timeTop ) );
+		ImUiWidgetSetStretch( vTop, 1.0f, timeTop );
 		ImUiWidgetEnd( vTop );
 	}
 
 	{
 		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
-		ImUiWidgetSetStretch( hLayout, ImUiSizeCreate( 1.0f, 0.0f ) );
+		ImUiWidgetSetHStretch( hLayout, 1.0f );
 		ImUiWidgetSetLayoutHorizontal( hLayout );
 
 		{
 			ImUiWidget* hLeft = ImUiWidgetBeginNamed( window, "hLeft" );
-			ImUiWidgetSetStretch( hLeft, ImUiSizeCreate( timeLeft, 1.0f ) );
+			ImUiWidgetSetStretch( hLeft, timeLeft, 1.0f );
 			ImUiWidgetEnd( hLeft );
 
 			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, "hCenter" );
-			ImUiWidgetSetStretch( hCenter, ImUiSizeCreateZero() );
 			ImUiWidgetSetFixedSize( hCenter, ImUiSizeExpandBorder( ImUiTextLayoutGetSize( textLayout ), ImUiBorderCreateAll( 50.0f ) ) );
 
 			ImUiWidgetDrawColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
 			ImUiWidget* text = ImUiWidgetBeginNamed( window, "centerText" );
 			ImUiWidgetSetFixedSize( text, ImUiTextLayoutGetSize( textLayout ) );
-			ImUiWidgetSetAlign( text, ImUiAlignCreate( timeLeft, timeTop ) );
+			ImUiWidgetSetAlign( text, timeLeft, timeTop );
 
 			ImUiWidgetDrawText( text, textLayout, ImUiColorCreateWhite() );
 
@@ -75,7 +74,7 @@ void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 			ImUiWidgetEnd( hCenter );
 
 			ImUiWidget* hRight = ImUiWidgetBeginNamed( window, "hRight" );
-			ImUiWidgetSetStretch( hRight, ImUiSizeCreate( timeRight, 1.0f ) );
+			ImUiWidgetSetStretch( hRight, timeRight, 1.0f );
 			ImUiWidgetEnd( hRight );
 		}
 
@@ -84,7 +83,7 @@ void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 
 	{
 		ImUiWidget* vBottom = ImUiWidgetBeginNamed( window, "vBottom" );
-		ImUiWidgetSetStretch( vBottom, ImUiSizeCreate( 1.0f, timeBottom ) );
+		ImUiWidgetSetStretch( vBottom, 1.0f, timeBottom );
 		ImUiWidgetEnd( vBottom );
 	}
 
