@@ -114,6 +114,8 @@ void						ImUiDestroy( ImUiContext* imui );
 ImUiFrame*					ImUiBegin( ImUiContext* imui, float timeInSeconds );
 void						ImUiEnd( ImUiFrame* frame );
 
+ImUiContext*				ImUiFrameGetContext( const ImUiFrame* frame );
+
 //////////////////////////////////////////////////////////////////////////
 // Types
 
@@ -637,6 +639,7 @@ ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float rig
 ImUiBorder						ImUiBorderCreateAll( float all );
 ImUiBorder						ImUiBorderCreateZero();
 ImUiBorder						ImUiBorderCreateHorizontalVertical( float horizontal, float vertical );
+ImUiBorder						ImUiBorderScale( ImUiBorder border, float factor );
 ImUiSize						ImUiBorderGetMinSize( ImUiBorder border );
 
 ImUiRect						ImUiRectCreate( float x, float y, float width, float height );

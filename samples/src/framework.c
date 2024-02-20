@@ -50,6 +50,7 @@ struct ImUiFrameworkContext
 
 	ImUiFrameworkTexture		whiteTexture;
 
+	float						dpiScale;
 	ImUiContext*				imui;
 };
 
@@ -243,7 +244,8 @@ int main( int argc, char* argv[] )
 	}
 
 	ImUiParameters parameters = { 0 };
-	s_context.imui = ImUiCreate( &parameters );
+	s_context.dpiScale	= 1.0f;
+	s_context.imui		= ImUiCreate( &parameters );
 
 	const bool init = ImUiFrameworkInitialize( s_context.imui );
 
@@ -347,7 +349,7 @@ static void ImFrameworkLoop()
 	SDL_GetWindowSize( s_context.window, &s_context.windowWidth, &s_context.windowHeight );
 
 	ImUiFrame* frame = ImUiBegin( s_context.imui, SDL_GetTicks64() / 1000.0f );
-	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), 1.0f );
+	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), s_context.dpiScale );
 
 	ImUiFrameworkTick( surface );
 
@@ -669,6 +671,11 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface*
 	glBindVertexArray( 0 );
 	glDisable( GL_BLEND );
 	glDisable( GL_SCISSOR_TEST );
+}
+
+void ImUiFrameworkSetDpiScale( float dpiScale )
+{
+	s_context.dpiScale = dpiScale;
 }
 
 ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont )

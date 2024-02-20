@@ -20,6 +20,8 @@ bool					ImUiFrameworkInitialize( ImUiContext* imui );
 void					ImUiFrameworkShutdown( ImUiContext* imui );
 void					ImUiFrameworkTick( ImUiSurface* surface );
 
+void					ImUiFrameworkSetDpiScale( float dpiScale );
+
 ImUiFrameworkTexture*	ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont );
 void					ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture );
 

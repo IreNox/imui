@@ -351,6 +351,16 @@ ImUiBorder ImUiBorderCreateHorizontalVertical( float horizontal, float vertical 
 	return result;
 }
 
+ImUiBorder ImUiBorderScale( ImUiBorder border, float factor )
+{
+	ImUiBorder result = border;
+	result.top		*= factor;
+	result.left		*= factor;
+	result.bottom	*= factor;
+	result.right	*= factor;
+	return result;
+}
+
 ImUiSize ImUiBorderGetMinSize( ImUiBorder border )
 {
 	const ImUiSize result = { border.left + border.right, border.top + border.bottom };
