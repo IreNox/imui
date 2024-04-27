@@ -564,11 +564,13 @@ typedef struct ImUiFontCodepoint
 typedef struct ImUiFontParameters
 {
 	ImUiImage					image;
+
 	const ImUiFontCodepoint*	codepoints;
 	size_t						codepointCount;
 
-	float						fontSize;
+	float						fontSize;		// for scalable fonts this is the default size when no one is given
 	float						lineGap;
+	bool						isScalable;
 } ImUiFontParameters;
 
 ImUiFont*						ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters );

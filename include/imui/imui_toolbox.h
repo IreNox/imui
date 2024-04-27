@@ -285,11 +285,11 @@ void			ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t ind
 ImUiWidget*		ImUiToolboxListNextItem( ImUiToolboxListContext* list );
 bool			ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
-void			ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount );
+void			ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
 size_t			ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
 void			ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
 bool			ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
-size_t			ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount );
+size_t			ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
 
 ImUiWindow*		ImUiToolboxPopupBegin( ImUiWindow* window );
 ImUiWindow*		ImUiToolboxPopupBeginSurface( ImUiSurface* surface );

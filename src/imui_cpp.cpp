@@ -1273,9 +1273,9 @@ namespace imui
 		ImUiToolboxProgressBarMinMax( m_window, value, min, max );
 	}
 
-	size_t toolbox::UiToolboxWindow::dropDown( const char** items, size_t itemCount )
+	size_t toolbox::UiToolboxWindow::dropDown( const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )
 	{
-		return ImUiToolboxDropDown( m_window, items, itemCount );
+		return ImUiToolboxDropDown( m_window, (const char**)items, itemCount, itemStride );
 	}
 
 	toolbox::UiToolboxButtonLabel::UiToolboxButtonLabel()
@@ -1455,9 +1455,9 @@ namespace imui
 		return ImUiToolboxListNextItem( &m_list );
 	}
 
-	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const char** items, size_t itemCount )
+	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )
 	{
-		ImUiToolboxDropDownBegin( &m_dropDown, window.getInternal(), items, itemCount );
+		ImUiToolboxDropDownBegin( &m_dropDown, window.getInternal(), (const char**)items, itemCount, itemStride );
 		m_widget = m_dropDown.dropDown;
 	}
 

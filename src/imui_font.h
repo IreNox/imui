@@ -8,11 +8,13 @@
 struct ImUiFont
 {
 	ImUiImage			image;
+
 	ImUiFontCodepoint*	codepoints;
 	uintsize			codepointCount;
 
 	float				fontSize;
 	float				lineGap;
+	bool				isScalable;
 
 	ImUiHashMap			codepointMap;
 };

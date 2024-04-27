@@ -429,7 +429,7 @@ namespace imui
 
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
 
-			size_t			dropDown( const char** items, size_t itemCount );
+			size_t			dropDown( const char* const* items, size_t itemCount, size_t itemStride = sizeof( const char* ) );
 		};
 
 		class UiToolboxButtonLabel : public UiWidget
@@ -515,7 +515,7 @@ namespace imui
 		{
 		public:
 
-						UiToolboxDropdown( UiWindow& window, const char** items, size_t itemCount );
+						UiToolboxDropdown( UiWindow& window, const char* const* items, size_t itemCount, size_t itemStride = sizeof( const char* ) );
 						//UiToolboxDropdown( UiWindow& window, const char* selectedItem, size_t itemCount );
 						~UiToolboxDropdown();
 

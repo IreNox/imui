@@ -7,6 +7,8 @@
 #include <math.h>
 #include <string.h>
 
+static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters, ImUiTextLayout** mapLayout );
+
 static ImUiHash ImUiTextLayoutCacheHash( const void* entry )
 {
 	const ImUiTextLayout* layout = *(const ImUiTextLayout**)entry;
@@ -163,6 +165,11 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 		return *mapLayout;
 	}
 
+	return ImUiTextLayoutCreateNew( cache, parameters, mapLayout );
+}
+
+static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters, ImUiTextLayout** mapLayout )
+{
 	uint32 glyphCount = 0u;
 	for( uintsize i = 0; i < parameters->text.length; )
 	{
@@ -229,7 +236,10 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 		}
 		else
 		{
-			codepointInfo = NULL;
+			// TODO: what to do here?
+			x += parameters->font->lineGap;
+			layout->glyphCount--;
+			continue;
 		}
 
 		glyph->codepoint	= codepoint;

@@ -1263,8 +1263,13 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	return list->changed;
 }
 
-void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount )
+void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride )
 {
+	if( itemStride == 0u )
+	{
+		itemStride = sizeof( const char* );
+	}
+
 	dropDown->dropDown = ImUiWidgetBegin( window );
 	ImUiWidgetSetPadding( dropDown->dropDown, s_config.dropDown.padding );
 	ImUiWidgetSetFixedHeight( dropDown->dropDown, s_config.dropDown.height );
@@ -1305,9 +1310,11 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 
 	ImUiSize maxSize = ImUiSizeCreateZero();
 	ImUiTextLayout* selectedTextLayout = NULL;
+	const uint8* itemsBytes = (const byte*)items;
 	for( uintsize i = 0; i < itemCount; ++i )
 	{
-		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, items[ i ] );
+		const char* itemText = *(const char**)itemsBytes;
+		ImUiTextLayout* textLayout = ImUiTextLayoutCreateWidget( dropDown->dropDown, s_config.font, itemText );
 
 		maxSize = ImUiSizeMax( maxSize, ImUiTextLayoutGetSize( textLayout ) );
 
@@ -1315,6 +1322,8 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		{
 			selectedTextLayout = textLayout;
 		}
+
+		itemsBytes += itemStride;
 	}
 
 	ImUiWidgetSetMinWidth( dropDown->dropDown, maxSize.width + ImUiBorderGetMinSize( s_config.dropDown.padding ).width + s_config.dropDown.padding.left + ImUiWidgetGetSize( icon ).width );
@@ -1366,14 +1375,19 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 
 		ImUiToolboxListSetSelectedIndex( &list, dropDown->state->selectedIndex );
 
+		itemsBytes = (const byte*)items;
 		for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 		{
+			const char* itemText = *(const char**)itemsBytes;
+
 			ImUiWidget* item = ImUiToolboxListNextItem( &list );
 			ImUiWidgetSetPadding( item, s_config.dropDown.itemPadding );
 
-			ImUiWidget* label = ImUiToolboxLabelBegin( listWindow, items[ i ] );
+			ImUiWidget* label = ImUiToolboxLabelBegin( listWindow, itemText );
 			ImUiWidgetSetVAlign( label, 0.5f );
 			ImUiWidgetEnd( label );
+
+			itemsBytes += itemStride;
 		}
 
 		dropDown->state->selectedIndex = ImUiToolboxListGetSelectedIndex( &list );
@@ -1416,10 +1430,10 @@ bool ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown )
 	return dropDown->changed;
 }
 
-size_t ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount )
+size_t ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride )
 {
 	ImUiToolboxDropDownContext dropDown;
-	ImUiToolboxDropDownBegin( &dropDown, window, items, itemCount );
+	ImUiToolboxDropDownBegin( &dropDown, window, items, itemCount, itemStride );
 	const size_t selectedIndex = ImUiToolboxDropDownGetSelectedIndex( &dropDown );
 	ImUiToolboxDropDownEnd( &dropDown );
 	return selectedIndex;
