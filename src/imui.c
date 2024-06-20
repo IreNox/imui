@@ -44,8 +44,8 @@ static const ImUiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
 static const ImUiWidget IMUI_DEFAULT_WIDGET =
 {
 	.maxSize = {
-		.width = IMUI_FLOAT_MAX,
-		.height = IMUI_FLOAT_MAX
+		.width = IMUI_FLOAT_INF,
+		.height = IMUI_FLOAT_INF
 	},
 	.layoutContext = {
 		.childrenMaxStretch =
