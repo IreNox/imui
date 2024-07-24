@@ -1009,6 +1009,11 @@ namespace imui
 		ImUiWidgetSetHAlign( m_widget, align );
 	}
 
+	float UiWidget::getVAlign() const
+	{
+		return ImUiWidgetGetVAlign( m_widget );
+	}
+
 	void UiWidget::setVAlign( float align )
 	{
 		ImUiWidgetSetVAlign( m_widget, align );
