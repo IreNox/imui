@@ -1009,6 +1009,11 @@ namespace imui
 		ImUiWidgetSetHAlign( m_widget, align );
 	}
 
+	float UiWidget::getVAlign() const
+	{
+		return ImUiWidgetGetVAlign( m_widget );
+	}
+
 	void UiWidget::setVAlign( float align )
 	{
 		ImUiWidgetSetVAlign( m_widget, align );
@@ -1028,15 +1033,6 @@ namespace imui
 	{
 		return (const UiRect&)m_widget->rect;
 	}
-
-	//UiSize UiWidget::getInnerSize()
-	//{
-	//	return getRect().shrinkBorder( m_widget->padding ).size;
-	//}
-
-	//UiRect UiWidget::getInnerRect()
-	//{
-	//}
 
 	void UiWidget::getInputState( ImUiWidgetInputState& inputState ) const
 	{
@@ -1135,6 +1131,11 @@ namespace imui
 		ImUiToolboxFillDefaultConfig( this, font );
 	}
 
+	void toolbox::UiToolboxConfig::applyConfig()
+	{
+		ImUiToolboxSetConfig( this );
+	}
+
 	const UiColor& toolbox::UiToolboxConfig::getColor( ImUiToolboxColor color )
 	{
 		return (const UiColor&)ImUiToolboxGetConfig()->colors[ color ];
@@ -1145,19 +1146,14 @@ namespace imui
 		return ImUiToolboxGetConfig()->skins[ skin ];
 	}
 
-	const ImUiImage& toolbox::UiToolboxConfig::getImage( ImUiToolboxImage image )
+	const ImUiImage& toolbox::UiToolboxConfig::getIcon( ImUiToolboxIcon icon )
 	{
-		return ImUiToolboxGetConfig()->images[ image ];
+		return ImUiToolboxGetConfig()->icons[ icon ];
 	}
 
 	const ImUiToolboxConfig& toolbox::UiToolboxConfig::getConfig()
 	{
 		return *ImUiToolboxGetConfig();
-	}
-
-	void toolbox::setConfig( const UiToolboxConfig& config )
-	{
-		ImUiToolboxSetConfig( &config );
 	}
 
 	toolbox::UiToolboxWindow::UiToolboxWindow()
@@ -1243,6 +1239,16 @@ namespace imui
 		va_end( args );
 	}
 
+	void toolbox::UiToolboxWindow::image( const ImUiImage& img )
+	{
+		image( img, UiSize( img ) );
+	}
+
+	void toolbox::UiToolboxWindow::image( const ImUiImage& img, const UiSize& size )
+	{
+		ImUiToolboxImageSize( m_window, &img, size );
+	}
+
 	bool toolbox::UiToolboxWindow::slider( float& value, float min /*= 0.0f*/, float max /*= 1.0f*/ )
 	{
 		return ImUiToolboxSliderMinMax( m_window, &value, min, max );
@@ -1276,6 +1282,38 @@ namespace imui
 	size_t toolbox::UiToolboxWindow::dropDown( const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )
 	{
 		return ImUiToolboxDropDown( m_window, (const char**)items, itemCount, itemStride );
+	}
+
+	toolbox::UiToolboxButton::UiToolboxButton()
+	{
+	}
+
+	toolbox::UiToolboxButton::UiToolboxButton( UiWindow& window )
+	{
+		begin( window );
+	}
+
+	toolbox::UiToolboxButton::~UiToolboxButton()
+	{
+		end();
+	}
+
+	void toolbox::UiToolboxButton::begin( UiWindow& window )
+	{
+		m_widget = ImUiToolboxButtonBegin( window.getInternal() );
+	}
+
+	bool toolbox::UiToolboxButton::end()
+	{
+		if( m_widget )
+		{
+			const bool result = ImUiToolboxButtonEnd( m_widget );
+			m_widget = nullptr;
+
+			return result;
+		}
+
+		return false;
 	}
 
 	toolbox::UiToolboxButtonLabel::UiToolboxButtonLabel()

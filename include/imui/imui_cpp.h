@@ -336,8 +336,6 @@ namespace imui
 		UiPos			getPos() const;
 		UiSize			getSize() const;
 		UiRect			getRect() const;
-		UiSize			getInnerSize();
-		UiRect			getInnerRect();
 
 		void			getInputState( ImUiWidgetInputState& inputState ) const;
 
@@ -389,9 +387,11 @@ namespace imui
 
 			void		setDefault( ImUiFont* font );
 
+			void		applyConfig();
+
 			static const UiColor&			getColor( ImUiToolboxColor color );
 			static const ImUiSkin&			getSkin( ImUiToolboxSkin skin );
-			static const ImUiImage&			getImage( ImUiToolboxImage image );
+			static const ImUiImage&			getIcon( ImUiToolboxIcon icon );
 
 			static const ImUiToolboxConfig& getConfig();
 		};
@@ -419,6 +419,8 @@ namespace imui
 
 			void			label( const char* text );
 			void			labelFormat( const char* format, ... );
+			void			image( const ImUiImage& img );
+			void			image( const ImUiImage& img, const UiSize& size );
 
 			bool			slider( float& value, float min = 0.0f, float max = 1.0f );
 			float			sliderState( float min = 0.0f, float max = 1.0f );
@@ -430,6 +432,18 @@ namespace imui
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
 
 			size_t			dropDown( const char* const* items, size_t itemCount, size_t itemStride = sizeof( const char* ) );
+		};
+
+		class UiToolboxButton : public UiWidget
+		{
+		public:
+
+						UiToolboxButton();
+						UiToolboxButton( UiWindow& window );
+						~UiToolboxButton();
+
+			void		begin( UiWindow& window );
+			bool		end();
 		};
 
 		class UiToolboxButtonLabel : public UiWidget
@@ -544,8 +558,6 @@ namespace imui
 			size_t 		end( const char** buttons, size_t buttonCount );
 			void		end();
 		};
-
-		void			setConfig( const UiToolboxConfig& config );
 	}
 
 	template< class T >
@@ -581,4 +593,49 @@ namespace imui
 
 		return state;
 	}
+
+	template< class T >
+	class UiAnimation
+	{
+	public:
+
+		UiAnimation( UiWidget& widget, T minValue, T maxValue, float timeSpan, bool backwards = false )
+		{
+			const float currentTime = widget.getWindow().getSurface().getTime();
+
+			bool isNew;
+			m_state = widget.newState< State >( isNew );
+
+			if( isNew )
+			{
+				m_state->startTime = currentTime;
+				m_state->backwards = backwards;
+			}
+
+			float progress = min( 1.0f, (m_state->startTime - currentTime) / timeSpan );
+			if( backwards )
+			{
+				progress = 1.0f - progress;
+			}
+
+			if( m_state->backwards != backwards )
+			{
+				m_state->startTime = currentTime - (progress * timeSpan);
+				m_state->backwards = backwards;
+			}
+
+			m_value = lerp( minValue, maxValue, progress );
+		}
+
+	private:
+
+		struct State
+		{
+			float	startTime;
+			bool	backwards;
+		};
+
+		State*		m_state;
+		T			m_value;
+	};
 }

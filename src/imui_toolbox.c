@@ -121,9 +121,9 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 
 	const ImUiImage image = { NULL, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
-	config->images[ ImUiToolboxImage_CheckBoxChecked ] = image;
-	config->images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
-	config->images[ ImUiToolboxImage_DropDownCloseIcon ] = image;
+	config->icons[ ImUiToolboxIcon_CheckBoxChecked ] = image;
+	config->icons[ ImUiToolboxIcon_DropDownOpenIcon ] = image;
+	config->icons[ ImUiToolboxIcon_DropDownCloseIcon ] = image;
 
 	config->font					= font;
 
@@ -369,8 +369,8 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 
 	if( *checked )
 	{
-		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( &s_config.images[ ImUiToolboxImage_CheckBoxChecked ] ) );
-		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, &s_config.images[ ImUiToolboxImage_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( &s_config.icons[ ImUiToolboxIcon_CheckBoxChecked ] ) );
+		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, &s_config.icons[ ImUiToolboxIcon_CheckBoxChecked ], s_config.colors[ ImUiToolboxColor_CheckBoxChecked ] );
 	}
 
 	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
@@ -501,6 +501,32 @@ void ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list
 {
 	ImUiWidget* label = ImUiToolboxLabelBeginFormatArgs( window, format, args );
 	ImUiToolboxLabelEnd( label );
+}
+
+ImUiWidget* ImUiToolboxImageBegin( ImUiWindow* window, ImUiSize imgSize )
+{
+	ImUiWidget* imgWidget = ImUiWidgetBegin( window );
+	ImUiWidgetSetFixedSize( imgWidget, imgSize );
+
+	return imgWidget;
+}
+
+void ImUiToolboxImageEnd( ImUiWidget* imgWidget, const ImUiImage* img )
+{
+	ImUiWidgetDrawImage( imgWidget, img );
+
+	ImUiWidgetEnd( imgWidget );
+}
+
+void ImUiToolboxImage( ImUiWindow* window, const ImUiImage* img )
+{
+	ImUiToolboxImageSize( window, img, ImUiSizeCreateImage( img ) );
+}
+
+void ImUiToolboxImageSize( ImUiWindow* window, const ImUiImage* img, ImUiSize imgSize )
+{
+	ImUiWidget* imgWidget = ImUiToolboxImageBegin( window, imgSize );
+	ImUiToolboxImageEnd( imgWidget, img );
 }
 
 ImUiWidget* ImUiToolboxSliderBegin( ImUiWindow* window )
@@ -1303,7 +1329,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 	ImUiWidgetDrawSkin( dropDown->dropDown, &s_config.skins[ ImUiToolboxSkin_DropDown ], color );
 
 	ImUiWidget* icon = ImUiWidgetBegin( window );
-	const ImUiImage iconImage = s_config.images[ dropDown->state->isOpen ? ImUiToolboxImage_DropDownCloseIcon : ImUiToolboxImage_DropDownOpenIcon ];
+	const ImUiImage iconImage = s_config.icons[ dropDown->state->isOpen ? ImUiToolboxIcon_DropDownCloseIcon : ImUiToolboxIcon_DropDownOpenIcon ];
 	ImUiWidgetSetFixedSize( icon, ImUiSizeCreateImage( &iconImage ) );
 	ImUiWidgetSetHAlign( icon, 1.0f );
 	ImUiWidgetSetVAlign( icon, 0.5f );

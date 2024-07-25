@@ -83,14 +83,14 @@ typedef enum ImUiToolboxSkin
 	ImUiToolboxSkin_MAX
 } ImUiToolboxSkin;
 
-typedef enum ImUiToolboxImage
+typedef enum ImUiToolboxIcon
 {
-	ImUiToolboxImage_CheckBoxChecked,
-	ImUiToolboxImage_DropDownOpenIcon,
-	ImUiToolboxImage_DropDownCloseIcon,
+	ImUiToolboxIcon_CheckBoxChecked,
+	ImUiToolboxIcon_DropDownOpenIcon,
+	ImUiToolboxIcon_DropDownCloseIcon,
 
-	ImUiToolboxImage_MAX
-} ImUiToolboxImage;
+	ImUiToolboxIcon_MAX
+} ImUiToolboxIcon;
 
 typedef struct ImUiToolboxButtonConfig
 {
@@ -162,7 +162,7 @@ typedef struct ImUiToolboxConfig
 {
 	ImUiColor						colors[ ImUiToolboxColor_MAX ];
 	ImUiSkin						skins[ ImUiToolboxSkin_MAX ];
-	ImUiImage						images[ ImUiToolboxImage_MAX ];
+	ImUiImage						icons[ ImUiToolboxIcon_MAX ];
 
 	ImUiFont*						font;
 
@@ -180,12 +180,12 @@ typedef struct ImUiToolboxConfig
 typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
 typedef struct ImUiToolboxScrollAreaContext
 {
-	bool						horizontalSpacing;
-	bool						verticalSpacing;
+	bool							horizontalSpacing;
+	bool							verticalSpacing;
 
-	ImUiWidget*					area;
-	ImUiWidget*					content;
-	ImUiToolboxScrollAreaState*	state;
+	ImUiWidget*						area;
+	ImUiWidget*						content;
+	ImUiToolboxScrollAreaState*		state;
 } ImUiToolboxScrollAreaContext;
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
@@ -212,11 +212,11 @@ typedef struct ImUiToolboxListContext
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
 typedef struct ImUiToolboxDropDownContext
 {
-	ImUiWidget*					dropDown;
+	ImUiWidget*						dropDown;
 
-	ImUiToolboxDropDownState*	state;
+	ImUiToolboxDropDownState*		state;
 
-	bool						changed;
+	bool							changed;
 } ImUiToolboxDropDownContext;
 
 const ImUiToolboxConfig*	ImUiToolboxGetConfig();
@@ -254,6 +254,11 @@ void			ImUiToolboxLabelEnd( ImUiWidget* label );
 void			ImUiToolboxLabel( ImUiWindow* window, const char* text );
 void			ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
 void			ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
+
+ImUiWidget*		ImUiToolboxImageBegin( ImUiWindow* window, ImUiSize imgSize );
+void			ImUiToolboxImageEnd( ImUiWidget* imgWidget, const ImUiImage* img );
+void			ImUiToolboxImage( ImUiWindow* window, const ImUiImage* img );
+void			ImUiToolboxImageSize( ImUiWindow* window, const ImUiImage* img, ImUiSize imgSize );
 
 ImUiWidget*		ImUiToolboxSliderBegin( ImUiWindow* window );
 bool			ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max );
