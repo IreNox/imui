@@ -1024,7 +1024,8 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
 		ImUiWidgetSetVAlign( scrollBar, 1.0f );
-		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( barWidth, s_config.scrollArea.barSize ) );
+		ImUiWidgetSetFixedHeight( scrollBar, s_config.scrollArea.barSize );
+		ImUiWidgetSetHStretch( scrollBar, barWidth / frameRect.size.width );
 
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
 		const float pivotSizeFactor	= frameAreaSize.width / areaSize.width;
@@ -1078,7 +1079,8 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
 		ImUiWidgetSetHAlign( scrollBar, 1.0f );
-		ImUiWidgetSetFixedSize( scrollBar, ImUiSizeCreate( s_config.scrollArea.barSize, barHeight ) );
+		ImUiWidgetSetFixedWidth( scrollBar, s_config.scrollArea.barSize );
+		ImUiWidgetSetVStretch( scrollBar, barHeight / frameRect.size.height );
 
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
 		const float pivotSizeFactor	= frameAreaSize.height / areaSize.height;
