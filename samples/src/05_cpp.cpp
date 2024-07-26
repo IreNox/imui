@@ -347,9 +347,9 @@ static void ImUiToolboxCppSampleSetConfig()
 
 	const ImUiImage image = { NULL, 16u, 16u };
 
-	config.images[ ImUiToolboxImage_CheckBoxChecked ] = image;
-	config.images[ ImUiToolboxImage_DropDownOpenIcon ] = image;
-	config.images[ ImUiToolboxImage_DropDownCloseIcon ] = image;
+	config.icons[ ImUiToolboxIcon_CheckBoxChecked ] = image;
+	config.icons[ ImUiToolboxIcon_DropDownOpenIcon ] = image;
+	config.icons[ ImUiToolboxIcon_DropDownCloseIcon ] = image;
 
 	config.font						= s_toolboxCppContext.font;
 
