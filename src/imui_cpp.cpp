@@ -666,7 +666,7 @@ namespace imui
 		return UiContext( ImUiSurfaceGetContext( m_surface ) );
 	}
 
-	float UiSurface::getTime() const
+	double UiSurface::getTime() const
 	{
 		return ImUiSurfaceGetTime( m_surface );
 	}
@@ -755,7 +755,7 @@ namespace imui
 		return UiSurface( ImUiWindowGetSurface( m_window ) );
 	}
 
-	float UiWindow::getTime() const
+	double UiWindow::getTime() const
 	{
 		return m_window->imui->frame.timeInSeconds;
 	}
@@ -884,7 +884,7 @@ namespace imui
 		ImUiWidgetSetLayoutGrid( m_widget, columnCount, colSpacing, rowSpacing );
 	}
 
-	float UiWidget::getTime()
+	double UiWidget::getTime()
 	{
 		return m_widget->window->imui->frame.timeInSeconds;
 	}

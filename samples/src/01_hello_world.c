@@ -25,9 +25,9 @@ void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
-	const float time	= ImUiWindowGetTime( window );
-	const float timeSin = sinf( time / -2.0f ) * 0.5f + 0.5f;
-	const float timeCos = cosf( time / -2.0f ) * 0.5f + 0.5f;
+	const double time	= ImUiWindowGetTime( window );
+	const float timeSin = (float)sin( time / -2.0 ) * 0.5f + 0.5f;
+	const float timeCos = (float)cos( time / -2.0 ) * 0.5f + 0.5f;
 
 	const float timeLeft	= timeSin;
 	const float timeRight	= 1.0f - timeSin;

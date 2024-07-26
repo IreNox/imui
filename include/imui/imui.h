@@ -111,7 +111,7 @@ struct ImUiParameters							// Fill with zero for default parameters
 ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
 void						ImUiDestroy( ImUiContext* imui );
 
-ImUiFrame*					ImUiBegin( ImUiContext* imui, float timeInSeconds );
+ImUiFrame*					ImUiBegin( ImUiContext* imui, double timeInSeconds );
 void						ImUiEnd( ImUiFrame* frame );
 
 ImUiContext*				ImUiFrameGetContext( const ImUiFrame* frame );
@@ -218,7 +218,7 @@ void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 
-float						ImUiSurfaceGetTime( const ImUiSurface* surface );
+double						ImUiSurfaceGetTime( const ImUiSurface* surface );
 
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
@@ -237,7 +237,7 @@ void						ImUiWindowEnd( ImUiWindow* window );
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
 ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
-float						ImUiWindowGetTime( const ImUiWindow* window );
+double						ImUiWindowGetTime( const ImUiWindow* window );
 
 ImUiWidget*					ImUiWindowGetFirstChild( const ImUiWindow* window );
 ImUiWidget*					ImUiWindowGetLastChild( const ImUiWindow* window );
@@ -274,7 +274,7 @@ ImUiWidget*					ImUiWidgetGetLastChild( const ImUiWidget* widget );
 ImUiWidget*					ImUiWidgetGetPrevSibling( const ImUiWidget* widget );
 ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
 
-float						ImUiWidgetGetTime( const ImUiWidget* widget );
+double						ImUiWidgetGetTime( const ImUiWidget* widget );
 
 void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId );
 void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew );

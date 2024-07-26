@@ -116,7 +116,7 @@ typedef struct ImUiToolboxTextEditConfig
 	float			height;
 	ImUiBorder		padding;
 	ImUiSize		cursorSize;
-	float			blinkTime;
+	double			blinkTime;
 } ImUiToolboxTextEditConfig;
 
 typedef struct ImUiToolboxProgressBarConfig

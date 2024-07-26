@@ -178,7 +178,7 @@ struct ImUiFrame
 {
 	ImUiContext*			imui;
 	uint32					index;
-	float					timeInSeconds;
+	double					timeInSeconds;
 };
 
 struct ImUiContext

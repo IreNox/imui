@@ -894,7 +894,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 	if( state->hasFocus )
 	{
-		const float blinkValue	= fmodf( ImUiWidgetGetTime( textEdit ), s_config.textEdit.blinkTime * 2.0f );
+		const double blinkValue	= fmod( ImUiWidgetGetTime( textEdit ), s_config.textEdit.blinkTime * 2.0 );
 		const bool blink		= blinkValue > s_config.textEdit.blinkTime;
 		if( blink )
 		{
@@ -962,11 +962,11 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 	ImUiRect progressRect;
 	if( value < min )
 	{
-		const float time		= ImUiWindowGetTime( window );
-		const float cos			= (cosf( time * 8.0f ) * 0.15f) + 0.15f;
-		const float sin			= (sinf( time * 4.0f ) * 0.5f) + 0.5f;
-		const float width		= ceilf( barRect.size.width * (0.1f + cos) );
-		const float margin		= floorf( sin * (barRect.size.width - width) );
+		const double time		= ImUiWindowGetTime( window );
+		const float cosv		= ((float)cos( time * 8.0 ) * 0.15f) + 0.15f;
+		const float sinv		= ((float)sin( time * 4.0 ) * 0.5f) + 0.5f;
+		const float width		= ceilf( barRect.size.width * (0.1f + cosv) );
+		const float margin		= floorf( sinv * (barRect.size.width - width) );
 
 		progressRect = ImUiRectCreate(
 			margin,

@@ -127,7 +127,7 @@ void ImUiDestroy( ImUiContext* imui )
 	ImUiMemoryFree( &imui->allocator, imui );
 }
 
-ImUiFrame* ImUiBegin( ImUiContext* imui, float timeInSeconds )
+ImUiFrame* ImUiBegin( ImUiContext* imui, double timeInSeconds )
 {
 	imui->frame.imui			= imui;
 	imui->frame.index++;
@@ -273,7 +273,7 @@ ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
 	return surface->imui;
 }
 
-float ImUiSurfaceGetTime( const ImUiSurface* surface )
+double ImUiSurfaceGetTime( const ImUiSurface* surface )
 {
 	return surface->imui->frame.timeInSeconds;
 }
@@ -368,7 +368,7 @@ ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
 	return window->surface;
 }
 
-float ImUiWindowGetTime( const ImUiWindow* window )
+double ImUiWindowGetTime( const ImUiWindow* window )
 {
 	return window->imui->frame.timeInSeconds;
 }
@@ -1034,7 +1034,7 @@ ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
 	return widget->nextSibling;
 }
 
-float ImUiWidgetGetTime( const ImUiWidget* widget )
+double ImUiWidgetGetTime( const ImUiWidget* widget )
 {
 	return widget->window->imui->frame.timeInSeconds;
 }

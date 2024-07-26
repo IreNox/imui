@@ -225,7 +225,7 @@ namespace imui
 		ImUiSurface*	getInternal() const;
 		UiContext		getContext() const;
 
-		float			getTime() const;
+		double			getTime() const;
 		UiRect			getRect() const;
 		UiSize			getSize() const;
 		float			getDpiScale() const;
@@ -255,7 +255,7 @@ namespace imui
 		UiContext		getContext() const;
 		UiSurface		getSurface() const;
 
-		float			getTime() const;
+		double			getTime() const;
 		UiRect			getRect() const;
 		uint32_t		getZOrder() const;
 
@@ -300,7 +300,7 @@ namespace imui
 		void			setLayoutVertical( float spacing = 0.0f );
 		void			setLayoutGrid( uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 
-		float			getTime();
+		double			getTime();
 
 		UiBorder		getMargin() const;
 		void			setMargin( const UiBorder& margin );
@@ -599,9 +599,9 @@ namespace imui
 	{
 	public:
 
-		UiAnimation( UiWidget& widget, T minValue, T maxValue, float timeSpan, bool backwards = false )
+		UiAnimation( UiWidget& widget, T minValue, T maxValue, double timeSpan, bool backwards = false )
 		{
-			const float currentTime = widget.getWindow().getSurface().getTime();
+			const double currentTime = widget.getWindow().getSurface().getTime();
 
 			bool isNew;
 			m_state = widget.newState< State >( isNew );
@@ -612,7 +612,7 @@ namespace imui
 				m_state->backwards = backwards;
 			}
 
-			float progress = min( 1.0f, (m_state->startTime - currentTime) / timeSpan );
+			float progress = min( 1.0f, float( (m_state->startTime - currentTime) / timeSpan ) );
 			if( backwards )
 			{
 				progress = 1.0f - progress;
@@ -631,7 +631,7 @@ namespace imui
 
 		struct State
 		{
-			float	startTime;
+			double	startTime;
 			bool	backwards;
 		};
 
