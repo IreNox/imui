@@ -585,6 +585,7 @@ bool							ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uin
 void							ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight );
 ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height );
 
+void							ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount );
 void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 
 //////////////////////////////////////////////////////////////////////////

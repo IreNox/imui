@@ -303,6 +303,12 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 	return image;
 }
 
+void ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount )
+{
+	*codepoints		= ttfImage->parameters.codepoints;
+	*codepointCount	= ttfImage->parameters.codepointCount;
+}
+
 void ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage )
 {
 	ImUiMemoryFree( ttfImage->allocator, ttfImage->parameters.codepoints );
