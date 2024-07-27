@@ -601,7 +601,7 @@ namespace imui
 
 		UiAnimation( UiWidget& widget, T minValue, T maxValue, double timeSpan, bool backwards = false )
 		{
-			const double currentTime = widget.getWindow().getSurface().getTime();
+			const double currentTime = widget.getTime();
 
 			bool isNew;
 			m_state = widget.newState< State >( isNew );
@@ -612,19 +612,28 @@ namespace imui
 				m_state->backwards = backwards;
 			}
 
-			float progress = min( 1.0f, float( (m_state->startTime - currentTime) / timeSpan ) );
-			if( backwards )
-			{
-				progress = 1.0f - progress;
-			}
-
+			m_progress = min( 1.0f, float( (currentTime - m_state->startTime) / timeSpan ) );
 			if( m_state->backwards != backwards )
 			{
-				m_state->startTime = currentTime - (progress * timeSpan);
+				m_state->startTime = currentTime - (timeSpan * (1.0 - m_progress));
 				m_state->backwards = backwards;
 			}
+			else if( m_state->backwards )
+			{
+				m_progress = 1.0f - m_progress;
+			}
 
-			m_value = lerp( minValue, maxValue, progress );
+			m_value = lerp( minValue, maxValue, m_progress );
+		}
+
+		T getValue() const
+		{
+			return m_value;
+		}
+
+		float getProgrss() const
+		{
+			return m_progress;
 		}
 
 	private:
@@ -635,7 +644,8 @@ namespace imui
 			bool	backwards;
 		};
 
-		State*		m_state;
 		T			m_value;
+		float		m_progress;
+		State*		m_state;
 	};
 }

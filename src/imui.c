@@ -858,8 +858,9 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 
 static ImUiSize ImUiWidgetLayoutMinSize( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
+	const ImUiBorder margin		= ImUiBorderScale( widget->margin, dpiScale );
 	const ImUiBorder padding	= ImUiBorderScale( widget->padding, dpiScale );
-	const ImUiSize minChildren	= ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding );
+	const ImUiSize minChildren	= ImUiSizeExpandBorder( ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding ), margin );
 	const ImUiSize minSize		= ImUiSizeMax( widget->layoutContext.minOuterSize, minChildren );
 	return minSize; // ImUiSizeMin( parentInnerRect->size, minSize );
 }
@@ -1462,7 +1463,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 				continue;
 			}
 
-			hasOverlappingWindow |= ImUiRectIncludesPos( window->rect, input->currentState.mousePos );
+			hasOverlappingWindow |= ImUiRectIncludesPos( testWindow->rect, input->currentState.mousePos );
 		}
 	}
 
