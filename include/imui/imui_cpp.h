@@ -623,7 +623,7 @@ namespace imui
 				m_progress = 1.0f - m_progress;
 			}
 
-			m_value = lerp( minValue, maxValue, m_progress );
+			m_value = minValue + ((maxValue - minValue) * m_progress);
 		}
 
 		T getValue() const
