@@ -396,6 +396,58 @@ namespace imui
 			static const ImUiToolboxConfig& getConfig();
 		};
 
+		class UiToolboxConfigFloatScope
+		{
+		public:
+
+			UiToolboxConfigFloatScope( const float& value, float newValue );
+			~UiToolboxConfigFloatScope();
+
+		private:
+
+			float&				m_value;
+			float				m_oldValue;
+		};
+
+		class UiToolboxConfigColorScope
+		{
+		public:
+
+			UiToolboxConfigColorScope( ImUiToolboxColor color, const UiColor& newValue );
+			~UiToolboxConfigColorScope();
+
+		private:
+
+			ImUiToolboxColor	m_color;
+			ImUiColor			m_oldValue;
+		};
+
+		class UiToolboxConfigSkinScope
+		{
+		public:
+
+			UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue );
+			~UiToolboxConfigSkinScope();
+
+		private:
+
+			ImUiToolboxSkin		m_skin;
+			ImUiSkin			m_oldValue;
+		};
+
+		class UiToolboxConfigIconScope
+		{
+		public:
+
+			UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue );
+			~UiToolboxConfigIconScope();
+
+		private:
+
+			ImUiToolboxIcon		m_icon;
+			ImUiImage			m_oldValue;
+		};
+
 		class UiToolboxWindow : public UiWindow
 		{
 		public:

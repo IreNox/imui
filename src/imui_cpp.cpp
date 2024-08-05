@@ -1156,6 +1156,59 @@ namespace imui
 		return *ImUiToolboxGetConfig();
 	}
 
+	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( const float& value, float newValue )
+		: m_value( (float&)value )
+	{
+		IMUI_ASSERT( (void*)&value >= ImUiToolboxGetConfig() && (void*)&value < ImUiToolboxGetConfig() + 1u );
+
+		m_oldValue = m_value;
+		m_value = newValue;
+	}
+
+	toolbox::UiToolboxConfigFloatScope::~UiToolboxConfigFloatScope()
+	{
+		m_value = m_oldValue;
+	}
+
+	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const UiColor& newValue )
+		: m_color( color )
+	{
+		ImUiColor& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->colors[ m_color ];
+		m_oldValue = valueRef;
+		valueRef = newValue;
+	}
+
+	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
+	{
+		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->colors[ m_color ] = m_oldValue;
+	}
+
+	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue )
+		: m_skin( skin )
+	{
+		ImUiSkin& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->skins[ m_skin ];
+		m_oldValue = valueRef;
+		valueRef = newValue;
+	}
+
+	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
+	{
+		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->skins[ m_skin ] = m_oldValue;
+	}
+
+	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue )
+		: m_icon( icon )
+	{
+		ImUiImage& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->icons[ m_icon ];
+		m_oldValue = valueRef;
+		valueRef = newValue;
+	}
+
+	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
+	{
+		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->icons[ m_icon ] = m_oldValue;
+	}
+
 	toolbox::UiToolboxWindow::UiToolboxWindow()
 	{
 	}
