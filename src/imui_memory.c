@@ -10,7 +10,7 @@ void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAlloc
 	if( targetAllocator->mallocFunc == NULL ||
 		targetAllocator->freeFunc == NULL )
 	{
-		targetAllocator->mallocFunc	= ImUiMemoryDefaultAlloc;
+		targetAllocator->mallocFunc		= ImUiMemoryDefaultAlloc;
 		targetAllocator->reallocFunc	= ImUiMemoryDefaultRealloc;
 		targetAllocator->freeFunc		= ImUiMemoryDefaultFree;
 		targetAllocator->userData		= NULL;
