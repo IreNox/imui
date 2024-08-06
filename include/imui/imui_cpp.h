@@ -133,6 +133,17 @@ namespace imui
 						UiContextParameters();
 	};
 
+	class UiNonCopyable
+	{
+	public:
+
+		UiNonCopyable() {}
+
+	private:
+
+		UiNonCopyable( const UiNonCopyable& ) {}
+	};
+
 	class UiContext
 	{
 	public:
@@ -265,7 +276,7 @@ namespace imui
 		ImUiWindow*		m_window;
 	};
 
-	class UiWidget
+	class UiWidget : public UiNonCopyable
 	{
 	public:
 
@@ -380,7 +391,7 @@ namespace imui
 
 	namespace toolbox
 	{
-		struct UiToolboxConfig : public ImUiToolboxConfig
+		struct UiToolboxConfig : public ImUiToolboxConfig, public UiNonCopyable
 		{
 						UiToolboxConfig();
 						UiToolboxConfig( ImUiFont* font );
@@ -396,7 +407,7 @@ namespace imui
 			static const ImUiToolboxConfig& getConfig();
 		};
 
-		class UiToolboxConfigFloatScope
+		class UiToolboxConfigFloatScope : public UiNonCopyable
 		{
 		public:
 
@@ -409,7 +420,7 @@ namespace imui
 			float				m_oldValue;
 		};
 
-		class UiToolboxConfigColorScope
+		class UiToolboxConfigColorScope : public UiNonCopyable
 		{
 		public:
 
@@ -422,7 +433,7 @@ namespace imui
 			ImUiColor			m_oldValue;
 		};
 
-		class UiToolboxConfigSkinScope
+		class UiToolboxConfigSkinScope : public UiNonCopyable
 		{
 		public:
 
@@ -435,7 +446,7 @@ namespace imui
 			ImUiSkin			m_oldValue;
 		};
 
-		class UiToolboxConfigIconScope
+		class UiToolboxConfigIconScope : public UiNonCopyable
 		{
 		public:
 
@@ -647,7 +658,7 @@ namespace imui
 	}
 
 	template< class T >
-	class UiAnimation
+	class UiAnimation : public UiNonCopyable
 	{
 	public:
 
@@ -664,7 +675,9 @@ namespace imui
 				m_state->backwards = backwards;
 			}
 
-			m_progress = min( 1.0f, float( (currentTime - m_state->startTime) / timeSpan ) );
+			m_progress = float( (currentTime - m_state->startTime) / timeSpan );
+			m_progress = m_progress > 1.0f ? 1.0f : m_progress;
+
 			if( m_state->backwards != backwards )
 			{
 				m_state->startTime = currentTime - (timeSpan * (1.0 - m_progress));
