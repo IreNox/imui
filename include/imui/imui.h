@@ -493,8 +493,8 @@ typedef enum ImUiInputShortcut
 	ImUiInputShortcut_Undo,
 	ImUiInputShortcut_Redo,
 	ImUiInputShortcut_Cut,
-	ImUiInputShortcut_Copy,
-	ImUiInputShortcut_Paste,
+	ImUiInputShortcut_Copy,			// use ImUiInputGetCopyText to set text to copy
+	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
 	ImUiInputShortcut_SelectAll,
 	ImUiInputShortcut_Backward,
 	ImUiInputShortcut_Forward
@@ -517,12 +517,21 @@ typedef enum ImUiInputMouseCursor
 	ImUiInputMouseCursor_MAX
 } ImUiInputMouseCursor;
 
+// Get/Set
+
+void							ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor );
+
+const char*						ImUiInputGetCopyText( const ImUiContext* imui );
+void							ImUiInputSetCopyText( ImUiContext* imui, const char* text, size_t textLength );
+const char*						ImUiInputGetPasteText( const ImUiContext* imui );
+void							ImUiInputSetPasteText( ImUiContext* imui, const char* text );
+char*							ImUiInputBeginWritePasteText( ImUiContext* imui, size_t maxLength );
+void							ImUiInputEndWritePasteText( ImUiContext* imui, size_t finalLength );
+
 // Push
 
 ImUiInput*						ImUiInputBegin( ImUiContext* imui );
 void							ImUiInputEnd( ImUiContext* imui );
-
-void							ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor );
 
 void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );

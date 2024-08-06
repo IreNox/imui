@@ -702,7 +702,12 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		}
 
 		const char* textInput = ImUiInputGetText( imui );
-		if( textInput && *textInput )
+		if( shortcut == ImUiInputShortcut_Paste )
+		{
+			textInput = ImUiInputGetPasteText( imui );
+		}
+
+		if( textInput )
 		{
 			const uintsize remainingSize	= bufferSize - textLengthInternal - 1u;
 			const uintsize inputLength		= strlen( textInput );
@@ -890,6 +895,11 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 		if( state->selectionStart != state->selectionEnd )
 		{
+			if( shortcut == ImUiInputShortcut_Copy )
+			{
+				ImUiInputSetCopyText( imui, buffer + state->selectionStart, state->selectionEnd - state->selectionStart );
+			}
+
 			const ImUiPos startPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionStart );
 			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd );
 

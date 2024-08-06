@@ -2,12 +2,16 @@
 
 #include "imui/imui.h"
 
-typedef union ImUiInputText ImUiInputText;
-union ImUiInputText
+typedef struct ImUiInputText
 {
-	char*			pointer;
-	char			buffer[ sizeof( char* ) ];
-};
+	union ImUiInputTextBuffer
+	{
+		char*				pointer;
+		char				buffer[ sizeof( char* ) ];
+	};
+	size_t					capacity;
+	size_t					length;
+} ImUiInputText;
 
 typedef struct ImUiInputState ImUiInputState;
 struct ImUiInputState
@@ -21,8 +25,6 @@ struct ImUiInputState
 	uint32_t				keyModifiers;
 
 	ImUiInputText			text;
-	size_t					textCapacity;
-	size_t					textSize;
 
 	ImUiInputShortcut		shortcut;
 };
@@ -36,9 +38,12 @@ struct ImUiInput
 
 	ImUiInputState			currentState;
 	ImUiInputState			lastState;
+
+	ImUiInputText			copyText;
+	ImUiInputText			pasteText;
 };
 
-bool				ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiShortcut* shortcuts, size_t shortcutCount );
-void				ImUiInputDestruct( ImUiInput* input );
+bool						ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiShortcut* shortcuts, size_t shortcutCount );
+void						ImUiInputDestruct( ImUiInput* input );
 
-void				ImUiInputNextTick( ImUiInput* input );
+void						ImUiInputNextTick( ImUiInput* input );

@@ -54,10 +54,9 @@ To build the samples is current [tiki_build](https://github.com/IreNox/tiki_buil
 
 ## TODO
 
-- fix dpi scale
 - fix layout bugs
 - multiline text
-- copy & paste
+- use pool for surface and window(broken pointer on resize)
 - more
 
 ## Used Libraries
