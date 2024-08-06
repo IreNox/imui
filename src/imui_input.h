@@ -23,17 +23,22 @@ struct ImUiInputState
 	ImUiInputText			text;
 	size_t					textCapacity;
 	size_t					textSize;
+
+	ImUiInputShortcut		shortcut;
 };
 
 struct ImUiInput
 {
-	ImUiAllocator*	allocator;
+	ImUiAllocator*			allocator;
 
-	ImUiInputState	currentState;
-	ImUiInputState	lastState;
+	const ImUiShortcut*		shortcuts;
+	size_t					shortcutCount;
+
+	ImUiInputState			currentState;
+	ImUiInputState			lastState;
 };
 
-void				ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator );
+bool				ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiShortcut* shortcuts, size_t shortcutCount );
 void				ImUiInputDestruct( ImUiInput* input );
 
 void				ImUiInputNextTick( ImUiInput* input );

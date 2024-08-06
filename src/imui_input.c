@@ -8,12 +8,29 @@
 static void ImUiInputFreeText( ImUiInput* input, ImUiInputState* state );
 static bool ImUiInputPushTextSize( ImUiInput* input, ImUiInputState* state, const char* text, uintsize size );
 
-void ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator )
+bool ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiShortcut* shortcuts, size_t shortcutCount )
 {
 	input->allocator = allocator;
 
+	ImUiShortcut* newShortcuts = NULL;
+	if( shortcutCount > 0u )
+	{
+		newShortcuts = IMUI_MEMORY_ARRAY_NEW( allocator, ImUiShortcut, shortcutCount );
+		if( !newShortcuts )
+		{
+			return false;
+		}
+
+		memcpy( newShortcuts, shortcuts, sizeof( ImUiShortcut ) * shortcutCount );
+	}
+
+	input->shortcuts		= newShortcuts;
+	input->shortcutCount	= shortcutCount;
+
 	ImUiInputFreeText( input, &input->currentState );
 	ImUiInputFreeText( input, &input->lastState );
+
+	return true;
 }
 
 void ImUiInputDestruct( ImUiInput* input )
@@ -41,6 +58,22 @@ ImUiInput* ImUiInputBegin( ImUiContext* imui )
 
 void ImUiInputEnd( ImUiContext* imui )
 {
+	ImUiInputState* currentState = &imui->input.currentState;
+
+	currentState->shortcut = ImUiInputShortcut_None;
+
+	for( size_t i = 0u; i < imui->input.shortcutCount; ++i )
+	{
+		const ImUiShortcut* shortcut = &imui->input.shortcuts[ i ];
+		if( (currentState->keyModifiers & shortcut->modifiers) != shortcut->modifiers ||
+			!ImUiInputHasKeyPressed( imui, shortcut->key ) )
+		{
+			continue;
+		}
+
+		currentState->shortcut = shortcut->type;
+		break;
+	}
 }
 
 void ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor )

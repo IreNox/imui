@@ -686,7 +686,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 		uint8* elementData = vertex + vertexOffset;
 		switch( vertexElement->semantic )
 		{
-		case ImUiVertexElementSemantic_None:
+		case ImUiVertexElementSemantic_Zero:
 			memset( elementData, 0, vertexElementSize );
 			break;
 

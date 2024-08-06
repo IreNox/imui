@@ -9,16 +9,11 @@ extern "C"
 #include <stddef.h>
 #include <stdint.h>
 
-#if !defined( IMUI_DEBUG )
-#	if defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )
-#		define IMUI_DEBUG 1
-#	else
-#		define IMUI_DEBUG 0
-#	endif
-#endif
-
 #define IMUI_ID_STR( STR ) (ImUiId)(size_t)(STR)
 #define IMUI_ID_TYPE( TYPE ) (ImUiId)(size_t)(#TYPE)
+
+typedef enum ImUiInputKey ImUiInputKey;
+typedef enum ImUiInputShortcut ImUiInputShortcut;
 
 typedef struct ImUiContext ImUiContext;
 typedef struct ImUiDraw ImUiDraw;
@@ -43,13 +38,14 @@ typedef struct ImUiAllocator
 	ImUiAllocatorFreeFunc		freeFunc;
 	void*						userData;
 	void*						internalData;	// internal use only
-#if IMUI_DEBUG
-	size_t						allocationCount;
-	size_t						maxAllocationCount;
-	size_t						allocationSize;
-	size_t						maxAllocationSize;
-#endif
 } ImUiAllocator;
+
+typedef struct ImUiShortcut
+{
+	ImUiInputShortcut			type;
+	uint32_t					modifiers;	// ImUiInputModifier
+	ImUiInputKey				key;
+} ImUiShortcut;
 
 typedef enum ImUiVertexElementType
 {
@@ -73,7 +69,7 @@ typedef enum ImUiVertexElementType
 
 typedef enum ImUiVertexElementSemantic
 {
-	ImUiVertexElementSemantic_None,
+	ImUiVertexElementSemantic_Zero,
 	ImUiVertexElementSemantic_PositionScreenSpace,
 	ImUiVertexElementSemantic_PositionClipSpace,
 	ImUiVertexElementSemantic_TextureCoordinate,
@@ -100,13 +96,14 @@ typedef enum ImUiVertexType
 	ImUiVertexType_IndexedVertexList
 } ImUiVertexType;
 
-typedef struct ImUiParameters ImUiParameters;
-struct ImUiParameters							// Fill with zero for default parameters
+typedef struct ImUiParameters					// Fill with zero for default parameters
 {
 	ImUiAllocator			allocator;			// Override memory Allocator. Default use malloc/free
 	ImUiVertexFormat		vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
 	ImUiVertexType			vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
-};
+	const ImUiShortcut*		shortcuts;			// Define keyboard shortcuts
+	size_t					shortcutCount;
+} ImUiParameters;
 
 ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
 void						ImUiDestroy( ImUiContext* imui );
@@ -484,8 +481,24 @@ typedef enum ImUiInputModifier
 	ImUiInputModifier_LeftCtrl		= 1u << 2u,
 	ImUiInputModifier_RightCtrl		= 1u << 3u,
 	ImUiInputModifier_LeftAlt		= 1u << 4u,
-	ImUiInputModifier_RightAlt		= 1u << 5u
+	ImUiInputModifier_RightAlt		= 1u << 5u,
 } ImUiInputModifier;
+
+typedef enum ImUiInputShortcut
+{
+	ImUiInputShortcut_None,
+	ImUiInputShortcut_ToggleInsertReplace,
+	ImUiInputShortcut_Home,
+	ImUiInputShortcut_End,
+	ImUiInputShortcut_Undo,
+	ImUiInputShortcut_Redo,
+	ImUiInputShortcut_Cut,
+	ImUiInputShortcut_Copy,
+	ImUiInputShortcut_Paste,
+	ImUiInputShortcut_SelectAll,
+	ImUiInputShortcut_Backward,
+	ImUiInputShortcut_Forward
+} ImUiInputShortcut;
 
 typedef enum ImUiInputMouseCursor
 {
@@ -531,6 +544,7 @@ bool							ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
+ImUiInputShortcut				ImUiInputGetShortcut( const ImUiContext* imui );
 
 const char*						ImUiInputGetText( const ImUiContext* imui );
 

@@ -692,7 +692,14 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	bool changed = false;
 	if( state->hasFocus )
 	{
+		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( imui );
 		const uint32 mods = ImUiInputGetKeyModifiers( imui );
+
+		if( shortcut == ImUiInputShortcut_SelectAll )
+		{
+			state->selectionStart	= 0u;
+			state->selectionEnd		= (uint32)textLengthInternal;
+		}
 
 		const char* textInput = ImUiInputGetText( imui );
 		if( textInput && *textInput )
@@ -775,37 +782,46 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		}
 
 		sint32 nextCursorPos = (sint32)state->cursorPos;
-		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Left ) ||
+		const bool leftPressed = ImUiInputHasKeyPressed( imui, ImUiInputKey_Left );
+		const bool shiftPressed = (mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift)) != 0;
+		if( leftPressed ||
 			ImUiInputHasKeyPressed( imui, ImUiInputKey_Right ) )
 		{
-			const sint32 direction = ImUiInputHasKeyPressed( imui, ImUiInputKey_Left ) ? -1 : 1;
+			const sint32 direction = leftPressed ? -1 : 1;
 			if( mods & (ImUiInputModifier_LeftCtrl | ImUiInputModifier_RightCtrl) )
 			{
-				nextCursorPos += direction; \
+				nextCursorPos += direction;
 
-					for( ; nextCursorPos > 0 && nextCursorPos <= (sint32)textLengthInternal; nextCursorPos += direction )
+				for( ; nextCursorPos > 0 && nextCursorPos <= (sint32)textLengthInternal; nextCursorPos += direction )
+				{
+					const char c = buffer[ nextCursorPos ];
+					if( (c>= 'a' && c <= 'z') ||
+						(c>= 'A' && c <= 'Z') ||
+						(c>= '0' && c <= '9') )
 					{
-						const char c = buffer[ nextCursorPos ];
-						if( (c>= 'a' && c <= 'z') ||
-							(c>= 'A' && c <= 'Z') ||
-							(c>= '0' && c <= '9') )
-						{
-							continue;
-						}
-
-						break;
+						continue;
 					}
+
+					break;
+				}
+			}
+			else if( !shiftPressed &&
+					 state->selectionStart != state->selectionEnd )
+			{
+				nextCursorPos			= leftPressed ? state->selectionStart : state->selectionEnd;
+				state->selectionStart	= 0u;
+				state->selectionEnd		= 0u;
 			}
 			else
 			{
 				nextCursorPos += direction;
 			}
 		}
-		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Home ) )
+		else if( shortcut == ImUiInputShortcut_Home )
 		{
 			nextCursorPos = 0u;
 		}
-		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_End ) )
+		else if( shortcut == ImUiInputShortcut_End )
 		{
 			nextCursorPos = (sint32)textLengthInternal;
 		}
@@ -830,7 +846,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			nextCursorPos = IMUI_MIN( nextCursorPos, (sint32)textLengthInternal );
 
 			const uint32 nextCursorPosU = (uint32)nextCursorPos;
-			if( mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift) ||
+			if( shiftPressed ||
 				inputState.wasPressed )
 			{
 				if( state->selectionStart == state->selectionEnd )

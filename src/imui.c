@@ -70,9 +70,8 @@ ImUiContext* ImUiCreate( const ImUiParameters* parameters )
 
 	ImUiMemoryAllocatorFinalize( &imui->allocator, &allocator );
 
-	ImUiInputConstruct( &imui->input, &imui->allocator );
-
-	if( !ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType ) ||
+	if( !ImUiInputConstruct( &imui->input, &imui->allocator, parameters->shortcuts, parameters->shortcutCount ) ||
+		!ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType ) ||
 		!ImUiStringPoolConstruct( &imui->strings, &imui->allocator ) ||
 		!ImUiTextLayoutCacheConstruct( &imui->layoutCache, &imui->allocator ) )
 	{
@@ -1610,6 +1609,11 @@ void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos
 	primitiveData->p1		= p1;
 	primitiveData->p2		= p2;
 	primitiveData->color	= color;
+}
+
+ImUiInputShortcut ImUiInputGetShortcut( const ImUiContext* imui )
+{
+	return imui->input.currentState.shortcut;
 }
 
 static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState )
