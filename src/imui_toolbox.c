@@ -715,8 +715,10 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
 				state->cursorPos = state->selectionStart;
+
+				textLengthInternal -= state->selectionEnd - state->selectionStart;
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
@@ -740,8 +742,11 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
 				state->cursorPos = state->selectionStart;
+
+				textLengthInternal -= state->selectionEnd - state->selectionStart;
+				buffer[ textLengthInternal ] = '\0';
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
@@ -765,8 +770,11 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, state->selectionEnd - state->selectionStart );
+				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
 				state->cursorPos = state->selectionStart;
+
+				textLengthInternal -= state->selectionEnd - state->selectionStart;
+				buffer[ textLengthInternal ] = '\0';
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
@@ -1432,7 +1440,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		itemsBytes = (const byte*)items;
 		for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 		{
-			const char* itemText = *(const char**)itemsBytes;
+			const char* itemText = *(const char**)(itemsBytes + (i * itemStride));
 
 			ImUiWidget* item = ImUiToolboxListNextItem( &list );
 			ImUiWidgetSetPadding( item, s_config.dropDown.itemPadding );
@@ -1440,8 +1448,6 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 			ImUiWidget* label = ImUiToolboxLabelBegin( listWindow, itemText );
 			ImUiWidgetSetVAlign( label, 0.5f );
 			ImUiWidgetEnd( label );
-
-			itemsBytes += itemStride;
 		}
 
 		dropDown->state->selectedIndex = ImUiToolboxListGetSelectedIndex( &list );
