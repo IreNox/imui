@@ -293,7 +293,7 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 
 ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, void* texture )
 {
-	ImUiDraw* draw = &widget->window->surface->imui->draw;
+	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawWindowData* window = ImUiDrawGetWindow( draw, widget );
 
 	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( draw->allocator, window->elements, window->elementCapacity, window->elementCount + 1u ) )
@@ -331,7 +331,7 @@ ImUiDrawElement* ImUiDrawPushElementText( ImUiWidget* widget, ImUiDrawElementTyp
 {
 	ImUiDrawElement* element = ImUiDrawPushElement( widget, type, layout->font->image.textureData );
 
-	ImUiDraw* draw = &widget->window->surface->imui->draw;
+	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ widget->window->surface->drawIndex ];
 	surface->approximatedIndexCount		+= 6u * layout->glyphCount;
 	surface->approximatedVertexCount	+= 4u * layout->glyphCount;

@@ -113,7 +113,7 @@ ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const c
 
 ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text )
 {
-	return ImUiTextLayoutCreate( widget->window->imui, font, text );
+	return ImUiTextLayoutCreate( widget->window->context, font, text );
 }
 
 ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters )

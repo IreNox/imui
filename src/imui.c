@@ -128,7 +128,7 @@ void ImUiDestroy( ImUiContext* imui )
 
 ImUiFrame* ImUiBegin( ImUiContext* imui, double timeInSeconds )
 {
-	imui->frame.imui			= imui;
+	imui->frame.context			= imui;
 	imui->frame.index++;
 	imui->frame.timeInSeconds	= timeInSeconds;
 
@@ -137,7 +137,7 @@ ImUiFrame* ImUiBegin( ImUiContext* imui, double timeInSeconds )
 
 void ImUiEnd( ImUiFrame* frame )
 {
-	ImUiContext* imui = frame->imui;
+	ImUiContext* imui = frame->context;
 
 	ImUiDrawEndFrame( &imui->draw );
 
@@ -208,12 +208,12 @@ void ImUiEnd( ImUiFrame* frame )
 
 ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 {
-	return frame->imui;
+	return frame->context;
 }
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
-	ImUiContext* imui = frame->imui;
+	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
 	ImUiSurface* surface = NULL;
@@ -243,7 +243,7 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size
 	}
 
 	surface->inUse		= true;
-	surface->imui		= imui;
+	surface->context	= imui;
 	surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
@@ -254,27 +254,27 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size
 
 void ImUiSurfaceEnd( ImUiSurface* surface )
 {
-	ImUiDrawSurfaceEnd( &surface->imui->draw, surface->drawIndex );
+	ImUiDrawSurfaceEnd( &surface->context->draw, surface->drawIndex );
 }
 
 void ImUiSurfaceGetMaxBufferSizes( ImUiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize )
 {
-	ImUiDrawGetSurfaceMaxBufferSizes( &surface->imui->draw, surface->drawIndex, outVertexDataSize, outIndexDataSize );
+	ImUiDrawGetSurfaceMaxBufferSizes( &surface->context->draw, surface->drawIndex, outVertexDataSize, outIndexDataSize );
 }
 
 const ImUiDrawData* ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize )
 {
-	return ImUiDrawGenerateSurfaceData( &surface->imui->draw, surface->drawIndex, outVertexData, inOutVertexDataSize, outIndexData, inOutIndexDataSize );
+	return ImUiDrawGenerateSurfaceData( &surface->context->draw, surface->drawIndex, outVertexData, inOutVertexDataSize, outIndexData, inOutIndexDataSize );
 }
 
 ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
 {
-	return surface->imui;
+	return surface->context;
 }
 
 double ImUiSurfaceGetTime( const ImUiSurface* surface )
 {
-	return surface->imui->frame.timeInSeconds;
+	return surface->context->frame.timeInSeconds;
 }
 
 ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )
@@ -291,7 +291,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 {
 	IMUI_ASSERT( surface );
 
-	ImUiContext* imui = surface->imui;
+	ImUiContext* imui = surface->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
 	ImUiWindow* window = NULL;
@@ -321,7 +321,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 	}
 
 	window->inUse		= true;
-	window->imui		= imui;
+	window->context		= imui;
 	window->surface		= surface;
 	window->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	window->rect		= rect;
@@ -359,7 +359,7 @@ void ImUiWindowEnd( ImUiWindow* window )
 
 ImUiContext* ImUiWindowGetContext( const ImUiWindow* window )
 {
-	return window->surface->imui;
+	return window->surface->context;
 }
 
 ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
@@ -369,7 +369,7 @@ ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
 
 double ImUiWindowGetTime( const ImUiWindow* window )
 {
-	return window->imui->frame.timeInSeconds;
+	return window->context->frame.timeInSeconds;
 }
 
 ImUiWidget* ImUiWindowGetFirstChild( const ImUiWindow* window )
@@ -532,7 +532,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 
 static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widget )
 {
-	ImUiContext* imui = widget->window->imui;
+	ImUiContext* imui = widget->window->context;
 
 	const uintsize colCount = widget->layoutData.grid.columnCount;
 	const uintsize rowCount = (widget->childCount + colCount - 1u) / colCount;
@@ -542,7 +542,7 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 	{
 		const uintsize rowCount = (widget->childCount + widget->layoutData.grid.columnCount - 1u) / widget->layoutData.grid.columnCount;
 		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
-		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->imui->allocator, contextSize );
+		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->context->allocator, contextSize );
 
 		gridContext->columns		= (ImUiLayoutGridElement*)&gridContext[ 1u ];
 		gridContext->columnCount	= widget->layoutData.grid.columnCount;
@@ -895,7 +895,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 {
 	IMUI_ASSERT( window );
 
-	ImUiWidget* widget = ImUiWidgetAlloc( window->imui );
+	ImUiWidget* widget = ImUiWidgetAlloc( window->context );
 	if( widget == NULL )
 	{
 		return NULL;
@@ -967,7 +967,7 @@ ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, const char* name )
 		return NULL;
 	}
 
-	widget->name = ImUiStringPoolAdd( &window->imui->strings, nameView );
+	widget->name = ImUiStringPoolAdd( &window->context->strings, nameView );
 
 	return widget;
 }
@@ -995,7 +995,7 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 
 ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
 {
-	return widget->window->imui;
+	return widget->window->context;
 }
 
 ImUiSurface* ImUiWidgetGetSurface( const ImUiWidget* widget )
@@ -1036,7 +1036,7 @@ ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
 
 double ImUiWidgetGetTime( const ImUiWidget* widget )
 {
-	return widget->window->imui->frame.timeInSeconds;
+	return widget->window->context->frame.timeInSeconds;
 }
 
 void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId )
@@ -1069,7 +1069,7 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 		return state->data;
 	}
 
-	ImUiContext* imui = widget->window->imui;
+	ImUiContext* imui = widget->window->context;
 	if( widget->lastFrameWidget )
 	{
 		for( ImUiWidgetState* lastFrameState = widget->lastFrameWidget->firstState; lastFrameState; lastFrameState = lastFrameState->nextWidgetState )
@@ -1099,7 +1099,7 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 					lastFrameState->nextUsageState->prevUsageState = lastFrameState->prevUsageState;
 				}
 
-				lastFrameState->nextUsageState = widget->window->imui->firstState;
+				lastFrameState->nextUsageState = widget->window->context->firstState;
 				lastFrameState->prevUsageState = NULL;
 
 				if( imui->firstState )
@@ -1145,7 +1145,7 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 		}
 	}
 
-	ImUiWidgetState* newState = (ImUiWidgetState*)ImUiMemoryAllocZero( &widget->window->imui->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
+	ImUiWidgetState* newState = (ImUiWidgetState*)ImUiMemoryAllocZero( &widget->window->context->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
 	if( !newState )
 	{
 		return NULL;
@@ -1447,7 +1447,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 {
 	ImUiWindow* window = widget->window;
 	ImUiSurface* surface = window->surface;
-	ImUiContext* imui = window->imui;
+	ImUiContext* imui = window->context;
 	ImUiInput* input = &imui->input;
 
 	bool hasOverlappingWindow = false;

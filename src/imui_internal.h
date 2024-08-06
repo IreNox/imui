@@ -12,7 +12,7 @@ struct ImUiSurface
 {
 	bool			inUse;
 
-	ImUiContext*	imui;
+	ImUiContext*	context;
 
 	ImUiStringView	name;
 	ImUiSize		size;
@@ -29,7 +29,7 @@ struct ImUiWindow
 {
 	bool			inUse;
 
-	ImUiContext*	imui;
+	ImUiContext*	context;
 	ImUiSurface*	surface;
 
 	ImUiStringView	name;
@@ -176,7 +176,7 @@ struct ImUiWidgetChunk
 
 struct ImUiFrame
 {
-	ImUiContext*			imui;
+	ImUiContext*			context;
 	uint32					index;
 	double					timeInSeconds;
 };

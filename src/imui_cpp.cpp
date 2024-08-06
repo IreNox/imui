@@ -757,7 +757,7 @@ namespace imui
 
 	double UiWindow::getTime() const
 	{
-		return m_window->imui->frame.timeInSeconds;
+		return ImUiWindowGetTime( m_window );
 	}
 
 	UiRect UiWindow::getRect() const
@@ -886,7 +886,7 @@ namespace imui
 
 	double UiWidget::getTime()
 	{
-		return m_widget->window->imui->frame.timeInSeconds;
+		return ImUiWidgetGetTime( m_widget );
 	}
 
 	UiBorder UiWidget::getMargin() const

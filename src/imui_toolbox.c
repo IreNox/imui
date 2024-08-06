@@ -264,7 +264,7 @@ ImUiWidget* ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const cha
 	}
 	else if( length >= sizeof( buffer ) )
 	{
-		char* headBuffer = (char*)ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
+		char* headBuffer = (char*)ImUiMemoryAlloc( &window->context->allocator, length + 1u );
 		if( !headBuffer )
 		{
 			return false;
@@ -274,7 +274,7 @@ ImUiWidget* ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const cha
 
 		ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, headBuffer );
 
-		ImUiMemoryFree( &window->imui->allocator, headBuffer );
+		ImUiMemoryFree( &window->context->allocator, headBuffer );
 		return button;
 	}
 
@@ -461,7 +461,7 @@ ImUiWidget* ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* for
 	}
 	else if( length >= sizeof( buffer ) )
 	{
-		char* headBuffer = (char*)ImUiMemoryAlloc( &window->imui->allocator, length + 1u );
+		char* headBuffer = (char*)ImUiMemoryAlloc( &window->context->allocator, length + 1u );
 		if( !headBuffer )
 		{
 			return NULL;
@@ -471,7 +471,7 @@ ImUiWidget* ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* for
 
 		ImUiWidget* label = ImUiToolboxLabelBegin( window, headBuffer );
 
-		ImUiMemoryFree( &window->imui->allocator, headBuffer );
+		ImUiMemoryFree( &window->context->allocator, headBuffer );
 		return label;
 	}
 
