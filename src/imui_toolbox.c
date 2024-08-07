@@ -99,7 +99,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
 	static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
 
-	const ImUiSkin skin = { { NULL } };
+	const ImUiSkin skin = {};
 
 	config->skins[ ImUiToolboxSkin_Button ]						= skin;
 	config->skins[ ImUiToolboxSkin_CheckBox ]					= skin;

@@ -12,13 +12,11 @@ extern "C"
 #define IMUI_ID_STR( STR ) (ImUiId)(size_t)(STR)
 #define IMUI_ID_TYPE( TYPE ) (ImUiId)(size_t)(#TYPE)
 
-typedef enum ImUiInputKey ImUiInputKey;
-typedef enum ImUiInputShortcut ImUiInputShortcut;
-
 typedef struct ImUiContext ImUiContext;
 typedef struct ImUiDraw ImUiDraw;
 typedef struct ImUiFrame ImUiFrame;
 typedef struct ImUiInput ImUiInput;
+typedef struct ImUiInputShortcutConfig ImUiInputShortcutConfig;
 typedef struct ImUiSurface ImUiSurface;
 typedef struct ImUiTextLayout ImUiTextLayout;
 typedef struct ImUiWidget ImUiWidget;
@@ -39,13 +37,6 @@ typedef struct ImUiAllocator
 	void*						userData;
 	void*						internalData;	// internal use only
 } ImUiAllocator;
-
-typedef struct ImUiShortcut
-{
-	ImUiInputShortcut			type;
-	uint32_t					modifiers;	// ImUiInputModifier
-	ImUiInputKey				key;
-} ImUiShortcut;
 
 typedef enum ImUiVertexElementType
 {
@@ -98,11 +89,11 @@ typedef enum ImUiVertexType
 
 typedef struct ImUiParameters					// Fill with zero for default parameters
 {
-	ImUiAllocator			allocator;			// Override memory Allocator. Default use malloc/free
-	ImUiVertexFormat		vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
-	ImUiVertexType			vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
-	const ImUiShortcut*		shortcuts;			// Define keyboard shortcuts
-	size_t					shortcutCount;
+	ImUiAllocator					allocator;			// Override memory Allocator. Default use malloc/free
+	const ImUiInputShortcutConfig*	shortcuts;			// Define keyboard shortcuts
+	size_t							shortcutCount;
+	ImUiVertexFormat				vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
+	ImUiVertexType					vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
 } ImUiParameters;
 
 ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
@@ -484,22 +475,6 @@ typedef enum ImUiInputModifier
 	ImUiInputModifier_RightAlt		= 1u << 5u,
 } ImUiInputModifier;
 
-typedef enum ImUiInputShortcut
-{
-	ImUiInputShortcut_None,
-	ImUiInputShortcut_ToggleInsertReplace,
-	ImUiInputShortcut_Home,
-	ImUiInputShortcut_End,
-	ImUiInputShortcut_Undo,
-	ImUiInputShortcut_Redo,
-	ImUiInputShortcut_Cut,
-	ImUiInputShortcut_Copy,			// use ImUiInputGetCopyText to set text to copy
-	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
-	ImUiInputShortcut_SelectAll,
-	ImUiInputShortcut_Backward,
-	ImUiInputShortcut_Forward
-} ImUiInputShortcut;
-
 typedef enum ImUiInputMouseCursor
 {
 	ImUiInputMouseCursor_Arrow,
@@ -516,6 +491,29 @@ typedef enum ImUiInputMouseCursor
 
 	ImUiInputMouseCursor_MAX
 } ImUiInputMouseCursor;
+
+typedef enum ImUiInputShortcut
+{
+	ImUiInputShortcut_None,
+	ImUiInputShortcut_ToggleInsertReplace,
+	ImUiInputShortcut_Home,
+	ImUiInputShortcut_End,
+	ImUiInputShortcut_Undo,
+	ImUiInputShortcut_Redo,
+	ImUiInputShortcut_Cut,
+	ImUiInputShortcut_Copy,			// use ImUiInputGetCopyText to set text to copy
+	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
+	ImUiInputShortcut_SelectAll,
+	ImUiInputShortcut_Backward,
+	ImUiInputShortcut_Forward
+} ImUiInputShortcut;
+
+typedef struct ImUiInputShortcutConfig
+{
+	ImUiInputShortcut			type;
+	uint32_t					modifiers;	// ImUiInputModifier
+	ImUiInputKey				key;
+} ImUiInputShortcutConfig;
 
 // Get/Set
 
@@ -553,7 +551,7 @@ bool							ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
-ImUiInputShortcut				ImUiInputGetShortcut( const ImUiContext* imui );
+ImUiInputShortcut					ImUiInputGetShortcut( const ImUiContext* imui );
 
 const char*						ImUiInputGetText( const ImUiContext* imui );
 

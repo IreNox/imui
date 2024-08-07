@@ -4,46 +4,46 @@
 
 typedef struct ImUiInputText
 {
-	union ImUiInputTextBuffer
+	union
 	{
-		char*				pointer;
-		char				buffer[ sizeof( char* ) ];
+		char*						pointer;
+		char						buffer[ sizeof( char* ) ];
 	};
-	size_t					capacity;
-	size_t					length;
+	size_t							capacity;
+	size_t							length;
 } ImUiInputText;
 
 typedef struct ImUiInputState ImUiInputState;
 struct ImUiInputState
 {
-	ImUiPos					mousePos;
-	bool					mouseButtons[ ImUiInputMouseButton_MAX ];
-	ImUiPos					mouseScroll;
-	ImUiInputMouseCursor	mouseCursor;
+	ImUiPos							mousePos;
+	bool							mouseButtons[ ImUiInputMouseButton_MAX ];
+	ImUiPos							mouseScroll;
+	ImUiInputMouseCursor			mouseCursor;
 
-	bool					keys[ ImUiInputKey_MAX ];
-	uint32_t				keyModifiers;
+	bool							keys[ ImUiInputKey_MAX ];
+	uint32_t						keyModifiers;
 
-	ImUiInputText			text;
+	ImUiInputText					text;
 
-	ImUiInputShortcut		shortcut;
+	ImUiInputShortcut				shortcut;
 };
 
 struct ImUiInput
 {
-	ImUiAllocator*			allocator;
+	ImUiAllocator*					allocator;
 
-	const ImUiShortcut*		shortcuts;
-	size_t					shortcutCount;
+	const ImUiInputShortcutConfig*	shortcuts;
+	size_t							shortcutCount;
 
-	ImUiInputState			currentState;
-	ImUiInputState			lastState;
+	ImUiInputState					currentState;
+	ImUiInputState					lastState;
 
-	ImUiInputText			copyText;
-	ImUiInputText			pasteText;
+	ImUiInputText					copyText;
+	ImUiInputText					pasteText;
 };
 
-bool						ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiShortcut* shortcuts, size_t shortcutCount );
-void						ImUiInputDestruct( ImUiInput* input );
+bool								ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiInputShortcutConfig* shortcuts, size_t shortcutCount );
+void								ImUiInputDestruct( ImUiInput* input );
 
-void						ImUiInputNextTick( ImUiInput* input );
+void								ImUiInputNextTick( ImUiInput* input );
