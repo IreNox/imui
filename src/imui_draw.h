@@ -34,13 +34,14 @@ typedef struct ImUiDrawElementDataRect
 	ImUiTexCoord		uv;
 } ImUiDrawElementDataRect;
 
+// has to be the same layout as ImUiDrawElementDataRect
 typedef struct ImUiDrawElementDataSkin
 {
 	ImUiRect			relativRect;
-	ImUiBorder			border;
-	ImUiTexCoord		uv;
-	ImUiSize			texSize;
 	ImUiColor			color;
+	ImUiTexCoord		uv;
+	ImUiBorder			border;
+	ImUiSize			texSize;
 } ImUiDrawElementDataSkin;
 
 typedef struct ImUiDrawElementDataText
