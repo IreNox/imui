@@ -301,6 +301,18 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 		return NULL;
 	}
 
+	if( !texture )
+	{
+		if( type == ImUiDrawElementType_Skin )
+		{
+			type = ImUiDrawElementType_Rect;
+		}
+		else if( type == ImUiDrawElementType_SkinPartial )
+		{
+			type = ImUiDrawElementType_SkinPartial;
+		}
+	}
+
 	ImUiDrawElement* element = &window->elements[ window->elementCount++ ];
 	element->type		= type;
 	element->texture	= texture;
