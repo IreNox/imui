@@ -42,6 +42,10 @@ void ImUiInputDestruct( ImUiInput* input )
 {
 	ImUiInputTextFree( input, &input->currentState.text );
 	ImUiInputTextFree( input, &input->lastState.text );
+
+	ImUiMemoryFree( input->allocator, input->shortcuts );
+
+	input->allocator = NULL;
 }
 
 void ImUiInputNextTick( ImUiInput* input )
