@@ -99,7 +99,7 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->colors[ ImUiToolboxColor_Popup ]					= backgroundColor;
 	static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
 
-	const ImUiSkin skin = {};
+	const ImUiSkin skin = { 0 };
 
 	config->skins[ ImUiToolboxSkin_Button ]						= skin;
 	config->skins[ ImUiToolboxSkin_CheckBox ]					= skin;
@@ -923,7 +923,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 	if( layout )
 	{
-		ImUiWidgetDrawText( text, layout, s_config.colors[ ImUiToolboxColor_Text ] );
+		ImUiWidgetDrawText( text, layout, s_config.colors[ ImUiToolboxColor_TextEditText ] );
 	}
 
 	if( state->hasFocus )
@@ -932,9 +932,12 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		const bool blink		= blinkValue > s_config.textEdit.blinkTime;
 		if( blink )
 		{
+			//const ImUiPos cursorPos			= ImUiPosAdd( ImUiTextLayoutGetGlyphPos( layout, state->cursorPos ), s_config.textEdit.padding.left, s_config.textEdit.padding.top );
+			//const ImUiRect cursorRect		= ImUiRectCreatePosSize( cursorPos, s_config.textEdit.cursorSize );
+
 			const ImUiPos cursorPos			= ImUiTextLayoutGetGlyphPos( layout, state->cursorPos );
 			const ImUiPos cursorPosTop		= ImUiPosCreate( (textEditInnerRect.pos.x - textEditRect.pos.x) + cursorPos.x, s_config.textEdit.padding.top );
-			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height - s_config.textEdit.padding.bottom );
+			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height );
 			ImUiWidgetDrawLine( textEdit, cursorPosTop, cursorPosBottom, s_config.colors[ ImUiToolboxColor_TextEditCursor ] );
 		}
 	}
@@ -1003,7 +1006,7 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 		const float margin		= floorf( sinv * (barRect.size.width - width) );
 
 		progressRect = ImUiRectCreate(
-			margin,
+			margin + s_config.progressBar.padding.left,
 			s_config.progressBar.padding.top,
 			width,
 			barRect.size.height
