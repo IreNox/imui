@@ -73,6 +73,7 @@ static void					ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window )
 static void					ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface );
 static ImUiDrawWindowData*	ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget );
 static void					ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
+static ImUiRect				ImUiDrawSurfaceGenerateWidgetRect( ImUiWidget* widget );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color );
 static void					ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
 static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
@@ -490,7 +491,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	command->clipRect	= element->widget->clipRect;
 	command->count		= 0u;
 
-	ImUiRect rect = element->widget->rect;
+	ImUiRect rect = ImUiDrawSurfaceGenerateWidgetRect( element->widget );
 	switch( element->type )
 	{
 	case ImUiDrawElementType_Line:
@@ -677,6 +678,17 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 		}
 		break;
 	}
+}
+
+static ImUiRect ImUiDrawSurfaceGenerateWidgetRect( ImUiWidget* widget )
+{
+	//ImUiRect rect;
+	//rect.pos.x			= floorf( widget->rect.pos.x );
+	//rect.pos.y			= floorf( widget->rect.pos.y );
+	//rect.size.width		= floorf( widget->rect.size.width );
+	//rect.size.height	= floorf( widget->rect.size.height );
+	//return rect;
+	return widget->rect;
 }
 
 static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color )

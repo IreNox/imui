@@ -174,8 +174,13 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 	for( uintsize i = 0; i < parameters->text.length; )
 	{
 		const char c = parameters->text.data[ i ];
-		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
+		if( c == '\n' )
+		{
+			i++;
+			continue;
+		}
 
+		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
 		i += IMUI_MAX( codepointByteCount, 1 );
 		glyphCount++;
 	}
@@ -192,14 +197,24 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 	char* textData = (char*)&glyphs[ glyphCount ];
 	memcpy( textData, parameters->text.data, parameters->text.length + 1u );
 
+	uintsize lineCount = 1u;
 	uintsize glyphIndex = 0u;
 	float x = 0.0f;
-	float height = 0.0f;
+	float y = 0.0f;
 	for( uintsize i = 0; i < parameters->text.length; ++i )
 	{
 		ImUiTextGlyph* glyph = &glyphs[ glyphIndex ];
 
 		const char c = parameters->text.data[ i ];
+		if( c == '\n' )
+		{
+			x = 0.0f;
+			y += parameters->font->fontSize; // parameters->font->lineGap * parameters->font->fontSize
+			y = ceilf( y );
+			lineCount++;
+			continue;
+		}
+
 		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
 		const uint32 codepointMask = (1u << (8 - codepointByteCount)) - 1u;
 
@@ -214,7 +229,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 			const char c2 = parameters->text.data[ i ];
 
 			codepoint <<= 6u;
-			codepoint += (c2 &0x3fu);
+			codepoint += (c2 & 0x3fu);
 		}
 
 		uint32* mapCodepointKey = &codepoint;
@@ -243,13 +258,13 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 		}
 
 		glyph->codepoint	= codepoint;
-		glyph->pos			= ImUiPosCreate( x, codepointInfo->ascentOffset );
+		glyph->pos			= ImUiPosCreate( x, y + codepointInfo->ascentOffset );
 		glyph->size			= ImUiSizeCreate( (float)codepointInfo->width, (float)codepointInfo->height );
 		glyph->uv			= codepointInfo->uv;
 
 		glyphIndex++;
 		x += codepointInfo->advance;
-		height = IMUI_MAX( height, glyph->pos.y + glyph->size.height );
+		//height = IMUI_MAX( height, glyph->pos.y + glyph->size.height );
 	}
 
 	layout->font		= parameters->font;
@@ -257,7 +272,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 	layout->text.length	= parameters->text.length;
 	layout->glyphs		= glyphs;
 	layout->glyphCount	= glyphCount;
-	layout->size		= ImUiSizeCreate( ceilf( x ), parameters->font->fontSize );
+	layout->size		= ImUiSizeCreate( ceilf( x ), lineCount * parameters->font->fontSize );
 	layout->frameIndex	= cache->frameIndex;
 
 	layout->prevLayout	= NULL;
