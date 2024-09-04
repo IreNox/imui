@@ -1445,6 +1445,41 @@ namespace imui
 		}
 	}
 
+	toolbox::UiToolboxSlider::UiToolboxSlider()
+	{
+	}
+
+	toolbox::UiToolboxSlider::UiToolboxSlider( UiWindow& window, float& value, float min /*= 0.0f*/, float max /*= 1.0f */ )
+	{
+		begin( window, value, min, max );
+	}
+
+	toolbox::UiToolboxSlider::~UiToolboxSlider()
+	{
+		end();
+	}
+
+	void toolbox::UiToolboxSlider::begin( UiWindow& window, float& value, float min /*= 0.0f*/, float max /*= 1.0f */ )
+	{
+		m_value		= &value;
+		m_min		= min;
+		m_max		= max;
+
+		m_widget	= ImUiToolboxSliderBegin( window.getInternal() );
+	}
+
+	bool toolbox::UiToolboxSlider::end()
+	{
+		bool changed = false;
+		if( m_widget )
+		{
+			changed = ImUiToolboxSliderEnd( m_widget, m_value, m_min, m_max );
+			m_widget = nullptr;
+		}
+
+		return changed;
+	}
+
 	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window )
 		: m_buffer( nullptr )
 		, m_bufferSize( 0u )

@@ -1,6 +1,8 @@
 ﻿#include "00_samples.h"
 
-#include "framework.h"
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
+#	include "framework.h"
+#endif
 
 #include "imui/imui.h"
 #include "imui/imui_toolbox.h"
@@ -27,7 +29,9 @@ typedef struct ImUiToolboxSampleContext
 
 static ImUiToolboxSampleContext s_toolboxContext = { 2.5f, NULL };
 
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
 static void			ImUiToolboxSampleSetConfig();
+#endif
 
 static void			ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
 static void			ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window );
@@ -44,7 +48,7 @@ struct ImUiTestPopupState
 
 void ImUiToolboxSampleTick( ImUiSurface* surface )
 {
-#if 1
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
 	ImUiToolboxSampleSetConfig();
 #endif
 
@@ -71,7 +75,7 @@ void ImUiToolboxSampleTick( ImUiSurface* surface )
 	ImUiToolboxSampleScrollAndList( window );
 
 	const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
-	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
+	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
 	ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
 	ImUiWidgetSetVAlign( mouseLabel, 0.0f );
 	ImUiToolboxLabelEnd( mouseLabel );
@@ -260,6 +264,7 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 	}
 }
 
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
 bool ImUiToolboxSampleInitialize( ImUiContext* imui )
 {
 	if( !ImUiFrameworkFontCreate( &s_toolboxContext.font, &s_toolboxContext.fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
@@ -403,3 +408,4 @@ static void ImUiToolboxSampleSetConfig()
 
 	ImUiToolboxSetConfig( &config );
 }
+#endif

@@ -10,6 +10,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#if defined( _MSC_VER )
+#	pragma warning(push)
+#	pragma warning(disable : 4996)
+#endif
+
 static ImUiToolboxConfig s_config;
 
 struct ImUiToolboxScrollAreaState
@@ -154,7 +159,8 @@ void ImUiToolboxFillDefaultConfig( ImUiToolboxConfig* config, ImUiFont* font )
 	config->dropDown.height			= 25.0f;
 	config->dropDown.padding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
 	config->dropDown.listZOrder		= 20u;
-	config->dropDown.maxListLength	= 12u;
+	config->dropDown.listMaxLength	= 12u;
+	config->dropDown.listMargin		= ImUiBorderCreate( 0.0f, 0.0f, 0.0f, 0.0f );
 	config->dropDown.itemPadding	= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
 	config->dropDown.itemSize		= 25.0f;
 	config->dropDown.itemSpacing	= 8.0f;
@@ -364,7 +370,8 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 		color = s_config.colors[ ImUiToolboxColor_CheckBoxHover ];
 	}
 
-	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreateZero(), s_config.checkBox.size );
+	const float checkBackgroundY = (ImUiWidgetGetSizeHeight( checkBox ) / 2.0f) - (s_config.checkBox.size.height / 2.0f);
+	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreate( 0.0f, checkBackgroundY ), s_config.checkBox.size );
 	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_config.skins[ ImUiToolboxSkin_CheckBox ], color );
 
 	if( *checked )
@@ -1414,29 +1421,50 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		ImUiSurface* surface = ImUiWindowGetSurface( window );
 		const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
 
-		const ImUiRect dropDownRect = ImUiWidgetGetRect( dropDown->dropDown );
+		const ImUiRect dropDownRect		= ImUiWidgetGetRect( dropDown->dropDown );
+		const ImUiSize listMaginSize	= ImUiBorderGetMinSize( s_config.dropDown.listMargin );
 
-		const float listHeight = ((s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.maxListLength )) - s_config.dropDown.itemSpacing;
-		const float dropDownBottom = dropDownRect.pos.y + dropDownRect.size.height;
+		const float listHeight			= listMaginSize.height + (((s_config.dropDown.itemSize + s_config.dropDown.itemSpacing) * IMUI_MIN( itemCount, s_config.dropDown.listMaxLength )) - s_config.dropDown.itemSpacing);
+		const float listWidth			= dropDownRect.size.width + listMaginSize.width;
+		const float dropDownBottom		= dropDownRect.pos.y + dropDownRect.size.height;
+
 		ImUiRect listRect;
 		if( dropDownBottom + listHeight > surfaceSize.height )
 		{
-			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownRect.pos.y - listHeight, dropDownRect.size.width, listHeight );
+			if( dropDownRect.pos.y - listHeight < 0.0f )
+			{
+				if( dropDownBottom > surfaceSize.height / 2.0f )
+				{
+					listRect = ImUiRectCreate( dropDownRect.pos.x, 0.0f, listWidth, dropDownRect.pos.y );
+				}
+				else
+				{
+					listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownBottom, listWidth, surfaceSize.height - dropDownBottom );
+				}
+			}
+			else
+			{
+				listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownRect.pos.y - listHeight, listWidth, listHeight );
+			}
 		}
 		else
 		{
-			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownBottom, dropDownRect.size.width, listHeight  );
+			listRect = ImUiRectCreate( dropDownRect.pos.x, dropDownBottom, listWidth, listHeight  );
 		}
 		ImUiWindow* listWindow = ImUiWindowBegin( ImUiWindowGetSurface( window ), "dropDownList", listRect, s_config.dropDown.listZOrder );
+
+		const float oldItemSpacing = s_config.list.itemSpacing;
+		s_config.list.itemSpacing = s_config.dropDown.itemSpacing;
 
 		ImUiToolboxListContext list;
 		ImUiToolboxListBegin( &list, listWindow, s_config.dropDown.itemSize, itemCount );
 		ImUiWidgetSetStretch( list.list, 1.0f, 1.0f );
+		ImUiWidgetSetMargin( list.scrollArea.area, s_config.dropDown.listMargin );
 
 		ImUiWidgetInputState listInputState;
 		ImUiWidgetGetInputState( list.list, &listInputState );
 
-		ImUiWidgetDrawSkin( list.list, &s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
+		ImUiWidgetDrawSkin( listWindow->rootWidget, &s_config.skins[ ImUiToolboxSkin_DropDownList ], s_config.colors[ ImUiToolboxColor_DropDownList ] );
 
 		ImUiToolboxListSetSelectedIndex( &list, dropDown->state->selectedIndex );
 
@@ -1464,6 +1492,8 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		{
 			dropDown->changed = false;
 		}
+
+		s_config.list.itemSpacing = oldItemSpacing;
 
 		ImUiWindowEnd( listWindow );
 
@@ -1557,3 +1587,7 @@ void ImUiToolboxPopupEnd( ImUiWindow* popupWindow )
 	ImUiWidgetEnd( background );
 	ImUiWindowEnd( popupWindow );
 }
+
+#if defined( _MSC_VER )
+#	pragma warning(pop)
+#endif

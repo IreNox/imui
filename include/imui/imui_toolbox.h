@@ -143,7 +143,8 @@ typedef struct ImUiToolboxDropDownConfig
 	ImUiBorder		padding;
 
 	uint32_t		listZOrder;
-	uint32_t		maxListLength;
+	ImUiBorder		listMargin;
+	uint32_t		listMaxLength;
 
 	ImUiBorder		itemPadding;
 	float			itemSize;

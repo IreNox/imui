@@ -535,6 +535,24 @@ namespace imui
 			void		end();
 		};
 
+		class UiToolboxSlider : public UiWidget
+		{
+		public:
+
+						UiToolboxSlider();
+						UiToolboxSlider( UiWindow& window, float& value, float min = 0.0f, float max = 1.0f );
+						~UiToolboxSlider();
+
+			void		begin( UiWindow& window, float& value, float min = 0.0f, float max = 1.0f );
+			bool		end();
+
+		private:
+
+			float*		m_value;
+			float		m_min;
+			float		m_max;
+		};
+
 		class UiToolboxTextEdit : public UiWidget
 		{
 		public:
