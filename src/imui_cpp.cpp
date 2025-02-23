@@ -760,6 +760,16 @@ namespace imui
 		return ImUiWindowGetTime( m_window );
 	}
 
+	void* UiWindow::allocState( size_t size, ImUiId stateId )
+	{
+		return ImUiWindowAllocState( m_window, size, stateId );
+	}
+
+	void* UiWindow::allocState( size_t size, ImUiId stateId, bool& isNew )
+	{
+		return ImUiWindowAllocStateNew( m_window, size, stateId, &isNew );
+	}
+
 	UiRect UiWindow::getRect() const
 	{
 		return (const UiRect&)m_window->rect;

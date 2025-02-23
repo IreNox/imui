@@ -267,6 +267,14 @@ namespace imui
 		UiSurface		getSurface() const;
 
 		double			getTime() const;
+
+		void*			allocState( size_t size, ImUiId stateId );
+		void*			allocState( size_t size, ImUiId stateId, bool& isNew );
+		template< class T >
+		T*				newState();
+		template< class T >
+		T*				newState( bool& isNew );
+
 		UiRect			getRect() const;
 		uint32_t		getZOrder() const;
 
@@ -297,6 +305,8 @@ namespace imui
 		UiSurface		getSurface() const;
 		UiWindow		getWindow() const;
 
+		double			getTime();
+
 		void*			allocState( size_t size, ImUiId stateId );
 		void*			allocState( size_t size, ImUiId stateId, bool& isNew );
 		template< class T >
@@ -310,8 +320,6 @@ namespace imui
 		void			setLayoutHorizontal( float spacing = 0.0f );
 		void			setLayoutVertical( float spacing = 0.0f );
 		void			setLayoutGrid( uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
-
-		double			getTime();
 
 		UiBorder		getMargin() const;
 		void			setMargin( const UiBorder& margin );
@@ -639,6 +647,19 @@ namespace imui
 			size_t 		end( const char** buttons, size_t buttonCount );
 			void		end();
 		};
+	}
+
+	template< class T >
+	T* UiWindow::newState()
+	{
+		bool isNew;
+		return newState< T >( isNew );
+	}
+
+	template< class T >
+	T* UiWindow::newState( bool& isNew )
+	{
+		return UiWidget( m_window->rootWidget ).newState< T >( isNew );
 	}
 
 	template< class T >

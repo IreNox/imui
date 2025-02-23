@@ -38,6 +38,8 @@ typedef struct ImUiAllocator
 	void*						internalData;	// internal use only
 } ImUiAllocator;
 
+typedef void(*ImUiStateDestructFunc)(void* state);
+
 typedef enum ImUiVertexElementType
 {
 	ImUiVertexElementType_Float,
@@ -227,13 +229,15 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
 double						ImUiWindowGetTime( const ImUiWindow* window );
 
+void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
+void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );
+void*						ImUiWindowAllocStateNewDestruct( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc );
+
 ImUiWidget*					ImUiWindowGetFirstChild( const ImUiWindow* window );
 ImUiWidget*					ImUiWindowGetLastChild( const ImUiWindow* window );
 
 //////////////////////////////////////////////////////////////////////////
 // Widget - A layout element in the tree
-
-typedef void(*ImUiStateDestructFunc)( void* state );
 
 typedef struct ImUiWidgetInputState
 {

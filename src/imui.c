@@ -373,6 +373,21 @@ double ImUiWindowGetTime( const ImUiWindow* window )
 	return window->context->frame.timeInSeconds;
 }
 
+void* ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId )
+{
+	return ImUiWidgetAllocState( window->rootWidget, size, stateId );
+}
+
+void* ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew )
+{
+	return ImUiWidgetAllocStateNew( window->rootWidget, size, stateId, isNew );
+}
+
+void* ImUiWindowAllocStateNewDestruct( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc )
+{
+	return ImUiWidgetAllocStateNewDestruct( window->rootWidget, size, stateId, isNew, destructFunc );
+}
+
 ImUiWidget* ImUiWindowGetFirstChild( const ImUiWindow* window )
 {
 	return window->rootWidget->firstChild;
