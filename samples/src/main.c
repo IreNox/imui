@@ -17,10 +17,11 @@ static const ImUiSample s_samples[] =
 	{ ImUiLayoutSampleInitialize, ImUiLayoutSampleShutdown, ImUiLayoutSampleTick },
 	{ ImUiInputSampleInitialize, ImUiInputSampleShutdown, ImUiInputSampleTick },
 	{ ImUiToolboxSampleInitialize, ImUiToolboxSampleShutdown, ImUiToolboxSampleTick },
-	{ ImUiToolboxCppSampleInitialize, ImUiToolboxCppSampleShutdown, ImUiToolboxCppSampleTick }
+	{ ImUiToolboxCppSampleInitialize, ImUiToolboxCppSampleShutdown, ImUiToolboxCppSampleTick },
+	{ ImUiToolboxEditorSampleInitialize, ImUiToolboxEditorSampleShutdown, ImUiToolboxEditorSampleTick }
 };
 
-#define IMUI_SAMPLES_DEFAULT_INDEX 1
+#define IMUI_SAMPLES_DEFAULT_INDEX 5
 
 static const ImUiSample* s_currentSample = &s_samples[ IMUI_SAMPLES_DEFAULT_INDEX ];
 

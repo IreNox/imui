@@ -25,8 +25,24 @@ struct ImUiToolboxScrollAreaState
 	ImUiPos			pressPoint;
 };
 
-typedef struct ImUiToolboxTextEditState ImUiToolboxTextEditState;
-struct ImUiToolboxTextEditState
+typedef struct ImUiToolboxTextEditBufferInfo
+{
+	char**			lines;
+	uintsize		lineCount;
+} ImUiToolboxTextEditBufferInfo;
+
+struct ImUiToolboxTextEditBuffer
+{
+	char*			data;
+	uintsize		capacity;
+	uintsize		length;
+
+	void*			userdata;
+
+	ImUiToolboxTextEditBufferInfo	bufferInfo;
+};
+
+typedef struct ImUiToolboxTextEditState
 {
 	bool			hasFocus;
 
@@ -35,10 +51,14 @@ struct ImUiToolboxTextEditState
 	bool			wasPressedY;
 	ImUiPos			pressPoint;
 
-	uint32			selectionStart;
-	uint32			selectionEnd;
+	uint32			selectLineStart;
+	uint32			selectLineEnd;
+	uint32			selectStart;
+	uint32			selectEnd;
+
+	uint32			cursorLine;
 	uint32			cursorPos;
-};
+} ImUiToolboxTextEditState;
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
 struct ImUiToolboxListState
@@ -643,26 +663,38 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 
 ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 {
-	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
-	ImUiWidgetSetHStretch( textEditFrame, 1.0f );
-	ImUiWidgetSetPadding( textEditFrame, s_config.textEdit.padding );
-	ImUiWidgetSetFixedHeight( textEditFrame, s_config.textEdit.height );
+	ImUiWidget* textEdit = ImUiWidgetBegin( window );
+	ImUiWidgetSetHStretch( textEdit, 1.0f );
+	ImUiWidgetSetPadding( textEdit, s_config.textEdit.padding );
+	ImUiWidgetSetFixedHeight( textEdit, s_config.textEdit.height );
 
-	ImUiWidgetDrawSkin( textEditFrame, &s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
+	ImUiWidgetDrawSkin( textEdit, &s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
 
-	return textEditFrame;
+	return textEdit;
 }
 
-bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength )
+ImUiWidget* ImUiToolboxTextEditBeginOptions( ImUiWindow* window, bool multiLine, bool readOnly )
 {
-	IMUI_ASSERT( buffer );
-	IMUI_ASSERT( bufferSize > 0u );
+	ImUiWidget* textEdit = ImUiWidgetBegin( window );
+	ImUiWidgetSetHStretch( textEdit, 1.0f );
+	ImUiWidgetSetPadding( textEdit, s_config.textEdit.padding );
+	ImUiWidgetSetFixedHeight( textEdit, s_config.textEdit.height );
+
+	ImUiWidgetDrawSkin( textEdit, &s_config.skins[ ImUiToolboxSkin_TextEditBackground ], s_config.colors[ ImUiToolboxColor_TextEditBackground ] );
+
+	return textEdit;
+}
+
+bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength, ImUiToolboxTextEditBufferGrow bufferGrowFunc )
+{
+	IMUI_ASSERT( (buffer && bufferSize > 0u) || bufferGrowFunc );
 
 	ImUiContext* imui = ImUiWidgetGetContext( textEdit );
 
 	uintsize textLengthInternal;
 	if( textLength )
 	{
+		IMUI_ASSERT( *textLength < bufferSize );
 		textLengthInternal = *textLength;
 	}
 	else
@@ -961,10 +993,20 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	return changed;
 }
 
+bool ImUiToolboxTextEditEndBuffer( ImUiWidget* textEdit, ImUiToolboxTextEditBuffer* buffer )
+{
+	return ImUiToolboxTextEditEnd( textEdit, buffer->data, buffer->capacity, );
+}
+
 bool ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength )
 {
+	return ImUiToolboxTextEditGrow( window, buffer, bufferSize, textLength, NULL );
+}
+
+bool ImUiToolboxTextEditGrow( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength, ImUiToolboxTextEditBufferGrow bufferGrowFunc )
+{
 	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
-	return ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, textLength );
+	return ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, textLength, bufferGrowFunc );
 }
 
 const char* ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize )
@@ -985,6 +1027,12 @@ const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bu
 
 	ImUiToolboxTextEditEnd( textEdit, buffer, bufferSize, NULL );
 	return buffer;
+}
+
+bool ImUiToolboxTextEditExternalBuffer( ImUiWindow* window, ImUiToolboxTextEditBuffer* buffer )
+{
+	ImUiWidget* textEdit = ImUiToolboxTextEditBegin( window );
+	return ImUiToolboxTextEditEndBuffer( textEdit, buffer );
 }
 
 void ImUiToolboxProgressBar( ImUiWindow* window, float value )

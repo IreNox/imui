@@ -27,6 +27,10 @@ bool					ImUiToolboxCppSampleInitialize( ImUiContext* imui );
 void					ImUiToolboxCppSampleShutdown( ImUiContext* imui );
 void					ImUiToolboxCppSampleTick( ImUiWindow* window );
 
+bool					ImUiToolboxEditorSampleInitialize( ImUiContext* imui );
+void					ImUiToolboxEditorSampleShutdown( ImUiContext* imui );
+void					ImUiToolboxEditorSampleTick( ImUiWindow* window );
+
 #ifdef __cplusplus
 }
 #endif

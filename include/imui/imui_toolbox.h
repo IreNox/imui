@@ -178,7 +178,12 @@ typedef struct ImUiToolboxConfig
 	ImUiToolboxPopupConfig			popup;
 } ImUiToolboxConfig;
 
+typedef struct ImUiToolboxTextEditBuffer ImUiToolboxTextEditBuffer;
+
+typedef bool (*ImUiToolboxTextEditBufferGrow)( char** buffer, size_t* bufferSize, size_t requiredSize, void* userdata );
+
 typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
+
 typedef struct ImUiToolboxScrollAreaContext
 {
 	bool							horizontalSpacing;
@@ -190,6 +195,7 @@ typedef struct ImUiToolboxScrollAreaContext
 } ImUiToolboxScrollAreaContext;
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
+
 typedef struct ImUiToolboxListContext
 {
 	float							itemSize;
@@ -211,6 +217,7 @@ typedef struct ImUiToolboxListContext
 } ImUiToolboxListContext;
 
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
+
 typedef struct ImUiToolboxDropDownContext
 {
 	ImUiWidget*						dropDown;
@@ -270,11 +277,21 @@ float			ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue );
 float			ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
 float			ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
+ImUiToolboxTextEditBuffer*	ImUiToolboxTextEditBufferCreate( ImUiContext* imui, void* userdata );
+ImUiToolboxTextEditBuffer*	ImUiToolboxTextEditBufferCreateText( ImUiContext* imui, const char* text, void* userdata );
+void						ImUiToolboxTextEditBufferDestroy( ImUiContext* imui, ImUiToolboxTextEditBuffer* buffer );
+const char*					ImUiToolboxTextEditBufferGetText( ImUiToolboxTextEditBuffer* buffer );
+void						ImUiToolboxTextEditBufferAppendText( ImUiToolboxTextEditBuffer* buffer, const char* text );
+
 ImUiWidget*		ImUiToolboxTextEditBegin( ImUiWindow* window );
-bool			ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
+ImUiWidget*		ImUiToolboxTextEditBeginOptions( ImUiWindow* window, bool multiLine, bool readOnly );
+bool			ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength, ImUiToolboxTextEditBufferGrow bufferGrowFunc );
+bool			ImUiToolboxTextEditEndBuffer( ImUiWidget* textEdit, ImUiToolboxTextEditBuffer* buffer );
 bool			ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
+bool			ImUiToolboxTextEditGrow( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength, ImUiToolboxTextEditBufferGrow bufferGrowFunc );
 const char*		ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
 const char*		ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue );
+bool			ImUiToolboxTextEditExternalBuffer( ImUiWindow* window, ImUiToolboxTextEditBuffer* buffer );
 
 void			ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void			ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
