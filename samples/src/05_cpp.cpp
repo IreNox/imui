@@ -16,20 +16,14 @@ using namespace imui::toolbox;
 
 typedef struct ImUiToolboxCppSampleContext
 {
-	float		sliderValue1;
+	float							sliderValue1;
 
-	ImUiFont*	font;
-	ImUiImage	fontTexture;
-
-	ImUiSkin	skinRect;
-	ImUiImage	skinRectTexture;
-	ImUiSkin	skinLine;
-	ImUiImage	skinLineTexture;
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
+	ImUiFrameworkToolboxConfigData	configData;
+#endif
 } ImUiToolboxCppSampleContext;
 
-static ImUiToolboxCppSampleContext s_toolboxCppContext = { 2.5f, NULL };
-
-static void			ImUiToolboxCppSampleSetConfig();
+static ImUiToolboxCppSampleContext s_toolboxCppContext = { 2.5f };
 
 static void			ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
 static void			ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window );
@@ -48,14 +42,13 @@ struct ImUiTestPopupState
 	bool isOpen;
 };
 
-void ImUiToolboxCppSampleTick( ImUiSurface* surface )
+void ImUiToolboxCppSampleTick( ImUiWindow* cWindow )
 {
-#if 1
-	ImUiToolboxCppSampleSetConfig();
+#ifndef IMUI_NO_SAMPLE_FRAMEWORK
+	ImUiFrameworkToolboxConfigDataApply( &s_toolboxCppContext.configData );
 #endif
 
-	const UiSize surfaceSize = UiSize( ImUiSurfaceGetSize( surface ) );
-	UiToolboxWindow window( surface, "main", UiRect( UiPos::Zero, surfaceSize ), 1 );
+	UiToolboxWindow window( cWindow );
 
 	UiWidget hLayout( window, "vMain" );
 	hLayout.setStretchOne();
@@ -250,144 +243,10 @@ static void ImUiToolboxCppSamplePopup( UiToolboxWindow& window )
 
 bool ImUiToolboxCppSampleInitialize( ImUiContext* imui )
 {
-	if( !ImUiFrameworkFontCreate( &s_toolboxCppContext.font, &s_toolboxCppContext.fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
-	{
-		return false;
-	}
-
-	if( !ImUiFrameworkSkinCreate( &s_toolboxCppContext.skinRect, &s_toolboxCppContext.skinRectTexture, 32u, 8.0f, 128.0f, false ) )
-	{
-		return false;
-	}
-
-	if( !ImUiFrameworkSkinCreate( &s_toolboxCppContext.skinLine, &s_toolboxCppContext.skinLineTexture, 32u, 6.0f, 64.0f, true ) )
-	{
-		return false;
-	}
-
-	ImUiToolboxCppSampleSetConfig();
-
-	return true;
+	return ImUiFrameworkToolboxConfigDataInitialize( &s_toolboxCppContext.configData, imui );
 }
 
 void ImUiToolboxCppSampleShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &s_toolboxCppContext.font, &s_toolboxCppContext.fontTexture );
-	ImUiFrameworkSkinDestroy( &s_toolboxCppContext.skinRect, &s_toolboxCppContext.skinRectTexture );
-	ImUiFrameworkSkinDestroy( &s_toolboxCppContext.skinLine, &s_toolboxCppContext.skinLineTexture );
-}
-
-static void ImUiToolboxCppSampleSetConfig()
-{
-	const ImUiColor textColor			= ImUiColorCreateWhite();
-	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
-	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
-	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
-	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
-
-	ImUiToolboxConfig config;
-	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_Button ]					= elementColor;
-	config.colors[ ImUiToolboxColor_ButtonHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_ButtonClicked ]				= elementClickedColor;
-	config.colors[ ImUiToolboxColor_ButtonText ]				= textColor;
-	config.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
-	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
-	config.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
-	config.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
-	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
-	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= checkedColor;
-	config.colors[ ImUiToolboxColor_TextEditBackground ]		= backgroundColor;
-	config.colors[ ImUiToolboxColor_TextEditText ]				= textColor;
-	config.colors[ ImUiToolboxColor_TextEditCursor ]			= textEditCursorColor;
-	config.colors[ ImUiToolboxColor_TextEditSelection ]			= elementColor;
-	config.colors[ ImUiToolboxColor_ProgressBarBackground ]		= backgroundColor;
-	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= elementColor;
-	config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ]	= backgroundColor;
-	config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ]		= elementColor;
-	config.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
-	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
-	config.colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
-	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
-	config.colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemText ]		= textColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemHover ]		= elementHoverColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemClicked ]	= elementClickedColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
-	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
-	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 37 );
-
-	config.skins[ ImUiToolboxSkin_Button ]						= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_toolboxCppContext.skinLine;
-	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_toolboxCppContext.skinLine;
-	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ListItem ]					= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDown ]					= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_toolboxCppContext.skinRect;
-	config.skins[ ImUiToolboxSkin_Popup ]						= s_toolboxCppContext.skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 16 );
-
-	const ImUiImage image = { NULL, 16u, 16u };
-
-	config.icons[ ImUiToolboxIcon_CheckBoxChecked ] = image;
-	config.icons[ ImUiToolboxIcon_DropDownOpenIcon ] = image;
-	config.icons[ ImUiToolboxIcon_DropDownCloseIcon ] = image;
-
-	config.font						= s_toolboxCppContext.font;
-
-	config.button.height			= 20.0f;
-	config.button.padding			= ImUiBorderCreateAll( 8.0f );
-
-	config.checkBox.size			= ImUiSizeCreateAll( 20.0f );
-	config.checkBox.textSpacing		= 5.0f;
-
-	config.slider.height			= 20.0f;
-	config.slider.padding			= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
-	config.slider.pivotSize			= ImUiSizeCreate( 12.0f, 20.0f );
-
-	config.textEdit.height			= 25.0f;
-	config.textEdit.padding			= ImUiBorderCreateAll( 4.0f );
-	config.textEdit.cursorSize		= ImUiSizeCreate( 1.0f, 12.0f );
-	config.textEdit.blinkTime		= 0.53f;
-
-	config.progressBar.height		= 20.0f;
-	config.progressBar.padding		= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );
-
-	config.scrollArea.barSize		= 8.0f;
-	config.scrollArea.barSpacing	= 4.0f;
-	config.scrollArea.barMinSize	= 20.0f;
-
-	config.list.itemSpacing			= 4.0f;
-
-	config.dropDown.height			= 25.0f;
-	config.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
-	config.dropDown.listZOrder		= 10u;
-	config.dropDown.maxListLength	= 8u;
-	config.dropDown.itemPadding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
-	config.dropDown.itemSize		= 25.0f;
-	config.dropDown.itemSpacing		= 8.0f;
-
-	config.popup.zOrder				= 20u;
-	config.popup.padding			= ImUiBorderCreateAll( 8.0f );
-	config.popup.buttonSpacing		= 4.0f;
-
-	ImUiToolboxSetConfig( &config );
+	ImUiFrameworkToolboxConfigDataShutdown( &s_toolboxCppContext.configData, imui );
 }

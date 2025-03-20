@@ -9,23 +9,23 @@ extern "C"
 
 bool					ImUiHelloWorldSampleInitialize( ImUiContext* imui );
 void					ImUiHelloWorldSampleShutdown( ImUiContext* imui );
-void					ImUiHelloWorldSampleTick( ImUiSurface* surface );
+void					ImUiHelloWorldSampleTick( ImUiWindow* window );
 
 bool					ImUiLayoutSampleInitialize( ImUiContext* imui );
 void					ImUiLayoutSampleShutdown( ImUiContext* imui );
-void					ImUiLayoutSampleTick( ImUiSurface* surface );
+void					ImUiLayoutSampleTick( ImUiWindow* window );
 
 bool					ImUiInputSampleInitialize( ImUiContext* imui );
 void					ImUiInputSampleShutdown( ImUiContext* imui );
-void					ImUiInputSampleTick( ImUiSurface* surface );
+void					ImUiInputSampleTick( ImUiWindow* window );
 
 bool					ImUiToolboxSampleInitialize( ImUiContext* imui );
 void					ImUiToolboxSampleShutdown( ImUiContext* imui );
-void					ImUiToolboxSampleTick( ImUiSurface* surface );
+void					ImUiToolboxSampleTick( ImUiWindow* window );
 
 bool					ImUiToolboxCppSampleInitialize( ImUiContext* imui );
 void					ImUiToolboxCppSampleShutdown( ImUiContext* imui );
-void					ImUiToolboxCppSampleTick( ImUiSurface* surface );
+void					ImUiToolboxCppSampleTick( ImUiWindow* window );
 
 #ifdef __cplusplus
 }
