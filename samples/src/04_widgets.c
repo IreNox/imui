@@ -226,7 +226,7 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 
 	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ), IMUI_ID_TYPE( ImUiTestPopupState ) );
 
-	if( ImUiToolboxButtonLabelEnd( button ) )
+	if( ImUiToolboxButtonEnd( button ) )
 	{
 		state->isOpen = !state->isOpen;
 	}

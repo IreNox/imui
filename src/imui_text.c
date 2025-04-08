@@ -13,8 +13,8 @@ static ImUiHash ImUiTextLayoutCacheHash( const void* entry )
 {
 	const ImUiTextLayout* layout = *(const ImUiTextLayout**)entry;
 
-	const ImUiHash fontHash = ImUiHashCreate( &layout->font, sizeof( &layout->font ), 0u );
-	return ImUiHashString( layout->text, fontHash );
+	const ImUiHash fontHash = ImUiHashCreate( &layout->font, sizeof( &layout->font ) );
+	return ImUiHashStringSeed( layout->text, fontHash );
 }
 
 static bool ImUiTextLayoutCacheIsKeyEquals( const void* lhs, const void* rhs )

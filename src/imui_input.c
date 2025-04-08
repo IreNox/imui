@@ -53,6 +53,12 @@ void ImUiInputNextTick( ImUiInput* input )
 	ImUiInputTextFree( input, &input->lastState.text );
 
 	input->lastState = input->currentState;
+
+	for( uintsize i = 0u; i < ImUiInputMouseButton_MAX; ++i )
+	{
+		input->currentState.mouseButtonDoubleClick[ i ] = false;
+	}
+
 	input->currentState.mouseScroll	= ImUiPosCreateZero();
 	input->currentState.mouseCursor	= ImUiInputMouseCursor_Arrow;
 
@@ -218,6 +224,11 @@ void ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button )
 	input->currentState.mouseButtons[ button ] = false;
 }
 
+void ImUiInputPushMouseDoubleClick( ImUiInput* input, ImUiInputMouseButton button )
+{
+	input->currentState.mouseButtonDoubleClick[ button ] = true;
+}
+
 void ImUiInputPushMouseMove( ImUiInput* input, float x, float y )
 {
 	input->currentState.mousePos = ImUiPosCreate( x, y );
@@ -301,6 +312,11 @@ bool ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButt
 bool ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button )
 {
 	return !imui->input.currentState.mouseButtons[ button ] && imui->input.lastState.mouseButtons[ button ];
+}
+
+bool ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button )
+{
+	return imui->input.currentState.mouseButtonDoubleClick[ button ];
 }
 
 ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )

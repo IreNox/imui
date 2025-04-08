@@ -401,7 +401,7 @@ struct ImUiStringPoolChunk
 static ImUiHash ImUiStringPoolHash( const void* entry )
 {
 	const ImUiStringView* string = (const ImUiStringView*)entry;
-	return ImUiHashString( *string, 0u );
+	return ImUiHashString( *string );
 }
 
 static bool ImUiStringPoolIsKeyEquals( const void* lhs, const void* rhs )

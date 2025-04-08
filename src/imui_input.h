@@ -18,6 +18,7 @@ struct ImUiInputState
 {
 	ImUiPos							mousePos;
 	bool							mouseButtons[ ImUiInputMouseButton_MAX ];
+	bool							mouseButtonDoubleClick[ ImUiInputMouseButton_MAX ];
 	ImUiPos							mouseScroll;
 	ImUiInputMouseCursor			mouseCursor;
 

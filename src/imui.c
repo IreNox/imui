@@ -332,7 +332,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 	ImUiWidget* rootWidget = ImUiWidgetAlloc( imui );
 	rootWidget->window		= window;
 	rootWidget->name		= window->name;
-	rootWidget->hash		= ImUiHashString( window->name, 0u );
+	rootWidget->hash		= ImUiHashString( window->name );
 	rootWidget->minSize		= rect.size;
 	rootWidget->maxSize		= rect.size;
 	rootWidget->rect		= rect;
@@ -962,7 +962,7 @@ ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, const char* name )
 {
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
-	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( nameView, 0u ) );
+	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( nameView ) );
 	if( widget == NULL )
 	{
 		return NULL;
@@ -977,7 +977,7 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 {
 	IMUI_ASSERT( widget == widget->window->currentWidget );
 
-	widget->hash = ImUiHashMix( widget->hash, ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rect ) - IMUI_OFFSETOF( ImUiWidget, id ), 0u ) );
+	widget->hash = ImUiHashMix( widget->hash, ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rect ) - IMUI_OFFSETOF( ImUiWidget, id ) ) );
 
 	//IMUI_ASSERT( !widget->lastFrameWidget || widget->hash == widget->lastFrameWidget->hash );
 

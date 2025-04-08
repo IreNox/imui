@@ -471,6 +471,7 @@ typedef enum ImUiInputKey
 
 typedef enum ImUiInputModifier
 {
+	ImUiInputModifier_None			= 0u,
 	ImUiInputModifier_LeftShift		= 1u << 0u,
 	ImUiInputModifier_RightShift	= 1u << 1u,
 	ImUiInputModifier_LeftCtrl		= 1u << 2u,
@@ -543,6 +544,7 @@ void							ImUiInputPushTextChar( ImUiInput* input, char c );
 
 void							ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button );
 void							ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button );
+void							ImUiInputPushMouseDoubleClick( ImUiInput* input, ImUiInputMouseButton button );
 void							ImUiInputPushMouseMove( ImUiInput* input, float x, float y );
 void							ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float deltaY );
 void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset );
@@ -566,6 +568,7 @@ bool							ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseBu
 bool							ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button );
 ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
 
 //////////////////////////////////////////////////////////////////////////
@@ -629,7 +632,8 @@ ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t gl
 // Data Type Functions
 // see imui_data_types.c
 
-ImUiHash						ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed );
+ImUiHash						ImUiHashCreate( const void* data, size_t dataSize );
+ImUiHash						ImUiHashCreateSeed( const void* data, size_t dataSize, ImUiHash seed );
 ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
 
 ImUiPos							ImUiPosCreate( float x, float y );
