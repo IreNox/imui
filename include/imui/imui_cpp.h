@@ -399,10 +399,10 @@ namespace imui
 
 	namespace toolbox
 	{
-		struct UiToolboxConfig : public ImUiToolboxConfig, public UiNonCopyable
+		struct UiToolboxTheme : public ImUiToolboxTheme, public UiNonCopyable
 		{
-						UiToolboxConfig();
-						UiToolboxConfig( ImUiFont* font );
+						UiToolboxTheme();
+						UiToolboxTheme( ImUiFont* font );
 
 			void		setDefault( ImUiFont* font );
 
@@ -412,7 +412,7 @@ namespace imui
 			static const ImUiSkin&			getSkin( ImUiToolboxSkin skin );
 			static const ImUiImage&			getIcon( ImUiToolboxIcon icon );
 
-			static const ImUiToolboxConfig& getConfig();
+			static const ImUiToolboxTheme& getTheme();
 		};
 
 		class UiToolboxConfigFloatScope : public UiNonCopyable
@@ -498,7 +498,7 @@ namespace imui
 			float			sliderState( float min, float max, float defaultValue );
 
 			bool			textEdit( char* buffer, size_t bufferSize, size_t* textLength = nullptr );
-			const char*		textEditState( size_t bufferSize, const char* defaultValue = NULL );
+			const char*		textEditState( size_t bufferSize, const char* defaultValue = nullptr );
 
 			void			progressBar( float value, float min = 0.0f, float max = 1.0f );
 

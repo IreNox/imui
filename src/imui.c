@@ -283,6 +283,11 @@ ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )
 	return surface->size;
 }
 
+ImUiRect ImUiSurfaceGetRect( const ImUiSurface* surface )
+{
+	return ImUiRectCreateSize( 0.0f, 0.0f, surface->size );
+}
+
 float ImUiSurfaceGetDpiScale( const ImUiSurface* surface )
 {
 	return surface->dpiScale;

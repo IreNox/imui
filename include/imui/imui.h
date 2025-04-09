@@ -211,6 +211,7 @@ ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 double						ImUiSurfaceGetTime( const ImUiSurface* surface );
 
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
+ImUiRect					ImUiSurfaceGetRect( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 
 // call after surface end but before end frame
