@@ -109,6 +109,8 @@ ImUiContext*				ImUiFrameGetContext( const ImUiFrame* frame );
 //////////////////////////////////////////////////////////////////////////
 // Types
 
+#define IMUI_TEXTURE_HANDLE_INVALID 0
+
 typedef struct ImUiBorder
 {
 	float					top;
@@ -153,7 +155,7 @@ typedef struct ImUiTexCoord
 
 typedef struct ImUiImage
 {
-	void*					textureData;
+	uint64_t				textureHandle;
 	uint32_t				width;
 	uint32_t				height;
 	ImUiTexCoord			uv;
@@ -161,7 +163,7 @@ typedef struct ImUiImage
 
 typedef struct ImUiSkin
 {
-	void*					textureData;
+	uint64_t				textureHandle;
 	uint32_t				width;
 	uint32_t				height;
 	ImUiTexCoord			uv;
@@ -189,7 +191,7 @@ typedef enum ImUiDrawTopology
 typedef struct ImUiDrawCommand
 {
 	ImUiDrawTopology		topology;
-	void*					texture;
+	uint64_t				textureHandle;
 	ImUiRect				clipRect;
 	size_t					count;				// index count if index buffer is used otherwise vertex count
 } ImUiDrawCommand;

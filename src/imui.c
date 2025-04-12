@@ -1499,7 +1499,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 
 void ImUiWidgetDrawColor( ImUiWidget* widget, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, NULL );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, IMUI_TEXTURE_HANDLE_INVALID );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->color = color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
@@ -1509,7 +1509,7 @@ void ImUiWidgetDrawImage( ImUiWidget* widget, const ImUiImage* image )
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureHandle );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->color		= ImUiColorCreateWhite();
 	rectData->uv		= image->uv;
@@ -1519,7 +1519,7 @@ void ImUiWidgetDrawImageColor( ImUiWidget* widget, const ImUiImage* image, ImUiC
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureHandle );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->color		= color;
 	rectData->uv		= image->uv;
@@ -1529,7 +1529,7 @@ void ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor col
 {
 	IMUI_ASSERT( skin );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin->textureHandle );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->border	= skin->border;
 	skinData->uv		= skin->uv;
@@ -1547,7 +1547,7 @@ void ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor c
 
 void ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, NULL );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, IMUI_TEXTURE_HANDLE_INVALID );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
 	rectData->color			= color;
@@ -1558,7 +1558,7 @@ void ImUiWidgetDrawPartialImage( ImUiWidget* widget, ImUiRect relativRect, const
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureHandle );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
 	rectData->color			= ImUiColorCreateWhite();
@@ -1569,7 +1569,7 @@ void ImUiWidgetDrawPartialImageColor( ImUiWidget* widget, ImUiRect relativRect, 
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureHandle );
 	ImUiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
 	rectData->color			= color;
@@ -1580,7 +1580,7 @@ void ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const 
 {
 	IMUI_ASSERT( skin );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_SkinPartial, skin->textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_SkinPartial, skin->textureHandle );
 	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->relativRect	= relativRect;
 	skinData->border		= skin->border;
@@ -1600,7 +1600,7 @@ void ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLay
 
 void ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Line, NULL );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Line, IMUI_TEXTURE_HANDLE_INVALID );
 	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
 	primitiveData->p0		= p0;
 	primitiveData->p1		= p1;
@@ -1609,7 +1609,7 @@ void ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor c
 
 void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Triangle, NULL );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Triangle, IMUI_TEXTURE_HANDLE_INVALID );
 	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
 	primitiveData->p0		= p0;
 	primitiveData->p1		= p1;

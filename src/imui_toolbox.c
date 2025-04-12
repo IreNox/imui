@@ -223,7 +223,7 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
 	static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
 
-	const ImUiSkin skin = { 0 };
+	const ImUiSkin skin = { IMUI_TEXTURE_HANDLE_INVALID };
 
 	theme->skins[ ImUiToolboxSkin_Button ]						= skin;
 	theme->skins[ ImUiToolboxSkin_CheckBox ]					= skin;
@@ -243,7 +243,7 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->skins[ ImUiToolboxSkin_Popup ]						= skin;
 	static_assert( ImUiToolboxSkin_MAX == 16, "more skins" );
 
-	const ImUiImage image = { NULL, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
+	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
 	theme->icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
 	theme->icons[ ImUiToolboxIcon_DropDownOpen ]			= image;

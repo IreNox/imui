@@ -292,7 +292,7 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 	}
 }
 
-ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, void* texture )
+ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, uint64_t textureHandle )
 {
 	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawWindowData* window = ImUiDrawGetWindow( draw, widget );
@@ -302,7 +302,7 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 		return NULL;
 	}
 
-	if( !texture )
+	if( textureHandle == IMUI_TEXTURE_HANDLE_INVALID )
 	{
 		if( type == ImUiDrawElementType_Skin )
 		{
@@ -315,9 +315,9 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 	}
 
 	ImUiDrawElement* element = &window->elements[ window->elementCount++ ];
-	element->type		= type;
-	element->texture	= texture;
-	element->widget		= widget;
+	element->type			= type;
+	element->textureHandle	= textureHandle;
+	element->widget			= widget;
 
 	uintsize indexCount = 0u;
 	uintsize vertexCount = 0u;
@@ -342,7 +342,7 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 
 ImUiDrawElement* ImUiDrawPushElementText( ImUiWidget* widget, ImUiDrawElementType type, ImUiTextLayout* layout )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, type, layout->font->image.textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, type, layout->font->image.textureHandle );
 
 	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ widget->window->surface->drawIndex ];
@@ -486,10 +486,10 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	}
 
 	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
-	command->topology	= element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
-	command->texture	= element->texture;
-	command->clipRect	= element->widget->clipRect;
-	command->count		= 0u;
+	command->topology		= element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
+	command->textureHandle	= element->textureHandle;
+	command->clipRect		= element->widget->clipRect;
+	command->count			= 0u;
 
 	ImUiRect rect = ImUiDrawSurfaceGenerateWidgetRect( element->widget );
 	switch( element->type )
