@@ -13,7 +13,7 @@ typedef struct ImUiDrawSurfaceData
 	ImUiStringView			name;
 	ImUiSize				size;
 
-	uint32*					windows;
+	uintsize*				windows;
 	uintsize				windowCapacity;
 	uintsize				windowCount;
 
@@ -171,8 +171,17 @@ uintsize ImUiDrawRegisterSurface( ImUiDraw* draw, ImUiStringView name, ImUiSize 
 			continue;
 		}
 
+		if( surface->used )
+		{
+			surface->windowCount				= 0u;
+			surface->commandCount				= 0u;
+			surface->approximatedIndexCount		= 0u;
+			surface->approximatedVertexCount	= 0u;
+		}
+
 		surface->used	= true;
 		surface->size	= size;
+
 		return i;
 	}
 
@@ -218,9 +227,26 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ surfaceIndex ];
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+	bool windowFound = false;
+	for( uintsize i = 0; i < surface->windowCount; ++i )
 	{
-		return IMUI_SIZE_MAX;
+		if( surface->windows[ i ] != windowIndex )
+		{
+			continue;
+		}
+
+		windowFound = true;
+		break;
+	}
+
+	if( !windowFound )
+	{
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+		{
+			return IMUI_SIZE_MAX;
+		}
+
+		surface->windows[ surface->windowCount++ ] = windowIndex;
 	}
 
 	ImUiDrawWindowData* window = &draw->windows[ windowIndex ];
@@ -228,8 +254,7 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 	window->name			= name;
 	window->surfaceIndex	= surfaceIndex;
 	window->zOrder			= zOrder;
-
-	surface->windows[ surface->windowCount++ ] = (uint32)windowIndex;
+	window->elementCount	= 0u;
 
 	return windowIndex;
 }
@@ -243,7 +268,7 @@ void ImUiDrawSurfaceEnd( ImUiDraw* draw, uintsize surfaceIndex )
 	{
 		while( i > 0u && draw->windows[ surface->windows[ i - 1u ] ].zOrder > draw->windows[ surface->windows[ i ] ].zOrder )
 		{
-			uint32 tempWindowIndex = surface->windows[ i ];
+			const uintsize tempWindowIndex = surface->windows[ i ];
 			surface->windows[ i ]		= surface->windows[ i - 1u ];
 			surface->windows[ i - 1u ]	= tempWindowIndex;
 
@@ -267,8 +292,7 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 			continue;
 		}
 
-		window->used			= false;
-		window->elementCount	= 0u;
+		window->used = false;
 	}
 
 	for( uintsize i = 0; i < draw->surfaceCount; ++i )

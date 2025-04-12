@@ -175,6 +175,15 @@ void ImUiEnd( ImUiFrame* frame )
 
 	// clear last frame widget chunks
 	{
+		while( imui->firstFreeChunk )
+		{
+			ImUiWidgetChunk* nextFreeChunk = imui->firstFreeChunk->nextChunk;
+
+			ImUiMemoryFree( &imui->allocator, imui->firstFreeChunk );
+
+			imui->firstFreeChunk = nextFreeChunk;
+		}
+
 		ImUiWidgetChunk* lastFreeChunk = NULL;
 		for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
 		{
@@ -183,12 +192,7 @@ void ImUiEnd( ImUiFrame* frame )
 			lastFreeChunk = chunk;
 		}
 
-		if( lastFreeChunk )
-		{
-			lastFreeChunk->nextChunk = imui->firstFreeChunk;
-		}
-		imui->firstFreeChunk = imui->firstLastFrameChunk;
-
+		imui->firstFreeChunk		= imui->firstLastFrameChunk;
 		imui->firstLastFrameChunk	= imui->firstChunk;
 		imui->firstChunk			= NULL;
 	}
@@ -197,7 +201,6 @@ void ImUiEnd( ImUiFrame* frame )
 	ImUiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
 	imui->firstUnusedState	= imui->firstState;
 	imui->firstState		= NULL;
-
 
 	// free unused grid context
 	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
@@ -214,6 +217,11 @@ ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
+	return ImUiSurfaceBeginReuse( frame, name, size, dpiScale, false );
+}
+
+ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale, bool reuse )
+{
 	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
@@ -226,7 +234,13 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size
 		}
 
 		surface = &imui->surfaces[ surfaceIndex ];
-		IMUI_ASSERT( !surface->inUse && "Surface name must be unique" );
+
+		if( !reuse && surface->inUse )
+		{
+			IMUI_ASSERT( !"Surface name must be unique" );
+			return NULL;
+		}
+
 		break;
 	}
 
@@ -241,14 +255,24 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size
 		imui->surfaceCount++;
 
 		memset( surface, 0, sizeof( *surface ) );
+
+		surface->context	= imui;
+		surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	}
 
 	surface->inUse		= true;
-	surface->context	= imui;
-	surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
 	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
+
+	if( reuse )
+	{
+		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
+		{
+			ImUiWindow* window = &surface->windows[ windowIndex ];
+			window->inUse = false;
+		}
+	}
 
 	return surface;
 }

@@ -206,6 +206,7 @@ typedef struct ImUiDrawData
 // Surface - Presents a OS window or a screen
 
 ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale );
+ImUiSurface*				ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale, bool reuse );
 void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
