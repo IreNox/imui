@@ -58,12 +58,19 @@ typedef enum ImUiToolboxColor
 	ImUiToolboxColor_PopupBackground,
 	ImUiToolboxColor_Popup,
 
+	ImUiToolboxColor_TabViewHeadBackground,
+	ImUiToolboxColor_TabViewHeaderActive,
+	ImUiToolboxColor_TabViewHeaderInactive,
+	ImUiToolboxColor_TabViewBody,
+
 	ImUiToolboxColor_MAX
 } ImUiToolboxColor;
 
 typedef enum ImUiToolboxSkin
 {
 	ImUiToolboxSkin_Button,
+	ImUiToolboxSkin_ButtonHover,
+	ImUiToolboxSkin_ButtonClicked,
 	ImUiToolboxSkin_CheckBox,
 	ImUiToolboxSkin_CheckBoxChecked,
 	ImUiToolboxSkin_SliderBackground,
@@ -79,6 +86,10 @@ typedef enum ImUiToolboxSkin
 	ImUiToolboxSkin_DropDownList,
 	ImUiToolboxSkin_DropDownItem,
 	ImUiToolboxSkin_Popup,
+	ImUiToolboxSkin_TabViewHeadBackground,
+	ImUiToolboxSkin_TabViewHeaderActive,
+	ImUiToolboxSkin_TabViewHeaderInactive,
+	ImUiToolboxSkin_TabViewBody,
 
 	ImUiToolboxSkin_MAX
 } ImUiToolboxSkin;
@@ -159,6 +170,17 @@ typedef struct ImUiToolboxThemePopup
 	float			buttonSpacing;
 } ImUiToolboxThemePopup;
 
+typedef struct ImUiToolboxThemeTabView
+{
+	float			headerSpacing;
+	float			headerCutLeft;
+	float			headerCutRight;
+	ImUiBorder		headerPadding;
+
+	ImUiBorder		bodyPadding;
+
+} ImUiToolboxThemeTabView;
+
 typedef struct ImUiToolboxTheme
 {
 	ImUiColor						colors[ ImUiToolboxColor_MAX ];
@@ -176,6 +198,7 @@ typedef struct ImUiToolboxTheme
 	ImUiToolboxThemeList			list;
 	ImUiToolboxThemeDropDown		dropDown;
 	ImUiToolboxThemePopup			popup;
+	ImUiToolboxThemeTabView			tabView;
 } ImUiToolboxTheme;
 
 typedef enum ImUiToolboxThemeReflectionType
@@ -188,7 +211,8 @@ typedef enum ImUiToolboxThemeReflectionType
 	ImUiToolboxThemeReflectionType_Border,
 	ImUiToolboxThemeReflectionType_Float,
 	ImUiToolboxThemeReflectionType_Double,
-	ImUiToolboxThemeReflectionType_UInt32
+	ImUiToolboxThemeReflectionType_UInt32,
+	ImUiToolboxThemeReflectionType_Boolean
 } ImUiToolboxThemeReflectionType;
 
 typedef struct ImUiToolboxThemeReflectionField
@@ -205,6 +229,7 @@ typedef struct ImUiToolboxThemeReflection
 } ImUiToolboxThemeReflection;
 
 typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
+
 typedef struct ImUiToolboxScrollAreaContext
 {
 	bool							horizontalSpacing;
@@ -216,6 +241,7 @@ typedef struct ImUiToolboxScrollAreaContext
 } ImUiToolboxScrollAreaContext;
 
 typedef struct ImUiToolboxListState ImUiToolboxListState;
+
 typedef struct ImUiToolboxListContext
 {
 	float							itemSize;
@@ -237,6 +263,7 @@ typedef struct ImUiToolboxListContext
 } ImUiToolboxListContext;
 
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
+
 typedef struct ImUiToolboxDropDownContext
 {
 	ImUiWidget*						dropDown;
@@ -245,6 +272,20 @@ typedef struct ImUiToolboxDropDownContext
 
 	bool							changed;
 } ImUiToolboxDropDownContext;
+
+typedef struct ImUiToolboxTabViewState ImUiToolboxTabViewState;
+
+typedef struct ImUiToolboxTabViewContext
+{
+	ImUiWidget*						view;
+	ImUiWidget*						head;
+	ImUiWidget*						body;
+
+	size_t							headerCount;
+	float							selectedHeaderOffset;
+	float							selectedHeaderWidth;
+	ImUiToolboxTabViewState*		state;
+} ImUiToolboxTabViewContext;
 
 ImUiToolboxThemeReflection	ImUiToolboxThemeReflectionGet();
 
@@ -330,6 +371,14 @@ ImUiWindow*				ImUiToolboxPopupBegin( ImUiWindow* window );
 ImUiWindow*				ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
 size_t					ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** buttons, size_t buttonCount );
 void					ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
+
+void					ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window );
+bool					ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text );
+ImUiWidget*				ImUiToolboxTabViewHeaderBegin( ImUiToolboxTabViewContext* tabView );
+bool					ImUiToolboxTabViewHeaderEnd( ImUiToolboxTabViewContext* tabView, ImUiWidget* tabHeader );
+ImUiWidget*				ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView );
+void					ImUiToolboxTabViewBodyEnd( ImUiToolboxTabViewContext* tabView );
+void					ImUiToolboxTabViewEnd( ImUiToolboxTabViewContext* tabView );
 
 #ifdef __cplusplus
 }

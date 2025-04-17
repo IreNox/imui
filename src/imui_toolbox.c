@@ -26,8 +26,7 @@ struct ImUiToolboxScrollAreaState
 	ImUiPos			pressPoint;
 };
 
-typedef struct ImUiToolboxTextEditState ImUiToolboxTextEditState;
-struct ImUiToolboxTextEditState
+typedef struct ImUiToolboxTextEditState
 {
 	bool			hasFocus;
 
@@ -39,20 +38,23 @@ struct ImUiToolboxTextEditState
 	uint32			selectionStart;
 	uint32			selectionEnd;
 	uint32			cursorPos;
-};
+} ImUiToolboxTextEditState;
 
-typedef struct ImUiToolboxListState ImUiToolboxListState;
 struct ImUiToolboxListState
 {
 	uintsize		selectedIndex;
 };
 
-typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
 struct ImUiToolboxDropDownState
 {
 	bool			isOpen;
 
 	uintsize		selectedIndex;
+};
+
+struct ImUiToolboxTabViewState
+{
+	uintsize		selectedTab;
 };
 
 static void ImUiToolboxListItemEndInternal( ImUiToolboxListContext* list );
@@ -96,8 +98,14 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Drop Down/Item/Selected Color",		ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_DropDownItemSelected ] ) },
 	{ "Popup/Background Color",				ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_PopupBackground ] ) },
 	{ "Popup/Color",						ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_Popup ] ) },
+	{ "Tab View/Head Background Color",		ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_TabViewHeadBackground ] ) },
+	{ "Tab View/Header Active Color",		ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_TabViewHeaderActive ] ) },
+	{ "Tab View/Header Inactive Color",		ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_TabViewHeaderInactive ] ) },
+	{ "Tab View/Body Background Color",		ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_TabViewBody ] ) },
 
 	{ "Button/Skin",						ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_Button ] ) },
+	{ "Button/Hover Skin",					ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_ButtonHover ] ) },
+	{ "Button/Clicked Skin",				ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_ButtonClicked ] ) },
 	{ "Check Box/Skin",						ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_CheckBox ] ) },
 	{ "Check Box/Checked Skin",				ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_CheckBoxChecked ] ) },
 	{ "Slider/Background Skin",				ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_SliderBackground ] ) },
@@ -113,6 +121,10 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Drop Down/List/Skin",				ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_DropDownList ] ) },
 	{ "Drop Down/Item/Skin",				ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_DropDownItem ] ) },
 	{ "Popup/Skin",							ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_Popup ] ) },
+	{ "Tab View/Head Skin",					ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewHeadBackground ] ) },
+	{ "Tab View/Header Active Skin",		ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewHeaderActive ] ) },
+	{ "Tab View/Header Inactive Skin",		ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewHeaderInactive ] ) },
+	{ "Tab View/Body Skin",					ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewBody ] ) },
 
 	{ "Check Box/Checked Icon",				ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_CheckBoxChecked ] ) },
 	{ "Drop Down/Open Icon",				ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_DropDownOpen ] ) },
@@ -156,11 +168,17 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Popup/Z Order",						ImUiToolboxThemeReflectionType_UInt32,	offsetof( ImUiToolboxTheme, popup.zOrder ) },
 	{ "Popup/Padding",						ImUiToolboxThemeReflectionType_Border,	offsetof( ImUiToolboxTheme, popup.padding ) },
 	{ "Popup/Button Spacing",				ImUiToolboxThemeReflectionType_Float,	offsetof( ImUiToolboxTheme, popup.buttonSpacing ) },
+
+	{ "Tab View/Header Spacing",			ImUiToolboxThemeReflectionType_Float,	offsetof( ImUiToolboxTheme, tabView.headerSpacing ) },
+	{ "Tab View/Header Cut Extend Left",	ImUiToolboxThemeReflectionType_Float,	offsetof( ImUiToolboxTheme, tabView.headerCutLeft ) },
+	{ "Tab View/Header Cut Extend Right",	ImUiToolboxThemeReflectionType_Float,	offsetof( ImUiToolboxTheme, tabView.headerCutRight ) },
+	{ "Tab View/Header Padding",			ImUiToolboxThemeReflectionType_Border,	offsetof( ImUiToolboxTheme, tabView.headerPadding ) },
+	{ "Tab View/Body Padding",				ImUiToolboxThemeReflectionType_Border,	offsetof( ImUiToolboxTheme, tabView.bodyPadding ) },
 };
-static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
-static_assert( ImUiToolboxSkin_MAX == 16, "more skins" );
+static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
+static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
 static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
-static_assert( sizeof( ImUiToolboxTheme ) == 1256u, "theme changed" );
+static_assert( sizeof( ImUiToolboxTheme ) == 1608u, "theme changed" );
 
 ImUiToolboxThemeReflection ImUiToolboxThemeReflectionGet()
 {
@@ -215,17 +233,23 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
 	theme->colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
 	theme->colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
-	theme->colors[ ImUiToolboxColor_DropDownItemText ]		= textColor;
-	theme->colors[ ImUiToolboxColor_DropDownItemHover ]		= elementHoverColor;
-	theme->colors[ ImUiToolboxColor_DropDownItemClicked ]	= elementClickedColor;
-	theme->colors[ ImUiToolboxColor_DropDownItemSelected ]	= elementColor;
+	theme->colors[ ImUiToolboxColor_DropDownItemText ]			= textColor;
+	theme->colors[ ImUiToolboxColor_DropDownItemHover ]			= elementHoverColor;
+	theme->colors[ ImUiToolboxColor_DropDownItemClicked ]		= elementClickedColor;
+	theme->colors[ ImUiToolboxColor_DropDownItemSelected ]		= elementColor;
 	theme->colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.2f );
 	theme->colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	static_assert( ImUiToolboxColor_MAX == 37, "more colors" );
+	theme->colors[ ImUiToolboxColor_TabViewHeadBackground ]		= backgroundColor;
+	theme->colors[ ImUiToolboxColor_TabViewHeaderActive ]		= elementColor;
+	theme->colors[ ImUiToolboxColor_TabViewHeaderInactive ]		= elementClickedColor;
+	theme->colors[ ImUiToolboxColor_TabViewBody ]				= backgroundColor;
+	static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
 
 	const ImUiSkin skin = { IMUI_TEXTURE_HANDLE_INVALID };
 
 	theme->skins[ ImUiToolboxSkin_Button ]						= skin;
+	theme->skins[ ImUiToolboxSkin_ButtonHover ]					= skin;
+	theme->skins[ ImUiToolboxSkin_ButtonClicked ]				= skin;
 	theme->skins[ ImUiToolboxSkin_CheckBox ]					= skin;
 	theme->skins[ ImUiToolboxSkin_CheckBoxChecked ]				= skin;
 	theme->skins[ ImUiToolboxSkin_SliderBackground ]			= skin;
@@ -236,12 +260,16 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= skin;
 	theme->skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= skin;
 	theme->skins[ ImUiToolboxSkin_ListItem ]					= skin;
-	theme->skins[ ImUiToolboxSkin_ItemSelected ]			= skin;
+	theme->skins[ ImUiToolboxSkin_ItemSelected ]				= skin;
 	theme->skins[ ImUiToolboxSkin_DropDown ]					= skin;
 	theme->skins[ ImUiToolboxSkin_DropDownList ]				= skin;
-	theme->skins[ ImUiToolboxSkin_DropDownItem ]			= skin;
+	theme->skins[ ImUiToolboxSkin_DropDownItem ]				= skin;
 	theme->skins[ ImUiToolboxSkin_Popup ]						= skin;
-	static_assert( ImUiToolboxSkin_MAX == 16, "more skins" );
+	theme->skins[ ImUiToolboxSkin_TabViewHeadBackground ]		= skin;
+	theme->skins[ ImUiToolboxSkin_TabViewHeaderActive ]			= skin;
+	theme->skins[ ImUiToolboxSkin_TabViewHeaderInactive ]		= skin;
+	theme->skins[ ImUiToolboxSkin_TabViewBody ]					= skin;
+	static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
 
 	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
@@ -288,6 +316,12 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->popup.zOrder				= 10u;
 	theme->popup.padding			= ImUiBorderCreateAll( 8.0f );
 	theme->popup.buttonSpacing		= 4.0f;
+
+	theme->tabView.headerSpacing	= 4.0f;
+	theme->tabView.headerCutLeft	= 0.0f;
+	theme->tabView.headerCutRight	= 0.0f;
+	theme->tabView.headerPadding	= ImUiBorderCreateAll( 8.0f );
+	theme->tabView.bodyPadding		= ImUiBorderCreateAll( 8.0f );
 }
 
 void ImUiToolboxThemeSet( const ImUiToolboxTheme* theme )
@@ -319,16 +353,19 @@ ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 	ImUiWidgetGetInputState( button, &inputState );
 
 	ImUiColor color = s_theme.colors[ ImUiToolboxColor_Button ];
+	const ImUiSkin* skin = &s_theme.skins[ ImUiToolboxSkin_Button ];
 	if( inputState.wasPressed && inputState.isMouseDown )
 	{
 		color = s_theme.colors[ ImUiToolboxColor_ButtonClicked ];
+		skin = &s_theme.skins[ ImUiToolboxSkin_ButtonClicked ];
 	}
 	else if( inputState.isMouseOver )
 	{
 		color = s_theme.colors[ ImUiToolboxColor_ButtonHover ];
+		skin = &s_theme.skins[ ImUiToolboxSkin_ButtonHover ];
 	}
 
-	ImUiWidgetDrawSkin( button, &s_theme.skins[ ImUiToolboxSkin_Button ], color );
+	ImUiWidgetDrawSkin( button, skin, color );
 
 	return button;
 }
@@ -1704,6 +1741,250 @@ void ImUiToolboxPopupEnd( ImUiWindow* popupWindow )
 	ImUiWidgetEnd( popup );
 	ImUiWidgetEnd( background );
 	ImUiWindowEnd( popupWindow );
+}
+
+void ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window )
+{
+	tabView->view = ImUiWidgetBegin( window );
+	ImUiWidgetSetLayoutVertical( tabView->view );
+
+	tabView->head = ImUiWidgetBegin( window );
+	ImUiWidgetSetLayoutHorizontalSpacing( tabView->head, s_theme.tabView.headerSpacing );
+
+	tabView->body			= NULL;
+	tabView->headerCount	= 0u;
+	tabView->state			= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+}
+
+bool ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text )
+{
+	ImUiWidget* tabHeader = ImUiToolboxTabViewHeaderBegin( tabView );
+	ImUiToolboxLabel( ImUiWidgetGetWindow( tabHeader ), text );
+	return ImUiToolboxTabViewHeaderEnd( tabView, tabHeader );
+}
+
+ImUiWidget* ImUiToolboxTabViewHeaderBegin( ImUiToolboxTabViewContext* tabView )
+{
+	IMUI_ASSERT( tabView->head );
+
+	ImUiWidget* tabHeader = ImUiWidgetBegin( ImUiWidgetGetWindow( tabView->head ) );
+	ImUiWidgetSetPadding( tabHeader, s_theme.tabView.headerPadding );
+
+	ImUiColor color = s_theme.colors[ ImUiToolboxColor_TabViewHeaderInactive ];
+	const ImUiSkin* skin = &s_theme.skins[ ImUiToolboxSkin_TabViewHeaderInactive ];
+
+	if( tabView->state->selectedTab == tabView->headerCount )
+	{
+		color = s_theme.colors[ ImUiToolboxColor_TabViewHeaderActive ];
+		skin = &s_theme.skins[ ImUiToolboxSkin_TabViewHeaderActive ];
+
+		tabView->selectedHeaderOffset	= ImUiWidgetGetPosX( tabHeader ) - ImUiWidgetGetPosX( tabView->head );
+		tabView->selectedHeaderWidth	= ImUiWidgetGetSizeWidth( tabHeader );
+	}
+
+	ImUiWidgetDrawSkin( tabHeader, skin, color );
+
+	return tabHeader;
+}
+
+bool ImUiToolboxTabViewHeaderEnd( ImUiToolboxTabViewContext* tabView, ImUiWidget* tabHeader )
+{
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( tabHeader, &inputState );
+
+	if( inputState.hasMousePressed )
+	{
+		tabView->state->selectedTab = tabView->headerCount;
+	}
+
+	ImUiWidgetEnd( tabHeader );
+
+	const bool selected = tabView->state->selectedTab == tabView->headerCount;
+	tabView->headerCount++;
+	return selected;
+}
+
+ImUiWidget* ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView )
+{
+	IMUI_ASSERT( tabView->head );
+
+	ImUiWidgetEnd( tabView->head );
+	tabView->head = NULL;
+
+	tabView->body = ImUiWidgetBegin( ImUiWidgetGetWindow( tabView->view ) );
+	ImUiWidgetSetStretchOne( tabView->body );
+	ImUiWidgetSetPadding( tabView->body, s_theme.tabView.bodyPadding );
+
+	const ImUiSkin* skin = &s_theme.skins[ ImUiToolboxSkin_TabViewBody ];
+
+	const float uScale = skin->width ? (skin->uv.u1 - skin->uv.u0) / skin->width : 0.0f;
+	const float vScale = skin->height ? (skin->uv.v1 - skin->uv.v0) / skin->height : 0.0f;
+
+	ImUiBorder uvBorder = skin->border;
+	uvBorder.top	*= vScale;
+	uvBorder.left	*= uScale;
+	uvBorder.bottom	*= vScale;
+	uvBorder.right	*= uScale;
+
+	ImUiImage image;
+	image.textureHandle	= skin->textureHandle;
+	image.width			= skin->width;
+	image.height		= skin->height;
+	image.uv			= skin->uv;
+
+	ImUiRect rect = ImUiWidgetGetRect( tabView->body );
+	rect.pos.x	= 0.0f;
+	rect.pos.y	= 0.0f;
+
+	const ImUiSize borderSize = ImUiBorderGetMinSize( skin->border );
+	const float xScale = rect.size.width >= borderSize.width ? 1.0f : rect.size.width / borderSize.width;
+	const float yScale = rect.size.height >= borderSize.height ? 1.0f : rect.size.height / borderSize.height;
+
+	const float xLeft			= rect.pos.x;
+	const float xCenterLeft		= xLeft + (skin->border.left * xScale);
+	const float xRight			= xLeft + rect.size.width;
+	const float xCenterRight	= xRight - (skin->border.right * xScale);
+	const float yTop			= rect.pos.y;
+	const float yCenterTop		= yTop + (skin->border.top * yScale);
+	const float yBottom			= yTop + rect.size.height;
+	const float yCenterBottom	= yBottom - (skin->border.bottom * yScale);
+
+	const float uLeft			= skin->uv.u0;
+	const float uCenterLeft		= uLeft + uvBorder.left;
+	const float uRight			= skin->uv.u1;
+	const float uCenterRight	= uRight - uvBorder.right;
+	const float vTop			= skin->uv.v0;
+	const float vCenterTop		= vTop + uvBorder.top;
+	const float vBottom			= skin->uv.v1;
+	const float vCenterBottom	= vBottom - uvBorder.bottom;
+
+	const float xPositions[] =
+	{
+		xLeft,
+		xCenterLeft,
+		xCenterRight,
+		xRight
+	};
+
+	const float yPositions[] =
+	{
+		yTop,
+		yCenterTop,
+		yCenterBottom,
+		yBottom
+	};
+
+	const float uPositions[] =
+	{
+		uLeft,
+		uCenterLeft,
+		uCenterRight,
+		uRight
+	};
+
+	const float vPositions[] =
+	{
+		vTop,
+		vCenterTop,
+		vCenterBottom,
+		vBottom
+	};
+
+	const ImUiColor color = s_theme.colors[ ImUiToolboxColor_TabViewBody ];
+	for( uintsize x = 0; x < 4u; ++x )
+	{
+		const uintsize nextX = x + 1u;
+
+		uintsize uvX = x;
+		uintsize uvY = 0u;
+		float posX = xPositions[ x ];
+		float nextPosX = xPositions[ nextX ];
+		if( x == 0u && tabView->selectedHeaderOffset == 0.0f )
+		{
+			uvY = 1u;
+		}
+		else if( x == 1u )
+		{
+			posX = tabView->selectedHeaderOffset + tabView->selectedHeaderWidth - s_theme.tabView.headerCutRight;
+		}
+		else if( x == 3u )
+		{
+			if( tabView->selectedHeaderOffset == 0.0f )
+			{
+				continue;
+			}
+
+			uvX = 1u;
+
+			posX = xPositions[ 1u ];
+			nextPosX = tabView->selectedHeaderOffset + s_theme.tabView.headerCutLeft;
+		}
+
+		const ImUiPos posTl = ImUiPosCreate( posX, yPositions[ 0u ] );
+		const ImUiPos posBr = ImUiPosCreate( nextPosX, yPositions[ 1u ] );
+
+		const ImUiTexCoord uv =
+		{
+			uPositions[ uvX ], vPositions[ uvY ],
+			uPositions[ uvX + 1u ], vPositions[ uvY + 1u ]
+		};
+
+		image.uv = uv;
+
+		rect.pos			= posTl;
+		rect.size.width		= posBr.x - posTl.x;
+		rect.size.height	= posBr.y - posTl.y;
+
+		ImUiWidgetDrawPartialImageColor( tabView->body, rect, &image, color );
+	}
+
+	for( uintsize y = 1u; y < 3u; ++y )
+	{
+		const uintsize nextY = y + 1u;
+
+		for( uintsize x = 0; x < 3; ++x )
+		{
+			const uintsize nextX = x + 1u;
+
+			const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
+			const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
+
+			const ImUiTexCoord uv =
+			{
+				uPositions[ x ], vPositions[ y ],
+				uPositions[ nextX ], vPositions[ nextY ]
+			};
+
+			image.uv = uv;
+
+			rect.pos			= posTl;
+			rect.size.width		= posBr.x - posTl.x;
+			rect.size.height	= posBr.y - posTl.y;
+
+			ImUiWidgetDrawPartialImageColor( tabView->body, rect, &image, color );
+		}
+	}
+
+	//ImUiWidgetDrawSkin( tabView->body, &s_theme.skins[ ImUiToolboxSkin_TabViewBody ],  );
+
+	return tabView->body;
+}
+
+void ImUiToolboxTabViewBodyEnd( ImUiToolboxTabViewContext* tabView )
+{
+	IMUI_ASSERT( tabView->body );
+
+	ImUiWidgetEnd( tabView->body );
+	tabView->body = NULL;
+}
+
+void ImUiToolboxTabViewEnd( ImUiToolboxTabViewContext* tabView )
+{
+	IMUI_ASSERT( !tabView->head );
+	IMUI_ASSERT( !tabView->body );
+
+	ImUiWidgetEnd( tabView->view );
+	tabView->view = NULL;
 }
 
 #if defined( _MSC_VER )

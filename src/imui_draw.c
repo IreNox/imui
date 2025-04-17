@@ -47,8 +47,7 @@ typedef struct ImUiDrawWindowData
 	uintsize				elementCount;
 } ImUiDrawWindowData;
 
-typedef enum ImUiDrawSkinPointX ImUiDrawSkinPointX;
-enum ImUiDrawSkinPointX
+typedef enum ImUiDrawSkinPointX
 {
 	ImUiDrawSkinPointX_Left,
 	ImUiDrawSkinPointX_CenterLeft,
@@ -56,10 +55,9 @@ enum ImUiDrawSkinPointX
 	ImUiDrawSkinPointX_Right,
 
 	ImUiDrawSkinPointX_END = ImUiDrawSkinPointX_Right
-};
+} ImUiDrawSkinPointX;
 
-typedef enum ImUiDrawSkinPointY ImUiDrawSkinPointY;
-enum ImUiDrawSkinPointY
+typedef enum ImUiDrawSkinPointY
 {
 	ImUiDrawSkinPointY_Top,
 	ImUiDrawSkinPointY_CenterTop,
@@ -67,7 +65,7 @@ enum ImUiDrawSkinPointY
 	ImUiDrawSkinPointY_Bottom,
 
 	ImUiDrawSkinPointY_END = ImUiDrawSkinPointY_Bottom
-};
+} ImUiDrawSkinPointY;
 
 static void					ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window );
 static void					ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface );
@@ -334,7 +332,7 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 		}
 		else if( type == ImUiDrawElementType_SkinPartial )
 		{
-			type = ImUiDrawElementType_SkinPartial;
+			type = ImUiDrawElementType_RectPartial;
 		}
 	}
 

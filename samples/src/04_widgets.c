@@ -23,7 +23,10 @@ typedef struct ImUiToolboxSampleContext
 #endif
 } ImUiToolboxSampleContext;
 
-static ImUiToolboxSampleContext s_toolboxContext = { 2.5f };
+static ImUiToolboxSampleContext s_toolboxContext =
+{
+	.sliderValue1 = 2.5f
+};
 
 static void			ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
 static void			ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window );
@@ -31,6 +34,7 @@ static void			ImUiToolboxSampleTextEdit( ImUiWindow* window );
 static void			ImUiToolboxSampleDropDown( ImUiWindow* window );
 static void			ImUiToolboxSamplePopup( ImUiWindow* window );
 static void			ImUiToolboxSampleScrollAndList( ImUiWindow* window );
+static void			ImUiToolboxSampleTabView( ImUiWindow* window );
 
 typedef struct ImUiTestPopupState ImUiTestPopupState;
 struct ImUiTestPopupState
@@ -49,27 +53,38 @@ void ImUiToolboxSampleTick( ImUiWindow* window )
 	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetHStretch( vLayout, 1.0f );
-	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
+	{
+		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
+		ImUiWidgetSetHStretch( vLayout, 1.0f );
+		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
-	ImUiToolboxSampleSlidersAndProgressBars( window );
-	ImUiToolboxSampleTextEdit( window );
-	ImUiToolboxSampleDropDown( window );
-	ImUiToolboxSamplePopup( window );
+		ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
+		ImUiToolboxSampleSlidersAndProgressBars( window );
+		ImUiToolboxSampleTextEdit( window );
+		ImUiToolboxSampleDropDown( window );
+		ImUiToolboxSamplePopup( window );
 
-	ImUiWidgetEnd( vLayout );
+		ImUiWidgetEnd( vLayout );
+	}
 
-	ImUiToolboxSampleScrollAndList( window );
+	{
+		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
+		ImUiWidgetSetHStretch( vLayout, 1.0f );
+		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
-	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
-	ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
-	ImUiWidgetSetVAlign( mouseLabel, 0.0f );
-	ImUiToolboxLabelEnd( mouseLabel );
+		ImUiToolboxSampleScrollAndList( window );
+		ImUiToolboxSampleTabView( window );
 
-	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_widgetContext.fontTexture.size ), s_widgetContext.fontTexture );
+		ImUiWidgetEnd( vLayout );
+	}
+
+	{
+		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
+		ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
+		ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
+		ImUiWidgetSetVAlign( mouseLabel, 0.0f );
+		ImUiToolboxLabelEnd( mouseLabel );
+	}
 
 	ImUiWidgetEnd( hLayout );
 }
@@ -147,10 +162,6 @@ static void ImUiToolboxSampleTextEdit( ImUiWindow* window )
 
 static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 {
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
-	ImUiWidgetSetHStretch( vLayout, 1.0f );
-	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
-
 	ImUiToolboxLabel( window, "Item count:" );
 	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
@@ -193,8 +204,6 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 		ImUiWidgetEnd( scrollLayout );
 		ImUiToolboxScrollAreaEnd( &scrollArea );
 	}
-
-	ImUiWidgetEnd( vLayout );
 }
 
 static void ImUiToolboxSampleDropDown( ImUiWindow* window )
@@ -249,6 +258,34 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 			state->isOpen = false;
 		}
 	}
+}
+
+static void ImUiToolboxSampleTabView( ImUiWindow* window )
+{
+	ImUiToolboxTabViewContext tabView;
+	ImUiToolboxTabViewBegin( &tabView, window );
+	ImUiWidgetSetHStretch( tabView.view, 1.0f );
+
+	char buffer[ 32u ];
+
+	uintsize selectedTab = 0u;
+	for( uintsize i = 0u; i < 4u; ++i )
+	{
+		snprintf( buffer, sizeof( buffer ), "Tab %zu", i + 1u );
+
+		if( ImUiToolboxTabViewHeader( &tabView, buffer ) )
+		{
+			selectedTab = i;
+		}
+	}
+
+	ImUiToolboxTabViewBodyBegin( &tabView );
+
+	snprintf( buffer, sizeof( buffer ), "Hello from Tab %zu", selectedTab + 1u );
+	ImUiToolboxLabel( window, buffer );
+
+	ImUiToolboxTabViewBodyEnd( &tabView );
+	ImUiToolboxTabViewEnd( &tabView );
 }
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
