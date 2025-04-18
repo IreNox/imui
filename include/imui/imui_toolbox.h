@@ -211,8 +211,7 @@ typedef enum ImUiToolboxThemeReflectionType
 	ImUiToolboxThemeReflectionType_Border,
 	ImUiToolboxThemeReflectionType_Float,
 	ImUiToolboxThemeReflectionType_Double,
-	ImUiToolboxThemeReflectionType_UInt32,
-	ImUiToolboxThemeReflectionType_Boolean
+	ImUiToolboxThemeReflectionType_UInt32
 } ImUiToolboxThemeReflectionType;
 
 typedef struct ImUiToolboxThemeReflectionField

@@ -733,9 +733,8 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	{
 		const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
 
-		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - s_theme.slider.pivotSize.width) / (sliderInnerRect.size.width - s_theme.slider.pivotSize.width);
+		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - s_theme.slider.padding.left + (s_theme.slider.pivotSize.width / 2.0f)) / sliderInnerRect.size.width;
 		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
-		IMUI_ASSERT( mouseValueNormClamp >= 0.0f && mouseValueNormClamp <= 1.0f );
 		const float mouseValue			= (mouseValueNormClamp * (max - min)) + min;
 
 		*value = mouseValue;
@@ -1455,17 +1454,18 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( item, &inputState );
 
+	const ImUiSkin* skin = &s_theme.skins[ list->itemIndex == list->state->selectedIndex ? ImUiToolboxSkin_ItemSelected : ImUiToolboxSkin_ListItem ];
 	if( inputState.isMouseDown )
 	{
-		ImUiWidgetDrawSkin( item, &s_theme.skins[ ImUiToolboxSkin_ItemSelected ], s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
+		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
 	}
 	else if( inputState.isMouseOver )
 	{
-		ImUiWidgetDrawSkin( item, &s_theme.skins[ ImUiToolboxSkin_ListItem ], s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
+		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
 	}
 	else if( list->itemIndex == list->state->selectedIndex )
 	{
-		ImUiWidgetDrawSkin( item, &s_theme.skins[ ImUiToolboxSkin_ItemSelected ], s_theme.colors[ ImUiToolboxColor_ListItemSelected ] );
+		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemSelected ] );
 	}
 
 	if( inputState.hasMouseReleased )
@@ -1891,7 +1891,7 @@ ImUiWidget* ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView )
 	};
 
 	const ImUiColor color = s_theme.colors[ ImUiToolboxColor_TabViewBody ];
-	for( uintsize x = 0; x < 4u; ++x )
+	for( uintsize x = 0; x < 5u; ++x )
 	{
 		const uintsize nextX = x + 1u;
 
@@ -1908,6 +1908,14 @@ ImUiWidget* ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView )
 			posX = tabView->selectedHeaderOffset + tabView->selectedHeaderWidth - s_theme.tabView.headerCutRight;
 		}
 		else if( x == 3u )
+		{
+			uvX = 1u;
+			uvY = 1u;
+
+			posX = tabView->selectedHeaderOffset + s_theme.tabView.headerCutLeft;
+			nextPosX = tabView->selectedHeaderOffset + tabView->selectedHeaderWidth - +s_theme.tabView.headerCutRight;
+		}
+		else if( x == 4u )
 		{
 			if( tabView->selectedHeaderOffset == 0.0f )
 			{
