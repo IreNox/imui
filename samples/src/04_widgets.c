@@ -35,6 +35,7 @@ static void			ImUiToolboxSampleDropDown( ImUiWindow* window );
 static void			ImUiToolboxSamplePopup( ImUiWindow* window );
 static void			ImUiToolboxSampleScrollAndList( ImUiWindow* window );
 static void			ImUiToolboxSampleTabView( ImUiWindow* window );
+static void			ImUiToolboxSampleTextView( ImUiWindow* window );
 
 typedef struct ImUiTestPopupState ImUiTestPopupState;
 struct ImUiTestPopupState
@@ -74,6 +75,7 @@ void ImUiToolboxSampleTick( ImUiWindow* window )
 
 		ImUiToolboxSampleScrollAndList( window );
 		ImUiToolboxSampleTabView( window );
+		ImUiToolboxSampleTextView( window );
 
 		ImUiWidgetEnd( vLayout );
 	}
@@ -171,7 +173,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	if( useList )
 	{
 		ImUiToolboxListContext list;
-		ImUiToolboxListBegin( &list, window, 25.0f, count );
+		ImUiToolboxListBegin( &list, window, 25.0f, count, true );
 		ImUiWidgetSetMinSize( list.list, 200.0f, 200.0f );
 
 		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
@@ -286,6 +288,21 @@ static void ImUiToolboxSampleTabView( ImUiWindow* window )
 
 	ImUiToolboxTabViewBodyEnd( &tabView );
 	ImUiToolboxTabViewEnd( &tabView );
+}
+
+static void ImUiToolboxSampleTextView( ImUiWindow* window )
+{
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
+
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 7" );
+	ImUiToolboxTextBufferAppend( textBuffer, " and more for 7\n" );
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 8\n\nLine 10 after empty Line" );
+	ImUiToolboxTextBufferAppend( textBuffer, "\nLine 11\nLine 12\n" );
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 13\nLine 14" );
+
+	ImUiToolboxTextViewBuffer( window, textBuffer );
+
+	ImUiToolboxTextBufferFree( textBuffer );
 }
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK

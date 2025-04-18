@@ -26,6 +26,19 @@ struct ImUiToolboxScrollAreaState
 	ImUiPos			pressPoint;
 };
 
+typedef struct ImUiToolboxTextBuffer
+{
+	ImUiAllocator*	allocator;
+
+	char*			data;
+	uintsize		dataLength;
+	uintsize		dataCapacity;
+
+	uintsize*		lines;
+	uintsize		linesLength;
+	uintsize		linesCapacity;
+} ImUiToolboxTextBuffer;
+
 typedef struct ImUiToolboxTextEditState
 {
 	bool			hasFocus;
@@ -42,6 +55,8 @@ typedef struct ImUiToolboxTextEditState
 
 struct ImUiToolboxListState
 {
+	bool			hasFocus;
+
 	uintsize		selectedIndex;
 };
 
@@ -582,9 +597,19 @@ ImUiWidget* ImUiToolboxLabelBegin( ImUiWindow* window, const char* text )
 
 ImUiWidget* ImUiToolboxLabelBeginColor( ImUiWindow* window, const char* text, ImUiColor color )
 {
+	return ImUiToolboxLabelBeginLengthColor( window, text, strlen( text ), color );
+}
+
+ImUiWidget* ImUiToolboxLabelBeginLength( ImUiWindow* window, const char* text, size_t length )
+{
+	return ImUiToolboxLabelBeginLengthColor( window, text, length, s_theme.colors[ ImUiToolboxColor_Text ] );
+}
+
+ImUiWidget* ImUiToolboxLabelBeginLengthColor( ImUiWindow* window, const char* text, size_t length, ImUiColor color )
+{
 	ImUiWidget* label = ImUiWidgetBegin( window );
 
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( label, s_theme.font, text );
+	ImUiTextLayout* layout = ImUiTextLayoutCreateWidgetLength( label, s_theme.font, text,length );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( label, textSize );
 	ImUiWidgetSetVAlign( label, 0.5f );
@@ -595,6 +620,7 @@ ImUiWidget* ImUiToolboxLabelBeginColor( ImUiWindow* window, const char* text, Im
 	}
 
 	return label;
+
 }
 
 ImUiWidget* ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... )
@@ -642,6 +668,12 @@ void ImUiToolboxLabelEnd( ImUiWidget* label )
 void ImUiToolboxLabel( ImUiWindow* window, const char* text )
 {
 	ImUiWidget* label = ImUiToolboxLabelBegin( window, text );
+	ImUiToolboxLabelEnd( label );
+}
+
+void ImUiToolboxLabelLength( ImUiWindow* window, const char* text, size_t length )
+{
+	ImUiWidget* label = ImUiToolboxLabelBeginLength( window, text, length );
 	ImUiToolboxLabelEnd( label );
 }
 
@@ -793,6 +825,92 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 
 	ImUiToolboxSliderEnd( sliderFrame, value, min, max );
 	return *value;
+}
+
+ImUiToolboxTextBuffer* ImUiToolboxTextBufferCreate( ImUiWindow* window, const char* text )
+{
+	ImUiToolboxTextBuffer* textBuffer = IMUI_MEMORY_NEW_ZERO( &window->context->allocator, ImUiToolboxTextBuffer );
+
+	textBuffer->allocator = &window->context->allocator;
+
+	ImUiToolboxTextBufferAppend( textBuffer, text );
+
+	return textBuffer;
+}
+
+void ImUiToolboxTextBufferFree( ImUiToolboxTextBuffer* textBuffer )
+{
+	if( !textBuffer )
+	{
+		return;
+	}
+
+	ImUiMemoryFree( textBuffer->allocator, textBuffer->data );
+	ImUiMemoryFree( textBuffer->allocator, textBuffer->lines );
+	ImUiMemoryFree( textBuffer->allocator, textBuffer );
+}
+
+void ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* text )
+{
+	textBuffer->dataLength	= 0;
+	textBuffer->linesLength	= 0;
+
+	ImUiToolboxTextBufferAppend( textBuffer, text );
+}
+
+void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text )
+{
+	if( !text )
+	{
+		return;
+	}
+
+	const uintsize textLength = strlen( text );
+
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( textBuffer->allocator, textBuffer->data, textBuffer->dataCapacity, textBuffer->dataLength + textLength + 1u ) )
+	{
+		return;
+	}
+
+	const char* firstLine = text;
+	if( textBuffer->linesLength > 0 )
+	{
+		const char* lastLine = textBuffer->data + textBuffer->lines[ textBuffer->linesLength - 1u ];
+		if( !strchr( lastLine, '\n' ) )
+		{
+			firstLine = strchr( text, '\n' );
+			if( firstLine )
+			{
+				firstLine++;
+			}
+		}
+	}
+
+	bool first = true;
+	const char* textEnd = text + textLength;
+	uintsize linesLength = textBuffer->linesLength;
+	for( const char* line = firstLine; line; line = strchr( line, '\n' ) )
+	{
+		if( !first )
+		{
+			line++;
+		}
+
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( textBuffer->allocator, textBuffer->lines, textBuffer->linesCapacity, linesLength + 1u ) )
+		{
+			return;
+		}
+
+		const uintsize offset = line - text;
+		textBuffer->lines[ linesLength ] = textBuffer->dataLength + offset;
+		linesLength++;
+		first = false;
+	}
+
+	strncpy( textBuffer->data + textBuffer->dataLength, text, textLength + 1 );
+
+	textBuffer->dataLength += textLength;
+	textBuffer->linesLength = linesLength;
 }
 
 ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
@@ -1141,6 +1259,64 @@ const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bu
 	return buffer;
 }
 
+ImUiWidget* ImUiToolboxTextViewBegin( ImUiWindow* window, const char* text )
+{
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, text );
+
+	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( window, textBuffer );
+
+	ImUiToolboxTextBufferFree( textBuffer );
+
+	return textView;
+}
+
+ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
+{
+	ImUiToolboxListContext list;
+	ImUiToolboxListBegin( &list, window, s_theme.font->fontSize, textBuffer->linesLength, false );
+
+	ImUiWidgetSetFixedWidth( list.list, 250.0f );
+	ImUiWidgetSetFixedHeight( list.list, 150.0f );
+
+	for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
+	{
+		ImUiToolboxListNextItem( &list );
+
+		const bool lastLine = i == textBuffer->linesLength - 1u;
+		const uintsize lineOffset = textBuffer->lines[ i ];
+		const uintsize nextLineOffset = lastLine ? textBuffer->dataLength : textBuffer->lines[ i + 1 ];
+		const uintsize lineLength = (nextLineOffset - lineOffset) - (lastLine ? 0 : 1);
+
+		const char* line = textBuffer->data + lineOffset;
+		ImUiToolboxLabelLength( window, line, lineLength );
+	}
+
+	//ImUiToolboxScrollAreaContext scroll;
+	//ImUiToolboxScrollAreaBegin( &scroll, window );
+	//ImUiWidgetBegin( window );
+
+	ImUiToolboxListEnd( &list );
+
+	return list.list;
+}
+
+void ImUiToolboxTextViewEnd( ImUiWidget* textView )
+{
+	//ImUiToolboxListEnd( list );
+}
+
+void ImUiToolboxTextView( ImUiWindow* window, const char* text )
+{
+	ImUiWidget* textView = ImUiToolboxTextViewBegin( window, text );
+	ImUiToolboxTextViewEnd( textView );
+}
+
+void ImUiToolboxTextViewBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
+{
+	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( window, textBuffer );
+	ImUiToolboxTextViewEnd( textView );
+}
+
 void ImUiToolboxProgressBar( ImUiWindow* window, float value )
 {
 	ImUiToolboxProgressBarMinMax( window, value, 0.0f, 1.0f );
@@ -1363,7 +1539,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	scrollArea->state = NULL;
 }
 
-void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount )
+void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection )
 {
 	IMUI_ASSERT( list );
 
@@ -1384,7 +1560,7 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 
 	bool isNew;
 	list->state = (ImUiToolboxListState*)ImUiWidgetAllocStateNew( list->listLayout, sizeof( ImUiToolboxListState ), IMUI_ID_STR( "list" ), &isNew );
-	if( isNew )
+	if( isNew || !selection )
 	{
 		list->state->selectedIndex = (uintsize)-1;
 	}
@@ -1401,7 +1577,39 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 	list->item			= NULL;
 	list->itemIndex		= list->beginIndex - 1u;
 
+	list->selection		= selection;
 	list->changed		= false;
+
+	ImUiWidgetInputState inputState;
+	ImUiWidgetGetInputState( list->list, &inputState );
+
+	ImUiContext* imui = ImUiWidgetGetContext( list->list );
+	if( ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left ) )
+	{
+		list->state->hasFocus = inputState.hasMousePressed;
+	}
+
+	if( list->state->hasFocus )
+	{
+		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Up ) )
+		{
+			list->state->selectedIndex--;
+			if( list->state->selectedIndex >= itemCount )
+			{
+				list->state->selectedIndex = 0;
+			}
+			list->changed = true;
+		}
+		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Down ) )
+		{
+			list->state->selectedIndex++;
+			if( list->state->selectedIndex >= itemCount )
+			{
+				list->state->selectedIndex = itemCount - 1;
+			}
+			list->changed = true;
+		}
+	}
 }
 
 size_t ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list )
@@ -1421,6 +1629,11 @@ size_t ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list )
 
 void ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index )
 {
+	if( !list->selection )
+	{
+		return;
+	}
+
 	list->state->selectedIndex = index;
 }
 
@@ -1451,27 +1664,30 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 		ImUiWidgetSetMargin( item, ImUiBorderCreate( totalItemSize * list->beginIndex, 0.0f, 0.0f, 0.0f ) );
 	}
 
-	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( item, &inputState );
+	if( list->selection )
+	{
+		ImUiWidgetInputState inputState;
+		ImUiWidgetGetInputState( item, &inputState );
 
-	const ImUiSkin* skin = &s_theme.skins[ list->itemIndex == list->state->selectedIndex ? ImUiToolboxSkin_ItemSelected : ImUiToolboxSkin_ListItem ];
-	if( inputState.isMouseDown )
-	{
-		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
-	}
-	else if( inputState.isMouseOver )
-	{
-		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
-	}
-	else if( list->itemIndex == list->state->selectedIndex )
-	{
-		ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemSelected ] );
-	}
+		const ImUiSkin* skin = &s_theme.skins[ list->itemIndex == list->state->selectedIndex ? ImUiToolboxSkin_ItemSelected : ImUiToolboxSkin_ListItem ];
+		if( inputState.isMouseDown )
+		{
+			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
+		}
+		else if( inputState.isMouseOver )
+		{
+			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
+		}
+		else if( list->itemIndex == list->state->selectedIndex )
+		{
+			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemSelected ] );
+		}
 
-	if( inputState.hasMouseReleased )
-	{
-		list->state->selectedIndex = list->itemIndex;
-		list->changed = true;
+		if( inputState.hasMouseReleased )
+		{
+			list->state->selectedIndex = list->itemIndex;
+			list->changed = true;
+		}
 	}
 
 	return item;
@@ -1612,7 +1828,7 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 		s_theme.list.itemSpacing = s_theme.dropDown.itemSpacing;
 
 		ImUiToolboxListContext list;
-		ImUiToolboxListBegin( &list, listWindow, s_theme.dropDown.itemSize, itemCount );
+		ImUiToolboxListBegin( &list, listWindow, s_theme.dropDown.itemSize, itemCount, true );
 		ImUiWidgetSetStretch( list.list, 1.0f, 1.0f );
 		ImUiWidgetSetMargin( list.scrollArea.area, s_theme.dropDown.listMargin );
 

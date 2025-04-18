@@ -561,7 +561,7 @@ bool							ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
 bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
-ImUiInputShortcut					ImUiInputGetShortcut( const ImUiContext* imui );
+ImUiInputShortcut				ImUiInputGetShortcut( const ImUiContext* imui );
 
 const char*						ImUiInputGetText( const ImUiContext* imui );
 
@@ -625,7 +625,9 @@ void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
 // see imui_text.c
 
 ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const char* text );
+ImUiTextLayout*					ImUiTextLayoutCreateLength( ImUiContext* imui, ImUiFont* font, const char* text, size_t length );
 ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text );
+ImUiTextLayout*					ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length );
 
 size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
 size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos );

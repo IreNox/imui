@@ -227,6 +227,8 @@ typedef struct ImUiToolboxThemeReflection
 	size_t									count;
 } ImUiToolboxThemeReflection;
 
+typedef struct ImUiToolboxTextBuffer ImUiToolboxTextBuffer;
+
 typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
 
 typedef struct ImUiToolboxScrollAreaContext
@@ -258,6 +260,7 @@ typedef struct ImUiToolboxListContext
 	size_t							beginIndex;
 	size_t							endIndex;
 
+	bool							selection;
 	bool							changed;
 } ImUiToolboxListContext;
 
@@ -317,10 +320,13 @@ bool					ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, const char* text, 
 
 ImUiWidget*				ImUiToolboxLabelBegin( ImUiWindow* window, const char* text );
 ImUiWidget*				ImUiToolboxLabelBeginColor( ImUiWindow* window, const char* text, ImUiColor color );
+ImUiWidget*				ImUiToolboxLabelBeginLength( ImUiWindow* window, const char* text, size_t length );
+ImUiWidget*				ImUiToolboxLabelBeginLengthColor( ImUiWindow* window, const char* text, size_t length, ImUiColor color );
 ImUiWidget*				ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
 ImUiWidget*				ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
 void					ImUiToolboxLabelEnd( ImUiWidget* label );
 void					ImUiToolboxLabel( ImUiWindow* window, const char* text );
+void					ImUiToolboxLabelLength( ImUiWindow* window, const char* text, size_t length );
 void					ImUiToolboxLabelColor( ImUiWindow* window, const char* text, ImUiColor color );
 void					ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
 void					ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
@@ -339,11 +345,22 @@ float					ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue 
 float					ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
 float					ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
+ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreate( ImUiWindow* window, const char* text );
+void					ImUiToolboxTextBufferFree( ImUiToolboxTextBuffer* textBuffer );
+void					ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* text );
+void					ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text );
+
 ImUiWidget*				ImUiToolboxTextEditBegin( ImUiWindow* window );
 bool					ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
 bool					ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
 const char*				ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
 const char*				ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue );
+
+ImUiWidget*				ImUiToolboxTextViewBegin( ImUiWindow* window, const char* text );
+ImUiWidget*				ImUiToolboxTextViewBeginBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
+void					ImUiToolboxTextViewEnd( ImUiWidget* textView );
+void					ImUiToolboxTextView( ImUiWindow* window, const char* text );
+void					ImUiToolboxTextViewBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
 
 void					ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void					ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
@@ -352,7 +369,7 @@ void					ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, I
 void					ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
 void					ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
 
-void					ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount );
+void					ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection );
 size_t					ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
 size_t					ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
 size_t					ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
