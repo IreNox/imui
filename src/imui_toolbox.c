@@ -1272,7 +1272,7 @@ ImUiWidget* ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUi
 
 ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
 {
-	ImUiToolboxListBegin( &textView->list, window, s_theme.font->fontSize, textBuffer->linesLength, false );
+	ImUiToolboxListBegin( &textView->list, window, s_theme.font ? s_theme.font->fontSize : 1.0f, textBuffer->linesLength, false );
 
 	bool isNewState;
 	textView->ownsBuffer	= false;
