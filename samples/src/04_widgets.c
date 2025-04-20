@@ -300,7 +300,14 @@ static void ImUiToolboxSampleTextView( ImUiWindow* window )
 	ImUiToolboxTextBufferAppend( textBuffer, "\nLine 11\nLine 12\n" );
 	ImUiToolboxTextBufferAppend( textBuffer, "Line 13\nLine 14" );
 
-	ImUiToolboxTextViewBuffer( window, textBuffer );
+	ImUiToolboxTextViewContext textViewContext;
+	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( &textViewContext, window, textBuffer );
+
+	ImUiWidgetSetFixedWidth( textView, 250.0f );
+	ImUiWidgetSetFixedHeight( textView, 150.0f );
+
+	ImUiToolboxTextViewEnd( &textViewContext );
+
 
 	ImUiToolboxTextBufferFree( textBuffer );
 }

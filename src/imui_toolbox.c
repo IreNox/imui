@@ -1,5 +1,6 @@
 #include "imui/imui_toolbox.h"
 
+#include "imui_font.h"
 #include "imui_internal.h"
 #include "imui_memory.h"
 #include "imui_types.h"
@@ -1259,28 +1260,28 @@ const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bu
 	return buffer;
 }
 
-ImUiWidget* ImUiToolboxTextViewBegin( ImUiWindow* window, const char* text )
+ImUiWidget* ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const char* text )
 {
 	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, text );
 
-	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( window, textBuffer );
+	ImUiWidget* textViewWidget = ImUiToolboxTextViewBeginBuffer( textView, window, textBuffer );
+	textView->ownsBuffer = true;
 
-	ImUiToolboxTextBufferFree( textBuffer );
-
-	return textView;
+	return textViewWidget;
 }
 
-ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
+ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
 {
-	ImUiToolboxListContext list;
-	ImUiToolboxListBegin( &list, window, s_theme.font->fontSize, textBuffer->linesLength, false );
+	ImUiToolboxListBegin( &textView->list, window, s_theme.font->fontSize, textBuffer->linesLength, false );
 
-	ImUiWidgetSetFixedWidth( list.list, 250.0f );
-	ImUiWidgetSetFixedHeight( list.list, 150.0f );
+	bool isNewState;
+	textView->ownsBuffer	= false;
+	textView->textBuffer	= textBuffer;
 
-	for( uintsize i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 	{
-		ImUiToolboxListNextItem( &list );
+	for( uintsize i = ImUiToolboxListGetBeginIndex( &textView->list ); i < ImUiToolboxListGetEndIndex( &textView->list ); ++i )
+	{
+		ImUiToolboxListNextItem( &textView->list );
 
 		const bool lastLine = i == textBuffer->linesLength - 1u;
 		const uintsize lineOffset = textBuffer->lines[ i ];
@@ -1291,30 +1292,33 @@ ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiWindow* window, const ImUiToolbo
 		ImUiToolboxLabelLength( window, line, lineLength );
 	}
 
-	//ImUiToolboxScrollAreaContext scroll;
-	//ImUiToolboxScrollAreaBegin( &scroll, window );
-	//ImUiWidgetBegin( window );
-
-	ImUiToolboxListEnd( &list );
-
-	return list.list;
+	return textView->list.list;
 }
 
-void ImUiToolboxTextViewEnd( ImUiWidget* textView )
+void ImUiToolboxTextViewEnd( ImUiToolboxTextViewContext* textView )
 {
-	//ImUiToolboxListEnd( list );
+
+	ImUiToolboxListEnd( &textView->list );
+
+	if( textView->ownsBuffer )
+	{
+		ImUiToolboxTextBufferFree( (ImUiToolboxTextBuffer*)textView->textBuffer );
+		textView->textBuffer = NULL;
+	}
 }
 
 void ImUiToolboxTextView( ImUiWindow* window, const char* text )
 {
-	ImUiWidget* textView = ImUiToolboxTextViewBegin( window, text );
-	ImUiToolboxTextViewEnd( textView );
+	ImUiToolboxTextViewContext textView;
+	ImUiToolboxTextViewBegin( &textView, window, text );
+	ImUiToolboxTextViewEnd( &textView );
 }
 
 void ImUiToolboxTextViewBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
 {
-	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( window, textBuffer );
-	ImUiToolboxTextViewEnd( textView );
+	ImUiToolboxTextViewContext textView;
+	ImUiToolboxTextViewBeginBuffer( &textView, window, textBuffer );
+	ImUiToolboxTextViewEnd( &textView );
 }
 
 void ImUiToolboxProgressBar( ImUiWindow* window, float value )
@@ -1367,7 +1371,7 @@ void ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, f
 	ImUiWidgetEnd( progressBar );
 }
 
-void ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window )
+ImUiWidget* ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window )
 {
 	scrollArea->horizontalSpacing	= false;
 	scrollArea->verticalSpacing		= false;
@@ -1377,6 +1381,8 @@ void ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiW
 
 	ImUiWidgetSetStretch( scrollArea->content, 1.0f, 1.0f );
 	ImUiWidgetSetLayoutScroll( scrollArea->content, scrollArea->state->offset.x, scrollArea->state->offset.y );
+
+	return scrollArea->area;
 }
 
 void ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical )
@@ -1539,7 +1545,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	scrollArea->state = NULL;
 }
 
-void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection )
+ImUiWidget* ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection )
 {
 	IMUI_ASSERT( list );
 
@@ -1610,6 +1616,8 @@ void ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, flo
 			list->changed = true;
 		}
 	}
+
+	return list->list;
 }
 
 size_t ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list )
@@ -1706,7 +1714,7 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	return list->changed;
 }
 
-void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride )
+ImUiWidget* ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride )
 {
 	if( itemStride == 0u )
 	{
@@ -1875,6 +1883,8 @@ void ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow*
 			dropDown->state->isOpen = false;
 		}
 	}
+
+	return dropDown->dropDown;
 }
 
 size_t ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown )
@@ -1959,7 +1969,7 @@ void ImUiToolboxPopupEnd( ImUiWindow* popupWindow )
 	ImUiWindowEnd( popupWindow );
 }
 
-void ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window )
+ImUiWidget* ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window )
 {
 	tabView->view = ImUiWidgetBegin( window );
 	ImUiWidgetSetLayoutVertical( tabView->view );
@@ -1970,6 +1980,8 @@ void ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* wi
 	tabView->body			= NULL;
 	tabView->headerCount	= 0u;
 	tabView->state			= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+
+	return tabView->view;
 }
 
 bool ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text )
@@ -2188,8 +2200,6 @@ ImUiWidget* ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView )
 			ImUiWidgetDrawPartialImageColor( tabView->body, rect, &image, color );
 		}
 	}
-
-	//ImUiWidgetDrawSkin( tabView->body, &s_theme.skins[ ImUiToolboxSkin_TabViewBody ],  );
 
 	return tabView->body;
 }

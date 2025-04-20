@@ -264,6 +264,16 @@ typedef struct ImUiToolboxListContext
 	bool							changed;
 } ImUiToolboxListContext;
 
+typedef struct ImUiToolboxTextViewState ImUiToolboxTextViewState;
+
+typedef struct ImUiToolboxTextViewContext
+{
+	ImUiToolboxListContext			list;
+
+	bool							ownsBuffer;
+	const ImUiToolboxTextBuffer*	textBuffer;
+} ImUiToolboxTextViewContext;
+
 typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
 
 typedef struct ImUiToolboxDropDownContext
@@ -356,20 +366,20 @@ bool					ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSiz
 const char*				ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
 const char*				ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue );
 
-ImUiWidget*				ImUiToolboxTextViewBegin( ImUiWindow* window, const char* text );
-ImUiWidget*				ImUiToolboxTextViewBeginBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
-void					ImUiToolboxTextViewEnd( ImUiWidget* textView );
+ImUiWidget*				ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const char* text );
+ImUiWidget*				ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
+void					ImUiToolboxTextViewEnd( ImUiToolboxTextViewContext* textView );
 void					ImUiToolboxTextView( ImUiWindow* window, const char* text );
 void					ImUiToolboxTextViewBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
 
 void					ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
 void					ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
 
-void					ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
+ImUiWidget*				ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
 void					ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
 void					ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
 
-void					ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection );
+ImUiWidget*				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection );
 size_t					ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
 size_t					ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
 size_t					ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
@@ -377,7 +387,7 @@ void					ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t i
 ImUiWidget*				ImUiToolboxListNextItem( ImUiToolboxListContext* list );
 bool					ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
-void					ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
+ImUiWidget*				ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
 size_t					ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
 void					ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
 bool					ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
@@ -388,7 +398,7 @@ ImUiWindow*				ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
 size_t					ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** buttons, size_t buttonCount );
 void					ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
 
-void					ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window );
+ImUiWidget*				ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window );
 bool					ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text );
 ImUiWidget*				ImUiToolboxTabViewHeaderBegin( ImUiToolboxTabViewContext* tabView );
 bool					ImUiToolboxTabViewHeaderEnd( ImUiToolboxTabViewContext* tabView, ImUiWidget* tabHeader );
