@@ -1274,11 +1274,10 @@ ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView
 {
 	ImUiToolboxListBegin( &textView->list, window, s_theme.font ? s_theme.font->fontSize : 1.0f, textBuffer->linesLength, false );
 
-	bool isNewState;
+	//bool isNewState;
 	textView->ownsBuffer	= false;
 	textView->textBuffer	= textBuffer;
 
-	{
 	for( uintsize i = ImUiToolboxListGetBeginIndex( &textView->list ); i < ImUiToolboxListGetEndIndex( &textView->list ); ++i )
 	{
 		ImUiToolboxListNextItem( &textView->list );

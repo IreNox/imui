@@ -1563,10 +1563,16 @@ void ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor col
 
 void ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color )
 {
+	ImUiWidgetDrawTextSize( widget, layout, color, layout->font->fontSize );
+}
+
+void ImUiWidgetDrawTextSize( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color, float size )
+{
 	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_Text, layout );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->color		= color;
 	textData->layout	= layout;
+	textData->size		= size * widget->window->surface->dpiScale;
 }
 
 void ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color )
@@ -1615,11 +1621,17 @@ void ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const 
 
 void ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color )
 {
+	ImUiWidgetDrawPositionTextSize( widget, offset, layout, color, layout->font->fontSize );
+}
+
+void ImUiWidgetDrawPositionTextSize( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color, float size )
+{
 	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_TextOffset, layout );
 	struct ImUiDrawElementDataText* textData = &element->data.text;
 	textData->relativPos	= offset;
 	textData->color			= color;
 	textData->layout		= layout;
+	textData->size			= size * widget->window->surface->dpiScale;
 }
 
 void ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )

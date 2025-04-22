@@ -49,6 +49,7 @@ typedef struct ImUiDrawElementDataText
 	ImUiPos				relativPos;
 	ImUiColor			color;
 	ImUiTextLayout*		layout;
+	float				size;
 } ImUiDrawElementDataText;
 
 typedef union ImUiDrawElementData

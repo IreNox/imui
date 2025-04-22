@@ -685,6 +685,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	case ImUiDrawElementType_Text:
 		{
 			const struct ImUiDrawElementDataText* textData = &element->data.text;
+			const float scale = textData->size / textData->layout->font->fontSize;
 
 			const float x = rect.pos.x;
 			const float y = rect.pos.y;
@@ -692,8 +693,10 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			{
 				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
 
-				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
-				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
+				const ImUiPos glyphPos		= ImUiPosScale( glyph->pos, scale );
+				const ImUiSize glyphSize	= ImUiSizeScale( glyph->size, scale );
+				const ImUiPos posTl			= ImUiPosCreate( x + glyphPos.x, y + glyphPos.y );
+				const ImUiPos posBr			= ImUiPosCreate( posTl.x + glyphSize.width, posTl.y + glyphSize.height );
 
 				command->count += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, glyph->uv, textData->color );
 			}
