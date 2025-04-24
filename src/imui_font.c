@@ -222,6 +222,12 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 
 ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height )
 {
+	if( targetDataSize < width * height )
+	{
+		// too small
+		return NULL;
+	}
+
 	ImUiFontTrueTypeImage* image = IMUI_MEMORY_NEW_ZERO( ttf->allocator, ImUiFontTrueTypeImage );
 	ImUiFontCodepoint* codepoints = IMUI_MEMORY_ARRAY_NEW( ttf->allocator, ImUiFontCodepoint, ttf->codepointCount );
 	if( !image || !codepoints )

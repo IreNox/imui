@@ -1131,14 +1131,14 @@ namespace imui
 	{
 	}
 
-	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* font )
+	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* inFont )
 	{
-		setDefault( font );
+		setDefault( inFont );
 	}
 
-	void toolbox::UiToolboxConfig::setDefault( ImUiFont* font )
+	void toolbox::UiToolboxConfig::setDefault( ImUiFont* inFont )
 	{
-		ImUiToolboxFillDefaultConfig( this, font );
+		ImUiToolboxFillDefaultConfig( this, inFont );
 	}
 
 	void toolbox::UiToolboxConfig::applyConfig()

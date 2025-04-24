@@ -75,7 +75,7 @@ static ImUiDrawWindowData*	ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget
 static void					ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
 static ImUiRect				ImUiDrawSurfaceGenerateWidgetRect( ImUiWidget* widget );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color );
-static void					ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
+static void					ImUiDrawSurfacePushIndices( ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
 static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
 static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
@@ -504,7 +504,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 			if( draw->triangleTopology == ImUiDrawTopology_IndexedTriangleList )
 			{
-				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+				ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
 
 			command->count = IMUI_ARRAY_COUNT( vertexIndices );
@@ -522,7 +522,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 			if( draw->triangleTopology == ImUiDrawTopology_IndexedTriangleList )
 			{
-				ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+				ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
 
 			command->count = IMUI_ARRAY_COUNT( vertexIndices );
@@ -595,37 +595,29 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			const float vBottom			= skinData->uv.v1;
 			const float vCenterBottom	= vBottom - uvBorder.bottom;
 
-			const float xPositions[] =
-			{
-				xLeft,
-				xCenterLeft,
-				xCenterRight,
-				xRight
-			};
+			float xPositions[ 4u ];
+			xPositions[ 0u ] = xLeft;
+			xPositions[ 1u ] = xCenterLeft;
+			xPositions[ 2u ] = xCenterRight;
+			xPositions[ 3u ] = xRight;
 
-			const float yPositions[] =
-			{
-				yTop,
-				yCenterTop,
-				yCenterBottom,
-				yBottom
-			};
+			float yPositions[ 4u ];
+			yPositions[ 0u ] = yTop;
+			yPositions[ 1u ] = yCenterTop;
+			yPositions[ 2u ] = yCenterBottom;
+			yPositions[ 3u ] = yBottom;
 
-			const float uPositions[] =
-			{
-				uLeft,
-				uCenterLeft,
-				uCenterRight,
-				uRight
-			};
+			float uPositions[ 4u ];
+			uPositions[ 0u ] = uLeft;
+			uPositions[ 1u ] = uCenterLeft;
+			uPositions[ 2u ] = uCenterRight;
+			uPositions[ 3u ] = uRight;
 
-			const float vPositions[] =
-			{
-				vTop,
-				vCenterTop,
-				vCenterBottom,
-				vBottom
-			};
+			float vPositions[ 4u ];
+			vPositions[ 0u ] = vTop;
+			vPositions[ 1u ] = vCenterTop;
+			vPositions[ 2u ] = vCenterBottom;
+			vPositions[ 3u ] = vBottom;
 
 			for( uintsize y = 0; y < ImUiDrawSkinPointY_END; ++y )
 			{
@@ -638,11 +630,11 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 					const ImUiPos posTl = ImUiPosCreate( xPositions[ x ], yPositions[ y ] );
 					const ImUiPos posBr = ImUiPosCreate( xPositions[ nextX ], yPositions[ nextY ] );
 
-					const ImUiTexCoord uv =
-					{
-						uPositions[ x ], vPositions[ y ],
-						uPositions[ nextX ], vPositions[ nextY ]
-					};
+					ImUiTexCoord uv;
+					uv.u0 = uPositions[ x ];
+					uv.v0 = vPositions[ y ];
+					uv.u1 = uPositions[ nextX ];
+					uv.v1 = vPositions[ nextY ];
 
 					command->count += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, uv, skinData->color );
 				}
@@ -816,11 +808,10 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 
 		case ImUiVertexElementSemantic_PositionClipSpace:
 			{
-				const ImUiPos clipSpacePosition =
-				{
+				const ImUiPos clipSpacePosition = ImUiPosCreate(
 					-1.0f + (x / surface->size.width),
-					 1.0f - (y / surface->size.height),
-				};
+					1.0f - (y / surface->size.height)
+				);
 
 				switch( vertexElement->type )
 				{
@@ -1163,7 +1154,7 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 	return vertexIndex;
 }
 
-static void ImUiDrawSurfacePushIndices( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count )
+static void ImUiDrawSurfacePushIndices( ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count )
 {
 	IMUI_ASSERT( surface->indexCount + count <= surface->indexCapacity );
 
@@ -1229,12 +1220,15 @@ static uintsize ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* su
 			const uint32 indexBl = ImUiDrawSurfacePushVertex( draw, surface, posTl.x, posBr.y, uv.u0, uv.v1, color );
 			const uint32 indexBr = ImUiDrawSurfacePushVertex( draw, surface, posBr.x, posBr.y, uv.u1, uv.v1, color );
 
-			const uint32 vertexIndices[ 6u ] =
-			{
-				indexTl, indexTr, indexBl,
-				indexBl, indexTr, indexBr
-			};
-			ImUiDrawSurfacePushIndices( draw, surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+			uint32 vertexIndices[ 6u ];
+			vertexIndices[ 0u ] = indexTl;
+			vertexIndices[ 1u ] = indexTr;
+			vertexIndices[ 2u ] = indexBl;
+			vertexIndices[ 3u ] = indexBl;
+			vertexIndices[ 4u ] = indexTr;
+			vertexIndices[ 5u ] = indexBr;
+
+			ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 		}
 		return 6u;
 

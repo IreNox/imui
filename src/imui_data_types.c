@@ -109,233 +109,251 @@ ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )
 
 ImUiPos ImUiPosCreate( float x, float y )
 {
-	const ImUiPos pos = { x, y };
-	return pos;
+	ImUiPos result;
+	result.x = x;
+	result.y = y;
+	return result;
 }
 
 ImUiPos ImUiPosCreateZero()
 {
-	const ImUiPos pos = { 0.0f, 0.0f };
-	return pos;
+	const ImUiPos result = { 0.0f, 0.0f };
+	return result;
 }
 
 ImUiPos ImUiPosAdd( ImUiPos pos, float x, float y )
 {
-	const ImUiPos result = { pos.x + x, pos.y + y };
+	ImUiPos result;
+	result.x = pos.x + x;
+	result.y = pos.y + y;
 	return result;
 }
 
 ImUiPos ImUiPosAddPos( ImUiPos pos, ImUiPos add )
 {
-	const ImUiPos result = { pos.x + add.x, pos.y + add.y };
+	ImUiPos result;
+	result.x = pos.x + add.x;
+	result.y = pos.y + add.y;
 	return result;
 }
 
 ImUiPos ImUiPosSub( ImUiPos pos, float x, float y )
 {
-	const ImUiPos result = { pos.x - x, pos.y - y };
+	ImUiPos result;
+	result.x = pos.x - x;
+	result.y = pos.y - y;
 	return result;
 }
 
 ImUiPos ImUiPosSubPos( ImUiPos pos, ImUiPos sub )
 {
-	const ImUiPos result = { pos.x - sub.x, pos.y - sub.y };
+	ImUiPos result;
+	result.x = pos.x + sub.x;
+	result.y = pos.y + sub.y;
 	return result;
 }
 
 ImUiPos ImUiPosScale( ImUiPos pos, float factor )
 {
-	const ImUiPos result = { pos.x * factor, pos.y * factor };
+	ImUiPos result;
+	result.x = pos.x * factor;
+	result.y = pos.y * factor;
 	return result;
 }
 
 ImUiPos ImUiPosMin( ImUiPos a, ImUiPos b )
 {
-	const ImUiPos result =
-	{
-		IMUI_MIN( a.x, b.x ),
-		IMUI_MIN( a.y, b.y )
-	};
+	ImUiPos result;
+	result.x = IMUI_MIN( a.x, b.x );
+	result.y = IMUI_MIN( a.y, b.y );
 	return result;
 }
 
 ImUiPos ImUiPosMax( ImUiPos a, ImUiPos b )
 {
-	const ImUiPos result =
-	{
-		IMUI_MAX( a.x, b.x ),
-		IMUI_MAX( a.y, b.y )
-	};
+	ImUiPos result;
+	result.x = IMUI_MAX( a.x, b.x );
+	result.y = IMUI_MAX( a.y, b.y );
 	return result;
 }
 
 ImUiSize ImUiSizeCreate( float width, float height )
 {
-	const ImUiSize size = { width, height };
-	return size;
+	ImUiSize result;
+	result.width	= width;
+	result.height	= height;
+	return result;
 }
 
 ImUiSize ImUiSizeCreateAll( float value )
 {
-	const ImUiSize size ={ value, value };
-	return size;
+	ImUiSize result;
+	result.width	= value;
+	result.height	= value;
+	return result;
 }
 
 ImUiSize ImUiSizeCreateOne()
 {
-	const ImUiSize size = { 1.0f, 1.0f };
-	return size;
+	const ImUiSize result = { 1.0f, 1.0f };
+	return result;
 }
 
 ImUiSize ImUiSizeCreateZero()
 {
-	const ImUiSize size = { 0.0f, 0.0f };
-	return size;
+	const ImUiSize result = { 0.0f, 0.0f };
+	return result;
 }
 
 ImUiSize ImUiSizeCreateSkin( const ImUiSkin* skin )
 {
 	IMUI_ASSERT( skin );
-	const ImUiSize size = { (float)skin->width, (float)skin->height };
-	return size;
+
+	ImUiSize result;
+	result.width	= (float)skin->width;
+	result.height	= (float)skin->height;
+	return result;
 }
 
 ImUiSize ImUiSizeCreateImage( const ImUiImage* image )
 {
 	IMUI_ASSERT( image );
-	const ImUiSize size = { (float)image->width, (float)image->height };
-	return size;
+
+	ImUiSize result;
+	result.width	= (float)image->width;
+	result.height	= (float)image->height;
+	return result;
 }
 
 ImUiSize ImUiSizeAdd( ImUiSize size, float width, float height )
 {
-	const ImUiSize result = { size.width + width, size.height + height };
+	ImUiSize result;
+	result.width	= size.width + width;
+	result.height	= size.height + height;
 	return result;
 }
 
 ImUiSize ImUiSizeAddSize( ImUiSize size, ImUiSize add )
 {
-	const ImUiSize result = { size.width + add.width, size.height + add.height };
+	ImUiSize result;
+	result.width	= size.width + add.width;
+	result.height	= size.height + add.height;
 	return result;
 }
 
 ImUiSize ImUiSizeSub( ImUiSize size, float width, float height )
 {
-	const ImUiSize result = { size.width - width, size.height - height };
+	ImUiSize result;
+	result.width	= size.width - width;
+	result.height	= size.height - height;
 	return result;
 }
 
 ImUiSize ImUiSizeSubSize( ImUiSize size, ImUiSize sub )
 {
-	const ImUiSize result = { size.width - sub.width, size.height - sub.height };
+	ImUiSize result;
+	result.width	= size.width - sub.width;
+	result.height	= size.height - sub.height;
 	return result;
 }
 
 ImUiSize ImUiSizeScale( ImUiSize size, float factor )
 {
-	const ImUiSize result = { size.width * factor, size.height * factor };
+	ImUiSize result;
+	result.width	= size.width * factor;
+	result.height	= size.height * factor;
 	return result;
 }
 
 ImUiSize ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border )
 {
-	const ImUiSize result =
-	{
-		size.width - (border.left + border.right),
-		size.height - (border.top + border.bottom)
-	};
+	ImUiSize result;
+	result.width	= size.width - (border.left + border.right);
+	result.height	= size.height - (border.top + border.bottom);
 	return result;
 }
 
 ImUiSize ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border )
 {
-	const ImUiSize result =
-	{
-		size.width + border.left + border.right,
-		size.height + border.top + border.bottom
-	};
+	ImUiSize result;
+	result.width	= size.width + border.left + border.right;
+	result.height	= size.height + border.top + border.bottom;
 	return result;
 }
 
 ImUiSize ImUiSizeLerp( ImUiSize a, ImUiSize b, float t )
 {
-	const ImUiSize result =
-	{
-		a.width + ((b.width - a.width) * t),
-		a.height + ((b.height - a.height) * t)
-	};
+	ImUiSize result;
+	result.width	= a.width + ((b.width - a.width) * t);
+	result.height	= a.height + ((b.height - a.height) * t);
 	return result;
 }
 
 ImUiSize ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT )
 {
-	const ImUiSize result =
-	{
-		a.width + ((b.width - a.width) * widthT),
-		a.height + ((b.height - a.height) * heightT)
-	};
+	ImUiSize result;
+	result.width	= a.width + ((b.width - a.width) * widthT);
+	result.height	= a.height + ((b.height - a.height) * heightT);
 	return result;
 }
 
 ImUiSize ImUiSizeMin( ImUiSize a, ImUiSize b )
 {
-	const ImUiSize result =
-	{
-		IMUI_MIN( a.width, b.width ),
-		IMUI_MIN( a.height, b.height )
-	};
+	ImUiSize result;
+	result.width	= IMUI_MIN( a.width, b.width );
+	result.height	= IMUI_MIN( a.height, b.height );
 	return result;
 }
 
 ImUiSize ImUiSizeMax( ImUiSize a, ImUiSize b )
 {
-	const ImUiSize result =
-	{
-		IMUI_MAX( a.width, b.width ),
-		IMUI_MAX( a.height, b.height )
-	};
+	ImUiSize result;
+	result.width	= IMUI_MAX( a.width, b.width );
+	result.height	= IMUI_MAX( a.height, b.height );
 	return result;
 }
 
 ImUiSize ImUiSizeFloor( ImUiSize size )
 {
-	const ImUiSize result =
-	{
-		floorf( size.width ),
-		floorf( size.height )
-	};
+	ImUiSize result;
+	result.width	= floorf( size.width );
+	result.height	= floorf( size.height );
 	return result;
 }
 
 ImUiSize ImUiSizeCeil( ImUiSize size )
 {
-	const ImUiSize result =
-	{
-		ceilf( size.width ),
-		ceilf( size.height )
-	};
+	ImUiSize result;
+	result.width	= ceilf( size.width );
+	result.height	= ceilf( size.height );
 	return result;
 }
 
 ImUiPos ImUiSizeToPos( ImUiSize size )
 {
-	const ImUiPos result =
-	{
-		size.width,
-		size.height
-	};
+	ImUiPos result;
+	result.x = size.width;
+	result.y = size.height;
 	return result;
 }
 
 ImUiBorder ImUiBorderCreate( float top, float left, float bottom, float right )
 {
-	const ImUiBorder result = { top, left, bottom, right };
+	ImUiBorder result;
+	result.top		= top;
+	result.left		= left;
+	result.bottom	= bottom;
+	result.right	= right;
 	return result;
 }
 
 ImUiBorder ImUiBorderCreateAll( float all )
 {
-	const ImUiBorder result = { all, all, all, all };
+	ImUiBorder result;
+	result.top		= all;
+	result.left		= all;
+	result.bottom	= all;
+	result.right	= all;
 	return result;
 }
 
@@ -347,7 +365,11 @@ ImUiBorder ImUiBorderCreateZero()
 
 ImUiBorder ImUiBorderCreateHorizontalVertical( float horizontal, float vertical )
 {
-	const ImUiBorder result = { vertical, horizontal, vertical, horizontal };
+	ImUiBorder result;
+	result.top		= vertical;
+	result.left		= horizontal;
+	result.bottom	= vertical;
+	result.right	= horizontal;
 	return result;
 }
 
@@ -363,52 +385,78 @@ ImUiBorder ImUiBorderScale( ImUiBorder border, float factor )
 
 ImUiSize ImUiBorderGetMinSize( ImUiBorder border )
 {
-	const ImUiSize result = { border.left + border.right, border.top + border.bottom };
+	ImUiSize result;
+	result.width	= border.left + border.right;
+	result.height	= border.top + border.bottom;
 	return result;
 }
 
 ImUiRect ImUiRectCreate( float x, float y, float width, float height )
 {
-	const ImUiRect rect = { { x, y }, { width, height } };
-	return rect;
+	ImUiRect result;
+	result.pos.x		= x;
+	result.pos.y		= y;
+	result.size.width	= width;
+	result.size.height	= height;
+	return result;
 }
 
 ImUiRect ImUiRectCreatePos( ImUiPos pos, float width, float height )
 {
-	const ImUiRect rect = { pos, { width, height } };
-	return rect;
+	ImUiRect result;
+	result.pos			= pos;
+	result.size.width	= width;
+	result.size.height	= height;
+	return result;
 }
 
 ImUiRect ImUiRectCreateSize( float x, float y, ImUiSize size )
 {
-	const ImUiRect rect = { { x, y }, size };
-	return rect;
+	ImUiRect result;
+	result.pos.x		= x;
+	result.pos.y		= y;
+	result.size			= size;
+	return result;
 }
 
 ImUiRect ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size )
 {
-	const ImUiRect rect = { pos, size };
-	return rect;
+	ImUiRect result;
+	result.pos			= pos;
+	result.size			= size;
+	return result;
 }
 
 ImUiRect ImUiRectCreateMinMax( float minX, float minY, float maxX, float maxY )
 {
-	const ImUiRect rect = { { minX, minY }, { maxX - minX , maxY - minY } };
-	return rect;
+	ImUiRect result;
+	result.pos.x		= minX;
+	result.pos.y		= minY;
+	result.size.width	= maxX - minX;
+	result.size.height	= maxY - minY;
+	return result;
 }
 
 ImUiRect ImUiRectCreateMinMaxPos( ImUiPos tl, ImUiPos br )
 {
-	const ImUiRect rect ={ tl, { br.x - tl.x , br.y - tl.y } };
-	return rect;
+	ImUiRect result;
+	result.pos			= tl;
+	result.size.width	= br.x - tl.x;
+	result.size.height	= br.y - tl.y;
+	return result;
 }
 
 ImUiRect ImUiRectCreateCenter( float x, float y, float width, float height )
 {
 	const float halfWidth	= width * 0.5f;
 	const float halfHeight	= height * 0.5f;
-	const ImUiRect rect = { { x - halfWidth, y - halfHeight }, { width, height } };
-	return rect;
+
+	ImUiRect result;
+	result.pos.x		= x - halfWidth;
+	result.pos.y		= y - halfHeight;
+	result.size.width	= width;
+	result.size.height	= height;
+	return result;
 }
 
 ImUiRect ImUiRectCreateCenterPos( ImUiPos pos, float width, float height )
@@ -428,17 +476,17 @@ ImUiRect ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size )
 
 ImUiRect ImUiRectCreateZero()
 {
-	const ImUiRect rect ={ { 0.0f, 0.0f }, { 0.0f, 0.0f } };
-	return rect;
+	const ImUiRect result = { { 0.0f, 0.0f }, { 0.0f, 0.0f } };
+	return result;
 }
 
 ImUiRect ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border )
 {
-	const ImUiRect result =
-	{
-		{ rect.pos.x + border.left, rect.pos.y + border.top },
-		{ IMUI_MAX( 0.0f, rect.size.width - border.left - border.right ), IMUI_MAX( 0.0f, rect.size.height - border.top - border.bottom ) }
-	};
+	ImUiRect result;
+	result.pos.x		= rect.pos.x + border.left;
+	result.pos.y		= rect.pos.y + border.top;
+	result.size.width	= IMUI_MAX( 0.0f, rect.size.width - border.left - border.right );
+	result.size.height	= IMUI_MAX( 0.0f, rect.size.height - border.top - border.bottom );
 	return result;
 }
 
@@ -515,19 +563,22 @@ float ImUiRectGetBottom( ImUiRect rect )
 
 ImUiColor ImUiColorCreate( uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha )
 {
-	const ImUiColor color = { red, green, blue, alpha };
-	return color;
+	ImUiColor result;
+	result.red		= red;
+	result.green	= green;
+	result.blue		= blue;
+	result.alpha	= alpha;
+	return result;
 }
 
 ImUiColor ImUiColorCreateFloat( float red, float green, float blue, float alpha )
 {
-	const ImUiColor color = {
-		(uint8_t)((red * 255.0f) + 0.5f),
-		(uint8_t)((green * 255.0f) + 0.5f),
-		(uint8_t)((blue * 255.0f) + 0.5f),
-		(uint8_t)((alpha * 255.0f) + 0.5f)
-	};
-	return color;
+	ImUiColor result;
+	result.red		= (uint8_t)((red * 255.0f) + 0.5f);
+	result.green	= (uint8_t)((green * 255.0f) + 0.5f);
+	result.blue		= (uint8_t)((blue * 255.0f) + 0.5f);
+	result.alpha	= (uint8_t)((alpha * 255.0f) + 0.5f);
+	return result;
 }
 
 ImUiColor ImUiColorCreateBlack()

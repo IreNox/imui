@@ -4,11 +4,11 @@
 
 typedef struct ImUiInputText
 {
-	union
+	union ImUiInputTextData
 	{
 		char*						pointer;
 		char						buffer[ sizeof( char* ) ];
-	};
+	}								data;
 	size_t							capacity;
 	size_t							length;
 } ImUiInputText;

@@ -35,16 +35,23 @@ void ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, const ImUiAllo
 
 void* ImUiMemoryDefaultAlloc( uintsize size, void* userData )
 {
+	(void)userData;
+
 	return malloc( size );
 }
 
 void* ImUiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
+	(void)oldSize;
+	(void)userData;
+
 	return realloc( oldMemory, newSize );
 }
 
 void* ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
+	(void)userData;
+
 	ImUiAllocator* allocator = (ImUiAllocator*)userData;
 	void* newMemory = ImUiMemoryAlloc( allocator, newSize );
 	if( newMemory == NULL )
@@ -61,6 +68,8 @@ void* ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSi
 
 void ImUiMemoryDefaultFree( void* memory, void* userData )
 {
+	(void)userData;
+
 	free( memory );
 }
 

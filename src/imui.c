@@ -13,7 +13,7 @@ static void			ImUiWindowLayout( ImUiWindow* window );
 static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
 static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIndex, float dpiScale, bool update );
 static void			ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widget );
-static void			ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget, float dpiScale );
+static void			ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget );
 static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update );
 static void			ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
@@ -498,7 +498,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 
 	if( widget->layout == ImUiLayout_Grid )
 	{
-		ImUiWidgetUpdateLayoutContextGrid( widget, dpiScale );
+		ImUiWidgetUpdateLayoutContextGrid( widget );
 	}
 
 	switch( widget->parent->layout )
@@ -556,7 +556,6 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 		widget->gridContext->columnCount != colCount ||
 		widget->gridContext->rowCount != rowCount )
 	{
-		const uintsize rowCount = (widget->childCount + widget->layoutData.grid.columnCount - 1u) / widget->layoutData.grid.columnCount;
 		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
 		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->context->allocator, contextSize );
 
@@ -612,7 +611,7 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 	}
 }
 
-static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget, float dpiScale )
+static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
 {
 	ImUiLayoutContext* context = &widget->layoutContext;
 	ImUiLayoutGridContext* gridContext = widget->gridContext;
@@ -831,12 +830,7 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 	const ImUiSize minSize			= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
 	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeScale( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), ImUiSizeCreate( colElement->size, rowElement->size ) );
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
-
-	const ImUiRect cellInnerRect =
-	{
-		{ colElement->pos, rowElement->pos },
-		{ colElement->size, rowElement->size }
-	};
+	const ImUiRect cellInnerRect	= ImUiRectCreate( colElement->pos, rowElement->pos, colElement->size, rowElement->size );
 
 	ImUiPos pos;
 	pos.x = ImUiWidgetLayoutPositionX( widget, &cellInnerRect, size.width, dpiScale );
@@ -847,6 +841,8 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 
 static ImUiSize ImUiWidgetLayoutMinSize( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
+	(void)parentInnerRect;
+
 	const ImUiBorder margin		= ImUiBorderScale( widget->margin, dpiScale );
 	const ImUiBorder padding	= ImUiBorderScale( widget->padding, dpiScale );
 	const ImUiSize minChildren	= ImUiSizeExpandBorder( ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding ), margin );

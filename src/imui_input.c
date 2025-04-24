@@ -310,7 +310,7 @@ ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )
 
 static char* ImUiInputTextGet( ImUiInputText* text )
 {
-	return text->capacity > sizeof( text->buffer ) ? text->pointer : text->buffer;
+	return text->capacity > sizeof( text->data.buffer ) ? text->data.pointer : text->data.buffer;
 }
 
 static const char* ImUiInputTextGetRead( const ImUiInputText* text )
@@ -319,24 +319,24 @@ static const char* ImUiInputTextGetRead( const ImUiInputText* text )
 	{
 		return NULL;
 	}
-	else if( text->capacity > sizeof( text->buffer ) )
+	else if( text->capacity > sizeof( text->data.buffer ) )
 	{
-		return text->pointer;
+		return text->data.pointer;
 	}
 
-	return text->buffer;
+	return text->data.buffer;
 }
 
 static void ImUiInputTextFree( ImUiInput* input, ImUiInputText* text )
 {
-	if( text->capacity > sizeof( text->buffer ) )
+	if( text->capacity > sizeof( text->data.buffer ) )
 	{
-		ImUiMemoryFree( input->allocator, text->pointer );
+		ImUiMemoryFree( input->allocator, text->data.pointer );
 	}
 
-	text->buffer[ 0u ]	= '\0';
-	text->capacity		= sizeof( text->buffer );
-	text->length		= 0u;
+	text->data.buffer[ 0u ]	= '\0';
+	text->capacity			= sizeof( text->data.buffer );
+	text->length			= 0u;
 }
 
 static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, uintsize requiredCapacity )
@@ -352,7 +352,7 @@ static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, u
 		nextCapacity <<= 1u;
 	}
 
-	if( text->capacity <= sizeof( text->buffer ) )
+	if( text->capacity <= sizeof( text->data.buffer ) )
 	{
 		char* newText = (char*)ImUiMemoryAlloc( input->allocator, nextCapacity );
 		if( !newText )
@@ -360,22 +360,22 @@ static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, u
 			return false;
 		}
 
-		memcpy( newText, text->buffer, text->length );
+		memcpy( newText, text->data.buffer, text->length );
 		newText[ text->length ] = '\0';
 
-		text->pointer	= newText;
-		text->capacity	= nextCapacity;
+		text->data.pointer	= newText;
+		text->capacity		= nextCapacity;
 	}
 	else
 	{
-		char* newText = (char*)ImUiMemoryRealloc( input->allocator, text->pointer, text->capacity, nextCapacity );
+		char* newText = (char*)ImUiMemoryRealloc( input->allocator, text->data.pointer, text->capacity, nextCapacity );
 		if( !newText )
 		{
 			return false;
 		}
 
-		text->pointer	= newText;
-		text->capacity	= nextCapacity;
+		text->data.pointer	= newText;
+		text->capacity		= nextCapacity;
 	}
 
 	return true;
@@ -389,17 +389,17 @@ static bool ImUiInputTextPush( ImUiInput* input, ImUiInputText* text, const char
 		return false;
 	}
 
-	if( text->capacity <= sizeof( text->buffer ) )
+	if( text->capacity <= sizeof( text->data.buffer ) )
 	{
-		memcpy( text->buffer + text->length, string, length );
+		memcpy( text->data.buffer + text->length, string, length );
 		text->length += length;
-		text->buffer[ text->length ] = '\0';
+		text->data.buffer[ text->length ] = '\0';
 	}
 	else
 	{
-		memcpy( text->pointer + text->length, string, length );
+		memcpy( text->data.pointer + text->length, string, length );
 		text->length += length;
-		text->pointer[ text->length ] = '\0';
+		text->data.pointer[ text->length ] = '\0';
 	}
 
 	return true;

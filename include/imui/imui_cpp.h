@@ -402,9 +402,9 @@ namespace imui
 		struct UiToolboxConfig : public ImUiToolboxConfig, public UiNonCopyable
 		{
 						UiToolboxConfig();
-						UiToolboxConfig( ImUiFont* font );
+						UiToolboxConfig( ImUiFont* inFont );
 
-			void		setDefault( ImUiFont* font );
+			void		setDefault( ImUiFont* inFont );
 
 			void		applyConfig();
 
