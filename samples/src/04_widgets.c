@@ -16,22 +16,17 @@
 
 typedef struct ImUiToolboxSampleContext
 {
-	float		sliderValue1;
-
-	ImUiFont*	font;
-	ImUiImage	fontTexture;
-
-	ImUiSkin	skinRect;
-	ImUiImage	skinRectTexture;
-	ImUiSkin	skinLine;
-	ImUiImage	skinLineTexture;
-} ImUiToolboxSampleContext;
-
-static ImUiToolboxSampleContext s_toolboxContext = { 2.5f, NULL };
+	float							sliderValue1;
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-static void			ImUiToolboxSampleSetConfig();
+	ImUiFrameworkToolboxConfigData	configData;
 #endif
+} ImUiToolboxSampleContext;
+
+static ImUiToolboxSampleContext s_toolboxContext =
+{
+	.sliderValue1 = 2.5f
+};
 
 static void			ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
 static void			ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window );
@@ -39,6 +34,8 @@ static void			ImUiToolboxSampleTextEdit( ImUiWindow* window );
 static void			ImUiToolboxSampleDropDown( ImUiWindow* window );
 static void			ImUiToolboxSamplePopup( ImUiWindow* window );
 static void			ImUiToolboxSampleScrollAndList( ImUiWindow* window );
+static void			ImUiToolboxSampleTabView( ImUiWindow* window );
+static void			ImUiToolboxSampleTextView( ImUiWindow* window );
 
 typedef struct ImUiTestPopupState ImUiTestPopupState;
 struct ImUiTestPopupState
@@ -46,45 +43,52 @@ struct ImUiTestPopupState
 	bool isOpen;
 };
 
-void ImUiToolboxSampleTick( ImUiSurface* surface )
+void ImUiToolboxSampleTick( ImUiWindow* window )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	ImUiToolboxSampleSetConfig();
+	ImUiFrameworkToolboxConfigDataApply( &s_toolboxContext.configData );
 #endif
-
-	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 	ImUiWidgetSetStretchOne( hLayout );
 	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
 	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetHStretch( vLayout, 1.0f );
-	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
+	{
+		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
+		ImUiWidgetSetHStretch( vLayout, 1.0f );
+		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
-	ImUiToolboxSampleSlidersAndProgressBars( window );
-	ImUiToolboxSampleTextEdit( window );
-	ImUiToolboxSampleDropDown( window );
-	ImUiToolboxSamplePopup( window );
+		ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
+		ImUiToolboxSampleSlidersAndProgressBars( window );
+		ImUiToolboxSampleTextEdit( window );
+		ImUiToolboxSampleDropDown( window );
+		ImUiToolboxSamplePopup( window );
 
-	ImUiWidgetEnd( vLayout );
+		ImUiWidgetEnd( vLayout );
+	}
 
-	ImUiToolboxSampleScrollAndList( window );
+	{
+		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
+		ImUiWidgetSetHStretch( vLayout, 1.0f );
+		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
-	ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
-	ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
-	ImUiWidgetSetVAlign( mouseLabel, 0.0f );
-	ImUiToolboxLabelEnd( mouseLabel );
+		ImUiToolboxSampleScrollAndList( window );
+		ImUiToolboxSampleTabView( window );
+		ImUiToolboxSampleTextView( window );
 
-	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_widgetContext.fontTexture.size ), s_widgetContext.fontTexture );
+		ImUiWidgetEnd( vLayout );
+	}
+
+	{
+		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
+		ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
+		ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
+		ImUiWidgetSetVAlign( mouseLabel, 0.0f );
+		ImUiToolboxLabelEnd( mouseLabel );
+	}
 
 	ImUiWidgetEnd( hLayout );
-
-	ImUiWindowEnd( window );
 }
 
 static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout )
@@ -160,10 +164,6 @@ static void ImUiToolboxSampleTextEdit( ImUiWindow* window )
 
 static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 {
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
-	ImUiWidgetSetHStretch( vLayout, 1.0f );
-	ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
-
 	ImUiToolboxLabel( window, "Item count:" );
 	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
@@ -173,7 +173,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	if( useList )
 	{
 		ImUiToolboxListContext list;
-		ImUiToolboxListBegin( &list, window, 25.0f, count );
+		ImUiToolboxListBegin( &list, window, 25.0f, count, true );
 		ImUiWidgetSetMinSize( list.list, 200.0f, 200.0f );
 
 		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
@@ -206,8 +206,6 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 		ImUiWidgetEnd( scrollLayout );
 		ImUiToolboxScrollAreaEnd( &scrollArea );
 	}
-
-	ImUiWidgetEnd( vLayout );
 }
 
 static void ImUiToolboxSampleDropDown( ImUiWindow* window )
@@ -239,7 +237,7 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 
 	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ), IMUI_ID_TYPE( ImUiTestPopupState ) );
 
-	if( ImUiToolboxButtonLabelEnd( button ) )
+	if( ImUiToolboxButtonEnd( button ) )
 	{
 		state->isOpen = !state->isOpen;
 	}
@@ -264,148 +262,65 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 	}
 }
 
+static void ImUiToolboxSampleTabView( ImUiWindow* window )
+{
+	ImUiToolboxTabViewContext tabView;
+	ImUiToolboxTabViewBegin( &tabView, window );
+	ImUiWidgetSetHStretch( tabView.view, 1.0f );
+
+	char buffer[ 32u ];
+
+	uintsize selectedTab = 0u;
+	for( uintsize i = 0u; i < 4u; ++i )
+	{
+		snprintf( buffer, sizeof( buffer ), "Tab %zu", i + 1u );
+
+		if( ImUiToolboxTabViewHeader( &tabView, buffer ) )
+		{
+			selectedTab = i;
+		}
+	}
+
+	ImUiToolboxTabViewBodyBegin( &tabView );
+
+	snprintf( buffer, sizeof( buffer ), "Hello from Tab %zu", selectedTab + 1u );
+	ImUiToolboxLabel( window, buffer );
+
+	ImUiToolboxTabViewBodyEnd( &tabView );
+	ImUiToolboxTabViewEnd( &tabView );
+}
+
+static void ImUiToolboxSampleTextView( ImUiWindow* window )
+{
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
+
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 7" );
+	ImUiToolboxTextBufferAppend( textBuffer, " and more for 7\n" );
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 8\n\nLine 10 after empty Line" );
+	ImUiToolboxTextBufferAppend( textBuffer, "\nLine 11\nLine 12\n" );
+	ImUiToolboxTextBufferAppend( textBuffer, "Line 13\nLine 14" );
+
+	ImUiToolboxTextViewContext textViewContext;
+	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( &textViewContext, window, textBuffer );
+
+	ImUiWidgetSetFixedWidth( textView, 250.0f );
+	ImUiWidgetSetFixedHeight( textView, 150.0f );
+
+	ImUiToolboxTextViewEnd( &textViewContext );
+
+
+	ImUiToolboxTextBufferFree( textBuffer );
+}
+
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
 bool ImUiToolboxSampleInitialize( ImUiContext* imui )
 {
-	if( !ImUiFrameworkFontCreate( &s_toolboxContext.font, &s_toolboxContext.fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
-	{
-		return false;
-	}
-
-	if( !ImUiFrameworkSkinCreate( &s_toolboxContext.skinRect, &s_toolboxContext.skinRectTexture, 32u, 8.0f, 128.0f, false ) )
-	{
-		return false;
-	}
-
-	if( !ImUiFrameworkSkinCreate( &s_toolboxContext.skinLine, &s_toolboxContext.skinLineTexture, 32u, 6.0f, 64.0f, true ) )
-	{
-		return false;
-	}
-
-	ImUiToolboxSampleSetConfig();
-
-	return true;
+	return ImUiFrameworkToolboxConfigDataInitialize( &s_toolboxContext.configData, imui );
 }
 
 void ImUiToolboxSampleShutdown( ImUiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &s_toolboxContext.font, &s_toolboxContext.fontTexture );
-	ImUiFrameworkSkinDestroy( &s_toolboxContext.skinRect, &s_toolboxContext.skinRectTexture );
-	ImUiFrameworkSkinDestroy( &s_toolboxContext.skinLine, &s_toolboxContext.skinLineTexture );
+	ImUiFrameworkToolboxConfigDataShutdown( &s_toolboxContext.configData, imui );
 }
 
-static void ImUiToolboxSampleSetConfig()
-{
-	const ImUiColor textColor			= ImUiColorCreateWhite();
-	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
-	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
-	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
-	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
-
-	ImUiToolboxConfig config;
-	config.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
-	config.colors[ ImUiToolboxColor_Button ]					= elementColor;
-	config.colors[ ImUiToolboxColor_ButtonHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_ButtonClicked ]				= elementClickedColor;
-	config.colors[ ImUiToolboxColor_ButtonText ]				= textColor;
-	config.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
-	config.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
-	config.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
-	config.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
-	config.colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
-	config.colors[ ImUiToolboxColor_SliderPivotClicked ]		= checkedColor;
-	config.colors[ ImUiToolboxColor_TextEditBackground ]		= backgroundColor;
-	config.colors[ ImUiToolboxColor_TextEditText ]				= textColor;
-	config.colors[ ImUiToolboxColor_TextEditCursor ]			= textEditCursorColor;
-	config.colors[ ImUiToolboxColor_TextEditSelection ]			= elementColor;
-	config.colors[ ImUiToolboxColor_ProgressBarBackground ]		= backgroundColor;
-	config.colors[ ImUiToolboxColor_ProgressBarProgress ]		= elementColor;
-	config.colors[ ImUiToolboxColor_ScrollAreaBarBackground ]	= backgroundColor;
-	config.colors[ ImUiToolboxColor_ScrollAreaBarPivot ]		= elementColor;
-	config.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	config.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
-	config.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
-	config.colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
-	config.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
-	config.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
-	config.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
-	config.colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemText ]		= textColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemHover ]		= elementHoverColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemClicked ]	= elementClickedColor;
-	config.colors[ ImUiToolboxColor_DropDownListItemSelected ]	= elementColor;
-	config.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
-	config.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	_STATIC_ASSERT( ImUiToolboxColor_MAX == 37 );
-
-	config.skins[ ImUiToolboxSkin_Button ]						= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBox ]					= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_SliderBackground ]			= s_toolboxContext.skinLine;
-	config.skins[ ImUiToolboxSkin_SliderPivot ]					= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_TextEditBackground ]			= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= s_toolboxContext.skinLine;
-	config.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ListItem ]					= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_ListItemSelected ]			= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDown ]					= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownList ]				= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_DropDownListItem ]			= s_toolboxContext.skinRect;
-	config.skins[ ImUiToolboxSkin_Popup ]						= s_toolboxContext.skinRect;
-	_STATIC_ASSERT( ImUiToolboxSkin_MAX == 16 );
-
-	const ImUiImage image = { NULL, 16u, 16u };
-
-	config.icons[ ImUiToolboxIcon_CheckBoxChecked ] = image;
-	config.icons[ ImUiToolboxIcon_DropDownOpenIcon ] = image;
-	config.icons[ ImUiToolboxIcon_DropDownCloseIcon ] = image;
-
-	config.font						= s_toolboxContext.font;
-
-	config.button.height			= 20.0f;
-	config.button.padding			= ImUiBorderCreateAll( 8.0f );
-
-	config.checkBox.size			= ImUiSizeCreateAll( 20.0f );
-	config.checkBox.textSpacing		= 5.0f;
-
-	config.slider.height			= 20.0f;
-	config.slider.padding			= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
-	config.slider.pivotSize			= ImUiSizeCreate( 12.0f, 20.0f );
-
-	config.textEdit.height			= 25.0f;
-	config.textEdit.padding			= ImUiBorderCreateAll( 4.0f );
-	config.textEdit.cursorSize		= ImUiSizeCreate( 1.0f, 12.0f );
-	config.textEdit.blinkTime		= 0.53f;
-
-	config.progressBar.height		= 20.0f;
-	config.progressBar.padding		= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );
-
-	config.scrollArea.barSize		= 8.0f;
-	config.scrollArea.barSpacing	= 4.0f;
-	config.scrollArea.barMinSize	= 20.0f;
-
-	config.list.itemSpacing			= 4.0f;
-
-	config.dropDown.height			= 25.0f;
-	config.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
-	config.dropDown.listZOrder		= 10u;
-	config.dropDown.maxListLength	= 8u;
-	config.dropDown.itemPadding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
-	config.dropDown.itemSize		= 25.0f;
-	config.dropDown.itemSpacing		= 8.0f;
-
-	config.popup.zOrder				= 20u;
-	config.popup.padding			= ImUiBorderCreateAll( 8.0f );
-	config.popup.buttonSpacing		= 4.0f;
-
-	ImUiToolboxSetConfig( &config );
-}
 #endif

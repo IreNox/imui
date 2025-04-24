@@ -13,7 +13,7 @@ typedef struct ImUiDrawSurfaceData
 	ImUiStringView			name;
 	ImUiSize				size;
 
-	uint32*					windows;
+	uintsize*				windows;
 	uintsize				windowCapacity;
 	uintsize				windowCount;
 
@@ -47,8 +47,7 @@ typedef struct ImUiDrawWindowData
 	uintsize				elementCount;
 } ImUiDrawWindowData;
 
-typedef enum ImUiDrawSkinPointX ImUiDrawSkinPointX;
-enum ImUiDrawSkinPointX
+typedef enum ImUiDrawSkinPointX
 {
 	ImUiDrawSkinPointX_Left,
 	ImUiDrawSkinPointX_CenterLeft,
@@ -56,10 +55,9 @@ enum ImUiDrawSkinPointX
 	ImUiDrawSkinPointX_Right,
 
 	ImUiDrawSkinPointX_END = ImUiDrawSkinPointX_Right
-};
+} ImUiDrawSkinPointX;
 
-typedef enum ImUiDrawSkinPointY ImUiDrawSkinPointY;
-enum ImUiDrawSkinPointY
+typedef enum ImUiDrawSkinPointY
 {
 	ImUiDrawSkinPointY_Top,
 	ImUiDrawSkinPointY_CenterTop,
@@ -67,7 +65,7 @@ enum ImUiDrawSkinPointY
 	ImUiDrawSkinPointY_Bottom,
 
 	ImUiDrawSkinPointY_END = ImUiDrawSkinPointY_Bottom
-};
+} ImUiDrawSkinPointY;
 
 static void					ImUiDrawFreeWindow( ImUiDraw* draw, ImUiDrawWindowData* window );
 static void					ImUiDrawFreeSurface( ImUiDraw* draw, ImUiDrawSurfaceData* surface );
@@ -171,8 +169,17 @@ uintsize ImUiDrawRegisterSurface( ImUiDraw* draw, ImUiStringView name, ImUiSize 
 			continue;
 		}
 
+		if( surface->used )
+		{
+			surface->windowCount				= 0u;
+			surface->commandCount				= 0u;
+			surface->approximatedIndexCount		= 0u;
+			surface->approximatedVertexCount	= 0u;
+		}
+
 		surface->used	= true;
 		surface->size	= size;
+
 		return i;
 	}
 
@@ -218,9 +225,26 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ surfaceIndex ];
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+	bool windowFound = false;
+	for( uintsize i = 0; i < surface->windowCount; ++i )
 	{
-		return IMUI_SIZE_MAX;
+		if( surface->windows[ i ] != windowIndex )
+		{
+			continue;
+		}
+
+		windowFound = true;
+		break;
+	}
+
+	if( !windowFound )
+	{
+		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
+		{
+			return IMUI_SIZE_MAX;
+		}
+
+		surface->windows[ surface->windowCount++ ] = windowIndex;
 	}
 
 	ImUiDrawWindowData* window = &draw->windows[ windowIndex ];
@@ -228,8 +252,7 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 	window->name			= name;
 	window->surfaceIndex	= surfaceIndex;
 	window->zOrder			= zOrder;
-
-	surface->windows[ surface->windowCount++ ] = (uint32)windowIndex;
+	window->elementCount	= 0u;
 
 	return windowIndex;
 }
@@ -243,7 +266,7 @@ void ImUiDrawSurfaceEnd( ImUiDraw* draw, uintsize surfaceIndex )
 	{
 		while( i > 0u && draw->windows[ surface->windows[ i - 1u ] ].zOrder > draw->windows[ surface->windows[ i ] ].zOrder )
 		{
-			uint32 tempWindowIndex = surface->windows[ i ];
+			const uintsize tempWindowIndex = surface->windows[ i ];
 			surface->windows[ i ]		= surface->windows[ i - 1u ];
 			surface->windows[ i - 1u ]	= tempWindowIndex;
 
@@ -267,8 +290,7 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 			continue;
 		}
 
-		window->used			= false;
-		window->elementCount	= 0u;
+		window->used = false;
 	}
 
 	for( uintsize i = 0; i < draw->surfaceCount; ++i )
@@ -292,7 +314,7 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 	}
 }
 
-ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, void* texture )
+ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, uint64_t textureHandle )
 {
 	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawWindowData* window = ImUiDrawGetWindow( draw, widget );
@@ -302,7 +324,7 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 		return NULL;
 	}
 
-	if( !texture )
+	if( textureHandle == IMUI_TEXTURE_HANDLE_INVALID )
 	{
 		if( type == ImUiDrawElementType_Skin )
 		{
@@ -310,14 +332,14 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 		}
 		else if( type == ImUiDrawElementType_SkinPartial )
 		{
-			type = ImUiDrawElementType_SkinPartial;
+			type = ImUiDrawElementType_RectPartial;
 		}
 	}
 
 	ImUiDrawElement* element = &window->elements[ window->elementCount++ ];
-	element->type		= type;
-	element->texture	= texture;
-	element->widget		= widget;
+	element->type			= type;
+	element->textureHandle	= textureHandle;
+	element->widget			= widget;
 
 	uintsize indexCount = 0u;
 	uintsize vertexCount = 0u;
@@ -342,7 +364,7 @@ ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType ty
 
 ImUiDrawElement* ImUiDrawPushElementText( ImUiWidget* widget, ImUiDrawElementType type, ImUiTextLayout* layout )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, type, layout->font->image.textureData );
+	ImUiDrawElement* element = ImUiDrawPushElement( widget, type, layout->font->image.textureHandle );
 
 	ImUiDraw* draw = &widget->window->surface->context->draw;
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ widget->window->surface->drawIndex ];
@@ -486,10 +508,10 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	}
 
 	ImUiDrawCommand* command = &surface->commands[ surface->commandCount++ ];
-	command->topology	= element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
-	command->texture	= element->texture;
-	command->clipRect	= element->widget->clipRect;
-	command->count		= 0u;
+	command->topology		= element->type == ImUiDrawElementType_Line ? ImUiDrawTopology_LineList : draw->triangleTopology;
+	command->textureHandle	= element->textureHandle;
+	command->clipRect		= element->widget->clipRect;
+	command->count			= 0u;
 
 	ImUiRect rect = ImUiDrawSurfaceGenerateWidgetRect( element->widget );
 	switch( element->type )
@@ -655,6 +677,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 	case ImUiDrawElementType_Text:
 		{
 			const struct ImUiDrawElementDataText* textData = &element->data.text;
+			const float scale = textData->size / textData->layout->font->fontSize;
 
 			const float x = rect.pos.x;
 			const float y = rect.pos.y;
@@ -662,8 +685,10 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 			{
 				const ImUiTextGlyph* glyph = &textData->layout->glyphs[ i ];
 
-				const ImUiPos posTl = ImUiPosCreate( x + glyph->pos.x, y + glyph->pos.y );
-				const ImUiPos posBr = ImUiPosCreate( posTl.x + glyph->size.width, posTl.y + glyph->size.height );
+				const ImUiPos glyphPos		= ImUiPosScale( glyph->pos, scale );
+				const ImUiSize glyphSize	= ImUiSizeScale( glyph->size, scale );
+				const ImUiPos posTl			= ImUiPosCreate( x + glyphPos.x, y + glyphPos.y );
+				const ImUiPos posBr			= ImUiPosCreate( posTl.x + glyphSize.width, posTl.y + glyphSize.height );
 
 				command->count += ImUiDrawSurfacePushRect( draw, surface, posTl, posBr, glyph->uv, textData->color );
 			}

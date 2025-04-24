@@ -23,13 +23,14 @@ typedef int32_t		sint32;
 typedef int64_t		sint64;
 
 typedef size_t		uintsize;
+typedef ptrdiff_t 	sintsize;
 
 typedef uint8_t		byte;
 
 typedef struct ImUiStringView
 {
 	const char*		data;
-	size_t			length;
+	uintsize		length;
 } ImUiStringView;
 
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
@@ -60,6 +61,6 @@ typedef struct ImUiStringView
 #	define IMUI_OFFSETOF( type, member )	__builtin_offsetof( type, member )
 #	define IMUI_COUNT_LEADING_ZEROS( val )	__builtin_clz( val )
 #else
-#	define IMUI_OFFSETOF( type, member )	((size_t)(&((type*)0)->member))
+#	define IMUI_OFFSETOF( type, member )	((uintsize)(&((type*)0)->member))
 #	define IMUI_COUNT_LEADING_ZEROS( val )	__lzcnt( val )
 #endif

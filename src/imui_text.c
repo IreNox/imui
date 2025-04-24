@@ -13,8 +13,8 @@ static ImUiHash ImUiTextLayoutCacheHash( const void* entry )
 {
 	const ImUiTextLayout* layout = *(const ImUiTextLayout**)entry;
 
-	const ImUiHash fontHash = ImUiHashCreate( &layout->font, sizeof( &layout->font ), 0u );
-	return ImUiHashString( layout->text, fontHash );
+	const ImUiHash fontHash = ImUiHashCreate( &layout->font, sizeof( &layout->font ) );
+	return ImUiHashStringSeed( layout->text, fontHash );
 }
 
 static bool ImUiTextLayoutCacheIsKeyEquals( const void* lhs, const void* rhs )
@@ -99,21 +99,32 @@ void ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cache )
 
 ImUiTextLayout* ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const char* text )
 {
+	return ImUiTextLayoutCreateLength( imui, font, text, strlen( text ) );
+}
+
+ImUiTextLayout* ImUiTextLayoutCreateLength( ImUiContext* imui, ImUiFont* font, const char* text, size_t length )
+{
 	if( !font )
 	{
 		return NULL;
 	}
 
 	ImUiTextLayoutParameters parameters;
-	parameters.font	= font;
-	parameters.text	= ImUiStringViewCreate( text );
+	parameters.font			= font;
+	parameters.text.data	= text;
+	parameters.text.length	= length;
 
 	return ImUiTextLayoutCacheCreateLayout( &imui->layoutCache, &parameters );
 }
 
 ImUiTextLayout* ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text )
 {
-	return ImUiTextLayoutCreate( widget->window->context, font, text );
+	return ImUiTextLayoutCreateWidgetLength( widget, font, text, strlen( text ) );
+}
+
+ImUiTextLayout* ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length )
+{
+	return ImUiTextLayoutCreateLength( widget->window->context, font, text, length );
 }
 
 ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters )
@@ -180,7 +191,13 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 			continue;
 		}
 
-		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
+		uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
+		if( codepointByteCount > 4 )
+		{
+			// invalid character
+			codepointByteCount = 1;
+		}
+
 		i += IMUI_MAX( codepointByteCount, 1 );
 		glyphCount++;
 	}
@@ -216,20 +233,29 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 		}
 
 		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
-		const uint32 codepointMask = (1u << (8 - codepointByteCount)) - 1u;
 
-		uint32 codepoint = c & codepointMask;
-		for( int remainingBytes = (int)codepointByteCount - 1; remainingBytes > 0; --remainingBytes )
+		uint32 codepoint;
+		if( codepointByteCount == 1 || codepointByteCount > 4 )
 		{
-			i++;
-			if( i >= parameters->text.length )
+			// invalid character
+			codepoint = 0xfffd; // invalid codepoint
+		}
+		else
+		{
+			const uint32 codepointMask = (1u << (8 - codepointByteCount)) - 1u;
+			codepoint = c & codepointMask;
+			for( int remainingBytes = (int)codepointByteCount - 1; remainingBytes > 0; --remainingBytes )
 			{
-				break;
-			}
-			const char c2 = parameters->text.data[ i ];
+				i++;
+				if( i >= parameters->text.length )
+				{
+					break;
+				}
+				const char c2 = parameters->text.data[ i ];
 
-			codepoint <<= 6u;
-			codepoint += (c2 & 0x3fu);
+				codepoint <<= 6u;
+				codepoint += (c2 & 0x3fu);
+			}
 		}
 
 		uint32* mapCodepointKey = &codepoint;

@@ -16,6 +16,17 @@ typedef struct ImUiImage ImUiImage;
 
 typedef struct ImUiFrameworkTexture ImUiFrameworkTexture;
 
+typedef struct ImUiFrameworkToolboxConfigData
+{
+	ImUiFont*	font;
+	ImUiImage	fontTexture;
+
+	ImUiSkin	skinRect;
+	ImUiImage	skinRectTexture;
+	ImUiSkin	skinLine;
+	ImUiImage	skinLineTexture;
+} ImUiFrameworkToolboxConfigData;
+
 bool					ImUiFrameworkInitialize( ImUiContext* imui );
 void					ImUiFrameworkShutdown( ImUiContext* imui );
 void					ImUiFrameworkTick( ImUiSurface* surface );
@@ -30,6 +41,10 @@ void					ImUiFrameworkFontDestroy( ImUiFont** font, ImUiImage* image );
 
 bool					ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiImage* image, uint32_t size, float radius, float factor, bool horizontal );
 void					ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiImage* image );
+
+bool					ImUiFrameworkToolboxConfigDataInitialize( ImUiFrameworkToolboxConfigData* data, ImUiContext* imui );
+void					ImUiFrameworkToolboxConfigDataShutdown( ImUiFrameworkToolboxConfigData* data, ImUiContext* imui );
+void					ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* data );
 
 #ifdef __cplusplus
 }

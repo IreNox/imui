@@ -16,14 +16,11 @@ typedef struct ImUiHelloWorldSampleContext
 
 static ImUiHelloWorldSampleContext s_helloWorldContext = { NULL };
 
-void ImUiHelloWorldSampleTick( ImUiSurface* surface )
+void ImUiHelloWorldSampleTick( ImUiWindow* window )
 {
-	ImUiContext* imui = ImUiSurfaceGetContext( surface );
+	ImUiContext* imui = ImUiWindowGetContext( window );
 
 	ImUiTextLayout* textLayout = ImUiTextLayoutCreate( imui, s_helloWorldContext.font, u8"ΑΒΓΔ Hello World! ΦΧΨΩ" );
-
-	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	const double time	= ImUiWindowGetTime( window );
 	const float timeSin = (float)sin( time / -2.0 ) * 0.5f + 0.5f;
@@ -88,8 +85,6 @@ void ImUiHelloWorldSampleTick( ImUiSurface* surface )
 	}
 
 	ImUiWidgetEnd( vLayout );
-
-	ImUiWindowEnd( window );
 }
 
 bool ImUiHelloWorldSampleInitialize( ImUiContext* imui )

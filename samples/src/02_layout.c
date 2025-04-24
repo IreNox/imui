@@ -15,12 +15,9 @@ static void ImUiLayoutSampleStretchVertical( ImUiWindow* window );
 static void ImUiLayoutSampleStretchGrid( ImUiWindow* window );
 static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
 
-void ImUiLayoutSampleTick( ImUiSurface* surface )
+void ImUiLayoutSampleTick( ImUiWindow* window )
 {
-	ImUiContext* imui = ImUiSurfaceGetContext( surface );
-
-	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiContext* imui = ImUiWindowGetContext( window );
 
 	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretchOne( vMain );
@@ -53,8 +50,6 @@ void ImUiLayoutSampleTick( ImUiSurface* surface )
 	ImUiLayoutSampleStretchGrid( window );
 
 	ImUiWidgetEnd( vMain );
-
-	ImUiWindowEnd( window );
 }
 
 static void ImUiLayoutSampleMinSizeHorizontal( ImUiWindow* window )

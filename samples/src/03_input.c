@@ -7,12 +7,9 @@
 
 static void ImUiInputSampleElement( ImUiWindow* window );
 
-void ImUiInputSampleTick( ImUiSurface* surface )
+void ImUiInputSampleTick( ImUiWindow* window )
 {
-	ImUiContext* imui = ImUiSurfaceGetContext( surface );
-
-	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	ImUiContext* imui = ImUiWindowGetContext( window );
 
 	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, "hMain" );
 	ImUiWidgetSetStretch( cLayout, 0.5f, 0.25f );
@@ -33,8 +30,6 @@ void ImUiInputSampleTick( ImUiSurface* surface )
 	ImUiWidgetEnd( hLayout );
 
 	ImUiWidgetEnd( cLayout );
-
-	ImUiWindowEnd( window );
 }
 
 static void ImUiInputSampleElement( ImUiWindow* window )

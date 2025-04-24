@@ -212,4 +212,5 @@ ImUiStringView				ImUiStringViewCreateLength( const char* str, size_t length );
 ImUiStringView				ImUiStringViewCreateEmpty();
 bool						ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
 
-ImUiHash					ImUiHashString( ImUiStringView string, ImUiHash seed );
+ImUiHash					ImUiHashString( ImUiStringView string );
+ImUiHash					ImUiHashStringSeed( ImUiStringView string, ImUiHash seed );

@@ -5,6 +5,8 @@
 #include <math.h>
 #include <string.h>
 
+static const ImUiHash s_hashDefaultSeed = 0xc6b568d8;
+
 ImUiStringView ImUiStringViewCreate( const char* str )
 {
 	if( str == NULL )
@@ -55,7 +57,12 @@ bool ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 )
 	return memcmp( string1.data, string2.data, string1.length ) == 0u;
 }
 
-ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
+ImUiHash ImUiHashCreate( const void* data, size_t dataSize )
+{
+	return ImUiHashCreateSeed( data, dataSize, s_hashDefaultSeed );
+}
+
+ImUiHash ImUiHashCreateSeed( const void* data, size_t dataSize, ImUiHash seed )
 {
 	// Murmur3
 	uint32 hash = seed;
@@ -97,9 +104,14 @@ ImUiHash ImUiHashCreate( const void* data, size_t dataSize, ImUiHash seed )
 	return hash;
 }
 
-ImUiHash ImUiHashString( ImUiStringView string, ImUiHash seed )
+ImUiHash ImUiHashString( ImUiStringView string )
 {
-	return ImUiHashCreate( string.data, string.length, seed );
+	return ImUiHashCreate( string.data, string.length );
+}
+
+ImUiHash ImUiHashStringSeed( ImUiStringView string, ImUiHash seed )
+{
+	return ImUiHashCreateSeed( string.data, string.length, seed );
 }
 
 ImUiHash ImUiHashMix( ImUiHash hash1, ImUiHash hash2 )

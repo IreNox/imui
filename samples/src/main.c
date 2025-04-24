@@ -2,7 +2,7 @@
 
 typedef bool (*ImUiSampleInitialize)( ImUiContext* imui );
 typedef void (*ImUiSampleShutdown)( ImUiContext* imui );
-typedef void (*ImUiSampleTick)( ImUiSurface* surface );
+typedef void (*ImUiSampleTick)( ImUiWindow* window );
 
 typedef struct ImUiSample
 {
@@ -58,5 +58,10 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		break;
 	}
 
-	s_currentSample->tick( surface );
+	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
+	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+
+	s_currentSample->tick( window );
+
+	ImUiWindowEnd( window );
 }

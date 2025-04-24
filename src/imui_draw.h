@@ -49,6 +49,7 @@ typedef struct ImUiDrawElementDataText
 	ImUiPos				relativPos;
 	ImUiColor			color;
 	ImUiTextLayout*		layout;
+	float				size;
 } ImUiDrawElementDataText;
 
 typedef union ImUiDrawElementData
@@ -64,7 +65,7 @@ typedef struct ImUiDrawElement
 	ImUiDrawElementType		type;
 	ImUiDrawElementData		data;
 	ImUiWidget*				widget;
-	void*					texture;
+	uint64_t				textureHandle;
 } ImUiDrawElement;
 
 struct ImUiDraw
@@ -91,7 +92,7 @@ uintsize			ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize
 void				ImUiDrawSurfaceEnd( ImUiDraw* draw, uintsize surfaceIndex );
 void				ImUiDrawEndFrame( ImUiDraw* draw );
 
-ImUiDrawElement*	ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, void* texture );
+ImUiDrawElement*	ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, uint64_t textureHandle );
 ImUiDrawElement*	ImUiDrawPushElementText( ImUiWidget* widget, ImUiDrawElementType type, ImUiTextLayout* layout );
 
 void				ImUiDrawGetSurfaceMaxBufferSizes( ImUiDraw* draw, uintsize surfaceIndex, size_t* outVertexDataSize, size_t* outIndexDataSize );

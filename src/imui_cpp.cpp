@@ -615,12 +615,12 @@ namespace imui
 	{
 	}
 
-	UiSurface::UiSurface( ImUiFrame* frame, const char* name, const UiSize& size, float dpiScale )
+	UiSurface::UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale )
 	{
 		beginSurface( frame, name, size, dpiScale );
 	}
 
-	UiSurface::UiSurface( UiFrame& frame, const char* name, const UiSize& size, float dpiScale )
+	UiSurface::UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale )
 	{
 		beginSurface( frame, name, size, dpiScale );
 	}
@@ -630,13 +630,13 @@ namespace imui
 		endSurface();
 	}
 
-	void UiSurface::beginSurface( ImUiFrame* frame, const char* name, const UiSize& size, float dpiScale )
+	void UiSurface::beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale )
 	{
 		m_surface = ImUiSurfaceBegin( frame, name, size, dpiScale );
 		m_owner = true;
 	}
 
-	void UiSurface::beginSurface( UiFrame& frame, const char* name, const UiSize& size, float dpiScale )
+	void UiSurface::beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale )
 	{
 		beginSurface( frame.getInternal(), name, size, dpiScale );
 	}
@@ -698,12 +698,12 @@ namespace imui
 	{
 	}
 
-	UiWindow::UiWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	UiWindow::UiWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 	{
 		beginWindow( surface, name, rect, zOrder );
 	}
 
-	UiWindow::UiWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	UiWindow::UiWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 		: m_window( nullptr )
 	{
 		beginWindow( surface, name, rect, zOrder );
@@ -714,13 +714,13 @@ namespace imui
 		endWindow();
 	}
 
-	void UiWindow::beginWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	void UiWindow::beginWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 	{
 		m_window = ImUiWindowBegin( surface, name, rect, zOrder );
 		m_owner = true;
 	}
 
-	void UiWindow::beginWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	void UiWindow::beginWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 	{
 		beginWindow( surface.getInternal(), name, rect, zOrder );
 	}
@@ -904,7 +904,7 @@ namespace imui
 		return (const UiBorder&)m_widget->margin;
 	}
 
-	void UiWidget::setMargin( const UiBorder& margin )
+	void UiWidget::setMargin( const ImUiBorder& margin )
 	{
 		ImUiWidgetSetMargin( m_widget, margin );
 	}
@@ -914,7 +914,7 @@ namespace imui
 		return (const UiBorder&)m_widget->padding;
 	}
 
-	void UiWidget::setPadding( const UiBorder& padding )
+	void UiWidget::setPadding( const ImUiBorder& padding )
 	{
 		ImUiWidgetSetPadding( m_widget, padding );
 	}
@@ -1049,17 +1049,17 @@ namespace imui
 		ImUiWidgetGetInputState( m_widget, &inputState );
 	}
 
-	void UiWidget::drawLine( UiPos p0, UiPos p1, UiColor color )
+	void UiWidget::drawLine( ImUiPos p0, ImUiPos p1, ImUiColor color )
 	{
 		ImUiWidgetDrawLine( m_widget, p0, p1, color );
 	}
 
-	void UiWidget::drawTriangle( UiPos p0, UiPos p1, UiPos p2, UiColor color )
+	void UiWidget::drawTriangle( ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color )
 	{
 		ImUiWidgetDrawTriangle( m_widget, p0, p1, p2, color );
 	}
 
-	void UiWidget::drawColor( UiColor color )
+	void UiWidget::drawColor( ImUiColor color )
 	{
 		ImUiWidgetDrawColor( m_widget, color );
 	}
@@ -1069,42 +1069,42 @@ namespace imui
 		ImUiWidgetDrawImage( m_widget, &image );
 	}
 
-	void UiWidget::drawImage( const ImUiImage& image, UiColor color )
+	void UiWidget::drawImage( const ImUiImage& image, ImUiColor color )
 	{
 		ImUiWidgetDrawImageColor( m_widget, &image, color );
 	}
 
-	void UiWidget::drawSkin( const ImUiSkin& skin, UiColor color )
+	void UiWidget::drawSkin( const ImUiSkin& skin, ImUiColor color )
 	{
 		ImUiWidgetDrawSkin( m_widget, &skin, color );
 	}
 
-	void UiWidget::drawText( ImUiTextLayout* layout, UiColor color )
+	void UiWidget::drawText( ImUiTextLayout* layout, ImUiColor color )
 	{
 		ImUiWidgetDrawText( m_widget, layout, color );
 	}
 
-	void UiWidget::drawPartialColor( const UiRect& rect, ImUiColor color )
+	void UiWidget::drawPartialColor( const ImUiRect& rect, ImUiColor color )
 	{
 		ImUiWidgetDrawPartialColor( m_widget, rect, color );
 	}
 
-	void UiWidget::drawPartialImage( const UiRect& rect, const ImUiImage& image )
+	void UiWidget::drawPartialImage( const ImUiRect& rect, const ImUiImage& image )
 	{
 		ImUiWidgetDrawPartialImage( m_widget, rect, &image );
 	}
 
-	void UiWidget::drawPartialImage( const UiRect& rect, const ImUiImage& image, UiColor color )
+	void UiWidget::drawPartialImage( const ImUiRect& rect, const ImUiImage& image, ImUiColor color )
 	{
 		ImUiWidgetDrawPartialImageColor( m_widget, rect, &image, color );
 	}
 
-	void UiWidget::drawPartialSkin( const UiRect& rect, const ImUiSkin& skin, UiColor color )
+	void UiWidget::drawPartialSkin( const ImUiRect& rect, const ImUiSkin& skin, ImUiColor color )
 	{
 		ImUiWidgetDrawPartialSkin( m_widget, rect, &skin, color );
 	}
 
-	void UiWidget::drawPositionText( UiPos pos, ImUiTextLayout* layout, UiColor color )
+	void UiWidget::drawPositionText( ImUiPos pos, ImUiTextLayout* layout, ImUiColor color )
 	{
 		ImUiWidgetDrawPositionText( m_widget, pos, layout, color );
 	}
@@ -1127,49 +1127,49 @@ namespace imui
 		setLayoutGrid( columnCount, colSpacing, rowSpacing );
 	}
 
-	toolbox::UiToolboxConfig::UiToolboxConfig()
+	toolbox::UiToolboxTheme::UiToolboxTheme()
 	{
 	}
 
-	toolbox::UiToolboxConfig::UiToolboxConfig( ImUiFont* inFont )
+	toolbox::UiToolboxTheme::UiToolboxTheme( ImUiFont* inFont )
 	{
 		setDefault( inFont );
 	}
 
-	void toolbox::UiToolboxConfig::setDefault( ImUiFont* inFont )
+	void toolbox::UiToolboxTheme::setDefault( ImUiFont* inFont )
 	{
-		ImUiToolboxFillDefaultConfig( this, inFont );
+		ImUiToolboxThemeFillDefault( this, inFont );
 	}
 
-	void toolbox::UiToolboxConfig::applyConfig()
+	void toolbox::UiToolboxTheme::applyConfig()
 	{
-		ImUiToolboxSetConfig( this );
+		ImUiToolboxThemeSet( this );
 	}
 
-	const UiColor& toolbox::UiToolboxConfig::getColor( ImUiToolboxColor color )
+	const UiColor& toolbox::UiToolboxTheme::getColor( ImUiToolboxColor color )
 	{
-		return (const UiColor&)ImUiToolboxGetConfig()->colors[ color ];
+		return (const UiColor&)ImUiToolboxThemeGet()->colors[ color ];
 	}
 
-	const ImUiSkin& toolbox::UiToolboxConfig::getSkin( ImUiToolboxSkin skin )
+	const ImUiSkin& toolbox::UiToolboxTheme::getSkin( ImUiToolboxSkin skin )
 	{
-		return ImUiToolboxGetConfig()->skins[ skin ];
+		return ImUiToolboxThemeGet()->skins[ skin ];
 	}
 
-	const ImUiImage& toolbox::UiToolboxConfig::getIcon( ImUiToolboxIcon icon )
+	const ImUiImage& toolbox::UiToolboxTheme::getIcon( ImUiToolboxIcon icon )
 	{
-		return ImUiToolboxGetConfig()->icons[ icon ];
+		return ImUiToolboxThemeGet()->icons[ icon ];
 	}
 
-	const ImUiToolboxConfig& toolbox::UiToolboxConfig::getConfig()
+	const ImUiToolboxTheme& toolbox::UiToolboxTheme::getTheme()
 	{
-		return *ImUiToolboxGetConfig();
+		return *ImUiToolboxThemeGet();
 	}
 
 	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( const float& value, float newValue )
 		: m_value( (float&)value )
 	{
-		IMUI_ASSERT( (void*)&value >= ImUiToolboxGetConfig() && (void*)&value < ImUiToolboxGetConfig() + 1u );
+		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
 		m_value = newValue;
@@ -1180,43 +1180,43 @@ namespace imui
 		m_value = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const UiColor& newValue )
+	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue )
 		: m_color( color )
 	{
-		ImUiColor& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->colors[ m_color ];
+		ImUiColor& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->colors[ m_color ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
 	{
-		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->colors[ m_color ] = m_oldValue;
+		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->colors[ m_color ] = m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue )
 		: m_skin( skin )
 	{
-		ImUiSkin& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->skins[ m_skin ];
+		ImUiSkin& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->skins[ m_skin ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
 	{
-		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->skins[ m_skin ] = m_oldValue;
+		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->skins[ m_skin ] = m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue )
 		: m_icon( icon )
 	{
-		ImUiImage& valueRef = ((ImUiToolboxConfig*)ImUiToolboxGetConfig())->icons[ m_icon ];
+		ImUiImage& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->icons[ m_icon ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
 	{
-		((ImUiToolboxConfig*)ImUiToolboxGetConfig())->icons[ m_icon ] = m_oldValue;
+		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->icons[ m_icon ] = m_oldValue;
 	}
 
 	toolbox::UiToolboxWindow::UiToolboxWindow()
@@ -1234,12 +1234,12 @@ namespace imui
 	{
 	}
 
-	toolbox::UiToolboxWindow::UiToolboxWindow( UiSurface& surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	toolbox::UiToolboxWindow::UiToolboxWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 		: UiWindow( surface, name, rect, zOrder )
 	{
 	}
 
-	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiSurface* surface, const char* name, const UiRect& rect, uint32_t zOrder )
+	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
 		: UiWindow( surface, name, rect, zOrder )
 	{
 	}
@@ -1271,12 +1271,12 @@ namespace imui
 
 	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon )
 	{
-		return ImUiToolboxButtonIcon( m_window, icon );
+		return ImUiToolboxButtonIcon( m_window, &icon );
 	}
 
-	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon, UiSize iconSize )
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon, ImUiSize iconSize )
 	{
-		return ImUiToolboxButtonIconSize( m_window, icon, iconSize );
+		return ImUiToolboxButtonIconSize( m_window, &icon, iconSize );
 	}
 
 	bool toolbox::UiToolboxWindow::checkBox( bool& checked, const char* text )
@@ -1307,7 +1307,7 @@ namespace imui
 		image( img, UiSize( img ) );
 	}
 
-	void toolbox::UiToolboxWindow::image( const ImUiImage& img, const UiSize& size )
+	void toolbox::UiToolboxWindow::image( const ImUiImage& img, const ImUiSize& size )
 	{
 		ImUiToolboxImageSize( m_window, &img, size );
 	}
@@ -1410,7 +1410,7 @@ namespace imui
 	{
 		if( m_widget )
 		{
-			const bool result = ImUiToolboxButtonLabelEnd( m_widget );
+			const bool result = ImUiToolboxButtonEnd( m_widget );
 			m_widget = nullptr;
 
 			return result;
@@ -1554,9 +1554,9 @@ namespace imui
 		ImUiToolboxScrollAreaEnableSpacing( &m_scrollArea, horizontal, vertical );
 	}
 
-	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount )
+	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount, bool selection )
 	{
-		ImUiToolboxListBegin( &m_list, window.getInternal(), itemSize, itemCount );
+		ImUiToolboxListBegin( &m_list, window.getInternal(), itemSize, itemCount, selection );
 		m_widget = m_list.list;
 	}
 
