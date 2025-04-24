@@ -888,7 +888,6 @@ void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char*
 	}
 
 	bool first = true;
-	const char* textEnd = text + textLength;
 	uintsize linesLength = textBuffer->linesLength;
 	for( const char* line = firstLine; line; line = strchr( line, '\n' ) )
 	{
