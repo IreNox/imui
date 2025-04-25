@@ -212,7 +212,6 @@ void						ImUiSurfaceEnd( ImUiSurface* surface );
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 
 double						ImUiSurfaceGetTime( const ImUiSurface* surface );
-
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 ImUiRect					ImUiSurfaceGetRect( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
@@ -232,6 +231,7 @@ ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
 ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
 double						ImUiWindowGetTime( const ImUiWindow* window );
+float						ImUiWindowGetDpiScale( const ImUiWindow* window );
 
 void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
 void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );
@@ -271,6 +271,7 @@ ImUiWidget*					ImUiWidgetGetPrevSibling( const ImUiWidget* widget );
 ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
 
 double						ImUiWidgetGetTime( const ImUiWidget* widget );
+float						ImUiWidgetGetDpiScale( const ImUiWidget* widget );
 
 void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId );
 void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew );
@@ -632,9 +633,9 @@ ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* fo
 ImUiTextLayout*					ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length );
 
 size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
-size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos );
+size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, float scale );
 ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
-ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex );
+ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex, float scale );
 
 //////////////////////////////////////////////////////////////////////////
 // Data Type Functions

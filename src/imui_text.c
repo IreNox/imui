@@ -335,7 +335,7 @@ size_t ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout )
 	return layout->glyphCount;
 }
 
-size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos )
+size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, float scale )
 {
 	if( !layout )
 	{
@@ -345,7 +345,8 @@ size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos )
 	for( uintsize i = 0u; i < layout->glyphCount; ++i )
 	{
 		const ImUiTextGlyph* glyph = &layout->glyphs[ i ];
-		if( glyph->pos.x + (glyph->size.width * 0.5f)  > pos.x )
+		const float glyphCenterX = (glyph->pos.x * scale) + (glyph->size.width * 0.5f * scale);
+		if( glyphCenterX > pos.x )
 		{
 			return i;
 		}
@@ -364,7 +365,7 @@ ImUiSize ImUiTextLayoutGetSize( const ImUiTextLayout* layout )
 	return layout->size;
 }
 
-ImUiPos ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex )
+ImUiPos ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex, float scale )
 {
 	if( !layout )
 	{
@@ -372,8 +373,8 @@ ImUiPos ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphInd
 	}
 	else if( glyphIndex >= layout->glyphCount  )
 	{
-		return ImUiPosCreate( layout->size.width, 0.0f );
+		return ImUiPosCreate( layout->size.width * scale, 0.0f );
 	}
 
-	return layout->glyphs[ glyphIndex ].pos;
+	return ImUiPosScale( layout->glyphs[ glyphIndex ].pos, scale );
 }

@@ -744,7 +744,8 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	ImUiWidget* sliderPivot = ImUiWidgetBegin( ImUiWidgetGetWindow( slider ) );
 	ImUiWidgetSetFixedSize( sliderPivot, s_theme.slider.pivotSize );
 
-	const float normalizedValue = (*value - min) / (max - min);
+	const float range = max - min;
+	const float normalizedValue = range == 0.0f ? 0.0f : (*value - min) / range;
 	ImUiWidgetSetHAlign( sliderPivot, normalizedValue );
 
 	ImUiWidgetInputState inputState;
@@ -970,6 +971,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	}
 
 	bool changed = false;
+	const float scale = ImUiWidgetGetDpiScale( text );
 	if( state->hasFocus )
 	{
 		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( imui );
@@ -1123,7 +1125,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			ImUiWidgetInputState textInputState;
 			ImUiWidgetGetInputState( text, &textInputState );
-			nextCursorPos = (sint32)ImUiTextLayoutFindGlyphIndex( layout, textInputState.relativeMousePos );
+			nextCursorPos = (sint32)ImUiTextLayoutFindGlyphIndex( layout, textInputState.relativeMousePos, scale );
 
 			if( inputState.hasMousePressed )
 			{
@@ -1188,8 +1190,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 				ImUiInputSetCopyText( imui, buffer + state->selectionStart, state->selectionEnd - state->selectionStart );
 			}
 
-			const ImUiPos startPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionStart );
-			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd );
+			const ImUiPos startPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionStart, scale );
+			const ImUiPos endPos			= ImUiTextLayoutGetGlyphPos( layout, state->selectionEnd, scale );
 
 			const ImUiRect selection = ImUiRectCreate(
 				(textEditInnerRect.pos.x - textEditRect.pos.x) + startPos.x,
@@ -1215,7 +1217,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			//const ImUiPos cursorPos			= ImUiPosAdd( ImUiTextLayoutGetGlyphPos( layout, state->cursorPos ), s_config.textEdit.padding.left, s_config.textEdit.padding.top );
 			//const ImUiRect cursorRect		= ImUiRectCreatePosSize( cursorPos, s_config.textEdit.cursorSize );
 
-			const ImUiPos cursorPos			= ImUiTextLayoutGetGlyphPos( layout, state->cursorPos );
+			const ImUiPos cursorPos			= ImUiTextLayoutGetGlyphPos( layout, state->cursorPos, scale );
 			const ImUiPos cursorPosTop		= ImUiPosCreate( (textEditInnerRect.pos.x - textEditRect.pos.x) + cursorPos.x, s_theme.textEdit.padding.top );
 			const ImUiPos cursorPosBottom	= ImUiPosCreate( cursorPosTop.x, cursorPosTop.y + textEditInnerRect.size.height );
 			ImUiWidgetDrawLine( textEdit, cursorPosTop, cursorPosBottom, s_theme.colors[ ImUiToolboxColor_TextEditCursor ] );
