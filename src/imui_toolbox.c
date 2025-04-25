@@ -767,7 +767,8 @@ bool ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float ma
 	{
 		const ImUiRect sliderInnerRect = ImUiWidgetGetInnerRect( slider );
 
-		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - s_theme.slider.padding.left + (s_theme.slider.pivotSize.width / 2.0f)) / sliderInnerRect.size.width;
+		const float scaledPaddingLeft	= s_theme.slider.padding.left * slider->window->surface->dpiScale;
+		const float mouseValueNorm		= (frameInputState.relativeMousePos.x - scaledPaddingLeft) / sliderInnerRect.size.width;
 		const float mouseValueNormClamp	= mouseValueNorm > 1.0f ? 1.0f : (mouseValueNorm < 0.0f ? 0.0f : mouseValueNorm);
 		const float mouseValue			= (mouseValueNormClamp * (max - min)) + min;
 
@@ -889,7 +890,6 @@ void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char*
 	}
 
 	bool first = true;
-	const char* textEnd = text + textLength;
 	uintsize linesLength = textBuffer->linesLength;
 	for( const char* line = firstLine; line; line = strchr( line, '\n' ) )
 	{
@@ -1574,11 +1574,12 @@ ImUiWidget* ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* wind
 
 	const ImUiRect listRect		= ImUiWidgetGetRect( list->list );
 	const ImUiRect layoutRect	= ImUiWidgetGetRect( list->listLayout );
+	const float scaledItemSize	= totalItemSize * window->surface->dpiScale;
 
 	list->itemSize		= itemSize;
 	list->itemCount		= itemCount;
-	list->beginIndex	= (uintsize)((listRect.pos.y - layoutRect.pos.y) / totalItemSize);
-	list->endIndex		= list->beginIndex + (uintsize)ceilf( (listRect.size.height + totalItemSize) / totalItemSize );
+	list->beginIndex	= (uintsize)((listRect.pos.y - layoutRect.pos.y) / scaledItemSize);
+	list->endIndex		= list->beginIndex + (uintsize)ceilf( (listRect.size.height + scaledItemSize) / scaledItemSize );
 	list->endIndex		= IMUI_MIN( list->endIndex, itemCount );
 
 	list->item			= NULL;

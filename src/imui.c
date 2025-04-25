@@ -13,7 +13,7 @@ static void			ImUiWindowLayout( ImUiWindow* window );
 static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
 static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIndex, float dpiScale, bool update );
 static void			ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widget );
-static void			ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget, float dpiScale );
+static void			ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget );
 static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update );
 static void			ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
 static void			ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
@@ -217,11 +217,6 @@ ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
-	return ImUiSurfaceBeginReuse( frame, name, size, dpiScale, false );
-}
-
-ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale, bool reuse )
-{
 	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
@@ -234,12 +229,7 @@ ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize
 		}
 
 		surface = &imui->surfaces[ surfaceIndex ];
-
-		if( !reuse && surface->inUse )
-		{
-			IMUI_ASSERT( !"Surface name must be unique" );
-			return NULL;
-		}
+		IMUI_ASSERT( !surface->inUse && "Surface name must be unique" );
 
 		break;
 	}
@@ -264,15 +254,6 @@ ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
 	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
-
-	if( reuse )
-	{
-		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
-		{
-			ImUiWindow* window = &surface->windows[ windowIndex ];
-			window->inUse = false;
-		}
-	}
 
 	return surface;
 }
@@ -532,7 +513,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 
 	if( widget->layout == ImUiLayout_Grid )
 	{
-		ImUiWidgetUpdateLayoutContextGrid( widget, dpiScale );
+		ImUiWidgetUpdateLayoutContextGrid( widget );
 	}
 
 	switch( widget->parent->layout )
@@ -590,7 +571,6 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 		widget->gridContext->columnCount != colCount ||
 		widget->gridContext->rowCount != rowCount )
 	{
-		const uintsize rowCount = (widget->childCount + widget->layoutData.grid.columnCount - 1u) / widget->layoutData.grid.columnCount;
 		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
 		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->context->allocator, contextSize );
 
@@ -646,7 +626,7 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 	}
 }
 
-static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget, float dpiScale )
+static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
 {
 	ImUiLayoutContext* context = &widget->layoutContext;
 	ImUiLayoutGridContext* gridContext = widget->gridContext;
@@ -865,12 +845,7 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 	const ImUiSize minSize			= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
 	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeScale( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), ImUiSizeCreate( colElement->size, rowElement->size ) );
 	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
-
-	const ImUiRect cellInnerRect =
-	{
-		{ colElement->pos, rowElement->pos },
-		{ colElement->size, rowElement->size }
-	};
+	const ImUiRect cellInnerRect	= ImUiRectCreate( colElement->pos, rowElement->pos, colElement->size, rowElement->size );
 
 	ImUiPos pos;
 	pos.x = ImUiWidgetLayoutPositionX( widget, &cellInnerRect, size.width, dpiScale );
@@ -881,6 +856,8 @@ static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInne
 
 static ImUiSize ImUiWidgetLayoutMinSize( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
 {
+	(void)parentInnerRect;
+
 	const ImUiBorder margin		= ImUiBorderScale( widget->margin, dpiScale );
 	const ImUiBorder padding	= ImUiBorderScale( widget->padding, dpiScale );
 	const ImUiSize minChildren	= ImUiSizeExpandBorder( ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding ), margin );

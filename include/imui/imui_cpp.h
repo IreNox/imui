@@ -289,14 +289,16 @@ namespace imui
 	public:
 
 						UiWidget();
-						UiWidget( UiWindow& window );
+		explicit		UiWidget( UiWindow& window );
 						UiWidget( UiWindow& window, ImUiId id );
 						UiWidget( UiWindow& window, const char* name );
+		explicit		UiWidget( ImUiWidget* widget );
 						~UiWidget();
 
 		void			beginWidget( UiWindow& window );
 		void			beginWidget( UiWindow& window, ImUiId id );
 		void			beginWidget( UiWindow& window, const char* name );
+		void			beginWidget( ImUiWidget* widget );
 		void			endWidget();
 
 		bool			isValid() const;
@@ -373,6 +375,7 @@ namespace imui
 
 	protected:
 
+		bool			m_owner;
 		ImUiWidget*		m_widget;
 	};
 
@@ -402,9 +405,9 @@ namespace imui
 		struct UiToolboxTheme : public ImUiToolboxTheme, public UiNonCopyable
 		{
 						UiToolboxTheme();
-						UiToolboxTheme( ImUiFont* font );
+						UiToolboxTheme( ImUiFont* inFont );
 
-			void		setDefault( ImUiFont* font );
+			void		setDefault( ImUiFont* inFont );
 
 			void		applyConfig();
 
@@ -646,6 +649,26 @@ namespace imui
 
 			size_t 		end( const char** buttons, size_t buttonCount );
 			void		end();
+		};
+
+		class UiToolboxTabView : public UiWidget
+		{
+		public:
+
+						UiToolboxTabView();
+						UiToolboxTabView( UiWindow& window );
+						~UiToolboxTabView();
+
+			bool		header( const char* text );
+			void		beginHeader( UiWidget& header );
+			bool		endHeader( UiWidget& header );
+
+			void		beginBody( UiWidget& body );
+			void		endBody( UiWidget& body );
+
+		private:
+
+			ImUiToolboxTabViewContext	m_context;
 		};
 	}
 

@@ -781,7 +781,8 @@ namespace imui
 	}
 
 	UiWidget::UiWidget()
-		: m_widget( nullptr )
+		: m_owner( false )
+		, m_widget( nullptr )
 	{
 	}
 
@@ -800,6 +801,12 @@ namespace imui
 		beginWidget( window, name );
 	}
 
+
+	UiWidget::UiWidget( ImUiWidget* widget )
+	{
+		beginWidget( widget );
+	}
+
 	UiWidget::~UiWidget()
 	{
 		endWidget();
@@ -807,26 +814,45 @@ namespace imui
 
 	void UiWidget::beginWidget( UiWindow& window )
 	{
+		IMUI_ASSERT( !m_widget );
+
+		m_owner = true;
 		m_widget = ImUiWidgetBegin( window.getInternal() );
 	}
 
 	void UiWidget::beginWidget( UiWindow& window, ImUiId id )
 	{
+		IMUI_ASSERT( !m_widget );
+
+		m_owner = true;
 		m_widget = ImUiWidgetBeginId( window.getInternal(), id );
 	}
 
 	void UiWidget::beginWidget( UiWindow& window, const char* name )
 	{
+		IMUI_ASSERT( !m_widget );
+
+		m_owner = true;
 		m_widget = ImUiWidgetBeginNamed( window.getInternal(), name );
+	}
+
+	void UiWidget::beginWidget( ImUiWidget* widget )
+	{
+		IMUI_ASSERT( !m_widget );
+
+		m_owner = false;
+		m_widget = widget;
 	}
 
 	void UiWidget::endWidget()
 	{
-		if( m_widget )
+		if( m_widget && m_owner )
 		{
 			ImUiWidgetEnd( m_widget );
-			m_widget = nullptr;
 		}
+
+		m_owner = false;
+		m_widget = nullptr;
 	}
 
 	bool UiWidget::isValid() const
@@ -1131,14 +1157,14 @@ namespace imui
 	{
 	}
 
-	toolbox::UiToolboxTheme::UiToolboxTheme( ImUiFont* font )
+	toolbox::UiToolboxTheme::UiToolboxTheme( ImUiFont* inFont )
 	{
-		setDefault( font );
+		setDefault( inFont );
 	}
 
-	void toolbox::UiToolboxTheme::setDefault( ImUiFont* font )
+	void toolbox::UiToolboxTheme::setDefault( ImUiFont* inFont )
 	{
-		ImUiToolboxThemeFillDefault( this, font );
+		ImUiToolboxThemeFillDefault( this, inFont );
 	}
 
 	void toolbox::UiToolboxTheme::applyConfig()
@@ -1645,5 +1671,49 @@ namespace imui
 			ImUiToolboxPopupEnd( m_window );
 			m_window = nullptr;
 		}
+	}
+
+	toolbox::UiToolboxTabView::UiToolboxTabView()
+	{
+	}
+
+	toolbox::UiToolboxTabView::UiToolboxTabView( UiWindow& window )
+	{
+		m_widget = ImUiToolboxTabViewBegin( &m_context, window.getInternal() );
+	}
+
+	toolbox::UiToolboxTabView::~UiToolboxTabView()
+	{
+		ImUiToolboxTabViewEnd( &m_context );
+		m_widget = nullptr;
+	}
+
+	bool toolbox::UiToolboxTabView::header( const char* text )
+	{
+		return ImUiToolboxTabViewHeader( &m_context, text );
+	}
+
+	void toolbox::UiToolboxTabView::beginHeader( UiWidget& header )
+	{
+		header.beginWidget( ImUiToolboxTabViewHeaderBegin( &m_context ) );
+	}
+
+	bool toolbox::UiToolboxTabView::endHeader( UiWidget& header )
+	{
+		const bool selected = ImUiToolboxTabViewHeaderEnd( &m_context, header.getInternal() );
+		header.endWidget();
+
+		return selected;
+	}
+
+	void toolbox::UiToolboxTabView::beginBody( UiWidget& body )
+	{
+		body.beginWidget( ImUiToolboxTabViewBodyBegin( &m_context ) );
+	}
+
+	void toolbox::UiToolboxTabView::endBody( UiWidget& body )
+	{
+		ImUiToolboxTabViewBodyEnd( &m_context );
+		body.endWidget();
 	}
 }
