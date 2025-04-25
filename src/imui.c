@@ -217,11 +217,6 @@ ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
-	return ImUiSurfaceBeginReuse( frame, name, size, dpiScale, false );
-}
-
-ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale, bool reuse )
-{
 	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
@@ -234,12 +229,7 @@ ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize
 		}
 
 		surface = &imui->surfaces[ surfaceIndex ];
-
-		if( !reuse && surface->inUse )
-		{
-			IMUI_ASSERT( !"Surface name must be unique" );
-			return NULL;
-		}
+		IMUI_ASSERT( !surface->inUse && "Surface name must be unique" );
 
 		break;
 	}
@@ -264,15 +254,6 @@ ImUiSurface* ImUiSurfaceBeginReuse( ImUiFrame* frame, const char* name, ImUiSize
 	surface->size		= size;
 	surface->dpiScale	= dpiScale;
 	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
-
-	if( reuse )
-	{
-		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
-		{
-			ImUiWindow* window = &surface->windows[ windowIndex ];
-			window->inUse = false;
-		}
-	}
 
 	return surface;
 }

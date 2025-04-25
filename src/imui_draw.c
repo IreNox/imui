@@ -169,13 +169,7 @@ uintsize ImUiDrawRegisterSurface( ImUiDraw* draw, ImUiStringView name, ImUiSize 
 			continue;
 		}
 
-		if( surface->used )
-		{
-			surface->windowCount				= 0u;
-			surface->commandCount				= 0u;
-			surface->approximatedIndexCount		= 0u;
-			surface->approximatedVertexCount	= 0u;
-		}
+		IMUI_ASSERT( !surface->used && "Surface name must be unique" );
 
 		surface->used	= true;
 		surface->size	= size;
@@ -209,6 +203,8 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 			continue;
 		}
 
+		IMUI_ASSERT( !window->used && "Window name must be unique" );
+
 		windowIndex = i;
 		break;
 	}
@@ -225,26 +221,9 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 
 	ImUiDrawSurfaceData* surface = &draw->surfaces[ surfaceIndex ];
 
-	bool windowFound = false;
-	for( uintsize i = 0; i < surface->windowCount; ++i )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
 	{
-		if( surface->windows[ i ] != windowIndex )
-		{
-			continue;
-		}
-
-		windowFound = true;
-		break;
-	}
-
-	if( !windowFound )
-	{
-		if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount + 1u ) )
-		{
-			return IMUI_SIZE_MAX;
-		}
-
-		surface->windows[ surface->windowCount++ ] = windowIndex;
+		return IMUI_SIZE_MAX;
 	}
 
 	ImUiDrawWindowData* window = &draw->windows[ windowIndex ];
@@ -253,6 +232,8 @@ uintsize ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize s
 	window->surfaceIndex	= surfaceIndex;
 	window->zOrder			= zOrder;
 	window->elementCount	= 0u;
+
+	surface->windows[ surface->windowCount++ ] = windowIndex;
 
 	return windowIndex;
 }

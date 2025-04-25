@@ -160,8 +160,8 @@ ImUiPos ImUiPosSub( ImUiPos pos, float x, float y )
 ImUiPos ImUiPosSubPos( ImUiPos pos, ImUiPos sub )
 {
 	ImUiPos result;
-	result.x = pos.x + sub.x;
-	result.y = pos.y + sub.y;
+	result.x = pos.x - sub.x;
+	result.y = pos.y - sub.y;
 	return result;
 }
 
