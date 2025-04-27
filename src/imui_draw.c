@@ -287,12 +287,20 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 			continue;
 		}
 
+		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount );
+		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount );
+		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->indices, surface->indexCapacity, surface->indexCount );
+		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->vertexData, surface->vertexDataCapacity, surface->vertexCount * draw->vertexSize );
+
 		surface->used						= false;
 		surface->windowCount				= 0u;
 		surface->commandCount				= 0u;
 		surface->approximatedIndexCount		= 0u;
 		surface->approximatedVertexCount	= 0u;
 	}
+
+	IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, draw->surfaces, draw->surfaceCapacity, draw->surfaceCount );
+	IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, draw->windows, draw->windowCapacity, draw->windowCount );
 }
 
 ImUiDrawElement* ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, uint64_t textureHandle )
@@ -401,6 +409,7 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, uintsize surfac
 		}
 
 #if 0
+		// widget debug draw
 		IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( draw->allocator, drawSurface->commands, drawSurface->commandCapacity, drawSurface->commandCount + 1u );
 
 		ImUiDrawCommand* command = &drawSurface->commands[ drawSurface->commandCount++ ];

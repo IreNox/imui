@@ -163,6 +163,26 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 	(*arrayCount)--;
 }
 
+void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize )
+{
+	const uintsize shrinkCapacity = *capacity >> 1;
+	if( count >= shrinkCapacity )
+	{
+		return;
+	}
+
+	*memory = ImUiMemoryRealloc( allocator, *memory, *capacity * elementSize, shrinkCapacity * elementSize );
+
+	if( !*memory )
+	{
+		*capacity = 0;
+	}
+	else
+	{
+		*capacity = shrinkCapacity;
+	}
+}
+
 void ImUiMemoryArrayFree( ImUiAllocator* allocator, void** memory, uintsize* capacity )
 {
 	ImUiMemoryFree( allocator, *memory );
