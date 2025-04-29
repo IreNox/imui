@@ -680,9 +680,30 @@ namespace imui
 	}
 
 	template< class T >
+	void callDestructor( void* ptr )
+	{
+		T* obj = (T*)ptr;
+		obj->T::~T();
+	}
+
+	template< class T >
 	T* UiWindow::newState( bool& isNew )
 	{
-		return UiWidget( m_window->rootWidget ).newState< T >( isNew );
+		void (*destructFunc)(void*) = &callDestructor< T >;
+		const ImUiId stateId = (ImUiId)(size_t)destructFunc;
+		void* memory = ImUiWindowAllocStateNewDestruct( m_window, sizeof( T ), stateId, &isNew, destructFunc );
+		if( !memory )
+		{
+			return nullptr;
+		}
+
+		T* state = (T*)memory;
+		if( isNew )
+		{
+			new (state) T();
+		}
+
+		return state;
 	}
 
 	template< class T >
@@ -690,13 +711,6 @@ namespace imui
 	{
 		bool isNew;
 		return newState< T >( isNew );
-	}
-
-	template< class T >
-	void callDestructor( void* ptr )
-	{
-		T* obj = (T*)ptr;
-		obj->T::~T();
 	}
 
 	template< class T >

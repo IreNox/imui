@@ -290,8 +290,8 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
 	theme->icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
-	theme->icons[ ImUiToolboxIcon_DropDownOpen ]			= image;
-	theme->icons[ ImUiToolboxIcon_DropDownClose ]			= image;
+	theme->icons[ ImUiToolboxIcon_DropDownOpen ]				= image;
+	theme->icons[ ImUiToolboxIcon_DropDownClose ]				= image;
 	static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
 
 	theme->font						= font;
