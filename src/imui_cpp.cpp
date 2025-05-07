@@ -814,32 +814,24 @@ namespace imui
 
 	void UiWidget::beginWidget( UiWindow& window )
 	{
-		IMUI_ASSERT( !m_widget );
-
 		m_owner = true;
 		m_widget = ImUiWidgetBegin( window.getInternal() );
 	}
 
 	void UiWidget::beginWidget( UiWindow& window, ImUiId id )
 	{
-		IMUI_ASSERT( !m_widget );
-
 		m_owner = true;
 		m_widget = ImUiWidgetBeginId( window.getInternal(), id );
 	}
 
 	void UiWidget::beginWidget( UiWindow& window, const char* name )
 	{
-		IMUI_ASSERT( !m_widget );
-
 		m_owner = true;
 		m_widget = ImUiWidgetBeginNamed( window.getInternal(), name );
 	}
 
 	void UiWidget::beginWidget( ImUiWidget* widget )
 	{
-		IMUI_ASSERT( !m_widget );
-
 		m_owner = false;
 		m_widget = widget;
 	}

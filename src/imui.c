@@ -383,6 +383,11 @@ double ImUiWindowGetTime( const ImUiWindow* window )
 	return window->context->frame.timeInSeconds;
 }
 
+float ImUiWindowGetDpiScale( const ImUiWindow* window )
+{
+	return window->surface->dpiScale;
+}
+
 void* ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId )
 {
 	return ImUiWidgetAllocState( window->rootWidget, size, stateId );
@@ -1044,6 +1049,11 @@ ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
 double ImUiWidgetGetTime( const ImUiWidget* widget )
 {
 	return widget->window->context->frame.timeInSeconds;
+}
+
+float ImUiWidgetGetDpiScale( const ImUiWidget* widget )
+{
+	return widget->window->surface->dpiScale;
 }
 
 void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId )
