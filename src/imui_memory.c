@@ -175,12 +175,10 @@ void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* c
 
 	if( !*memory )
 	{
-		*capacity = 0;
+		return;
 	}
-	else
-	{
-		*capacity = shrinkCapacity;
-	}
+
+	*capacity = shrinkCapacity;
 }
 
 void ImUiMemoryArrayFree( ImUiAllocator* allocator, void** memory, uintsize* capacity )
