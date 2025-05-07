@@ -952,6 +952,8 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
 
 	ImUiToolboxTheme theme;
+	ImUiToolboxThemeFillDefault( &theme, data->font );
+
 	theme.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
 	theme.colors[ ImUiToolboxColor_Button ]						= elementColor;
 	theme.colors[ ImUiToolboxColor_ButtonHover ]				= elementHoverColor;
@@ -990,7 +992,7 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 	theme.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
 	theme.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
 	theme.colors[ ImUiToolboxColor_TabViewHeadBackground ]		= backgroundColor;
-	theme.colors[ ImUiToolboxColor_TabViewHeaderActive ]		= backgroundColor;
+	theme.colors[ ImUiToolboxColor_TabViewHeaderActive ]		= elementColor;
 	theme.colors[ ImUiToolboxColor_TabViewHeaderInactive ]		= backgroundColor;
 	theme.colors[ ImUiToolboxColor_TabViewBody ]				= backgroundColor;
 	static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
@@ -1019,51 +1021,13 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 	theme.skins[ ImUiToolboxSkin_TabViewBody ]					= data->skinRect;
 	static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
 
-	const ImUiImage image = { 0, 16u, 16u };
+	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 16u, 16u };
 
-	theme.icons[ ImUiToolboxIcon_CheckBoxChecked ] = image;
-	theme.icons[ ImUiToolboxIcon_DropDownOpen ] = image;
-	theme.icons[ ImUiToolboxIcon_DropDownClose ] = image;
+	theme.icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
+	theme.icons[ ImUiToolboxIcon_DropDownOpen ]					= image;
+	theme.icons[ ImUiToolboxIcon_DropDownClose ]				= image;
 
 	static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
-
-	theme.font						= data->font;
-
-	theme.button.height				= 20.0f;
-	theme.button.padding			= ImUiBorderCreateAll( 8.0f );
-
-	theme.checkBox.size				= ImUiSizeCreateAll( 20.0f );
-	theme.checkBox.textSpacing		= 5.0f;
-
-	theme.slider.height				= 20.0f;
-	theme.slider.padding			= ImUiBorderCreateHorizontalVertical( 0.0f, 8.0f );
-	theme.slider.pivotSize			= ImUiSizeCreate( 12.0f, 20.0f );
-
-	theme.textEdit.height			= 25.0f;
-	theme.textEdit.padding			= ImUiBorderCreateAll( 4.0f );
-	theme.textEdit.cursorSize		= ImUiSizeCreate( 1.0f, 12.0f );
-	theme.textEdit.blinkTime		= 0.53f;
-
-	theme.progressBar.height		= 20.0f;
-	theme.progressBar.padding		= ImUiBorderCreateHorizontalVertical( 0.0f, 4.0f );
-
-	theme.scrollArea.barSize		= 8.0f;
-	theme.scrollArea.barSpacing		= 4.0f;
-	theme.scrollArea.barMinSize		= 20.0f;
-
-	theme.list.itemSpacing			= 4.0f;
-
-	theme.dropDown.height			= 25.0f;
-	theme.dropDown.padding			= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 4.0f );
-	theme.dropDown.listZOrder		= 10u;
-	theme.dropDown.listMaxLength	= 8u;
-	theme.dropDown.itemPadding		= ImUiBorderCreate( 0.0f, 4.0f, 0.0f, 0.0f );
-	theme.dropDown.itemSize			= 25.0f;
-	theme.dropDown.itemSpacing		= 8.0f;
-
-	theme.popup.zOrder				= 20u;
-	theme.popup.padding				= ImUiBorderCreateAll( 8.0f );
-	theme.popup.buttonSpacing		= 4.0f;
 
 	ImUiToolboxThemeSet( &theme );
 }
