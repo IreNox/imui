@@ -159,13 +159,14 @@ static void ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window )
 	const size_t count = (size_t)itemCount;
 	if( useList )
 	{
-		UiToolboxList list( window, 25.0f, count );
+		UiToolboxList list( window, 25.0f, count, true );
 		list.setMinSize( UiSize( 200.0f ) );
 
 		for( size_t i = list.getBeginIndex(); i < list.getEndIndex(); ++i )
 		{
-			ImUiWidget* item = list.nextItem();
-			ImUiWidgetSetPadding( item, ImUiBorderCreateAll( 4.0f ) );
+			UiWidget item;
+			list.nextItem( &item );
+			item.setPadding( UiBorder( 4.0f ) );
 
 			UiToolboxLabel label;
 			label.beginFormat( window, "List Label %i", i );

@@ -270,8 +270,8 @@ static void ImUiToolboxSampleTabView( ImUiWindow* window )
 
 	char buffer[ 32u ];
 
-	uintsize selectedTab = 0u;
-	for( uintsize i = 0u; i < 4u; ++i )
+	size_t selectedTab = 0u;
+	for( size_t i = 0u; i < 4u; ++i )
 	{
 		snprintf( buffer, sizeof( buffer ), "Tab %zu", i + 1u );
 
