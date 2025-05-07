@@ -610,7 +610,7 @@ namespace imui
 			size_t		getSelectedIndex() const;
 			void		setSelectedIndex( size_t index );
 
-			ImUiWidget*	nextItem();
+			void		nextItem( UiWidget* widget = nullptr );
 
 		private:
 

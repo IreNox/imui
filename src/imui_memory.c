@@ -60,7 +60,7 @@ void* ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSi
 		return NULL;
 	}
 
-	memcpy( newMemory, oldMemory, oldSize );
+	memcpy( newMemory, oldMemory, oldSize < newSize ? oldSize : newSize );
 	ImUiMemoryFree( allocator, oldMemory );
 
 	return newMemory;

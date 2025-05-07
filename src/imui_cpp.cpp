@@ -1612,9 +1612,13 @@ namespace imui
 		ImUiToolboxListSetSelectedIndex( &m_list, index );
 	}
 
-	ImUiWidget* toolbox::UiToolboxList::nextItem()
+	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */ )
 	{
-		return ImUiToolboxListNextItem( &m_list );
+		ImUiWidget* itemWidget = ImUiToolboxListNextItem( &m_list );
+		if( widget )
+		{
+			widget->beginWidget( itemWidget );
+		}
 	}
 
 	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )

@@ -87,6 +87,7 @@ void ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cache )
 		nextUnusedLayout = unusedLayout->nextLayout;
 
 		const bool removed = ImUiHashMapRemove( &cache->layoutMap, &unusedLayout );
+		(void)removed;
 		IMUI_ASSERT( removed );
 		ImUiMemoryFree( cache->allocator, unusedLayout );
 		unusedLayout = nextUnusedLayout;
