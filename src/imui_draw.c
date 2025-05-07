@@ -6,6 +6,16 @@
 
 #include <string.h>
 
+typedef struct ImUiDrawSurfaceBuffers
+{
+	uint32*					indices;
+	uintsize				indexCount;
+	uintsize				indexCapacity;
+	byte*					vertexData;
+	uintsize				vertexCount;
+	uintsize				vertexDataCapacity;
+} ImUiDrawSurfaceBuffers;
+
 typedef struct ImUiDrawSurfaceData
 {
 	bool					used;
@@ -24,14 +34,9 @@ typedef struct ImUiDrawSurfaceData
 	uintsize				approximatedIndexCount;
 	uintsize				approximatedVertexCount;
 
-	uint32*					indices;
-	uintsize				indexCount;
-	uintsize				indexCapacity;
-	byte*					vertexData;
-	uintsize				vertexCount;
-	uintsize				vertexDataCapacity;
-
 	ImUiDrawData			data;
+
+	ImUiDrawSurfaceBuffers*	buffers;
 } ImUiDrawSurfaceData;
 
 typedef struct ImUiDrawWindowData
@@ -73,7 +78,7 @@ static ImUiDrawWindowData*	ImUiDrawGetWindow( ImUiDraw* draw, ImUiWidget* widget
 static void					ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceData* surface, const ImUiDrawElement* element );
 static ImUiRect				ImUiDrawSurfaceGenerateWidgetRect( ImUiWidget* widget );
 static uint32				ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color );
-static void					ImUiDrawSurfacePushIndices( ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count );
+static void					ImUiDrawSurfacePushIndices( ImUiDrawSurfaceBuffers* buffers, const uint32* indices, uintsize count );
 static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
 static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
@@ -289,8 +294,6 @@ void ImUiDrawEndFrame( ImUiDraw* draw )
 
 		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->windows, surface->windowCapacity, surface->windowCount );
 		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->commands, surface->commandCapacity, surface->commandCount );
-		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->indices, surface->indexCapacity, surface->indexCount );
-		IMUI_MEMORY_ARRAY_SHRINK( draw->allocator, surface->vertexData, surface->vertexDataCapacity, surface->vertexCount * draw->vertexSize );
 
 		surface->used						= false;
 		surface->windowCount				= 0u;
@@ -390,12 +393,15 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, uintsize surfac
 	IMUI_ASSERT( !inOutIndexDataSize || *inOutIndexDataSize >= surface->approximatedIndexCount * sizeof( uint32 ) );
 	IMUI_ASSERT( *inOutVertexDataSize >= surface->approximatedVertexCount );
 
-	surface->indices			= (uint32*)outIndexData;
-	surface->indexCount			= 0u;
-	surface->indexCapacity		= inOutIndexDataSize ? *inOutIndexDataSize / sizeof( uint32 ) : 0u;
-	surface->vertexData			= (byte*)outVertexData;
-	surface->vertexCount		= 0u;
-	surface->vertexDataCapacity	= *inOutVertexDataSize;
+	ImUiDrawSurfaceBuffers buffers;
+	buffers.indices				= (uint32*)outIndexData;
+	buffers.indexCount			= 0u;
+	buffers.indexCapacity		= inOutIndexDataSize ? *inOutIndexDataSize / sizeof( uint32 ) : 0u;
+	buffers.vertexData			= (byte*)outVertexData;
+	buffers.vertexCount			= 0u;
+	buffers.vertexDataCapacity	= *inOutVertexDataSize;
+
+	surface->buffers = &buffers;
 
 	for( uintsize i = 0u; i < surface->windowCount; ++i )
 	{
@@ -461,15 +467,17 @@ const ImUiDrawData* ImUiDrawGenerateSurfaceData( ImUiDraw* draw, uintsize surfac
 #endif
 	}
 
+	surface->buffers = NULL;
+
 	ImUiDrawData* data = &surface->data;
-	data->commands			= surface->commands;
-	data->commandCount		= surface->commandCount;
+	data->commands		= surface->commands;
+	data->commandCount	= surface->commandCount;
 
 	if( inOutIndexDataSize )
 	{
-		*inOutIndexDataSize = surface->indexCount * sizeof( uint32 );
+		*inOutIndexDataSize = buffers.indexCount * sizeof( uint32 );
 	}
-	*inOutVertexDataSize = surface->vertexCount * draw->vertexSize;
+	*inOutVertexDataSize = buffers.vertexCount * draw->vertexSize;
 
 	return data;
 }
@@ -516,7 +524,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 			if( draw->triangleTopology == ImUiDrawTopology_IndexedTriangleList )
 			{
-				ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+				ImUiDrawSurfacePushIndices( surface->buffers, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
 
 			command->count = IMUI_ARRAY_COUNT( vertexIndices );
@@ -534,7 +542,7 @@ static void ImUiDrawSurfaceGenerateElementData( ImUiDraw* draw, ImUiDrawSurfaceD
 
 			if( draw->triangleTopology == ImUiDrawTopology_IndexedTriangleList )
 			{
-				ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+				ImUiDrawSurfacePushIndices( surface->buffers, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 			}
 
 			command->count = IMUI_ARRAY_COUNT( vertexIndices );
@@ -700,12 +708,12 @@ static ImUiRect ImUiDrawSurfaceGenerateWidgetRect( ImUiWidget* widget )
 
 static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* surface, float x, float y, float u, float v, ImUiColor color )
 {
-	const uint32 vertexIndex = (uint32)surface->vertexCount;
-	surface->vertexCount++;
+	const uint32 vertexIndex = (uint32)surface->buffers->vertexCount;
+	surface->buffers->vertexCount++;
 
 	uintsize vertexOffset = 0u;
-	uint8* vertex = surface->vertexData + (draw->vertexSize * vertexIndex);
-	IMUI_ASSERT( vertex + draw->vertexSize <= surface->vertexData + surface->vertexDataCapacity );
+	uint8* vertex = surface->buffers->vertexData + (draw->vertexSize * vertexIndex);
+	IMUI_ASSERT( vertex + draw->vertexSize <= surface->buffers->vertexData + surface->buffers->vertexDataCapacity );
 
 	for( uintsize i = 0u; i < draw->vertexFormat.elementCount; ++i )
 	{
@@ -1169,17 +1177,17 @@ static uint32 ImUiDrawSurfacePushVertex( ImUiDraw* draw, ImUiDrawSurfaceData* su
 	return vertexIndex;
 }
 
-static void ImUiDrawSurfacePushIndices( ImUiDrawSurfaceData* surface, const uint32* indices, uintsize count )
+static void ImUiDrawSurfacePushIndices( ImUiDrawSurfaceBuffers* buffers, const uint32* indices, uintsize count )
 {
-	IMUI_ASSERT( surface->indexCount + count <= surface->indexCapacity );
+	IMUI_ASSERT( buffers->indexCount + count <= buffers->indexCapacity );
 
-	uint32* targetIndices = surface->indices + surface->indexCount;
+	uint32* targetIndices = buffers->indices + buffers->indexCount;
 	for( uintsize i = 0u; i < count; ++i )
 	{
 		targetIndices[ i ] = indices[ i ];
 	}
 
-	surface->indexCount += count;
+	buffers->indexCount += count;
 }
 
 static uintsize ImUiVertexElementTypeGetSize( ImUiVertexElementType type )
@@ -1243,7 +1251,7 @@ static uintsize ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* su
 			vertexIndices[ 4u ] = indexTr;
 			vertexIndices[ 5u ] = indexBr;
 
-			ImUiDrawSurfacePushIndices( surface, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
+			ImUiDrawSurfacePushIndices( surface->buffers, vertexIndices, IMUI_ARRAY_COUNT( vertexIndices ) );
 		}
 		return 6u;
 

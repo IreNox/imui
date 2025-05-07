@@ -107,14 +107,10 @@ bool ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uint
 		return true;
 	}
 
-	uintsize nextCapacity = *capacity;
+	uintsize nextCapacity = IMUI_NEXT_POWER_OF_TWO( requiredCapacity );
 	if( nextCapacity < IMUI_DEFAULT_ARRAY_CAPACITY )
 	{
 		nextCapacity = IMUI_DEFAULT_ARRAY_CAPACITY;
-	}
-	while( nextCapacity < requiredCapacity )
-	{
-		nextCapacity <<= 1u;
 	}
 
 	const uintsize oldSize = *capacity * elementSize;
@@ -165,8 +161,15 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 
 void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize )
 {
-	const uintsize shrinkCapacity = *capacity >> 1;
-	if( count >= shrinkCapacity )
+	uintsize shrinkCapacity = *capacity >> 1;
+	if( shrinkCapacity > 0 &&
+		shrinkCapacity < IMUI_DEFAULT_ARRAY_CAPACITY )
+	{
+		shrinkCapacity = IMUI_DEFAULT_ARRAY_CAPACITY;
+	}
+
+	if( count >= shrinkCapacity ||
+		shrinkCapacity >= *capacity )
 	{
 		return;
 	}

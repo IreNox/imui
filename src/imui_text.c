@@ -192,7 +192,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 			continue;
 		}
 
-		uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
+		uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS32( ~((uint32)c << 24u) );
 		if( codepointByteCount > 4 )
 		{
 			// invalid character
@@ -233,7 +233,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 			continue;
 		}
 
-		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS( ~((uint32)c << 24u) );
+		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS32( ~((uint32)c << 24u) );
 
 		uint32 codepoint;
 		if( codepointByteCount == 1 || codepointByteCount > 4 )
