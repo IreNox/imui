@@ -209,9 +209,43 @@ void ImUiInputPushText( ImUiInput* input, const char* text )
 	ImUiInputTextPush( input, &input->currentState.text, text, strlen( text ) );
 }
 
-void ImUiInputPushTextChar( ImUiInput* input, char c )
+void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
 {
-	ImUiInputTextPush( input, &input->currentState.text, &c, 1u );
+	if( c > 0x1fffff )
+	{
+		// invalid character
+		return;
+	}
+	else if( c >= 0x10000u )
+	{
+		char bytes[ 4u ];
+		bytes[ 0u ]	= 0xf0 | (char)(c >> 18);
+		bytes[ 1u ] = 0x80 | (char)((c >> 12) & 0x3f);
+		bytes[ 2u ] = 0x80 | (char)((c >> 6) & 0x3f);
+		bytes[ 3u ] = 0x80 | (char)(c & 0x3f);
+		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+	}
+	else if( c >= 0x800u )
+	{
+		char bytes[ 3u ];
+		bytes[ 0u ]	= 0xe0 | (char)(c >> 12);
+		bytes[ 1u ] = 0x80 | (char)((c >> 6) & 0x3f);
+		bytes[ 2u ] = 0x80 | (char)(c & 0x3f);
+		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+	}
+	else if( c >= 0x80u )
+	{
+		char bytes[ 2u ];
+		bytes[ 0u ]	= 0xc0 | (char)(c >> 6);
+		bytes[ 1u ] = 0x80 | (char)(c & 0x3f);
+		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+	}
+	else
+	{
+		char bytes[ 1u ];
+		bytes[ 0u ] = (char)c;
+		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+	}
 }
 
 void ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button )

@@ -22,6 +22,7 @@ struct ImUiTextLayoutCache
 typedef struct ImUiTextGlyph ImUiTextGlyph;
 struct ImUiTextGlyph
 {
+	uint32					charIndex;
 	uint32					codepoint;
 	ImUiPos					pos;
 	ImUiSize				size;
@@ -45,7 +46,7 @@ struct ImUiTextLayout
 	ImUiTextLayout*			nextLayout;
 
 	const ImUiTextGlyph*	glyphs;
-	uint32					glyphCount;
+	uintsize				glyphCount;
 
 	uint32					frameIndex;
 

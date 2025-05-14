@@ -546,7 +546,7 @@ void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushText( ImUiInput* input, const char* text );
-void							ImUiInputPushTextChar( ImUiInput* input, char c );
+void							ImUiInputPushTextChar( ImUiInput* input, uint32_t c );
 
 void							ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button );
 void							ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button );
@@ -631,8 +631,11 @@ ImUiTextLayout*					ImUiTextLayoutCreateLength( ImUiContext* imui, ImUiFont* fon
 ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text );
 ImUiTextLayout*					ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length );
 
+size_t							ImUiTextLayoutCalculateGlyphCount( const char* text, size_t length );
+
 size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
 size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, float scale );
+size_t							ImUiTextLayoutGetGlyphCharIndex( const ImUiTextLayout* layout, size_t glyphIndex );
 ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
 ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex, float scale );
 

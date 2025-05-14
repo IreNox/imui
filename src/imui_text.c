@@ -180,12 +180,12 @@ ImUiTextLayout* ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, con
 	return ImUiTextLayoutCreateNew( cache, parameters, mapLayout );
 }
 
-static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters, ImUiTextLayout** mapLayout )
+size_t ImUiTextLayoutCalculateGlyphCount( const char* text, size_t length )
 {
-	uint32 glyphCount = 0u;
-	for( uintsize i = 0; i < parameters->text.length; )
+	size_t glyphCount = 0u;
+	for( uintsize i = 0; i < length; )
 	{
-		const char c = parameters->text.data[ i ];
+		const char c = text[ i ];
 		if( c == '\n' )
 		{
 			i++;
@@ -203,6 +203,12 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 		glyphCount++;
 	}
 
+	return glyphCount;
+}
+
+static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters, ImUiTextLayout** mapLayout )
+{
+	uintsize glyphCount = ImUiTextLayoutCalculateGlyphCount( parameters->text.data, parameters->text.length );
 	const uintsize memorySize = sizeof( ImUiTextLayout ) + parameters->text.length + 1u + (sizeof( ImUiTextGlyph ) * glyphCount);
 	ImUiTextLayout* layout = (ImUiTextLayout*)ImUiMemoryAlloc( cache->allocator, memorySize );
 	if( !layout )
@@ -222,6 +228,8 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 	for( uintsize i = 0; i < parameters->text.length; ++i )
 	{
 		ImUiTextGlyph* glyph = &glyphs[ glyphIndex ];
+
+		glyph->charIndex = (uint32)i;
 
 		const char c = parameters->text.data[ i ];
 		if( c == '\n' )
@@ -280,7 +288,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 		{
 			// TODO: what to do here?
 			x += parameters->font->lineGap;
-			layout->glyphCount--;
+			glyphCount--;
 			continue;
 		}
 
@@ -354,6 +362,22 @@ size_t ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, 
 	}
 
 	return layout->glyphCount;
+}
+
+size_t ImUiTextLayoutGetGlyphCharIndex( const ImUiTextLayout* layout, size_t glyphIndex )
+{
+	if( !layout )
+	{
+		return 0u;
+	}
+
+	if( glyphIndex < layout->glyphCount )
+	{
+		const ImUiTextGlyph* glyph = &layout->glyphs[ glyphIndex ];
+		return glyph->charIndex;
+	}
+
+	return layout->text.length;
 }
 
 ImUiSize ImUiTextLayoutGetSize( const ImUiTextLayout* layout )

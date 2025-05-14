@@ -997,25 +997,29 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
+				const uintsize selectionStartChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionStart );
+				const uintsize selectionEndChar		= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionEnd );
+
+				memmove( buffer + selectionStartChar, buffer + selectionEndChar, textLengthInternal - selectionEndChar );
 				state->cursorPos = state->selectionStart;
 
-				textLengthInternal -= state->selectionEnd - state->selectionStart;
+				textLengthInternal -= selectionEndChar - selectionStartChar;
 
 				state->selectionStart	= 0u;
 				state->selectionEnd		= 0u;
 			}
 
-			if( state->cursorPos != textLengthInternal )
+			const uintsize cursorChar = ImUiTextLayoutGetGlyphCharIndex( layout, state->cursorPos );
+			if( cursorChar != textLengthInternal )
 			{
-				memmove( buffer + state->cursorPos + newSize, buffer + state->cursorPos, textLengthInternal - state->cursorPos );
+				memmove( buffer + cursorChar + newSize, buffer + cursorChar, textLengthInternal - cursorChar );
 			}
 
-			memcpy( buffer + state->cursorPos, textInput, newSize );
+			memcpy( buffer + cursorChar, textInput, newSize );
 			textLengthInternal += newSize;
 			buffer[ textLengthInternal ] = '\0';
 
-			state->cursorPos += (uint32)newSize;
+			state->cursorPos += (uint32)ImUiTextLayoutCalculateGlyphCount( textInput, newSize );
 
 			changed = true;
 		}
@@ -1024,10 +1028,13 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
+				const uintsize selectionStartChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionStart );
+				const uintsize selectionEndChar		= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionEnd );
+
+				memmove( buffer + selectionStartChar, buffer + selectionEndChar, textLengthInternal - selectionEndChar );
 				state->cursorPos = state->selectionStart;
 
-				textLengthInternal -= state->selectionEnd - state->selectionStart;
+				textLengthInternal -= selectionEndChar - selectionStartChar;
 				buffer[ textLengthInternal ] = '\0';
 
 				state->selectionStart	= 0u;
@@ -1037,12 +1044,14 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			}
 			else if( state->cursorPos > 0u )
 			{
-				for( uintsize i = state->cursorPos - 1u; i < textLengthInternal; ++i )
-				{
-					buffer[ i ] = buffer[ i + 1u ];
-				}
+				const uintsize backspaceStartChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->cursorPos - 1u );
+				const uintsize backspaceEndChar		= ImUiTextLayoutGetGlyphCharIndex( layout, state->cursorPos );
 
-				textLengthInternal--;
+				memmove( buffer + backspaceStartChar, buffer + backspaceEndChar, textLengthInternal - backspaceEndChar );
+
+				textLengthInternal -= backspaceEndChar - backspaceStartChar;
+				buffer[ textLengthInternal ] = '\0';
+
 				state->cursorPos--;
 
 				changed = true;
@@ -1052,10 +1061,13 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
-				memmove( buffer + state->selectionStart, buffer + state->selectionEnd, textLengthInternal - state->selectionEnd );
+				const uintsize selectionStartChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionStart );
+				const uintsize selectionEndChar		= ImUiTextLayoutGetGlyphCharIndex( layout, state->selectionEnd );
+
+				memmove( buffer + selectionStartChar, buffer + selectionEndChar, textLengthInternal - selectionEndChar );
 				state->cursorPos = state->selectionStart;
 
-				textLengthInternal -= state->selectionEnd - state->selectionStart;
+				textLengthInternal -= selectionEndChar - selectionStartChar;
 				buffer[ textLengthInternal ] = '\0';
 
 				state->selectionStart	= 0u;
@@ -1063,14 +1075,15 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 
 				changed = true;
 			}
-			else if( textLengthInternal > state->cursorPos )
+			else if( ImUiTextLayoutGetGlyphCount( layout ) > state->cursorPos )
 			{
-				for( uintsize i = state->cursorPos; i < textLengthInternal; ++i )
-				{
-					buffer[ i ] = buffer[ i + 1u ];
-				}
+				const uintsize deleteStartChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->cursorPos );
+				const uintsize deleteEndChar	= ImUiTextLayoutGetGlyphCharIndex( layout, state->cursorPos + 1u );
 
-				textLengthInternal--;
+				memmove( buffer + deleteStartChar, buffer + deleteEndChar, textLengthInternal - deleteEndChar );
+
+				textLengthInternal -= deleteEndChar - deleteStartChar;
+				buffer[ textLengthInternal ] = '\0';
 
 				changed = true;
 			}

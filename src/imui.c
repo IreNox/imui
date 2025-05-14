@@ -184,12 +184,9 @@ void ImUiEnd( ImUiFrame* frame )
 			imui->firstFreeChunk = nextFreeChunk;
 		}
 
-		ImUiWidgetChunk* lastFreeChunk = NULL;
 		for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
 		{
 			chunk->usedCount = 0u;
-
-			lastFreeChunk = chunk;
 		}
 
 		imui->firstFreeChunk		= imui->firstLastFrameChunk;
