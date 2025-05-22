@@ -38,6 +38,7 @@ struct ImUiWindow
 	bool			hasFocus;
 	bool			focusLocked;
 	ImUiPos			focusPoint;
+	float			diagonalLength;
 
 	uintsize		drawIndex;
 
@@ -50,6 +51,7 @@ struct ImUiWindow
 
 	float			closesFocusWidgetDot;
 	float			closesFocusWidgetDistance;
+	float			closesFocusWidgetFactor;
 	ImUiWidget*		closedFocusWidget;
 };
 

@@ -234,13 +234,16 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
 double						ImUiWindowGetTime( const ImUiWindow* window );
 float						ImUiWindowGetDpiScale( const ImUiWindow* window );
+ImUiRect					ImUiWindowGetRect( const ImUiWindow* window );
 
 bool						ImUiWindowHasFocus( const ImUiWindow* window );
 void						ImUiWindowSetFocus( ImUiWindow* window );
 
+bool						ImUiWindowIsWidgetFocusLocked( const ImUiWindow* window );
 void						ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked );
 void						ImUiWindowClearWidgetFocus( ImUiWindow* window );
-ImUiWidget*					ImUiWindowGetFocusWidget( const ImUiWindow* window );
+const ImUiWidget*			ImUiWindowGetFocusWidget( const ImUiWindow* window );
+const ImUiWidget*			ImUiWindowPeekFocusWidget( const ImUiWindow* window );
 
 void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
 void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );

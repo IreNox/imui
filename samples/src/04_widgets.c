@@ -322,5 +322,4 @@ void ImUiToolboxSampleShutdown( ImUiContext* imui )
 {
 	ImUiFrameworkToolboxConfigDataShutdown( &s_toolboxContext.configData, imui );
 }
-
 #endif
