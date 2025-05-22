@@ -54,6 +54,8 @@ void ImUiInputNextTick( ImUiInput* input )
 
 	input->lastState = input->currentState;
 
+	input->currentState.focusExecute = false;
+
 	for( uintsize i = 0u; i < ImUiInputMouseButton_MAX; ++i )
 	{
 		input->currentState.mouseButtonDoubleClick[ i ] = false;
@@ -283,6 +285,18 @@ void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, flo
 	input->currentState.mouseScroll = ImUiPosAddPos( input->currentState.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
+void ImUiInputPushFocusDirection( ImUiInput* input, float x, float y )
+{
+	const float length = sqrtf( (x * x) + (y * y) );
+	input->currentState.focusDirection.x = x / length;
+	input->currentState.focusDirection.y = y / length;
+}
+
+void ImUiInputPushFocusExecute( ImUiInput* input )
+{
+	input->currentState.focusExecute = true;
+}
+
 uint32_t ImUiInputGetKeyModifiers( const ImUiContext* imui )
 {
 	return imui->input.currentState.keyModifiers;
@@ -306,6 +320,11 @@ bool ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key )
 bool ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key )
 {
 	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
+}
+
+ImUiInputShortcut ImUiInputGetShortcut( const ImUiContext* imui )
+{
+	return imui->input.currentState.shortcut;
 }
 
 const char* ImUiInputGetText( const ImUiContext* imui )
@@ -356,6 +375,16 @@ bool ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMou
 ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )
 {
 	return imui->input.currentState.mouseScroll;
+}
+
+ImUiPos ImUiInputGetFocusDirection( const ImUiContext* imui )
+{
+	return imui->input.currentState.focusDirection;
+}
+
+bool ImUiInputGetFocusExecute( const ImUiContext* imui )
+{
+	return imui->input.currentState.focusExecute;
 }
 
 static char* ImUiInputTextGet( ImUiInputText* text )

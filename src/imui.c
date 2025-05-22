@@ -328,13 +328,16 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 		memset( window, 0, sizeof( *window ) );
 	}
 
-	window->inUse		= true;
-	window->context		= imui;
-	window->surface		= surface;
-	window->name		= ImUiStringPoolAdd( &imui->strings, nameView );
-	window->rect		= rect;
-	window->zOrder		= zOrder;
-	window->drawIndex	= ImUiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
+	window->inUse						= true;
+	window->context						= imui;
+	window->surface						= surface;
+	window->name						= ImUiStringPoolAdd( &imui->strings, nameView );
+	window->rect						= rect;
+	window->zOrder						= zOrder;
+	window->drawIndex					= ImUiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
+	window->closesFocusWidgetDot		= 0.0f;
+	window->closesFocusWidgetDistance	= IMUI_FLOAT_INF;
+	window->closedFocusWidget			= NULL;
 
 	ImUiWidget* rootWidget = ImUiWidgetAlloc( imui );
 	rootWidget->window		= window;
@@ -350,8 +353,10 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 
 	if( window->lastFrameCurrentWidget )
 	{
-		rootWidget->lastFrameWidget	= window->lastFrameRootWidget;
-		rootWidget->layoutContext	= window->lastFrameRootWidget->layoutContext;
+		rootWidget->lastFrameWidget		= window->lastFrameRootWidget;
+		rootWidget->layoutContext		= window->lastFrameRootWidget->layoutContext;
+
+		window->lastFrameFocusWidget	= window->focusWidget;
 	}
 
 	window->rootWidget		= rootWidget;
@@ -383,6 +388,31 @@ double ImUiWindowGetTime( const ImUiWindow* window )
 float ImUiWindowGetDpiScale( const ImUiWindow* window )
 {
 	return window->surface->dpiScale;
+}
+
+bool ImUiWindowHasFocus( const ImUiWindow* window )
+{
+	return window->hasFocus;
+}
+
+void ImUiWindowSetFocus( ImUiWindow* window )
+{
+	window->hasFocus = true;
+}
+
+void ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked )
+{
+	window->focusLocked = locked;
+}
+
+void ImUiWindowClearWidgetFocus( ImUiWindow* window )
+{
+	window->focusWidget = NULL;
+}
+
+ImUiWidget* ImUiWindowGetFocusWidget( const ImUiWindow* window )
+{
+	return window->focusWidget;
 }
 
 void* ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId )
@@ -427,6 +457,8 @@ static void ImUiWindowLayout( ImUiWindow* window )
 		ImUiWidgetLayout( widget, &window->rootWidget->rect, window->surface->dpiScale, childIndex, update );
 		childIndex++;
 	}
+
+	window->focusWidget = window->closedFocusWidget;
 }
 
 static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
@@ -704,6 +736,40 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 	{
 		ImUiWidgetLayout( childWidget, &innerRect, dpiScale, childIndex, true );
 		childIndex++;
+	}
+
+	if( widget->canHaveFocus &&
+		widget->window->surface->context->input.currentState.focusExecute &&
+		widget->window->hasFocus &&
+		!widget->window->focusLocked )
+	{
+		ImUiWindow* window = widget->window;
+
+		const ImUiPos focusDirection	= window->surface->context->input.currentState.focusDirection;
+		const ImUiPos widgetCenter		= ImUiRectGetCenter( widget->rect );
+		ImUiPos widgetDirection			= ImUiPosSubPos( widgetCenter, window->focusPoint );
+		const float directionLength		= sqrtf( (widgetDirection.x * widgetDirection.x) + (widgetDirection.y * widgetDirection.y) );
+		widgetDirection					= ImUiPosScale( widgetDirection, 1.0f / directionLength );
+		const float dot					= (widgetDirection.x * focusDirection.x) + (widgetDirection.x * focusDirection.y);
+
+		if( !window->closedFocusWidget )
+		{
+			window->closesFocusWidgetDot		= dot;
+			window->closesFocusWidgetDistance	= directionLength;
+			window->closedFocusWidget			= widget;
+		}
+		else
+		{
+			const float dotFactor = dot / window->closesFocusWidgetDot;
+			const float distanceFactor = directionLength / window->closesFocusWidgetDistance;
+
+			if( dotFactor < 1.0f || distanceFactor < 1.0f )
+			{
+				window->closesFocusWidgetDot		= dot;
+				window->closesFocusWidgetDistance	= directionLength;
+				window->closedFocusWidget			= widget;
+			}
+		}
 	}
 }
 
@@ -1412,6 +1478,26 @@ void ImUiWidgetSetVAlign( ImUiWidget* widget, float align )
 	widget->alignV = align;
 }
 
+bool ImUiWidgetHasFocus( const ImUiWidget* widget )
+{
+	return widget->window->hasFocus && widget->window->focusWidget == widget;
+}
+
+void ImUiWidgetSetFocus( ImUiWidget* widget )
+{
+	widget->window->focusWidget = widget;
+}
+
+bool ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget )
+{
+	return widget->canHaveFocus;
+}
+
+void ImUiWidgetSetCanHaveFocus( ImUiWidget* widget )
+{
+	widget->canHaveFocus = true;
+}
+
 ImUiPos ImUiWidgetGetPos( const ImUiWidget* widget )
 {
 	return widget->rect.pos;
@@ -1482,6 +1568,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 
 	target->relativeMousePos	= ImUiPosSubPos( input->currentState.mousePos, widget->rect.pos );
 
+	target->hasFocus			= window->focusWidget == widget;
 	target->isMouseOver			= !hasOverlappingWindow && ImUiRectIncludesPos( widget->clipRect, input->currentState.mousePos );
 	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
 	target->hasMousePressed		= target->isMouseOver && ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left );
@@ -1635,11 +1722,6 @@ void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos
 	primitiveData->p1		= p1;
 	primitiveData->p2		= p2;
 	primitiveData->color	= color;
-}
-
-ImUiInputShortcut ImUiInputGetShortcut( const ImUiContext* imui )
-{
-	return imui->input.currentState.shortcut;
 }
 
 static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState )

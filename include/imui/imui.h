@@ -40,6 +40,9 @@ typedef struct ImUiAllocator
 
 typedef void(*ImUiStateDestructFunc)(void* state);
 
+// needed?
+//typedef bool(*ImUiWindowEvalFocusFunc)(ImUiWindow* window, ImUiWidget* widget, void* userData);
+
 typedef enum ImUiVertexElementType
 {
 	ImUiVertexElementType_Float,
@@ -232,6 +235,13 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 double						ImUiWindowGetTime( const ImUiWindow* window );
 float						ImUiWindowGetDpiScale( const ImUiWindow* window );
 
+bool						ImUiWindowHasFocus( const ImUiWindow* window );
+void						ImUiWindowSetFocus( ImUiWindow* window );
+
+void						ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked );
+void						ImUiWindowClearWidgetFocus( ImUiWindow* window );
+ImUiWidget*					ImUiWindowGetFocusWidget( const ImUiWindow* window );
+
 void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
 void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );
 void*						ImUiWindowAllocStateNewDestruct( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc );
@@ -246,6 +256,7 @@ typedef struct ImUiWidgetInputState
 {
 	ImUiPos					relativeMousePos;
 
+	bool					hasFocus;
 	bool					wasPressed;
 	bool					wasMouseOver;
 	bool					isMouseOver;
@@ -315,6 +326,11 @@ float						ImUiWidgetGetHAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetHAlign( ImUiWidget* widget, float align );
 float						ImUiWidgetGetVAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetVAlign( ImUiWidget* widget, float align );
+
+bool						ImUiWidgetHasFocus( const ImUiWidget* widget );
+void						ImUiWidgetSetFocus( ImUiWidget* widget );
+bool						ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget );
+void						ImUiWidgetSetCanHaveFocus( ImUiWidget* widget );
 
 ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
 float						ImUiWidgetGetPosX( const ImUiWidget* widget );
@@ -556,6 +572,9 @@ void							ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float de
 void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset );
 void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta );
 
+void							ImUiInputPushFocusDirection( ImUiInput* input, float x, float y );
+void							ImUiInputPushFocusExecute( ImUiInput* input );
+
 // Read
 
 uint32_t						ImUiInputGetKeyModifiers( const ImUiContext* imui );	// returns ImUiInputModifier
@@ -576,6 +595,9 @@ bool							ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMou
 bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button );
 ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
+
+ImUiPos							ImUiInputGetFocusDirection( const ImUiContext* imui );
+bool							ImUiInputGetFocusExecute( const ImUiContext* imui );
 
 //////////////////////////////////////////////////////////////////////////
 // Font

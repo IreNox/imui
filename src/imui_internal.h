@@ -35,6 +35,9 @@ struct ImUiWindow
 	ImUiStringView	name;
 	ImUiRect		rect;
 	uint32			zOrder;
+	bool			hasFocus;
+	bool			focusLocked;
+	ImUiPos			focusPoint;
 
 	uintsize		drawIndex;
 
@@ -42,6 +45,12 @@ struct ImUiWindow
 	ImUiWidget*		lastFrameRootWidget;
 	ImUiWidget*		currentWidget;
 	ImUiWidget*		lastFrameCurrentWidget;
+	ImUiWidget*		focusWidget;
+	ImUiWidget*		lastFrameFocusWidget;
+
+	float			closesFocusWidgetDot;
+	float			closesFocusWidgetDistance;
+	ImUiWidget*		closedFocusWidget;
 };
 
 typedef struct ImUiWidgetState ImUiWidgetState;
@@ -156,6 +165,8 @@ struct ImUiWidget
 
 	float					alignH;
 	float					alignV;
+
+	bool					canHaveFocus;
 
 	// generated data
 	ImUiRect				rect;
