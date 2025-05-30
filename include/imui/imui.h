@@ -334,6 +334,7 @@ bool						ImUiWidgetHasFocus( const ImUiWidget* widget );
 void						ImUiWidgetSetFocus( ImUiWidget* widget );
 bool						ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget );
 void						ImUiWidgetSetCanHaveFocus( ImUiWidget* widget );
+void						ImUiWidgetSetCanHaveFocusIndex( ImUiWidget* widget, uint32_t focusIndex );
 
 ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
 float						ImUiWidgetGetPosX( const ImUiWidget* widget );
@@ -540,6 +541,8 @@ typedef enum ImUiInputMouseCursor
 typedef enum ImUiInputShortcut
 {
 	ImUiInputShortcut_None,
+	ImUiInputShortcut_Confirm,
+	ImUiInputShortcut_Back,
 	ImUiInputShortcut_ToggleInsertReplace,
 	ImUiInputShortcut_Home,
 	ImUiInputShortcut_End,
@@ -550,7 +553,9 @@ typedef enum ImUiInputShortcut
 	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
 	ImUiInputShortcut_SelectAll,
 	ImUiInputShortcut_Backward,
-	ImUiInputShortcut_Forward
+	ImUiInputShortcut_Forward,
+	ImUiInputShortcut_FocusNext,
+	ImUiInputShortcut_FocusPrevious
 } ImUiInputShortcut;
 
 typedef struct ImUiInputShortcutConfig

@@ -49,10 +49,12 @@ struct ImUiWindow
 	ImUiWidget*		focusWidget;
 	ImUiWidget*		lastFrameFocusWidget;
 
-	float			closesFocusWidgetDot;
-	float			closesFocusWidgetDistance;
 	float			closesFocusWidgetFactor;
-	ImUiWidget*		closedFocusWidget;
+	ImUiWidget*		closesFocusWidget;
+
+	uint32			lastFocusIndex;
+	ImUiWidget*		closesFocusIndexWidget;
+	ImUiWidget*		wrapFocusIndexWidget;
 };
 
 typedef struct ImUiWidgetState ImUiWidgetState;
@@ -169,6 +171,7 @@ struct ImUiWidget
 	float					alignV;
 
 	bool					canHaveFocus;
+	uint32					focusIndex;
 
 	// generated data
 	ImUiRect				rect;
