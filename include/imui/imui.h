@@ -491,6 +491,21 @@ typedef enum ImUiInputKey
 	ImUiInputKey_Numpad_0,
 	ImUiInputKey_Numpad_Period,
 
+	ImUiInputKey_Gamepad_Dpad_Up,
+	ImUiInputKey_Gamepad_Dpad_Down,
+	ImUiInputKey_Gamepad_Dpad_Left,
+	ImUiInputKey_Gamepad_Dpad_Right,
+	ImUiInputKey_Gamepad_Start,
+	ImUiInputKey_Gamepad_Back,
+	ImUiInputKey_Gamepad_LeftThumb,
+	ImUiInputKey_Gamepad_RightThumb,
+	ImUiInputKey_Gamepad_LeftShoulder,
+	ImUiInputKey_Gamepad_RightShoulder,
+	ImUiInputKey_Gamepad_A,
+	ImUiInputKey_Gamepad_B,
+	ImUiInputKey_Gamepad_X,
+	ImUiInputKey_Gamepad_Y,
+
 	ImUiInputKey_MAX
 } ImUiInputKey;
 
@@ -511,7 +526,7 @@ typedef enum ImUiInputMouseCursor
 	ImUiInputMouseCursor_Wait,
 	ImUiInputMouseCursor_WaitArrow,
 	ImUiInputMouseCursor_IBeam,
-	ImUiInputMouseCursor_Crooshair,
+	ImUiInputMouseCursor_Crosshair,
 	ImUiInputMouseCursor_Hand,
 	ImUiInputMouseCursor_ResizeNorthwestSoutheast,
 	ImUiInputMouseCursor_ResizeNortheastSouthwest,

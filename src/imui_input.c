@@ -287,7 +287,13 @@ void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, flo
 
 void ImUiInputPushFocusDirection( ImUiInput* input, float x, float y )
 {
-	const float length = sqrtf( (x * x) + (y * y) );
+	const float lengthSquare = (x * x) + (y * y);
+	if( lengthSquare == 0.0f )
+	{
+		return;
+	}
+
+	const float length = sqrtf( lengthSquare );
 	input->currentState.focusDirection.x = x / length;
 	input->currentState.focusDirection.y = y / length;
 }
