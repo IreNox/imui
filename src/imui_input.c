@@ -285,11 +285,12 @@ void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, flo
 	input->currentState.mouseScroll = ImUiPosAddPos( input->currentState.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
-void ImUiInputPushFocusDirection( ImUiInput* input, float x, float y )
+void ImUiInputPushDirection( ImUiInput* input, float x, float y )
 {
 	const float lengthSquare = (x * x) + (y * y);
 	if( lengthSquare == 0.0f )
 	{
+		input->currentState.focusDirection = ImUiPosCreateZero();
 		return;
 	}
 
@@ -383,7 +384,7 @@ ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )
 	return imui->input.currentState.mouseScroll;
 }
 
-ImUiPos ImUiInputGetFocusDirection( const ImUiContext* imui )
+ImUiPos ImUiInputGetDirection( const ImUiContext* imui )
 {
 	return imui->input.currentState.focusDirection;
 }

@@ -37,7 +37,10 @@ struct ImUiWindow
 	uint32			zOrder;
 	bool			hasFocus;
 	bool			focusLocked;
+	bool			focusWrap;
 	ImUiPos			focusPoint;
+	ImUiPos			focusWrapPoint;
+	float			focusAngleThreshold;
 	float			diagonalLength;
 
 	uintsize		drawIndex;
@@ -51,6 +54,8 @@ struct ImUiWindow
 
 	float			closesFocusWidgetFactor;
 	ImUiWidget*		closesFocusWidget;
+	float			wrapFocusWidgetFactor;
+	ImUiWidget*		wrapFocusWidget;
 
 	uint32			lastFocusIndex;
 	ImUiWidget*		closesFocusIndexWidget;

@@ -1414,7 +1414,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	const ImUiRect frameRect = ImUiWidgetGetRect( scrollArea->area );
 
 	ImUiSize areaSize = ImUiSizeCreateZero();
-	for( ImUiWidget* child = ImUiWidgetGetFirstChild( scrollArea->content ); child; child = ImUiWidgetGetNextSibling( child ) )
+	for( const ImUiWidget* child = ImUiWidgetGetFirstChild( scrollArea->content ); child; child = ImUiWidgetGetNextSibling( child ) )
 	{
 		const ImUiRect childRect = ImUiWidgetGetRect( child );
 
@@ -1690,6 +1690,8 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 
 	if( list->selection )
 	{
+		ImUiWidgetSetCanHaveFocus( item );
+
 		ImUiWidgetInputState inputState;
 		ImUiWidgetGetInputState( item, &inputState );
 
@@ -1698,7 +1700,7 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 		{
 			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
 		}
-		else if( inputState.isMouseOver )
+		else if( inputState.isMouseOver || inputState.hasFocus )
 		{
 			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
 		}

@@ -237,7 +237,7 @@ float						ImUiWindowGetDpiScale( const ImUiWindow* window );
 ImUiRect					ImUiWindowGetRect( const ImUiWindow* window );
 
 bool						ImUiWindowHasFocus( const ImUiWindow* window );
-void						ImUiWindowSetFocus( ImUiWindow* window );
+void						ImUiWindowSetFocus( ImUiWindow* window, float angleThreshold, bool wrap );
 
 bool						ImUiWindowIsWidgetFocusLocked( const ImUiWindow* window );
 void						ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked );
@@ -595,7 +595,7 @@ void							ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float de
 void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset );
 void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta );
 
-void							ImUiInputPushFocusDirection( ImUiInput* input, float x, float y );
+void							ImUiInputPushDirection( ImUiInput* input, float x, float y );
 void							ImUiInputPushFocusExecute( ImUiInput* input );
 
 // Read
@@ -619,7 +619,7 @@ bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMo
 bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button );
 ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
 
-ImUiPos							ImUiInputGetFocusDirection( const ImUiContext* imui );
+ImUiPos							ImUiInputGetDirection( const ImUiContext* imui );
 bool							ImUiInputGetFocusExecute( const ImUiContext* imui );
 
 //////////////////////////////////////////////////////////////////////////
