@@ -22,7 +22,14 @@ static ImUiFrameworkToolboxConfigData	s_configData;
 void ImUiLayoutSampleTick( ImUiWindow* window )
 {
 	ImUiContext* imui = ImUiWindowGetContext( window );
-	ImUiWindowSetFocus( window );
+	ImUiWindowSetFocus( window, 0.5f, false );
+
+	ImUiPos focusPoint = ImUiPosCreateZero();
+	const ImUiWidget* focusWidget = ImUiWindowGetFocusWidget( window );
+	if( focusWidget )
+	{
+		focusPoint = ImUiRectGetCenter( ImUiWidgetGetRect( focusWidget ) );
+	}
 
 	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretchOne( vMain );
@@ -67,7 +74,7 @@ void ImUiLayoutSampleTick( ImUiWindow* window )
 		const float gray = (cosf( (float)ImUiWidgetGetTime( vMain ) ) / 2.0f + 0.5f) * 255.0f;
 		ImUiWidgetDrawPartialColor( vMain, focusRect, ImUiColorCreateGray( (uint8_t)gray ) );
 	}
-	const ImUiPos p1 = ImUiPosAddPos( focusPoint, ImUiPosScale( ImUiInputGetFocusDirection( imui ), 10000.0f ) );
+	const ImUiPos p1 = ImUiPosAddPos( focusPoint, ImUiPosScale( ImUiInputGetDirection( imui ), 10000.0f ) );
 	ImUiWidgetDrawLine( vMain, focusPoint, p1, ImUiColorCreateBlack() );
 
 	ImUiWidgetEnd( vMain );
@@ -246,14 +253,6 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 static void ImUiLayoutSampleFocus( ImUiWidget* widget )
 {
 	ImUiWidgetSetCanHaveFocus( widget );
-
-	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( widget, &inputState );
-
-	if( inputState.isMouseOver && s_select )
-	{
-		s_hoverWidget = widget;
-	}
 }
 
 bool ImUiLayoutSampleInitialize( ImUiContext* imui )
