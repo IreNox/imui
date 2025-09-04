@@ -40,6 +40,9 @@ typedef struct ImUiAllocator
 
 typedef void(*ImUiStateDestructFunc)(void* state);
 
+// needed?
+//typedef bool(*ImUiWindowEvalFocusFunc)(ImUiWindow* window, ImUiWidget* widget, void* userData);
+
 typedef enum ImUiVertexElementType
 {
 	ImUiVertexElementType_Float,
@@ -231,6 +234,16 @@ ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
 
 double						ImUiWindowGetTime( const ImUiWindow* window );
 float						ImUiWindowGetDpiScale( const ImUiWindow* window );
+ImUiRect					ImUiWindowGetRect( const ImUiWindow* window );
+
+bool						ImUiWindowHasFocus( const ImUiWindow* window );
+void						ImUiWindowSetFocus( ImUiWindow* window, float angleThreshold, bool wrap );
+
+bool						ImUiWindowIsWidgetFocusLocked( const ImUiWindow* window );
+void						ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked );
+void						ImUiWindowClearWidgetFocus( ImUiWindow* window );
+const ImUiWidget*			ImUiWindowGetFocusWidget( const ImUiWindow* window );
+const ImUiWidget*			ImUiWindowPeekFocusWidget( const ImUiWindow* window );
 
 void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
 void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );
@@ -246,6 +259,7 @@ typedef struct ImUiWidgetInputState
 {
 	ImUiPos					relativeMousePos;
 
+	bool					hasFocus;
 	bool					wasPressed;
 	bool					wasMouseOver;
 	bool					isMouseOver;
@@ -315,6 +329,12 @@ float						ImUiWidgetGetHAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetHAlign( ImUiWidget* widget, float align );
 float						ImUiWidgetGetVAlign( const ImUiWidget* widget );
 void						ImUiWidgetSetVAlign( ImUiWidget* widget, float align );
+
+bool						ImUiWidgetHasFocus( const ImUiWidget* widget );
+void						ImUiWidgetSetFocus( ImUiWidget* widget );
+bool						ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget );
+void						ImUiWidgetSetCanHaveFocus( ImUiWidget* widget );
+void						ImUiWidgetSetCanHaveFocusIndex( ImUiWidget* widget, uint32_t focusIndex );
 
 ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
 float						ImUiWidgetGetPosX( const ImUiWidget* widget );
@@ -472,6 +492,21 @@ typedef enum ImUiInputKey
 	ImUiInputKey_Numpad_0,
 	ImUiInputKey_Numpad_Period,
 
+	ImUiInputKey_Gamepad_Dpad_Up,
+	ImUiInputKey_Gamepad_Dpad_Down,
+	ImUiInputKey_Gamepad_Dpad_Left,
+	ImUiInputKey_Gamepad_Dpad_Right,
+	ImUiInputKey_Gamepad_Start,
+	ImUiInputKey_Gamepad_Back,
+	ImUiInputKey_Gamepad_LeftThumb,
+	ImUiInputKey_Gamepad_RightThumb,
+	ImUiInputKey_Gamepad_LeftShoulder,
+	ImUiInputKey_Gamepad_RightShoulder,
+	ImUiInputKey_Gamepad_A,
+	ImUiInputKey_Gamepad_B,
+	ImUiInputKey_Gamepad_X,
+	ImUiInputKey_Gamepad_Y,
+
 	ImUiInputKey_MAX
 } ImUiInputKey;
 
@@ -492,7 +527,7 @@ typedef enum ImUiInputMouseCursor
 	ImUiInputMouseCursor_Wait,
 	ImUiInputMouseCursor_WaitArrow,
 	ImUiInputMouseCursor_IBeam,
-	ImUiInputMouseCursor_Crooshair,
+	ImUiInputMouseCursor_Crosshair,
 	ImUiInputMouseCursor_Hand,
 	ImUiInputMouseCursor_ResizeNorthwestSoutheast,
 	ImUiInputMouseCursor_ResizeNortheastSouthwest,
@@ -506,6 +541,8 @@ typedef enum ImUiInputMouseCursor
 typedef enum ImUiInputShortcut
 {
 	ImUiInputShortcut_None,
+	ImUiInputShortcut_Confirm,
+	ImUiInputShortcut_Back,
 	ImUiInputShortcut_ToggleInsertReplace,
 	ImUiInputShortcut_Home,
 	ImUiInputShortcut_End,
@@ -516,7 +553,9 @@ typedef enum ImUiInputShortcut
 	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
 	ImUiInputShortcut_SelectAll,
 	ImUiInputShortcut_Backward,
-	ImUiInputShortcut_Forward
+	ImUiInputShortcut_Forward,
+	ImUiInputShortcut_FocusNext,
+	ImUiInputShortcut_FocusPrevious
 } ImUiInputShortcut;
 
 typedef struct ImUiInputShortcutConfig
@@ -556,6 +595,9 @@ void							ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float de
 void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset );
 void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta );
 
+void							ImUiInputPushDirection( ImUiInput* input, float x, float y );
+void							ImUiInputPushFocusExecute( ImUiInput* input );
+
 // Read
 
 uint32_t						ImUiInputGetKeyModifiers( const ImUiContext* imui );	// returns ImUiInputModifier
@@ -576,6 +618,9 @@ bool							ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMou
 bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button );
 bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button );
 ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
+
+ImUiPos							ImUiInputGetDirection( const ImUiContext* imui );
+bool							ImUiInputGetFocusExecute( const ImUiContext* imui );
 
 //////////////////////////////////////////////////////////////////////////
 // Font

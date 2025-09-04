@@ -1,6 +1,7 @@
 ﻿#include "00_samples.h"
 
 #include "imui/imui.h"
+#include "imui/imui_toolbox.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,9 +16,20 @@ static void ImUiLayoutSampleStretchVertical( ImUiWindow* window );
 static void ImUiLayoutSampleStretchGrid( ImUiWindow* window );
 static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretch1, ImUiSize stretch2, ImUiSize stretch3 );
 
+static void ImUiLayoutSampleFocus( ImUiWidget* widget );
+
+static ImUiFrameworkToolboxConfigData	s_configData;
 void ImUiLayoutSampleTick( ImUiWindow* window )
 {
 	ImUiContext* imui = ImUiWindowGetContext( window );
+	ImUiWindowSetFocus( window, 0.5f, false );
+
+	ImUiPos focusPoint = ImUiPosCreateZero();
+	const ImUiWidget* focusWidget = ImUiWindowGetFocusWidget( window );
+	if( focusWidget )
+	{
+		focusPoint = ImUiRectGetCenter( ImUiWidgetGetRect( focusWidget ) );
+	}
 
 	ImUiWidget* vMain = ImUiWidgetBeginNamed( window, "vMain" );
 	ImUiWidgetSetStretchOne( vMain );
@@ -48,6 +60,22 @@ void ImUiLayoutSampleTick( ImUiWindow* window )
 	}
 
 	ImUiLayoutSampleStretchGrid( window );
+
+	if( focusWidget )
+	{
+		const ImUiRect focusRect = ImUiRectShrinkBorder( ImUiWidgetGetRect( focusWidget ), ImUiBorderCreateAll( 4.0f ) );
+		const float gray = (sinf( (float)ImUiWidgetGetTime( vMain ) ) / 2.0f + 0.5f) * 255.0f;
+		ImUiWidgetDrawPartialColor( vMain, focusRect, ImUiColorCreateGray( (uint8_t)gray ) );
+	}
+	const ImUiWidget* peekFocusWidget = ImUiWindowPeekFocusWidget( window );
+	if( peekFocusWidget )
+	{
+		const ImUiRect focusRect = ImUiRectShrinkBorder( ImUiWidgetGetRect( peekFocusWidget ), ImUiBorderCreateAll( 4.0f ) );
+		const float gray = (cosf( (float)ImUiWidgetGetTime( vMain ) ) / 2.0f + 0.5f) * 255.0f;
+		ImUiWidgetDrawPartialColor( vMain, focusRect, ImUiColorCreateGray( (uint8_t)gray ) );
+	}
+	const ImUiPos p1 = ImUiPosAddPos( focusPoint, ImUiPosScale( ImUiInputGetDirection( imui ), 10000.0f ) );
+	ImUiWidgetDrawLine( vMain, focusPoint, p1, ImUiColorCreateBlack() );
 
 	ImUiWidgetEnd( vMain );
 }
@@ -87,6 +115,7 @@ static void ImUiLayoutSampleMinSizeElement( ImUiWindow* window )
 	ImUiWidget* widget = ImUiWidgetBegin( window );
 	ImUiWidgetSetMargin( widget, ImUiBorderCreateAll( 10.0f ) );
 	ImUiWidgetSetFixedSize( widget, ImUiSizeCreateAll( 20.0f ) );
+	ImUiLayoutSampleFocus( widget );
 
 	ImUiWidgetDrawColor( widget, ImUiColorCreate( 0u, 0xffu, 0xffu, 0xffu ) );
 
@@ -105,6 +134,7 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
@@ -116,6 +146,7 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
 		ImUiWidgetSetAlign( widget2, 1.0f, 1.0f );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
@@ -127,6 +158,7 @@ static void ImUiLayoutSampleStretchStack( ImUiWindow* window )
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, 0.5f, 0.5f );
 		ImUiWidgetSetAlign( widget2, 0.5f, 0.5f );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
@@ -187,6 +219,7 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, stretch1.width, stretch1.height );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0u, 0xffu, 0xffu ) );
 
@@ -197,6 +230,7 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 		ImUiWidget* widget2 = ImUiWidgetBegin( window );
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, stretch2.width, stretch2.height );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0xffu, 0u, 0u, 0xffu ) );
 
@@ -208,6 +242,7 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 		ImUiWidgetSetMargin( widget2, ImUiBorderCreateAll( 10.0f ) );
 		ImUiWidgetSetStretch( widget2, stretch3.width, stretch3.height );
 		ImUiWidgetSetAlign( widget2, 0.5f, 0.5f );
+		ImUiLayoutSampleFocus( widget2 );
 
 		ImUiWidgetDrawColor( widget2, ImUiColorCreate( 0u, 0xffu, 0u, 0xffu ) );
 
@@ -215,11 +250,17 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 	}
 }
 
+static void ImUiLayoutSampleFocus( ImUiWidget* widget )
+{
+	ImUiWidgetSetCanHaveFocus( widget );
+}
+
 bool ImUiLayoutSampleInitialize( ImUiContext* imui )
 {
-	return true;
+	return ImUiFrameworkToolboxConfigDataInitialize( &s_configData, imui );
 }
 
 void ImUiLayoutSampleShutdown( ImUiContext* imui )
 {
+	ImUiFrameworkToolboxConfigDataShutdown( &s_configData, imui );
 }

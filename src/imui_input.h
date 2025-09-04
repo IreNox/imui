@@ -16,9 +16,12 @@ typedef struct ImUiInputText
 typedef struct ImUiInputState ImUiInputState;
 struct ImUiInputState
 {
-	ImUiPos							mousePos;
+	ImUiPos							focusDirection;
+	bool							focusExecute;
+
 	bool							mouseButtons[ ImUiInputMouseButton_MAX ];
 	bool							mouseButtonDoubleClick[ ImUiInputMouseButton_MAX ];
+	ImUiPos							mousePos;
 	ImUiPos							mouseScroll;
 	ImUiInputMouseCursor			mouseCursor;
 

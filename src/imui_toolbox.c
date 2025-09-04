@@ -364,6 +364,7 @@ ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 	ImUiWidget* button = ImUiWidgetBegin( window );
 	ImUiWidgetSetFixedHeight( button, s_theme.button.height );
 	ImUiWidgetSetPadding( button, s_theme.button.padding );
+	ImUiWidgetSetCanHaveFocus( button );
 
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( button, &inputState );
@@ -375,7 +376,7 @@ ImUiWidget* ImUiToolboxButtonBegin( ImUiWindow* window )
 		color = s_theme.colors[ ImUiToolboxColor_ButtonClicked ];
 		skin = &s_theme.skins[ ImUiToolboxSkin_ButtonClicked ];
 	}
-	else if( inputState.isMouseOver )
+	else if( inputState.isMouseOver || inputState.hasFocus )
 	{
 		color = s_theme.colors[ ImUiToolboxColor_ButtonHover ];
 		skin = &s_theme.skins[ ImUiToolboxSkin_ButtonHover ];
@@ -393,7 +394,7 @@ bool ImUiToolboxButtonEnd( ImUiWidget* button )
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( button, &inputState );
 
-	return inputState.wasPressed && inputState.hasMouseReleased;
+	return (inputState.wasPressed && inputState.hasMouseReleased) || (inputState.hasFocus && ImUiInputGetShortcut( ImUiWidgetGetContext( button ) ) == ImUiInputShortcut_Confirm);
 }
 
 ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text )
@@ -1426,7 +1427,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	const ImUiRect frameRect = ImUiWidgetGetRect( scrollArea->area );
 
 	ImUiSize areaSize = ImUiSizeCreateZero();
-	for( ImUiWidget* child = ImUiWidgetGetFirstChild( scrollArea->content ); child; child = ImUiWidgetGetNextSibling( child ) )
+	for( const ImUiWidget* child = ImUiWidgetGetFirstChild( scrollArea->content ); child; child = ImUiWidgetGetNextSibling( child ) )
 	{
 		const ImUiRect childRect = ImUiWidgetGetRect( child );
 
@@ -1702,6 +1703,8 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 
 	if( list->selection )
 	{
+		ImUiWidgetSetCanHaveFocus( item );
+
 		ImUiWidgetInputState inputState;
 		ImUiWidgetGetInputState( item, &inputState );
 
@@ -1710,7 +1713,7 @@ ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 		{
 			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemClicked ] );
 		}
-		else if( inputState.isMouseOver )
+		else if( inputState.isMouseOver || inputState.hasFocus )
 		{
 			ImUiWidgetDrawSkin( item, skin, s_theme.colors[ ImUiToolboxColor_ListItemHover ] );
 		}
