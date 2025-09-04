@@ -3,6 +3,7 @@
 #include "imui_internal.h"
 #include "imui_memory.h"
 
+#include <math.h>
 #include <string.h>
 
 static char*		ImUiInputTextGet( ImUiInputText* text );

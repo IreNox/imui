@@ -355,10 +355,12 @@ float					ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue 
 float					ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
 float					ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
 
-ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreate( ImUiWindow* window, const char* text );
+ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreate( ImUiContext* imui );
+ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreateText( ImUiContext* imui, const char* text );
 void					ImUiToolboxTextBufferFree( ImUiToolboxTextBuffer* textBuffer );
 void					ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* text );
 void					ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text );
+void					ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const char* text, size_t textLength );
 
 ImUiWidget*				ImUiToolboxTextEditBegin( ImUiWindow* window );
 bool					ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
@@ -399,6 +401,8 @@ size_t					ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** but
 void					ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
 
 ImUiWidget*				ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window );
+size_t					ImUiToolboxTabViewGetSelectedIndex( const ImUiToolboxTabViewContext* tabView );
+void					ImUiToolboxTabViewSetSelectedIndex( ImUiToolboxTabViewContext* tabView, size_t index );
 bool					ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text );
 ImUiWidget*				ImUiToolboxTabViewHeaderBegin( ImUiToolboxTabViewContext* tabView );
 bool					ImUiToolboxTabViewHeaderEnd( ImUiToolboxTabViewContext* tabView, ImUiWidget* tabHeader );

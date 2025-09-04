@@ -1684,6 +1684,16 @@ namespace imui
 		m_widget = nullptr;
 	}
 
+	size_t toolbox::UiToolboxTabView::getSelectedIndex() const
+	{
+		return ImUiToolboxTabViewGetSelectedIndex( &m_context );
+	}
+
+	void toolbox::UiToolboxTabView::setSelectedIndex( size_t index )
+	{
+		ImUiToolboxTabViewSetSelectedIndex( &m_context, index );
+	}
+
 	bool toolbox::UiToolboxTabView::header( const char* text )
 	{
 		return ImUiToolboxTabViewHeader( &m_context, text );

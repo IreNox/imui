@@ -830,11 +830,18 @@ float ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float 
 	return *value;
 }
 
-ImUiToolboxTextBuffer* ImUiToolboxTextBufferCreate( ImUiWindow* window, const char* text )
+ImUiToolboxTextBuffer* ImUiToolboxTextBufferCreate( ImUiContext* imui )
 {
-	ImUiToolboxTextBuffer* textBuffer = IMUI_MEMORY_NEW_ZERO( &window->context->allocator, ImUiToolboxTextBuffer );
+	ImUiToolboxTextBuffer* textBuffer = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImUiToolboxTextBuffer );
 
-	textBuffer->allocator = &window->context->allocator;
+	textBuffer->allocator = &imui->allocator;
+
+	return textBuffer;
+}
+
+ImUiToolboxTextBuffer* ImUiToolboxTextBufferCreateText( ImUiContext* imui, const char* text )
+{
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( imui );
 
 	ImUiToolboxTextBufferAppend( textBuffer, text );
 
@@ -863,12 +870,16 @@ void ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* te
 
 void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text )
 {
+	const uintsize textLength = strlen( text );
+	ImUiToolboxTextBufferAppendLength( textBuffer, text, textLength );
+}
+
+void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const char* text, size_t textLength )
+{
 	if( !text )
 	{
 		return;
 	}
-
-	const uintsize textLength = strlen( text );
 
 	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( textBuffer->allocator, textBuffer->data, textBuffer->dataCapacity, textBuffer->dataLength + textLength + 1u ) )
 	{
@@ -1277,7 +1288,7 @@ const char* ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bu
 
 ImUiWidget* ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const char* text )
 {
-	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, text );
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreateText( window->context, text );
 
 	ImUiWidget* textViewWidget = ImUiToolboxTextViewBeginBuffer( textView, window, textBuffer );
 	textView->ownsBuffer = true;
@@ -1287,7 +1298,9 @@ ImUiWidget* ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUi
 
 ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer )
 {
-	ImUiToolboxListBegin( &textView->list, window, s_theme.font ? s_theme.font->fontSize : 1.0f, textBuffer->linesLength, false );
+	ImUiWidget* list = ImUiToolboxListBegin( &textView->list, window, s_theme.font ? s_theme.font->fontSize : 1.0f, textBuffer->linesLength, false );
+
+	ImUiWidgetSetStretchOne( list );
 
 	//bool isNewState;
 	textView->ownsBuffer	= false;
@@ -1997,6 +2010,16 @@ ImUiWidget* ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWin
 	tabView->state			= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
 
 	return tabView->view;
+}
+
+size_t ImUiToolboxTabViewGetSelectedIndex( const ImUiToolboxTabViewContext* tabView )
+{
+	return tabView->state->selectedTab;
+}
+
+void ImUiToolboxTabViewSetSelectedIndex( ImUiToolboxTabViewContext* tabView, size_t index )
+{
+	tabView->state->selectedTab = index;
 }
 
 bool ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text )

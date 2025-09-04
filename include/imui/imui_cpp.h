@@ -659,6 +659,9 @@ namespace imui
 						UiToolboxTabView( UiWindow& window );
 						~UiToolboxTabView();
 
+			size_t		getSelectedIndex() const;
+			void		setSelectedIndex( size_t index );
+
 			bool		header( const char* text );
 			void		beginHeader( UiWidget& header );
 			bool		endHeader( UiWidget& header );
