@@ -613,7 +613,7 @@ ImUiWidget* ImUiToolboxLabelBeginLengthColor( ImUiWindow* window, const char* te
 
 	ImUiTextLayout* layout = ImUiTextLayoutCreateWidgetLength( label, s_theme.font, text,length );
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
-	ImUiWidgetSetFixedSize( label, textSize );
+	ImUiWidgetSetMinSize( label, textSize );
 	ImUiWidgetSetVAlign( label, 0.5f );
 
 	if( layout )
@@ -877,12 +877,12 @@ void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char*
 
 void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const char* text, size_t textLength )
 {
-	if( !text )
+	if( !text || textLength == 0u )
 	{
 		return;
 	}
 
-	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( textBuffer->allocator, textBuffer->data, textBuffer->dataCapacity, textBuffer->dataLength + textLength + 1u ) )
+	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( textBuffer->allocator, textBuffer->data, textBuffer->dataCapacity, textBuffer->dataLength + textLength ) )
 	{
 		return;
 	}
@@ -890,10 +890,11 @@ void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const
 	const char* firstLine = text;
 	if( textBuffer->linesLength > 0 )
 	{
-		const char* lastLine = textBuffer->data + textBuffer->lines[ textBuffer->linesLength - 1u ];
-		if( !strchr( lastLine, '\n' ) )
+		const uintsize lastLineOffset = textBuffer->lines[ textBuffer->linesLength - 1u ];
+		const char* lastLine = textBuffer->data + lastLineOffset;
+		if( !memchr( lastLine, '\n', textBuffer->dataLength - lastLineOffset ) )
 		{
-			firstLine = strchr( text, '\n' );
+			firstLine = memchr( text, '\n', textLength );
 			if( firstLine )
 			{
 				firstLine++;
@@ -903,7 +904,7 @@ void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const
 
 	bool first = true;
 	uintsize linesLength = textBuffer->linesLength;
-	for( const char* line = firstLine; line; line = strchr( line, '\n' ) )
+	for( const char* line = firstLine; line; line = memchr( line, '\n', textLength - (line - text) ) )
 	{
 		if( !first )
 		{
@@ -917,11 +918,12 @@ void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const
 
 		const uintsize offset = line - text;
 		textBuffer->lines[ linesLength ] = textBuffer->dataLength + offset;
+		IMUI_ASSERT( linesLength == 0u || textBuffer->lines[ linesLength ] > textBuffer->lines[ linesLength - 1u ] );
 		linesLength++;
 		first = false;
 	}
 
-	strncpy( textBuffer->data + textBuffer->dataLength, text, textLength + 1 );
+	strncpy( textBuffer->data + textBuffer->dataLength, text, textLength );
 
 	textBuffer->dataLength += textLength;
 	textBuffer->linesLength = linesLength;
@@ -1315,6 +1317,8 @@ ImUiWidget* ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView
 		const uintsize lineOffset = textBuffer->lines[ i ];
 		const uintsize nextLineOffset = lastLine ? textBuffer->dataLength : textBuffer->lines[ i + 1 ];
 		const uintsize lineLength = (nextLineOffset - lineOffset) - (lastLine ? 0 : 1);
+		IMUI_ASSERT( nextLineOffset <= textBuffer->dataLength );
+		IMUI_ASSERT( lineLength <= textBuffer->dataLength );
 
 		const char* line = textBuffer->data + lineOffset;
 		ImUiToolboxLabelLength( window, line, lineLength );
