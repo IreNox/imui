@@ -492,6 +492,7 @@ namespace imui
 			bool			checkBoxState( const char* text, bool defaultValue = false );
 
 			void			label( const char* text );
+			void			label( const char* text, size_t length );
 			void			labelFormat( const char* format, ... );
 			void			image( const ImUiImage& img );
 			void			image( const ImUiImage& img, const ImUiSize& size );
@@ -573,9 +574,9 @@ namespace imui
 						UiToolboxTextEdit( UiWindow& window, char* buffer, size_t bufferSize );
 						~UiToolboxTextEdit();
 
-			void		setBuffer( char* buffer, size_t bufferSize );
-
 			bool		end( size_t* textLength = nullptr );
+
+			void		setBuffer( char* buffer, size_t bufferSize );
 
 		private:
 
@@ -604,6 +605,8 @@ namespace imui
 
 						UiToolboxList( UiWindow& window, float itemSize, size_t itemCount, bool selection );
 						~UiToolboxList();
+
+			bool		end();
 
 			size_t		getBeginIndex() const;
 			size_t		getEndIndex() const;

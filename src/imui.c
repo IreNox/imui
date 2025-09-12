@@ -1498,7 +1498,13 @@ void ImUiWidgetSetMinHeight( ImUiWidget* widget, float value )
 	widget->minSize.height = value;
 }
 
-void ImUiWidgetSetMinSize( ImUiWidget* widget, float width, float height )
+void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
+{
+	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
+	widget->minSize = size;
+}
+
+void ImUiWidgetSetMinSizeFloat( ImUiWidget* widget, float width, float height )
 {
 	IMUI_ASSERT( width >= 0.0f && height >= 0.0f );
 	widget->minSize = ImUiSizeCreate( width, height );
@@ -1521,7 +1527,13 @@ void ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value )
 	widget->maxSize.height = value;
 }
 
-void ImUiWidgetSetMaxSize( ImUiWidget* widget, float width, float height )
+void ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size )
+{
+	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
+	widget->maxSize = size;
+}
+
+void ImUiWidgetSetMaxSizeFloat( ImUiWidget* widget, float width, float height )
 {
 	IMUI_ASSERT( width >= 0.0f && height >= 0.0f );
 	widget->maxSize = ImUiSizeCreate( width, height );

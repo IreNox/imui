@@ -954,7 +954,7 @@ namespace imui
 
 	void UiWidget::setMinSize( UiSize size )
 	{
-		ImUiWidgetSetMinSize( m_widget, size.width, size.height );
+		ImUiWidgetSetMinSize( m_widget, size );
 	}
 
 	UiSize UiWidget::getMaxSize() const
@@ -974,7 +974,7 @@ namespace imui
 
 	void UiWidget::setMaxSize( UiSize size )
 	{
-		ImUiWidgetSetMaxSize( m_widget, size.width, size.height );
+		ImUiWidgetSetMaxSize( m_widget, size );
 	}
 
 	void UiWidget::setFixedWidth( float value )
@@ -1312,6 +1312,11 @@ namespace imui
 		ImUiToolboxLabel( m_window, text );
 	}
 
+	void toolbox::UiToolboxWindow::label( const char* text, size_t length )
+	{
+		ImUiToolboxLabelLength( m_window, text, length );
+	}
+
 	void toolbox::UiToolboxWindow::labelFormat( const char* format, ... )
 	{
 		va_list args;
@@ -1534,12 +1539,6 @@ namespace imui
 		end();
 	}
 
-	void toolbox::UiToolboxTextEdit::setBuffer( char* buffer, size_t bufferSize )
-	{
-		m_buffer		= buffer;
-		m_bufferSize	= bufferSize;
-	}
-
 	bool toolbox::UiToolboxTextEdit::end( size_t* textLength /* = nullptr */ )
 	{
 		if( !m_widget )
@@ -1550,6 +1549,12 @@ namespace imui
 		const bool changed = ImUiToolboxTextEditEnd( m_widget, m_buffer, m_bufferSize, textLength );
 		m_widget = nullptr;
 		return changed;
+	}
+
+	void toolbox::UiToolboxTextEdit::setBuffer( char* buffer, size_t bufferSize )
+	{
+		m_buffer		= buffer;
+		m_bufferSize	= bufferSize;
 	}
 
 	toolbox::UiToolboxScrollArea::UiToolboxScrollArea( UiWindow& window )
@@ -1580,8 +1585,15 @@ namespace imui
 
 	toolbox::UiToolboxList::~UiToolboxList()
 	{
-		ImUiToolboxListEnd( &m_list );
-		m_widget = nullptr;
+		end();
+	}
+
+	bool toolbox::UiToolboxList::end()
+	{
+		const bool changed = ImUiToolboxListEnd( &m_list );
+		endWidget();
+
+		return changed;
 	}
 
 	size_t toolbox::UiToolboxList::getBeginIndex() const
