@@ -1179,13 +1179,13 @@ namespace imui
 		return ImUiToolboxThemeGet()->icons[ icon ];
 	}
 
-	const ImUiToolboxTheme& toolbox::UiToolboxTheme::getTheme()
+	ImUiToolboxTheme& toolbox::UiToolboxTheme::getTheme()
 	{
 		return *ImUiToolboxThemeGet();
 	}
 
-	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( const float& value, float newValue )
-		: m_value( (float&)value )
+	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue )
+		: m_value( value )
 	{
 		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
@@ -1201,40 +1201,54 @@ namespace imui
 	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue )
 		: m_color( color )
 	{
-		ImUiColor& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->colors[ m_color ];
+		ImUiColor& valueRef = ImUiToolboxThemeGet()->colors[ m_color ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
 	{
-		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->colors[ m_color ] = m_oldValue;
+		ImUiToolboxThemeGet()->colors[ m_color ] = m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue )
 		: m_skin( skin )
 	{
-		ImUiSkin& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->skins[ m_skin ];
+		ImUiSkin& valueRef = ImUiToolboxThemeGet()->skins[ m_skin ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
 	{
-		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->skins[ m_skin ] = m_oldValue;
+		ImUiToolboxThemeGet()->skins[ m_skin ] = m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue )
 		: m_icon( icon )
 	{
-		ImUiImage& valueRef = ((ImUiToolboxTheme*)ImUiToolboxThemeGet())->icons[ m_icon ];
+		ImUiImage& valueRef = ImUiToolboxThemeGet()->icons[ m_icon ];
 		m_oldValue = valueRef;
 		valueRef = newValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
 	{
-		((ImUiToolboxTheme*)ImUiToolboxThemeGet())->icons[ m_icon ] = m_oldValue;
+		ImUiToolboxThemeGet()->icons[ m_icon ] = m_oldValue;
+	}
+
+	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue )
+		: m_value( value )
+	{
+		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
+
+		m_oldValue = m_value;
+		m_value = newValue;
+	}
+
+	toolbox::UiToolboxConfigBorderScope::~UiToolboxConfigBorderScope()
+	{
+		m_value = m_oldValue;
 	}
 
 	toolbox::UiToolboxWindow::UiToolboxWindow()

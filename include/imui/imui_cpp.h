@@ -397,33 +397,33 @@ namespace imui
 	{
 	public:
 
-		UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
+						UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 	};
 
 	namespace toolbox
 	{
 		struct UiToolboxTheme : public ImUiToolboxTheme, public UiNonCopyable
 		{
-						UiToolboxTheme();
-						UiToolboxTheme( ImUiFont* inFont );
+										UiToolboxTheme();
+										UiToolboxTheme( ImUiFont* inFont );
 
 			void		setDefault( ImUiFont* inFont );
 
 			void		applyConfig();
 
-			static const UiColor&			getColor( ImUiToolboxColor color );
-			static const ImUiSkin&			getSkin( ImUiToolboxSkin skin );
-			static const ImUiImage&			getIcon( ImUiToolboxIcon icon );
+			static const UiColor&		getColor( ImUiToolboxColor color );
+			static const ImUiSkin&		getSkin( ImUiToolboxSkin skin );
+			static const ImUiImage&		getIcon( ImUiToolboxIcon icon );
 
-			static const ImUiToolboxTheme& getTheme();
+			static ImUiToolboxTheme&	getTheme();
 		};
 
 		class UiToolboxConfigFloatScope : public UiNonCopyable
 		{
 		public:
 
-			UiToolboxConfigFloatScope( const float& value, float newValue );
-			~UiToolboxConfigFloatScope();
+								UiToolboxConfigFloatScope( float& value, float newValue );
+								~UiToolboxConfigFloatScope();
 
 		private:
 
@@ -435,8 +435,8 @@ namespace imui
 		{
 		public:
 
-			UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue );
-			~UiToolboxConfigColorScope();
+								UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue );
+								~UiToolboxConfigColorScope();
 
 		private:
 
@@ -448,8 +448,8 @@ namespace imui
 		{
 		public:
 
-			UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue );
-			~UiToolboxConfigSkinScope();
+								UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue );
+								~UiToolboxConfigSkinScope();
 
 		private:
 
@@ -461,13 +461,26 @@ namespace imui
 		{
 		public:
 
-			UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue );
-			~UiToolboxConfigIconScope();
+								UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue );
+								~UiToolboxConfigIconScope();
 
 		private:
 
 			ImUiToolboxIcon		m_icon;
 			ImUiImage			m_oldValue;
+		};
+
+		class UiToolboxConfigBorderScope : public UiNonCopyable
+		{
+		public:
+
+								UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue );
+								~UiToolboxConfigBorderScope();
+
+		private:
+
+			ImUiBorder&			m_value;
+			UiBorder			m_oldValue;
 		};
 
 		class UiToolboxWindow : public UiWindow
