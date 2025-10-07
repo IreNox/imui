@@ -142,6 +142,7 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Tab View/Header Inactive Skin",		ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewHeaderInactive ] ) },
 	{ "Tab View/Body Skin",					ImUiToolboxThemeReflectionType_Skin,	offsetof( ImUiToolboxTheme, skins[ ImUiToolboxSkin_TabViewBody ] ) },
 
+	{ "Check Box/Unchecked Icon",			ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_CheckBoxUnchecked ] ) },
 	{ "Check Box/Checked Icon",				ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_CheckBoxChecked ] ) },
 	{ "Drop Down/Open Icon",				ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_DropDownOpen ] ) },
 	{ "Drop Down/Close Icon",				ImUiToolboxThemeReflectionType_Image,	offsetof( ImUiToolboxTheme, icons[ ImUiToolboxIcon_DropDownClose ] ) },
@@ -193,8 +194,8 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 };
 static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
 static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
-static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
-static_assert( sizeof( ImUiToolboxTheme ) == 1608u, "theme changed" );
+static_assert( ImUiToolboxIcon_MAX == 4, "more icons" );
+static_assert( sizeof( ImUiToolboxTheme ) == 1640u, "theme changed" );
 
 ImUiToolboxThemeReflection ImUiToolboxThemeReflectionGet()
 {
@@ -289,10 +290,11 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 
 	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 22u, 22u, { 0.0f, 0.0f, 1.0f, 1.0f } };
 
+	theme->icons[ ImUiToolboxIcon_CheckBoxUnchecked ]			= image;
 	theme->icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
 	theme->icons[ ImUiToolboxIcon_DropDownOpen ]				= image;
 	theme->icons[ ImUiToolboxIcon_DropDownClose ]				= image;
-	static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
+	static_assert( ImUiToolboxIcon_MAX == 4, "more icons" );
 
 	theme->font						= font;
 
@@ -488,7 +490,7 @@ ImUiWidget* ImUiToolboxButtonIconBegin( ImUiWindow* window, const ImUiImage* ico
 	ImUiWidgetSetAlign( buttonIcon, 0.5f, 0.5f );
 	ImUiWidgetSetFixedSize( buttonIcon, iconSize );
 
-	ImUiWidgetDrawImage( buttonIcon, icon );
+	ImUiWidgetDrawImageColor( buttonIcon, icon, s_theme.colors[ ImUiToolboxColor_ButtonText ] );
 
 	ImUiWidgetEnd( buttonIcon );
 
@@ -535,25 +537,26 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreate( 0.0f, checkBackgroundY ), s_theme.checkBox.size );
 	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_theme.skins[ ImUiToolboxSkin_CheckBox ], color );
 
-	if( *checked )
+	const ImUiImage* icon = &s_theme.icons[ *checked ? ImUiToolboxIcon_CheckBoxChecked : ImUiToolboxIcon_CheckBoxUnchecked ];
+	const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
+	ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+
+	if( text )
 	{
-		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( &s_theme.icons[ ImUiToolboxIcon_CheckBoxChecked ] ) );
-		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, &s_theme.icons[ ImUiToolboxIcon_CheckBoxChecked ], s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+		ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
+
+		ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_theme.font, text );
+		const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
+		ImUiWidgetSetFixedSize( checkBoxText, textSize );
+		ImUiWidgetSetVAlign( checkBoxText, 0.5f );
+
+		if( layout )
+		{
+			ImUiWidgetDrawText( checkBoxText, layout, s_theme.colors[ ImUiToolboxColor_Text ] );
+		}
+
+		ImUiWidgetEnd( checkBoxText );
 	}
-
-	ImUiWidget* checkBoxText = ImUiWidgetBegin( ImUiWidgetGetWindow( checkBox ) );
-
-	ImUiTextLayout* layout = ImUiTextLayoutCreateWidget( checkBoxText, s_theme.font, text );
-	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
-	ImUiWidgetSetFixedSize( checkBoxText, textSize );
-	ImUiWidgetSetVAlign( checkBoxText, 0.5f );
-
-	if( layout )
-	{
-		ImUiWidgetDrawText( checkBoxText, layout, s_theme.colors[ ImUiToolboxColor_Text ] );
-	}
-
-	ImUiWidgetEnd( checkBoxText );
 
 	ImUiWidgetEnd( checkBox );
 

@@ -96,6 +96,7 @@ typedef enum ImUiToolboxSkin
 
 typedef enum ImUiToolboxIcon
 {
+	ImUiToolboxIcon_CheckBoxUnchecked,
 	ImUiToolboxIcon_CheckBoxChecked,
 	ImUiToolboxIcon_DropDownOpen,
 	ImUiToolboxIcon_DropDownClose,
