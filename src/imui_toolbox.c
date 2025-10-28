@@ -17,6 +17,10 @@
 #	pragma warning(disable : 4996)
 #endif
 
+#if defined( __STDC_VERSION__ ) && __STDC_VERSION__ < 201112L
+#	define static_assert(x, m) _Static_assert(x, m)
+#endif
+
 static ImUiToolboxTheme s_theme;
 
 struct ImUiToolboxScrollAreaState
@@ -27,7 +31,7 @@ struct ImUiToolboxScrollAreaState
 	ImUiPos			pressPoint;
 };
 
-typedef struct ImUiToolboxTextBuffer
+struct ImUiToolboxTextBuffer
 {
 	ImUiAllocator*	allocator;
 
@@ -38,7 +42,7 @@ typedef struct ImUiToolboxTextBuffer
 	uintsize*		lines;
 	uintsize		linesLength;
 	uintsize		linesCapacity;
-} ImUiToolboxTextBuffer;
+};
 
 typedef struct ImUiToolboxTextEditState
 {

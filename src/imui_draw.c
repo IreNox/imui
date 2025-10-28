@@ -16,7 +16,7 @@ typedef struct ImUiDrawSurfaceBuffers
 	uintsize				vertexDataCapacity;
 } ImUiDrawSurfaceBuffers;
 
-typedef struct ImUiDrawSurfaceData
+struct ImUiDrawSurfaceData
 {
 	bool					used;
 
@@ -37,9 +37,9 @@ typedef struct ImUiDrawSurfaceData
 	ImUiDrawData			data;
 
 	ImUiDrawSurfaceBuffers*	buffers;
-} ImUiDrawSurfaceData;
+};
 
-typedef struct ImUiDrawWindowData
+struct ImUiDrawWindowData
 {
 	bool					used;
 
@@ -50,7 +50,7 @@ typedef struct ImUiDrawWindowData
 	ImUiDrawElement*		elements;
 	uintsize				elementCapacity;
 	uintsize				elementCount;
-} ImUiDrawWindowData;
+};
 
 typedef enum ImUiDrawSkinPointX
 {
@@ -82,6 +82,7 @@ static void					ImUiDrawSurfacePushIndices( ImUiDrawSurfaceBuffers* buffers, con
 static uintsize				ImUiDrawSurfacePushRect( ImUiDraw* draw, ImUiDrawSurfaceData* surface, ImUiPos posTl, ImUiPos posBr, ImUiTexCoord uv, ImUiColor color );
 static uintsize				ImUiVertexElementTypeGetSize( ImUiVertexElementType type );
 
+#ifdef _DEBUG
 static const bool s_supportedVertexElementSemanicFormats[][ ImUiVertexElementType_MAX ] =
 {
 	{ true,		true,	true,	true,	true,	true,	true,	true,	true,	true,	true,	true },		// ImUiVertexElementSemantic_None
@@ -91,6 +92,7 @@ static const bool s_supportedVertexElementSemanicFormats[][ ImUiVertexElementTyp
 	{ false,	false,	true,	true,	false,	false,	true,	true,	true,	false,	true,	true },		// ImUiVertexElementSemantic_ColorRGBA
 	{ false,	false,	true,	true,	false,	false,	false,	true,	true,	false,	false,	true }		// ImUiVertexElementSemantic_ColorARGB
 };
+#endif
 
 bool ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVertexFormat* vertexFormat, ImUiVertexType vertexType )
 {
