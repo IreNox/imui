@@ -553,9 +553,11 @@ namespace imui
 
 						UiToolboxLabel();
 						UiToolboxLabel( UiWindow& window, const char* text );
+						UiToolboxLabel( UiWindow& window, const char* text, size_t length );
 						~UiToolboxLabel();
 
 			void		begin( UiWindow& window, const char* text );
+			void		begin( UiWindow& window, const char* text, size_t length );
 			void		beginFormat( UiWindow& window, const char* format, ... );
 			void		end();
 		};

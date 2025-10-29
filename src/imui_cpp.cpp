@@ -1465,6 +1465,11 @@ namespace imui
 		begin( window, text );
 	}
 
+	toolbox::UiToolboxLabel::UiToolboxLabel( UiWindow& window, const char* text, size_t length )
+	{
+		begin( window, text, length );
+	}
+
 	toolbox::UiToolboxLabel::~UiToolboxLabel()
 	{
 		end();
@@ -1473,6 +1478,11 @@ namespace imui
 	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text )
 	{
 		m_widget = ImUiToolboxLabelBegin( window.getInternal(), text );
+	}
+
+	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text, size_t length )
+	{
+		m_widget = ImUiToolboxLabelBeginLength( window.getInternal(), text, length );
 	}
 
 	void toolbox::UiToolboxLabel::beginFormat( UiWindow& window, const char* format, ... )
