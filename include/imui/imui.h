@@ -560,12 +560,12 @@ typedef enum ImUiInputShortcut
 	ImUiInputShortcut_FocusPrevious
 } ImUiInputShortcut;
 
-typedef struct ImUiInputShortcutConfig
+struct ImUiInputShortcutConfig
 {
 	ImUiInputShortcut			type;
 	uint32_t					modifiers;	// ImUiInputModifier
 	ImUiInputKey				key;
-} ImUiInputShortcutConfig;
+};
 
 // Get/Set
 

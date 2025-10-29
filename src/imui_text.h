@@ -4,10 +4,7 @@
 
 #include "imui_helpers.h"
 
-typedef struct ImUiFont ImUiFont;
-
-typedef struct ImUiTextLayoutCache ImUiTextLayoutCache;
-struct ImUiTextLayoutCache
+typedef struct ImUiTextLayoutCache
 {
 	ImUiAllocator*			allocator;
 
@@ -17,26 +14,23 @@ struct ImUiTextLayoutCache
 	ImUiTextLayout*			firstUnusedLayout;
 
 	uint32					frameIndex;
-};
+} ImUiTextLayoutCache;
 
-typedef struct ImUiTextGlyph ImUiTextGlyph;
-struct ImUiTextGlyph
+typedef struct ImUiTextGlyph
 {
 	uint32					charIndex;
 	uint32					codepoint;
 	ImUiPos					pos;
 	ImUiSize				size;
 	ImUiTexCoord			uv;
-};
+} ImUiTextGlyph;
 
-typedef struct ImUiTextLayoutParameters ImUiTextLayoutParameters;
-struct ImUiTextLayoutParameters
+typedef struct ImUiTextLayoutParameters
 {
 	ImUiFont*				font;
 	ImUiStringView			text;
-};
+} ImUiTextLayoutParameters;
 
-typedef struct ImUiTextLayout ImUiTextLayout;
 struct ImUiTextLayout
 {
 	ImUiFont*				font;
