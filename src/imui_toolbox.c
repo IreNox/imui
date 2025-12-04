@@ -878,7 +878,7 @@ void ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* te
 
 void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text )
 {
-	const uintsize textLength = strlen( text );
+	const uintsize textLength = text ? strlen( text ) : 0;
 	ImUiToolboxTextBufferAppendLength( textBuffer, text, textLength );
 }
 
