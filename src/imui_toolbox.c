@@ -2019,9 +2019,11 @@ ImUiWidget* ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWin
 	tabView->head = ImUiWidgetBegin( window );
 	ImUiWidgetSetLayoutHorizontalSpacing( tabView->head, s_theme.tabView.headerSpacing );
 
-	tabView->body			= NULL;
-	tabView->headerCount	= 0u;
-	tabView->state			= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+	tabView->body					= NULL;
+	tabView->headerCount			= 0u;
+	tabView->state					= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+	tabView->selectedHeaderOffset	= 0.0f;
+	tabView->selectedHeaderWidth	= 0.0f;
 
 	return tabView->view;
 }
