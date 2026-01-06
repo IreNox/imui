@@ -9,8 +9,9 @@ extern "C"
 #include <stddef.h>
 #include <stdint.h>
 
-#define IMUI_ID_STR( STR ) (ImUiId)(size_t)(STR)
-#define IMUI_ID_TYPE( TYPE ) (ImUiId)(size_t)(#TYPE)
+#define IMUI_ID_DEFAULT			0
+#define IMUI_ID_STR( STR )		(ImUiId)(size_t)(STR)
+#define IMUI_ID_TYPE( TYPE )	(ImUiId)(size_t)(#TYPE)
 
 typedef struct ImUiContext ImUiContext;
 typedef struct ImUiDraw ImUiDraw;

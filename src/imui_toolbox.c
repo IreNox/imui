@@ -1700,11 +1700,16 @@ static void ImUiToolboxListItemEndInternal( ImUiToolboxListContext* list )
 
 ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 {
+	return ImUiToolboxListNextItemId( list, IMUI_ID_DEFAULT );
+}
+
+ImUiWidget* ImUiToolboxListNextItemId( ImUiToolboxListContext* list, ImUiId id )
+{
 	ImUiToolboxListItemEndInternal( list );
 
 	list->itemIndex++;
 
-	ImUiWidget* item = ImUiWidgetBegin( ImUiWidgetGetWindow( list->list ) );
+	ImUiWidget* item = ImUiWidgetBeginId( ImUiWidgetGetWindow( list->list ), id );
 	ImUiWidgetSetHStretch( item, 1.0f );
 	ImUiWidgetSetFixedHeight( item, list->itemSize );
 

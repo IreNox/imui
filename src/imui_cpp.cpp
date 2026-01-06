@@ -1640,9 +1640,9 @@ namespace imui
 		ImUiToolboxListSetSelectedIndex( &m_list, index );
 	}
 
-	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */ )
+	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */, ImUiId id /* = IMUI_ID_DEFAULT */ )
 	{
-		ImUiWidget* itemWidget = ImUiToolboxListNextItem( &m_list );
+		ImUiWidget* itemWidget = ImUiToolboxListNextItemId( &m_list, id );
 		if( widget )
 		{
 			widget->beginWidget( itemWidget );
