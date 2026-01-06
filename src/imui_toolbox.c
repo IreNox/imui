@@ -542,8 +542,11 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_theme.skins[ ImUiToolboxSkin_CheckBox ], color );
 
 	const ImUiImage* icon = &s_theme.icons[ *checked ? ImUiToolboxIcon_CheckBoxChecked : ImUiToolboxIcon_CheckBoxUnchecked ];
-	const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
-	ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+	if( icon->textureHandle != IMUI_TEXTURE_HANDLE_INVALID )
+	{
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
+		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+	}
 
 	if( text )
 	{

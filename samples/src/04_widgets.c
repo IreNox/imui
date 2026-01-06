@@ -174,7 +174,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	{
 		ImUiToolboxListContext list;
 		ImUiToolboxListBegin( &list, window, 25.0f, count, true );
-		ImUiWidgetSetMinSize( list.list, 200.0f, 200.0f );
+		ImUiWidgetSetMinSizeFloat( list.list, 200.0f, 200.0f );
 
 		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
 		{
@@ -192,7 +192,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	{
 		ImUiToolboxScrollAreaContext scrollArea;
 		ImUiToolboxScrollAreaBegin( &scrollArea, window );
-		ImUiWidgetSetMinSize( scrollArea.area, 200.0f, 200.0f );
+		ImUiWidgetSetMinSizeFloat( scrollArea.area, 200.0f, 200.0f );
 
 		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, "scroll" );
 		ImUiWidgetSetHStretch( scrollLayout, 1.0f );
@@ -292,7 +292,7 @@ static void ImUiToolboxSampleTabView( ImUiWindow* window )
 
 static void ImUiToolboxSampleTextView( ImUiWindow* window )
 {
-	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreate( window, "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
+	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreateText( ImUiWindowGetContext( window ), "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
 
 	ImUiToolboxTextBufferAppend( textBuffer, "Line 7" );
 	ImUiToolboxTextBufferAppend( textBuffer, " and more for 7\n" );

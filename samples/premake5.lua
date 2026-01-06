@@ -15,7 +15,7 @@ if tiki.target_platform == Platforms.Windows then
 
 	project:add_library_file( "opengl32" )
 
-	project:add_define( "_CRT_SECURE_NO_WARNINGS", "1" );
+	project:add_define( "_CRT_SECURE_NO_WARNINGS" );
 	
 	project.import_func = function( project, solution )
 		project:set_flag( "MultiProcessorCompile" )

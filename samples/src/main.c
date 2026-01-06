@@ -20,7 +20,7 @@ static const ImUiSample s_samples[] =
 	{ ImUiToolboxCppSampleInitialize, ImUiToolboxCppSampleShutdown, ImUiToolboxCppSampleTick }
 };
 
-#define IMUI_SAMPLES_DEFAULT_INDEX 1
+#define IMUI_SAMPLES_DEFAULT_INDEX 4
 
 static const ImUiSample* s_currentSample = &s_samples[ IMUI_SAMPLES_DEFAULT_INDEX ];
 
