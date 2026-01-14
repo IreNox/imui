@@ -389,22 +389,22 @@ namespace imui
 	{
 	}
 
-	UiColor UiColor::CreateWhite( uint8_t _alpha )
+	UiColor UiColor::createWhite( uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateWhiteA( _alpha ) );
 	}
 
-	UiColor UiColor::CreateBlack( uint8_t _alpha )
+	UiColor UiColor::createBlack( uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateBlackA( _alpha ) );
 	}
 
-	UiColor UiColor::CreateGray( uint8_t gray )
+	UiColor UiColor::createGray( uint8_t gray )
 	{
 		return UiColor( ImUiColorCreateGray( gray ) );
 	}
 
-	UiColor UiColor::CreateGray( uint8_t gray, uint8_t _alpha )
+	UiColor UiColor::createGray( uint8_t gray, uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateGrayA( gray, _alpha ) );
 	}
@@ -1184,13 +1184,13 @@ namespace imui
 		return *ImUiToolboxThemeGet();
 	}
 
-	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue )
+	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue, bool active /* = true */ )
 		: m_value( value )
 	{
 		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
-		m_value = newValue;
+		m_value = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigFloatScope::~UiToolboxConfigFloatScope()
@@ -1198,12 +1198,12 @@ namespace imui
 		m_value = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue )
+	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue, bool active /* = true */ )
 		: m_color( color )
 	{
 		ImUiColor& valueRef = ImUiToolboxThemeGet()->colors[ m_color ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
@@ -1211,12 +1211,12 @@ namespace imui
 		ImUiToolboxThemeGet()->colors[ m_color ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue )
+	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue, bool active /* = true */ )
 		: m_skin( skin )
 	{
 		ImUiSkin& valueRef = ImUiToolboxThemeGet()->skins[ m_skin ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
@@ -1224,12 +1224,12 @@ namespace imui
 		ImUiToolboxThemeGet()->skins[ m_skin ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue )
+	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue, bool active /* = true */ )
 		: m_icon( icon )
 	{
 		ImUiImage& valueRef = ImUiToolboxThemeGet()->icons[ m_icon ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
@@ -1237,13 +1237,13 @@ namespace imui
 		ImUiToolboxThemeGet()->icons[ m_icon ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue )
+	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue, bool active /* = true */ )
 		: m_value( value )
 	{
 		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
-		m_value = newValue;
+		m_value = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigBorderScope::~UiToolboxConfigBorderScope()
