@@ -167,7 +167,7 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 	ImUiToolboxLabel( window, "Item count:" );
 	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
-	const bool useList = ImUiToolboxCheckBoxStateDefault( window, "List", true );
+	const bool useList = ImUiToolboxCheckBoxStateDefault( window, "List", false );
 
 	const size_t count = (size_t)itemCount;
 	if( useList )
@@ -198,13 +198,45 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 		ImUiWidgetSetHStretch( scrollLayout, 1.0f );
 		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
-		for( size_t i = 0; i < itemCount; ++i )
+		size_t scrollIndices[ 3 ];
+		ImUiWidget* scrollWidgets[ 3 ];
+		scrollIndices[ 0 ] = 0;
+		scrollIndices[ 1 ] = count / 2;
+		scrollIndices[ 2 ] = count - 1;
+
+		for( size_t i = 0; i < count; ++i )
 		{
-			ImUiToolboxLabelFormat( window, "Scroll Label %i", i );
+			ImUiWidget* itemWidget = ImUiToolboxLabelBeginFormat( window, "Scroll Label %i", i );
+			ImUiToolboxLabelEnd( itemWidget );
+
+			for( size_t j = 0; j < IMUI_ARRAY_COUNT( scrollIndices ); ++j )
+			{
+				if( i == scrollIndices[ j ] )
+				{
+					scrollWidgets[ j ] = itemWidget;
+				}
+			}
 		}
 
 		ImUiWidgetEnd( scrollLayout );
 		ImUiToolboxScrollAreaEnd( &scrollArea );
+
+		if( count > 0 )
+		{
+			ImUiWidget* scrollToLayout = ImUiWidgetBegin( window );
+			ImUiWidgetSetHStretch( scrollToLayout, 1.0f );
+			ImUiWidgetSetLayoutHorizontalSpacing( scrollToLayout, 4.0f );
+
+			for( size_t i = 0; i < IMUI_ARRAY_COUNT( scrollWidgets ); ++i )
+			{
+				if( ImUiToolboxButtonLabelFormat( window, "Scroll to %d", scrollIndices[ i ] ) )
+				{
+					ImUiToolboxScrollAreaOffsetTo( &scrollArea, scrollWidgets[ i ] );
+				}
+			}
+
+			ImUiWidgetEnd( scrollToLayout );
+		}
 	}
 }
 

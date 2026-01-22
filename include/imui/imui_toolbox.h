@@ -380,6 +380,9 @@ void					ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float mi
 
 ImUiWidget*				ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
 void					ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
+void					ImUiToolboxScrollAreaSetOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
+void					ImUiToolboxScrollAreaMoveOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
+void					ImUiToolboxScrollAreaOffsetTo( ImUiToolboxScrollAreaContext* scrollArea, const ImUiWidget* widgetToScrollTo );
 void					ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
 
 ImUiWidget*				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection );

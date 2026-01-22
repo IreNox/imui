@@ -1426,6 +1426,44 @@ void ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollAre
 	scrollArea->verticalSpacing		= vertical;
 }
 
+void ImUiToolboxScrollAreaSetOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY )
+{
+	scrollArea->state->offset.x = offsetX;
+	scrollArea->state->offset.y = offsetY;
+}
+
+void ImUiToolboxScrollAreaMoveOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY )
+{
+	scrollArea->state->offset.x += offsetX;
+	scrollArea->state->offset.y += offsetY;
+}
+
+void ImUiToolboxScrollAreaOffsetTo( ImUiToolboxScrollAreaContext* scrollArea, const ImUiWidget* widgetToScrollTo )
+{
+	const ImUiSize scrollSize = ImUiWidgetGetSize( scrollArea->area );
+
+	ImUiRect widgetRect = ImUiWidgetGetRect( widgetToScrollTo );
+	widgetRect.pos = ImUiPosAddPos( ImUiPosSubPos( widgetRect.pos, ImUiWidgetGetPos( scrollArea->area ) ), scrollArea->state->offset );
+
+	if( widgetRect.pos.y - scrollArea->state->offset.y < 0.0f )
+	{
+		scrollArea->state->offset.y = widgetRect.pos.y;
+	}
+	else if( ImUiRectGetBottom( widgetRect ) > scrollArea->state->offset.y + scrollSize.height )
+	{
+		scrollArea->state->offset.y = ImUiRectGetBottom( widgetRect ) - scrollSize.height;
+	}
+
+	if( widgetRect.pos.x - scrollArea->state->offset.x < 0.0f )
+	{
+		scrollArea->state->offset.x = widgetRect.pos.x;
+	}
+	else if( ImUiRectGetRight( widgetRect ) > scrollArea->state->offset.x + scrollSize.width )
+	{
+		scrollArea->state->offset.x = ImUiRectGetRight( widgetRect ) - scrollSize.width;
+	}
+}
+
 void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 {
 	ImUiWindow* window = ImUiWidgetGetWindow( scrollArea->area );
@@ -1456,7 +1494,6 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 	ImUiWidgetSetMargin( scrollArea->content, margin );
 	ImUiWidgetEnd( scrollArea->content );
-	scrollArea->content = NULL;
 
 	if( hasHorizontalBar )
 	{
@@ -1576,8 +1613,6 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameAreaSize ) ) ) );
 
 	ImUiWidgetEnd( scrollArea->area );
-	scrollArea->area = NULL;
-	scrollArea->state = NULL;
 }
 
 ImUiWidget* ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection )
@@ -1744,10 +1779,7 @@ bool ImUiToolboxListEnd( ImUiToolboxListContext* list )
 	ImUiToolboxListItemEndInternal( list );
 
 	ImUiWidgetEnd( list->listLayout );
-	list->listLayout = NULL;
-
 	ImUiToolboxScrollAreaEnd( &list->scrollArea );
-	list->list = NULL;
 
 	return list->changed;
 }
@@ -2266,7 +2298,6 @@ void ImUiToolboxTabViewEnd( ImUiToolboxTabViewContext* tabView )
 	IMUI_ASSERT( !tabView->body );
 
 	ImUiWidgetEnd( tabView->view );
-	tabView->view = NULL;
 }
 
 #if defined( _MSC_VER )
