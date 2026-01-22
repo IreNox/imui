@@ -391,6 +391,7 @@ size_t					ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
 size_t					ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
 void					ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index );
 ImUiWidget*				ImUiToolboxListNextItem( ImUiToolboxListContext* list );
+ImUiWidget*				ImUiToolboxListNextItemId( ImUiToolboxListContext* list, ImUiId id );
 bool					ImUiToolboxListEnd( ImUiToolboxListContext* list );
 
 ImUiWidget*				ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );

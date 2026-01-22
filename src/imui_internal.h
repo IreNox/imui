@@ -63,7 +63,7 @@ struct ImUiWindow
 };
 
 typedef struct ImUiWidgetState ImUiWidgetState;
-typedef struct ImUiWidgetState
+struct ImUiWidgetState
 {
 	ImUiWidgetState*		prevUsageState;
 	ImUiWidgetState*		nextUsageState;
@@ -75,7 +75,7 @@ typedef struct ImUiWidgetState
 	ImUiStateDestructFunc	destructFunc;
 
 	uint8					data[ 1u ];
-} ImUiWidgetState;
+};
 
 typedef struct ImUiLayoutScrollData
 {

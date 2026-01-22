@@ -17,6 +17,10 @@
 #	pragma warning(disable : 4996)
 #endif
 
+#if defined( __STDC_VERSION__ ) && __STDC_VERSION__ < 201112L
+#	define static_assert(x, m) _Static_assert(x, m)
+#endif
+
 static ImUiToolboxTheme s_theme;
 
 struct ImUiToolboxScrollAreaState
@@ -27,7 +31,7 @@ struct ImUiToolboxScrollAreaState
 	ImUiPos			pressPoint;
 };
 
-typedef struct ImUiToolboxTextBuffer
+struct ImUiToolboxTextBuffer
 {
 	ImUiAllocator*	allocator;
 
@@ -38,7 +42,7 @@ typedef struct ImUiToolboxTextBuffer
 	uintsize*		lines;
 	uintsize		linesLength;
 	uintsize		linesCapacity;
-} ImUiToolboxTextBuffer;
+};
 
 typedef struct ImUiToolboxTextEditState
 {
@@ -538,8 +542,11 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_theme.skins[ ImUiToolboxSkin_CheckBox ], color );
 
 	const ImUiImage* icon = &s_theme.icons[ *checked ? ImUiToolboxIcon_CheckBoxChecked : ImUiToolboxIcon_CheckBoxUnchecked ];
-	const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
-	ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+	if( icon->textureHandle != IMUI_TEXTURE_HANDLE_INVALID )
+	{
+		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
+		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
+	}
 
 	if( text )
 	{
@@ -874,7 +881,7 @@ void ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* te
 
 void ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text )
 {
-	const uintsize textLength = strlen( text );
+	const uintsize textLength = text ? strlen( text ) : 0;
 	ImUiToolboxTextBufferAppendLength( textBuffer, text, textLength );
 }
 
@@ -1728,11 +1735,16 @@ static void ImUiToolboxListItemEndInternal( ImUiToolboxListContext* list )
 
 ImUiWidget* ImUiToolboxListNextItem( ImUiToolboxListContext* list )
 {
+	return ImUiToolboxListNextItemId( list, IMUI_ID_DEFAULT );
+}
+
+ImUiWidget* ImUiToolboxListNextItemId( ImUiToolboxListContext* list, ImUiId id )
+{
 	ImUiToolboxListItemEndInternal( list );
 
 	list->itemIndex++;
 
-	ImUiWidget* item = ImUiWidgetBegin( ImUiWidgetGetWindow( list->list ) );
+	ImUiWidget* item = ImUiWidgetBeginId( ImUiWidgetGetWindow( list->list ), id );
 	ImUiWidgetSetHStretch( item, 1.0f );
 	ImUiWidgetSetFixedHeight( item, list->itemSize );
 
@@ -2047,9 +2059,11 @@ ImUiWidget* ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWin
 	tabView->head = ImUiWidgetBegin( window );
 	ImUiWidgetSetLayoutHorizontalSpacing( tabView->head, s_theme.tabView.headerSpacing );
 
-	tabView->body			= NULL;
-	tabView->headerCount	= 0u;
-	tabView->state			= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+	tabView->body					= NULL;
+	tabView->headerCount			= 0u;
+	tabView->state					= (ImUiToolboxTabViewState*)ImUiWidgetAllocState( tabView->head, sizeof( ImUiToolboxTabViewState ), IMUI_ID_TYPE( ImUiToolboxTabViewState ) );
+	tabView->selectedHeaderOffset	= 0.0f;
+	tabView->selectedHeaderWidth	= 0.0f;
 
 	return tabView->view;
 }

@@ -111,10 +111,10 @@ namespace imui
 						UiColor( float _red, float _green, float _blue, float _alpha );
 		explicit		UiColor( ImUiColor value );
 
-		static UiColor	CreateWhite( uint8_t _alpha );
-		static UiColor	CreateBlack( uint8_t _alpha );
-		static UiColor	CreateGray( uint8_t gray );
-		static UiColor	CreateGray( uint8_t gray, uint8_t _alpha );
+		static UiColor	createWhite( uint8_t _alpha );
+		static UiColor	createBlack( uint8_t _alpha );
+		static UiColor	createGray( uint8_t gray );
+		static UiColor	createGray( uint8_t gray, uint8_t _alpha );
 
 		static UiColor	White;
 		static UiColor	Black;
@@ -422,7 +422,7 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigFloatScope( float& value, float newValue );
+								UiToolboxConfigFloatScope( float& value, float newValue, bool active = true );
 								~UiToolboxConfigFloatScope();
 
 		private:
@@ -435,7 +435,7 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue );
+								UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue, bool active = true );
 								~UiToolboxConfigColorScope();
 
 		private:
@@ -448,7 +448,7 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue );
+								UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue, bool active = true );
 								~UiToolboxConfigSkinScope();
 
 		private:
@@ -461,7 +461,7 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue );
+								UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue, bool active = true );
 								~UiToolboxConfigIconScope();
 
 		private:
@@ -474,7 +474,7 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue );
+								UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue, bool active = true );
 								~UiToolboxConfigBorderScope();
 
 		private:
@@ -553,9 +553,11 @@ namespace imui
 
 						UiToolboxLabel();
 						UiToolboxLabel( UiWindow& window, const char* text );
+						UiToolboxLabel( UiWindow& window, const char* text, size_t length );
 						~UiToolboxLabel();
 
 			void		begin( UiWindow& window, const char* text );
+			void		begin( UiWindow& window, const char* text, size_t length );
 			void		beginFormat( UiWindow& window, const char* format, ... );
 			void		end();
 		};
@@ -626,7 +628,7 @@ namespace imui
 			size_t		getSelectedIndex() const;
 			void		setSelectedIndex( size_t index );
 
-			void		nextItem( UiWidget* widget = nullptr );
+			void		nextItem( UiWidget* widget = nullptr, ImUiId id = IMUI_ID_DEFAULT );
 
 		private:
 

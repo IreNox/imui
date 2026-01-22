@@ -389,22 +389,22 @@ namespace imui
 	{
 	}
 
-	UiColor UiColor::CreateWhite( uint8_t _alpha )
+	UiColor UiColor::createWhite( uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateWhiteA( _alpha ) );
 	}
 
-	UiColor UiColor::CreateBlack( uint8_t _alpha )
+	UiColor UiColor::createBlack( uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateBlackA( _alpha ) );
 	}
 
-	UiColor UiColor::CreateGray( uint8_t gray )
+	UiColor UiColor::createGray( uint8_t gray )
 	{
 		return UiColor( ImUiColorCreateGray( gray ) );
 	}
 
-	UiColor UiColor::CreateGray( uint8_t gray, uint8_t _alpha )
+	UiColor UiColor::createGray( uint8_t gray, uint8_t _alpha )
 	{
 		return UiColor( ImUiColorCreateGrayA( gray, _alpha ) );
 	}
@@ -1184,13 +1184,13 @@ namespace imui
 		return *ImUiToolboxThemeGet();
 	}
 
-	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue )
+	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue, bool active /* = true */ )
 		: m_value( value )
 	{
 		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
-		m_value = newValue;
+		m_value = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigFloatScope::~UiToolboxConfigFloatScope()
@@ -1198,12 +1198,12 @@ namespace imui
 		m_value = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue )
+	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue, bool active /* = true */ )
 		: m_color( color )
 	{
 		ImUiColor& valueRef = ImUiToolboxThemeGet()->colors[ m_color ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
@@ -1211,12 +1211,12 @@ namespace imui
 		ImUiToolboxThemeGet()->colors[ m_color ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue )
+	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue, bool active /* = true */ )
 		: m_skin( skin )
 	{
 		ImUiSkin& valueRef = ImUiToolboxThemeGet()->skins[ m_skin ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
@@ -1224,12 +1224,12 @@ namespace imui
 		ImUiToolboxThemeGet()->skins[ m_skin ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue )
+	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue, bool active /* = true */ )
 		: m_icon( icon )
 	{
 		ImUiImage& valueRef = ImUiToolboxThemeGet()->icons[ m_icon ];
 		m_oldValue = valueRef;
-		valueRef = newValue;
+		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
@@ -1237,13 +1237,13 @@ namespace imui
 		ImUiToolboxThemeGet()->icons[ m_icon ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue )
+	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue, bool active /* = true */ )
 		: m_value( value )
 	{
 		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
-		m_value = newValue;
+		m_value = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigBorderScope::~UiToolboxConfigBorderScope()
@@ -1465,6 +1465,11 @@ namespace imui
 		begin( window, text );
 	}
 
+	toolbox::UiToolboxLabel::UiToolboxLabel( UiWindow& window, const char* text, size_t length )
+	{
+		begin( window, text, length );
+	}
+
 	toolbox::UiToolboxLabel::~UiToolboxLabel()
 	{
 		end();
@@ -1473,6 +1478,11 @@ namespace imui
 	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text )
 	{
 		m_widget = ImUiToolboxLabelBegin( window.getInternal(), text );
+	}
+
+	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text, size_t length )
+	{
+		m_widget = ImUiToolboxLabelBeginLength( window.getInternal(), text, length );
 	}
 
 	void toolbox::UiToolboxLabel::beginFormat( UiWindow& window, const char* format, ... )
@@ -1630,9 +1640,9 @@ namespace imui
 		ImUiToolboxListSetSelectedIndex( &m_list, index );
 	}
 
-	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */ )
+	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */, ImUiId id /* = IMUI_ID_DEFAULT */ )
 	{
-		ImUiWidget* itemWidget = ImUiToolboxListNextItem( &m_list );
+		ImUiWidget* itemWidget = ImUiToolboxListNextItemId( &m_list, id );
 		if( widget )
 		{
 			widget->beginWidget( itemWidget );
