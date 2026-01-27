@@ -962,6 +962,7 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 	theme.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
 	theme.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	theme.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
+	theme.colors[ ImUiToolboxColor_CheckBoxUnchecked ]			= ImUiColorCreateTransparentBlack();
 	theme.colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
 	theme.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
 	theme.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
@@ -995,7 +996,7 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 	theme.colors[ ImUiToolboxColor_TabViewHeaderActive ]		= elementColor;
 	theme.colors[ ImUiToolboxColor_TabViewHeaderInactive ]		= backgroundColor;
 	theme.colors[ ImUiToolboxColor_TabViewBody ]				= backgroundColor;
-	static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
+	static_assert( ImUiToolboxColor_MAX == 42, "more colors" );
 
 	theme.skins[ ImUiToolboxSkin_Button ]						= data->skinRect;
 	theme.skins[ ImUiToolboxSkin_ButtonHover ]					= data->skinRect;
@@ -1023,11 +1024,12 @@ void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* 
 
 	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 16u, 16u };
 
+	theme.icons[ ImUiToolboxIcon_CheckBoxUnchecked ]			= image;
 	theme.icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
 	theme.icons[ ImUiToolboxIcon_DropDownOpen ]					= image;
 	theme.icons[ ImUiToolboxIcon_DropDownClose ]				= image;
 
-	static_assert( ImUiToolboxIcon_MAX == 3, "more icons" );
+	static_assert( ImUiToolboxIcon_MAX == 4, "more icons" );
 
 	ImUiToolboxThemeSet( &theme );
 }

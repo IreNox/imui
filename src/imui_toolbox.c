@@ -89,6 +89,7 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Check Box/Color",					ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_CheckBox ] ) },
 	{ "Check Box/Hover Color",				ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_CheckBoxHover ] ) },
 	{ "Check Box/Clicked Color",			ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_CheckBoxClicked ] ) },
+	{ "Check Box/Unchecked Color",			ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_CheckBoxUnchecked ] ) },
 	{ "Check Box/Checked Color",			ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_CheckBoxChecked ] ) },
 	{ "Slider/Background Color",			ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_SliderBackground ] ) },
 	{ "Slider/Pivot Color",					ImUiToolboxThemeReflectionType_Color,	offsetof( ImUiToolboxTheme, colors[ ImUiToolboxColor_SliderPivot ] ) },
@@ -196,7 +197,7 @@ static const ImUiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Tab View/Header Padding",			ImUiToolboxThemeReflectionType_Border,	offsetof( ImUiToolboxTheme, tabView.headerPadding ) },
 	{ "Tab View/Body Padding",				ImUiToolboxThemeReflectionType_Border,	offsetof( ImUiToolboxTheme, tabView.bodyPadding ) },
 };
-static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
+static_assert( ImUiToolboxColor_MAX == 42, "more colors" );
 static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
 static_assert( ImUiToolboxIcon_MAX == 4, "more icons" );
 static_assert( sizeof( ImUiToolboxTheme ) == 1640u, "theme changed" );
@@ -231,6 +232,7 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
 	theme->colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	theme->colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
+	theme->colors[ ImUiToolboxColor_CheckBoxUnchecked ]			= ImUiColorCreateTransparentBlack();
 	theme->colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
 	theme->colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
 	theme->colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
@@ -264,7 +266,7 @@ void ImUiToolboxThemeFillDefault( ImUiToolboxTheme* theme, ImUiFont* font )
 	theme->colors[ ImUiToolboxColor_TabViewHeaderActive ]		= elementColor;
 	theme->colors[ ImUiToolboxColor_TabViewHeaderInactive ]		= elementClickedColor;
 	theme->colors[ ImUiToolboxColor_TabViewBody ]				= backgroundColor;
-	static_assert( ImUiToolboxColor_MAX == 41, "more colors" );
+	static_assert( ImUiToolboxColor_MAX == 42, "more colors" );
 
 	const ImUiSkin skin = { IMUI_TEXTURE_HANDLE_INVALID };
 
@@ -537,16 +539,15 @@ bool ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* te
 		color = s_theme.colors[ ImUiToolboxColor_CheckBoxHover ];
 	}
 
-	const float checkBackgroundY = (ImUiWidgetGetSizeHeight( checkBox ) / 2.0f) - (s_theme.checkBox.size.height / 2.0f);
-	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreate( 0.0f, checkBackgroundY ), s_theme.checkBox.size );
+	const float dpiScale = ImUiWidgetGetDpiScale( checkBox );
+	const float checkBackgroundY = (ImUiWidgetGetSizeHeight( checkBox ) / 2.0f) - (s_theme.checkBox.size.height * dpiScale / 2.0f);
+	const ImUiRect checkBackgroundRect = ImUiRectCreatePosSize( ImUiPosCreate( 0.0f, checkBackgroundY ), ImUiSizeScale( s_theme.checkBox.size, dpiScale ) );
 	ImUiWidgetDrawPartialSkin( checkBox, checkBackgroundRect, &s_theme.skins[ ImUiToolboxSkin_CheckBox ], color );
 
 	const ImUiImage* icon = &s_theme.icons[ *checked ? ImUiToolboxIcon_CheckBoxChecked : ImUiToolboxIcon_CheckBoxUnchecked ];
-	if( icon->textureHandle != IMUI_TEXTURE_HANDLE_INVALID )
-	{
-		const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeCreateImage( icon ) );
-		ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, s_theme.colors[ ImUiToolboxColor_CheckBoxChecked ] );
-	}
+	const ImUiRect checkIconRect = ImUiRectCreateCenterPosSize( ImUiRectGetCenter( checkBackgroundRect ), ImUiSizeScale( ImUiSizeCreateImage( icon ), dpiScale ) );
+	const ImUiColor checkIconColor = s_theme.colors[ *checked ? ImUiToolboxColor_CheckBoxChecked : ImUiToolboxColor_CheckBoxUnchecked ];
+	ImUiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, checkIconColor );
 
 	if( text )
 	{
@@ -1487,6 +1488,9 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		areaSize.height	= IMUI_MAX( areaSize.height, childRect.size.height );
 	}
 
+	const float dpiBarSize = s_theme.scrollArea.barSize * ImUiWidgetGetDpiScale( scrollArea->content );
+	const float dpiBarMinSize = s_theme.scrollArea.barMinSize * ImUiWidgetGetDpiScale( scrollArea->content );
+
 	ImUiWidgetInputState areaInputState;
 	ImUiWidgetGetInputState( scrollArea->area, &areaInputState );
 
@@ -1504,7 +1508,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 	if( hasHorizontalBar )
 	{
-		float barWidth = frameRect.size.width - (hasVerticalBar ? s_theme.scrollArea.barSize : 0.0f);
+		float barWidth = frameRect.size.width - (hasVerticalBar ? dpiBarSize : 0.0f);
 		barWidth = IMUI_MAX( 0.0f, barWidth );
 
 		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
@@ -1515,14 +1519,14 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
 		const float pivotSizeFactor	= frameAreaSize.width / areaSize.width;
 		const float pivotSize		= barWidth * pivotSizeFactor;
-		const float pivotSizeFinal	= IMUI_MAX( pivotSize, s_theme.scrollArea.barMinSize );
+		const float pivotSizeFinal	= IMUI_MAX( pivotSize, dpiBarMinSize );
 		const float pivotOffset		= (state->offset.x / areaSize.width) * (barWidth - (pivotSizeFinal - pivotSize));
 
 		const ImUiRect barPivotRect = ImUiRectCreate(
 			pivotOffset,
 			0.0f,
 			pivotSizeFinal,
-			s_theme.scrollArea.barSize
+			dpiBarSize
 		);
 
 		ImUiWidgetInputState inputState;
@@ -1559,7 +1563,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 	if( hasVerticalBar )
 	{
-		float barHeight = frameRect.size.height - (hasHorizontalBar ? s_theme.scrollArea.barSize : 0.0f);
+		float barHeight = frameRect.size.height - (hasHorizontalBar ? dpiBarSize : 0.0f);
 		barHeight = IMUI_MAX( 0.0f, barHeight );
 
 		ImUiWidget* scrollBar = ImUiWidgetBegin( window );
@@ -1570,13 +1574,13 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 		const ImUiRect barRect		= ImUiWidgetGetRect( scrollBar );
 		const float pivotSizeFactor	= frameAreaSize.height / areaSize.height;
 		const float pivotSize		= barHeight * pivotSizeFactor;
-		const float pivotSizeFinal	= IMUI_MAX( pivotSize, s_theme.scrollArea.barMinSize );
+		const float pivotSizeFinal	= IMUI_MAX( pivotSize, dpiBarMinSize );
 		const float pivotOffset		= (state->offset.y / areaSize.height) * (barHeight - (pivotSizeFinal - pivotSize));
 
 		const ImUiRect barPivotRect = ImUiRectCreate(
 			0.0f,
 			pivotOffset,
-			s_theme.scrollArea.barSize,
+			dpiBarSize,
 			pivotSizeFinal
 		);
 
