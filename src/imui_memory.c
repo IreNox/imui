@@ -139,10 +139,10 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 	uint8* bytes = (uint8*)memory;
 	uint8* element = bytes + (elementIndex * elementSize);
 
-	if( *arrayCount > 1u &&
-		elementIndex != *arrayCount - 1u )
+	if( *arrayCount > 1 &&
+		elementIndex != *arrayCount - 1 )
 	{
-		uint8* lastElement = bytes + ((*arrayCount - 1u) * elementSize);
+		uint8* lastElement = bytes + ((*arrayCount - 1) * elementSize);
 		memcpy( element, lastElement, elementSize );
 
 		if( zero )
@@ -150,8 +150,7 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 			memset( lastElement, 0, elementSize );
 		}
 	}
-	else if( zero &&
-		*arrayCount == 1u )
+	else if( zero )
 	{
 		memset( element, 0, elementSize );
 	}

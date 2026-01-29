@@ -214,13 +214,18 @@ ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 
 ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
 {
+	return ImUiSurfaceBeginId( frame, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), size, dpiScale );
+}
+
+ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, float dpiScale )
+{
 	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
 
 	ImUiSurface* surface = NULL;
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		if( !ImUiStringViewIsEquals( imui->surfaces[ surfaceIndex ].name, nameView ) )
+		if( imui->surfaces[ surfaceIndex ].id != id )
 		{
 			continue;
 		}
@@ -243,6 +248,7 @@ ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size
 
 		memset( surface, 0, sizeof( *surface ) );
 
+		surface->id			= id;
 		surface->context	= imui;
 		surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
 	}
@@ -297,6 +303,11 @@ float ImUiSurfaceGetDpiScale( const ImUiSurface* surface )
 
 ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder )
 {
+	return ImUiWindowBeginId( surface, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), rect, zOrder );
+}
+
+ImUiWindow* ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id, ImUiRect rect, uint32_t zOrder )
+{
 	IMUI_ASSERT( surface );
 
 	ImUiContext* imui = surface->context;
@@ -305,7 +316,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 	ImUiWindow* window = NULL;
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
-		if( !ImUiStringViewIsEquals( surface->windows[ windowIndex ].name, nameView ) )
+		if( surface->windows[ windowIndex ].id != id )
 		{
 			continue;
 		}
@@ -331,6 +342,7 @@ ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect re
 	window->inUse						= true;
 	window->context						= imui;
 	window->surface						= surface;
+	window->id							= id;
 	window->name						= ImUiStringPoolAdd( &imui->strings, nameView );
 	window->rect						= rect;
 	window->zOrder						= zOrder;

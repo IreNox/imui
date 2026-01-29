@@ -14,6 +14,7 @@ struct ImUiSurface
 
 	ImUiContext*	context;
 
+	ImUiId			id;
 	ImUiStringView	name;
 	ImUiSize		size;
 	float			dpiScale;
@@ -32,6 +33,7 @@ struct ImUiWindow
 	ImUiContext*	context;
 	ImUiSurface*	surface;
 
+	ImUiId			id;
 	ImUiStringView	name;
 	ImUiRect		rect;
 	uint32			zOrder;
