@@ -566,7 +566,7 @@ static void ImUiWindowLayout( ImUiWindow* window )
 	else if( shortcut == ImUiInputShortcut_FocusNext ||
 			 shortcut == ImUiInputShortcut_FocusPrevious )
 	{
-		IMUI_ASSERT( window->focusWidget != window->closesFocusIndexWidget );
+		IMUI_ASSERT( !window->focusWidget || window->focusWidget != window->closesFocusIndexWidget );
 		window->focusWidget = window->closesFocusIndexWidget ? window->closesFocusIndexWidget : window->wrapFocusIndexWidget;
 	}
 }
