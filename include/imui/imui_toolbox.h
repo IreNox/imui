@@ -363,6 +363,8 @@ void					ImUiToolboxTextBufferFree( ImUiToolboxTextBuffer* textBuffer );
 void					ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* text );
 void					ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text );
 void					ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const char* text, size_t textLength );
+const char*				ImUiToolboxTextBufferGetData( const ImUiToolboxTextBuffer* textBuffer );
+size_t					ImUiToolboxTextBufferGetLength( const ImUiToolboxTextBuffer* textBuffer );
 
 ImUiWidget*				ImUiToolboxTextEditBegin( ImUiWindow* window );
 bool					ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );

@@ -940,6 +940,26 @@ void ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const
 	textBuffer->linesLength = linesLength;
 }
 
+const char* ImUiToolboxTextBufferGetData( const ImUiToolboxTextBuffer* textBuffer )
+{
+	if( !textBuffer )
+	{
+		return NULL;
+	}
+
+	return textBuffer->data;
+}
+
+size_t ImUiToolboxTextBufferGetLength( const ImUiToolboxTextBuffer* textBuffer )
+{
+	if( !textBuffer )
+	{
+		return 0;
+	}
+
+	return textBuffer->dataLength;
+}
+
 ImUiWidget* ImUiToolboxTextEditBegin( ImUiWindow* window )
 {
 	ImUiWidget* textEditFrame = ImUiWidgetBegin( window );
