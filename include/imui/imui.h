@@ -210,6 +210,7 @@ typedef struct ImUiDrawData
 // Surface - Presents a OS window or a screen
 
 ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale );
+ImUiSurface*				ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, float dpiScale );
 void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
@@ -228,6 +229,7 @@ const ImUiDrawData*			ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* o
 // Window - A part of a Surface with z ordering
 
 ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder );
+ImUiWindow*					ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id, ImUiRect rect, uint32_t zOrder );
 void						ImUiWindowEnd( ImUiWindow* window );
 
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
