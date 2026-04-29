@@ -293,7 +293,7 @@ static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, cons
 		}
 
 		glyph->codepoint	= codepoint;
-		glyph->pos			= ImUiPosCreate( x, y + codepointInfo->ascentOffset );
+		glyph->pos			= ImUiPosCreate( x + codepointInfo->xOffset, y + codepointInfo->ascentOffset );
 		glyph->size			= ImUiSizeCreate( (float)codepointInfo->width, (float)codepointInfo->height );
 		glyph->uv			= codepointInfo->uv;
 

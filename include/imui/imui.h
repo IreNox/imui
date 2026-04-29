@@ -641,6 +641,7 @@ typedef struct ImUiFontCodepoint
 	float						width;
 	float						height;
 	float						advance;
+	float						xOffset;
 	float						ascentOffset;
 	ImUiTexCoord				uv;
 } ImUiFontCodepoint;
@@ -667,7 +668,9 @@ void							ImUiFontTrueTypeDataDestroy( ImUiFontTrueTypeData* ttf );
 bool							ImUiFontTrueTypeDataAddCodepoints( ImUiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount );
 bool							ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint );
 void							ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight );
+void							ImUiFontTrueTypeDataCalculateMinSDFTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread );
 ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height );
+ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateSDFTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread );
 
 void							ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount );
 void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );

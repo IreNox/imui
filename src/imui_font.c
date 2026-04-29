@@ -180,7 +180,7 @@ bool ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t 
 	return true;
 }
 
-void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
+void ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, int padding )
 {
 	const float scale = stbtt_ScaleForPixelHeight( &ttf->font, fontSizeInPixel );
 
@@ -205,8 +205,8 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 		int y1;
 		stbtt_GetCodepointBitmapBox( &ttf->font, codepoint, scale, scale, &x0, &y0, &x1, &y1 );
 
-		const uint32 cpWidth = x1 - x0;
-		const uint32 cpHeight = y1 - y0;
+		const uint32 cpWidth = (x1 - x0) + padding * 2;
+		const uint32 cpHeight = (y1 - y0) + padding * 2;
 
 		x += cpWidth + 2u;
 		lineHeight = IMUI_MAX( lineHeight, cpHeight + 2u );
@@ -220,7 +220,123 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 	*targetHeight = minSize;
 }
 
-ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height )
+void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
+{
+	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, 0 );
+}
+
+void ImUiFontTrueTypeDataCalculateMinSDFTextureSize(ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread)
+{
+	const int padding = IMUI_MIN( 16, IMUI_MAX( 4, (int)ceilf( fontSizeInPixel * sdfSpread ) ) );
+	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, padding );
+}
+
+bool ImUiFontTrueTypeDataAddCodepointBitmapToTexture( ImUiFontTrueTypeData* ttf, ImUiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scaleX, float scaleY, int codepoint, uint32_t width, uint32_t height )
+{
+	bool reachedAtlasXLimit = false;
+	int advance;
+	int lsb;
+	stbtt_GetCodepointHMetrics( &ttf->font, codepoint, &advance, &lsb );
+
+	int x0;
+	int y0;
+	int x1;
+	int y1;
+	stbtt_GetCodepointBitmapBox( &ttf->font, codepoint, scaleX, scaleY, &x0, &y0, &x1, &y1 );
+
+	const uint32 cpWidth = x1 - x0;
+	const uint32 cpHeight = y1 - y0;
+	if( *x + cpWidth + 2u >= width )
+	{
+		*x = 1u;
+		*y += lineHeight + 2u;
+		reachedAtlasXLimit = true;
+	}
+
+	uint8* cpData = &data[ *x + (*y * width) ];
+	stbtt_MakeCodepointBitmap( &ttf->font, cpData, cpWidth, cpHeight, width, scaleX, scaleY, codepoint );
+
+	targetCodepoint->codepoint = codepoint;
+	targetCodepoint->width = (float)cpWidth;
+	targetCodepoint->height = (float)cpHeight;
+	targetCodepoint->advance = scaleX * advance;
+	targetCodepoint->ascentOffset = ascent + y0;
+	targetCodepoint->xOffset = 0;
+	targetCodepoint->uv.u0 = (float)*x / width;
+	targetCodepoint->uv.v0 = (float)*y / height;
+	targetCodepoint->uv.u1 = (float)(*x + cpWidth) / width;
+	targetCodepoint->uv.v1 = (float)(*y + cpHeight) / height;
+
+	*x += cpWidth + 2u;
+
+	return reachedAtlasXLimit;
+}
+
+bool ImUiFontTrueTypeDataAddCodepointSDFToTexture(ImUiFontTrueTypeData* ttf, ImUiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scale, int padding, int codepoint, uint32_t width, uint32_t height)
+{
+	bool reachedAtlasXLimit = false;
+	int advance;
+	int lsb;
+	stbtt_GetCodepointHMetrics( &ttf->font, codepoint, &advance, &lsb );
+	
+	const unsigned char onedgeValue = 128;
+	const float pixelDistScale = 64.0f / (float)padding;
+
+	int cpWidth = 0;
+	int cpHeight = 0;
+	int xoff = 0;
+	int yoff = 0;
+
+	uint8* sdf = stbtt_GetCodepointSDF( &ttf->font, scale, codepoint, padding, onedgeValue, pixelDistScale, &cpWidth, &cpHeight, &xoff, &yoff );
+
+	if (sdf == NULL)
+	{
+		// no SDF available, could be space bar codepoint 32?
+		int x0;
+		int y0;
+		int x1;
+		int y1;
+		stbtt_GetCodepointBitmapBox( &ttf->font, codepoint, scale, scale, &x0, &y0, &x1, &y1 );
+
+		cpWidth = x1 - x0;
+		cpHeight = y1 - y0;
+	}
+
+	if (*x + cpWidth + 2u >= width)
+	{
+		*x = 1u;
+		*y += lineHeight + 2u;
+		reachedAtlasXLimit = true;
+	}
+
+	IMUI_ASSERT( *y + cpHeight < height );
+
+	targetCodepoint->codepoint = codepoint;
+	targetCodepoint->width = (float)cpWidth;
+	targetCodepoint->height = (float)cpHeight;
+	targetCodepoint->advance = scale * advance;
+	targetCodepoint->xOffset = (float)xoff;
+	targetCodepoint->ascentOffset = ascent + yoff;
+	targetCodepoint->uv.u0 = (float)*x / width;
+	targetCodepoint->uv.v0 = (float)*y / height;
+	targetCodepoint->uv.u1 = (float)(*x + cpWidth) / width;
+	targetCodepoint->uv.v1 = (float)(*y + cpHeight) / height;
+
+	uint8* cpData = &data[*x + (*y * width)];
+
+	for( uint32 row = 0; row < (uint32)cpHeight; ++row )
+	{
+		memcpy( cpData + row * width, sdf + row * cpWidth, cpWidth );
+	}
+
+	stbtt_FreeSDF( sdf, NULL );
+
+	*x += (uint32)cpWidth + 2u;
+
+	return reachedAtlasXLimit;
+}
+
+ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread)
 {
 	if( targetDataSize < width * height )
 	{
@@ -246,7 +362,7 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 	const float scale = stbtt_ScaleForPixelHeight( &ttf->font, fontSizeInPixel );
 
 	float ascent;
-	float descent;
+	//float descent;
 	float lineGap;
 	{
 		int ascentI;
@@ -254,7 +370,7 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 		int lineGapI;
 		stbtt_GetFontVMetrics( &ttf->font, &ascentI, &descentI, &lineGapI );
 		ascent = scale * ascentI;
-		descent = scale * descentI;
+		//descent = scale * descentI;
 		lineGap = scale * lineGapI;
 	}
 
@@ -262,51 +378,47 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 	uint32 y = 1u;
 	uint32 lineHeight = 0u;
 	uint8* data = (uint8*)targetData;
-	for( uintsize i = 0; i < ttf->codepointCount; ++i )
+
+	if( sdfSpread > 0.0f )
 	{
-		const int codepoint = (int)ttf->codepoints[ i ];
-		ImUiFontCodepoint* targetCodepoint = &codepoints[ i ];
-
-		int advance;
-		int lsb;
-		stbtt_GetCodepointHMetrics( &ttf->font, codepoint, &advance, &lsb );
-
-		int x0;
-		int y0;
-		int x1;
-		int y1;
-		stbtt_GetCodepointBitmapBox( &ttf->font, codepoint, scale, scale, &x0, &y0, &x1, &y1 );
-
-		const uint32 cpWidth = x1 - x0;
-		const uint32 cpHeight = y1 - y0;
-		if( x + cpWidth + 2u >= width )
+		const int padding = IMUI_MIN(16, IMUI_MAX(4, (int)ceilf( fontSizeInPixel * sdfSpread ) ) );
+		for( uintsize i = 0; i < ttf->codepointCount; ++i )
 		{
-			x = 1u;
-			y += lineHeight + 2u;
-			lineHeight = 0u;
+			if( ImUiFontTrueTypeDataAddCodepointSDFToTexture( ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, padding, (int)ttf->codepoints[ i ], width, height ) )
+			{
+				lineHeight = 0u;
+			}
+			lineHeight = IMUI_MAX( lineHeight, (uint32_t)codepoints[ i ].height );
 		}
-
-		uint8* cpData = &data[ x + (y * width) ];
-		stbtt_MakeCodepointBitmap( &ttf->font, cpData, cpWidth, cpHeight, width, scale, scale, codepoint );
-
-		targetCodepoint->codepoint		= codepoint;
-		targetCodepoint->width			= (float)cpWidth;
-		targetCodepoint->height			= (float)cpHeight;
-		targetCodepoint->advance		= scale * advance;
-		targetCodepoint->ascentOffset	= ascent + y0;
-		targetCodepoint->uv.u0			= (float)x / width;
-		targetCodepoint->uv.v0			= (float)y / height;
-		targetCodepoint->uv.u1			= (float)(x + cpWidth) / width;
-		targetCodepoint->uv.v1			= (float)(y + cpHeight) / height;
-
-		x += cpWidth + 2u;
-		lineHeight = IMUI_MAX( lineHeight, cpHeight );
+	}
+	else
+	{
+		for( uintsize i = 0; i < ttf->codepointCount; ++i )
+		{
+			if( ImUiFontTrueTypeDataAddCodepointBitmapToTexture(ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, scale, (int)ttf->codepoints[ i ], width, height ) )
+			{
+				lineHeight = 0u;
+			}
+			lineHeight = IMUI_MAX( lineHeight, (uint32_t)codepoints[ i ].height );
+		}
 	}
 
-	image->parameters.fontSize	= fontSizeInPixel;
-	image->parameters.lineGap	= lineGap;
+	image->parameters.fontSize    = fontSizeInPixel;
+    image->parameters.lineGap    = lineGap;
 
 	return image;
+}
+
+ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height )
+{
+	return ImUiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, /*sdfSpread =*/ 0.0f );
+}
+
+ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateSDFTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread )
+{
+	// sdfSpread is a fraction of the font size, values around [0.1f, 0.3f] work
+	// If using SDFs you need a larger target image than for pure bitmap font, so use ImUiFontTrueTypeDataCalculateMinSDFTextureSize to compute that.
+	return ImUiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, sdfSpread );
 }
 
 void ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount )
