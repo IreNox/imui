@@ -180,7 +180,7 @@ bool ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t 
 	return true;
 }
 
-void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
+void ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, int padding )
 {
 	const float scale = stbtt_ScaleForPixelHeight( &ttf->font, fontSizeInPixel );
 
@@ -205,8 +205,8 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 		int y1;
 		stbtt_GetCodepointBitmapBox( &ttf->font, codepoint, scale, scale, &x0, &y0, &x1, &y1 );
 
-		const uint32 cpWidth = x1 - x0;
-		const uint32 cpHeight = y1 - y0;
+		const uint32 cpWidth = (x1 - x0) + padding * 2;
+		const uint32 cpHeight = (y1 - y0) + padding * 2;
 
 		x += cpWidth + 2u;
 		lineHeight = IMUI_MAX( lineHeight, cpHeight + 2u );
@@ -218,6 +218,17 @@ void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, flo
 
 	*targetWidth = minSize;
 	*targetHeight = minSize;
+}
+
+void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
+{
+	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, 0 );
+}
+
+void ImUiFontTrueTypeDataCalculateMinSDFTextureSize(ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread)
+{
+	const int padding = IMUI_MIN( 16, IMUI_MAX( 4, (int)ceilf( fontSizeInPixel * sdfSpread ) ) );
+	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, padding );
 }
 
 bool ImUiFontTrueTypeDataAddCodepointBitmapToTexture( ImUiFontTrueTypeData* ttf, ImUiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scaleX, float scaleY, int codepoint, uint32_t width, uint32_t height )
@@ -406,8 +417,7 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueType
 ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateSDFTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread )
 {
 	// sdfSpread is a fraction of the font size, values around [0.1f, 0.3f] work
-	// If using SDFs you need a larger target image than for pure bitmap font.
-	// Simply doubling the dimensions returned from ImUiFontTrueTypeDataCalculateMinTextureSize works, but for large character sets you may want to do more accurate maths to not waste texture space
+	// If using SDFs you need a larger target image than for pure bitmap font, so use ImUiFontTrueTypeDataCalculateMinSDFTextureSize to compute that.
 	return ImUiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, sdfSpread );
 }
 
