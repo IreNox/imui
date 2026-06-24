@@ -70,7 +70,7 @@ void ImUiToolboxCppSampleTick( ImUiWindow* cWindow )
 	ImUiToolboxCppSampleScrollAndList( window );
 
 	{
-		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window.getInternal() ) );
+		const ImUiPos mousePos = window.getInput().getMousePos();
 		UiToolboxLabel mouseLabel;
 		mouseLabel.beginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
 		mouseLabel.setMinWidth( 100.0f );

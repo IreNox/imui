@@ -402,7 +402,7 @@ bool ImUiToolboxButtonEnd( ImUiWidget* button )
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( button, &inputState );
 
-	return (inputState.wasPressed && inputState.hasMouseReleased) || (inputState.hasFocus && ImUiInputGetShortcut( ImUiWidgetGetContext( button ) ) == ImUiInputShortcut_Confirm);
+	return (inputState.wasPressed && inputState.hasMouseReleased) || (inputState.hasFocus && ImUiInputGetShortcut( ImUiWidgetGetInput( button ) ) == ImUiInputShortcut_Confirm);
 }
 
 ImUiWidget* ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text )
@@ -978,6 +978,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	IMUI_ASSERT( bufferSize > 0u );
 
 	ImUiContext* imui = ImUiWidgetGetContext( textEdit );
+	const ImUiInputState* input = ImUiWidgetGetInput( textEdit );
 
 	uintsize textLengthInternal;
 	if( textLength )
@@ -1010,7 +1011,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	const ImUiSize textSize = ImUiTextLayoutGetSize( layout );
 	ImUiWidgetSetFixedSize( text, textSize );
 
-	if( ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left ) )
+	if( ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left ) )
 	{
 		state->hasFocus = inputState.hasMousePressed;
 	}
@@ -1019,8 +1020,8 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 	const float scale = ImUiWidgetGetDpiScale( text );
 	if( state->hasFocus )
 	{
-		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( imui );
-		const uint32 mods = ImUiInputGetKeyModifiers( imui );
+		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( input );
+		const uint32 mods = ImUiInputGetKeyModifiers( input );
 
 		if( shortcut == ImUiInputShortcut_SelectAll )
 		{
@@ -1028,7 +1029,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			state->selectionEnd		= (uint32)textLengthInternal;
 		}
 
-		const char* textInput = ImUiInputGetText( imui );
+		const char* textInput = ImUiInputGetText( input );
 		if( shortcut == ImUiInputShortcut_Paste )
 		{
 			textInput = ImUiInputGetPasteText( imui );
@@ -1069,7 +1070,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 			changed = true;
 		}
 
-		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Backspace ) )
+		if( ImUiInputHasKeyPressed( input, ImUiInputKey_Backspace ) )
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
@@ -1102,7 +1103,7 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 				changed = true;
 			}
 		}
-		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Delete ) )
+		else if( ImUiInputHasKeyPressed( input, ImUiInputKey_Delete ) )
 		{
 			if( state->selectionStart != state->selectionEnd )
 			{
@@ -1135,10 +1136,10 @@ bool ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSi
 		}
 
 		sint32 nextCursorPos = (sint32)state->cursorPos;
-		const bool leftPressed = ImUiInputHasKeyPressed( imui, ImUiInputKey_Left );
+		const bool leftPressed = ImUiInputHasKeyPressed( input, ImUiInputKey_Left );
 		const bool shiftPressed = (mods & (ImUiInputModifier_LeftShift | ImUiInputModifier_RightShift)) != 0;
 		if( leftPressed ||
-			ImUiInputHasKeyPressed( imui, ImUiInputKey_Right ) )
+			ImUiInputHasKeyPressed( input, ImUiInputKey_Right ) )
 		{
 			const sint32 direction = leftPressed ? -1 : 1;
 			if( mods & (ImUiInputModifier_LeftCtrl | ImUiInputModifier_RightCtrl) )
@@ -1638,7 +1639,7 @@ void ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea )
 
 	if( areaInputState.isMouseOver )
 	{
-		state->offset = ImUiPosSubPos( state->offset, ImUiPosScale( ImUiInputGetMouseScrollDelta( ImUiWindowGetContext( window ) ), 80.0f ) );
+		state->offset = ImUiPosSubPos( state->offset, ImUiPosScale( ImUiInputGetMouseScrollDelta( ImUiWindowGetInput( window ) ), 80.0f ) );
 	}
 
 	state->offset = ImUiPosMax( ImUiPosCreateZero(), ImUiPosMin( state->offset, ImUiSizeToPos( ImUiSizeSubSize( areaSize, frameAreaSize ) ) ) );
@@ -1691,15 +1692,15 @@ ImUiWidget* ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* wind
 	ImUiWidgetInputState inputState;
 	ImUiWidgetGetInputState( list->list, &inputState );
 
-	ImUiContext* imui = ImUiWidgetGetContext( list->list );
-	if( ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left ) )
+	const ImUiInputState* input = ImUiWidgetGetInput( list->list );
+	if( ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left ) )
 	{
 		list->state->hasFocus = inputState.hasMousePressed;
 	}
 
 	if( list->state->hasFocus )
 	{
-		if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Up ) )
+		if( ImUiInputHasKeyPressed( input, ImUiInputKey_Up ) )
 		{
 			list->state->selectedIndex--;
 			if( list->state->selectedIndex >= itemCount )
@@ -1708,7 +1709,7 @@ ImUiWidget* ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* wind
 			}
 			list->changed = true;
 		}
-		else if( ImUiInputHasKeyPressed( imui, ImUiInputKey_Down ) )
+		else if( ImUiInputHasKeyPressed( input, ImUiInputKey_Down ) )
 		{
 			list->state->selectedIndex++;
 			if( list->state->selectedIndex >= itemCount )
@@ -1984,7 +1985,7 @@ ImUiWidget* ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUi
 
 		if( !inputState.wasPressed &&
 			!listInputState.wasPressed &&
-			ImUiInputHasMouseButtonReleased( ImUiWindowGetContext( window ), ImUiInputMouseButton_Left ) )
+			ImUiInputHasMouseButtonReleased( ImUiWindowGetInput( window ), ImUiInputMouseButton_Left ) )
 		{
 			dropDown->state->isOpen = false;
 		}

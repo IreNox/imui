@@ -74,7 +74,7 @@ void ImUiLayoutSampleTick( ImUiWindow* window )
 		const float gray = (cosf( (float)ImUiWidgetGetTime( vMain ) ) / 2.0f + 0.5f) * 255.0f;
 		ImUiWidgetDrawPartialColor( vMain, focusRect, ImUiColorCreateGray( (uint8_t)gray ) );
 	}
-	const ImUiPos p1 = ImUiPosAddPos( focusPoint, ImUiPosScale( ImUiInputGetDirection( imui ), 10000.0f ) );
+	const ImUiPos p1 = ImUiPosAddPos( focusPoint, ImUiPosScale( ImUiInputGetDirection( ImUiWidgetGetInput( vMain ) ), 10000.0f ) );
 	ImUiWidgetDrawLine( vMain, focusPoint, p1, ImUiColorCreateBlack() );
 
 	ImUiWidgetEnd( vMain );

@@ -52,6 +52,7 @@ struct ImUiFrameworkContext
 
 	float						dpiScale;
 	ImUiContext*				imui;
+	const ImUiInputState*		inputState;
 };
 
 static ImUiFrameworkContext s_context;
@@ -279,7 +280,7 @@ static void ImFrameworkLoop()
 {
 	SDL_GL_SetSwapInterval( 1 );
 
-	ImUiInput* input = ImUiInputBegin( s_context.imui );
+	ImUiInput* input = ImUiInputBegin( s_context.imui, s_context.inputState );
 	SDL_Event sdlEvent;
 	while( SDL_PollEvent( &sdlEvent ) )
 	{
@@ -344,12 +345,12 @@ static void ImFrameworkLoop()
 			break;
 		}
 	}
-	ImUiInputEnd( s_context.imui );
+	s_context.inputState = ImUiInputEnd( s_context.imui );
 
 	SDL_GetWindowSize( s_context.window, &s_context.windowWidth, &s_context.windowHeight );
 
 	ImUiFrame* frame = ImUiBegin( s_context.imui, SDL_GetTicks64() / 1000.0f );
-	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), s_context.dpiScale );
+	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), s_context.inputState, s_context.dpiScale );
 
 	ImUiFrameworkTick( surface );
 

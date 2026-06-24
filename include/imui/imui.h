@@ -18,6 +18,7 @@ typedef struct ImUiDraw ImUiDraw;
 typedef struct ImUiFrame ImUiFrame;
 typedef struct ImUiInput ImUiInput;
 typedef struct ImUiInputShortcutConfig ImUiInputShortcutConfig;
+typedef struct ImUiInputState ImUiInputState;
 typedef struct ImUiSurface ImUiSurface;
 typedef struct ImUiTextLayout ImUiTextLayout;
 typedef struct ImUiWidget ImUiWidget;
@@ -209,8 +210,8 @@ typedef struct ImUiDrawData
 //////////////////////////////////////////////////////////////////////////
 // Surface - Presents a OS window or a screen
 
-ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale );
-ImUiSurface*				ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, float dpiScale );
+ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, const ImUiInputState* input, float dpiScale );
+ImUiSurface*				ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, const ImUiInputState* input, float dpiScale );
 void						ImUiSurfaceEnd( ImUiSurface* surface );
 
 ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
@@ -218,6 +219,7 @@ ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
 double						ImUiSurfaceGetTime( const ImUiSurface* surface );
 ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
 ImUiRect					ImUiSurfaceGetRect( const ImUiSurface* surface );
+const ImUiInputState*		ImUiSurfaceGetInput( const ImUiSurface* surface );
 float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
 
 // call after surface end but before end frame
@@ -234,6 +236,7 @@ void						ImUiWindowEnd( ImUiWindow* window );
 
 ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
 ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
+const ImUiInputState*		ImUiWindowGetInput( const ImUiWindow* window );
 
 double						ImUiWindowGetTime( const ImUiWindow* window );
 float						ImUiWindowGetDpiScale( const ImUiWindow* window );
@@ -278,6 +281,7 @@ void						ImUiWidgetEnd( ImUiWidget* widget );
 
 ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
 ImUiSurface*				ImUiWidgetGetSurface( const ImUiWidget* widget );
+const ImUiInputState*		ImUiWidgetGetInput( const ImUiWidget* widget );
 ImUiWindow*					ImUiWidgetGetWindow( const ImUiWidget* widget );
 
 ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
@@ -572,6 +576,7 @@ struct ImUiInputShortcutConfig
 
 // Get/Set
 
+ImUiInputMouseCursor			ImUiInputGetMouseCursor( const ImUiContext* imui );
 void							ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor );
 
 const char*						ImUiInputGetCopyText( const ImUiContext* imui );
@@ -583,8 +588,11 @@ void							ImUiInputEndWritePasteText( ImUiContext* imui, size_t finalLength );
 
 // Push
 
-ImUiInput*						ImUiInputBegin( ImUiContext* imui );
-void							ImUiInputEnd( ImUiContext* imui );
+ImUiInput*						ImUiInputBegin( ImUiContext* imui, const ImUiInputState* previousState );
+// A ImUiInputState is valid for exactly two ticks and get freed automatically afterwards
+const ImUiInputState*			ImUiInputEnd( ImUiContext* imui );
+
+const ImUiInputState*			ImUiInputGetPushState( ImUiInput* input );
 
 void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
 void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );
@@ -605,27 +613,26 @@ void							ImUiInputPushFocusExecute( ImUiInput* input );
 
 // Read
 
-uint32_t						ImUiInputGetKeyModifiers( const ImUiContext* imui );	// returns ImUiInputModifier
-bool							ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key );
-bool							ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key );
-ImUiInputShortcut				ImUiInputGetShortcut( const ImUiContext* imui );
+uint32_t						ImUiInputGetKeyModifiers( const ImUiInputState* input );	// returns ImUiInputModifier
+bool							ImUiInputIsKeyDown( const ImUiInputState* input, ImUiInputKey key );
+bool							ImUiInputIsKeyUp( const ImUiInputState* input, ImUiInputKey key );
+bool							ImUiInputHasKeyPressed( const ImUiInputState* input, ImUiInputKey key );
+bool							ImUiInputHasKeyReleased( const ImUiInputState* input, ImUiInputKey key );
+ImUiInputShortcut				ImUiInputGetShortcut( const ImUiInputState* input );
 
-const char*						ImUiInputGetText( const ImUiContext* imui );
+const char*						ImUiInputGetText( const ImUiInputState* input );
 
-ImUiPos							ImUiInputGetMousePos( const ImUiContext* imui );
-ImUiInputMouseCursor			ImUiInputGetMouseCursor( ImUiContext* imui );
-bool							ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rect );
-bool							ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button );
-ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiContext* imui );
+ImUiPos							ImUiInputGetMousePos( const ImUiInputState* input );
+bool							ImUiInputIsMouseInRect( const ImUiInputState* input, ImUiRect rect );
+bool							ImUiInputIsMouseButtonDown( const ImUiInputState* input, ImUiInputMouseButton button );
+bool							ImUiInputIsMouseButtonUp( const ImUiInputState* input, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonPressed( const ImUiInputState* input, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonReleased( const ImUiInputState* input, ImUiInputMouseButton button );
+bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiInputState* input, ImUiInputMouseButton button );
+ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiInputState* input );
 
-ImUiPos							ImUiInputGetDirection( const ImUiContext* imui );
-bool							ImUiInputGetFocusExecute( const ImUiContext* imui );
+ImUiPos							ImUiInputGetDirection( const ImUiInputState* input );
+bool							ImUiInputGetFocusExecute( const ImUiInputState* input );
 
 //////////////////////////////////////////////////////////////////////////
 // Font

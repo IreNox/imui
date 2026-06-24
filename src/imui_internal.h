@@ -10,20 +10,21 @@
 
 struct ImUiSurface
 {
-	bool			inUse;
+	bool					inUse;
 
-	ImUiContext*	context;
+	ImUiContext*			context;
 
-	ImUiId			id;
-	ImUiStringView	name;
-	ImUiSize		size;
-	float			dpiScale;
+	ImUiId					id;
+	ImUiStringView			name;
+	ImUiSize				size;
+	const ImUiInputState*	input;
+	float					dpiScale;
 
-	uintsize		drawIndex;
+	uintsize				drawIndex;
 
-	ImUiWindow*		windows;
-	uintsize		windowCapacity;
-	uintsize		windowCount;
+	ImUiWindow*				windows;
+	uintsize				windowCapacity;
+	uintsize				windowCount;
 };
 
 struct ImUiWindow

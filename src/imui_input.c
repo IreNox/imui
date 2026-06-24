@@ -31,8 +31,6 @@ bool ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiI
 	input->shortcuts		= newShortcuts;
 	input->shortcutCount	= shortcutCount;
 
-	ImUiInputTextFree( input, &input->currentState.text );
-	ImUiInputTextFree( input, &input->lastState.text );
 	ImUiInputTextFree( input, &input->copyText );
 	ImUiInputTextFree( input, &input->pasteText );
 
@@ -41,62 +39,140 @@ bool ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiI
 
 void ImUiInputDestruct( ImUiInput* input )
 {
-	ImUiInputTextFree( input, &input->currentState.text );
-	ImUiInputTextFree( input, &input->lastState.text );
+	// call end frame twice to release all states as states live for two ticks
+	ImUiInputEndFrame( input );
+	ImUiInputEndFrame( input );
+
+	while( input->firstStateChunk )
+	{
+		ImUiInputStateChunk* chunk = input->firstStateChunk;
+		input->firstStateChunk = chunk->nextChunk;
+
+		ImUiMemoryFree( input->allocator, chunk );
+	}
+
+	ImUiInputTextFree( input, &input->copyText );
+	ImUiInputTextFree( input, &input->pasteText );
 
 	ImUiMemoryFree( input->allocator, input->shortcuts );
 
 	input->allocator = NULL;
 }
 
-void ImUiInputNextTick( ImUiInput* input )
+void ImUiInputEndFrame( ImUiInput* input )
 {
-	ImUiInputTextFree( input, &input->lastState.text );
+	while( input->usedStates )
+	{
+		ImUiInputState* state = input->usedStates;
+		input->usedStates = state->nextState;
 
-	input->lastState = input->currentState;
+		ImUiInputTextFree( input, &state->current.text );
+		ImUiInputTextFree( input, &state->last.text );
 
-	input->currentState.focusExecute = false;
+		state->nextState = input->freeStates;
+		input->freeStates = state;
+	}
+
+	input->usedStates = input->newStates;
+	input->newStates = NULL;
+
+	input->mouseCursor = ImUiInputMouseCursor_Arrow;
+}
+
+bool ImUiInputBeginState( ImUiInput* input, const ImUiInputState* previousState )
+{
+	assert( input->pushState == NULL );
+
+	ImUiInputState* state;
+	if( input->freeStates )
+	{
+		state = input->freeStates;
+		input->freeStates = input->freeStates->nextState;
+	}
+	else
+	{
+		if( !input->firstStateChunk ||
+			input->firstStateChunk->usedCount == IMUI_ARRAY_COUNT( input->firstStateChunk->states ) )
+		{
+			ImUiInputStateChunk* chunk = IMUI_MEMORY_NEW( input->allocator, ImUiInputStateChunk );
+			if( !chunk )
+			{
+				return false;
+			}
+
+			chunk->nextChunk = input->firstStateChunk;
+			chunk->usedCount = 0u;
+			input->firstStateChunk = chunk;
+		}
+
+		state = &input->firstStateChunk->states[ input->firstStateChunk->usedCount ];
+		input->firstStateChunk->usedCount++;
+	}
+
+	state->nextState = input->newStates;
+	input->newStates = state;
+	input->pushState = state;
+
+	if( previousState )
+	{
+		state->current	= previousState->current;
+		state->last		= previousState->current;
+
+		memset( &state->current.text, 0, sizeof( state->current.text ) );
+		memset( &state->last.text, 0, sizeof( state->last.text ) );
+	}
+	else
+	{
+		memset( &state->current, 0, sizeof( state->current ) );
+		memset( &state->last, 0, sizeof( state->last ) );
+	}
+
+	ImUiInputTextFree( input, &state->current.text );
+	ImUiInputTextFree( input, &state->last.text );
+
+	state->current.focusExecute = false;
 
 	for( uintsize i = 0u; i < ImUiInputMouseButton_MAX; ++i )
 	{
-		input->currentState.mouseButtonDoubleClick[ i ] = false;
+		state->current.mouseButtonDoubleClick[ i ] = false;
 	}
 
-	input->currentState.mouseScroll	= ImUiPosCreateZero();
-	input->currentState.mouseCursor	= ImUiInputMouseCursor_Arrow;
+	state->current.mouseScroll = ImUiPosCreateZero();
 
-	ImUiInputTextFree( input, &input->currentState.text );
+	return true;
 }
 
-ImUiInput* ImUiInputBegin( ImUiContext* imui )
+const ImUiInputState* ImUiInputEndState( ImUiInput* input )
 {
-	ImUiInputNextTick( &imui->input );
-	return &imui->input;
-}
+	ImUiInputState* state = input->pushState;
 
-void ImUiInputEnd( ImUiContext* imui )
-{
-	ImUiInputState* currentState = &imui->input.currentState;
+	state->current.shortcut = ImUiInputShortcut_None;
 
-	currentState->shortcut = ImUiInputShortcut_None;
-
-	for( size_t i = 0u; i < imui->input.shortcutCount; ++i )
+	for( size_t i = 0u; i < input->shortcutCount; ++i )
 	{
-		const ImUiInputShortcutConfig* shortcut = &imui->input.shortcuts[ i ];
-		if( (currentState->keyModifiers & shortcut->modifiers) != shortcut->modifiers ||
-			!ImUiInputHasKeyPressed( imui, shortcut->key ) )
+		const ImUiInputShortcutConfig* shortcut = &input->shortcuts[ i ];
+		if( (state->current.keyModifiers & shortcut->modifiers) != shortcut->modifiers ||
+			!ImUiInputHasKeyPressed( state, shortcut->key ) )
 		{
 			continue;
 		}
 
-		currentState->shortcut = shortcut->type;
+		state->current.shortcut = shortcut->type;
 		break;
 	}
+
+	input->pushState = NULL;
+	return state;
+}
+
+ImUiInputMouseCursor ImUiInputGetMouseCursor( const ImUiContext* imui )
+{
+	return imui->input.mouseCursor;
 }
 
 void ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor )
 {
-	imui->input.currentState.mouseCursor = cursor;
+	imui->input.mouseCursor = cursor;
 }
 
 const char* ImUiInputGetCopyText( const ImUiContext* imui )
@@ -145,71 +221,71 @@ void ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key )
 {
 	if( key == ImUiInputKey_LeftShift )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_LeftShift;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftShift;
 	}
 	else if( key == ImUiInputKey_RightShift )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_RightShift;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_RightShift;
 	}
 	else if( key == ImUiInputKey_LeftControl )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_LeftCtrl;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftCtrl;
 	}
 	else if( key == ImUiInputKey_RightControl )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_RightCtrl;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_RightCtrl;
 	}
 	else if( key == ImUiInputKey_LeftAlt )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_LeftAlt;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftAlt;
 	}
 	else if( key == ImUiInputKey_RightAlt )
 	{
-		input->currentState.keyModifiers |= ImUiInputModifier_RightAlt;
+		input->pushState->current.keyModifiers |= ImUiInputModifier_RightAlt;
 	}
 
-	input->currentState.keys[ key ] = true;
+	input->pushState->current.keys[ key ] = true;
 }
 
 void ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key )
 {
 	if( key == ImUiInputKey_LeftShift )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftShift;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftShift;
 	}
 	else if( key == ImUiInputKey_RightShift )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_RightShift;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightShift;
 	}
 	else if( key == ImUiInputKey_LeftControl )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftCtrl;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftCtrl;
 	}
 	else if( key == ImUiInputKey_RightControl )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_RightCtrl;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightCtrl;
 	}
 	else if( key == ImUiInputKey_LeftAlt )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_LeftAlt;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftAlt;
 	}
 	else if( key == ImUiInputKey_RightAlt )
 	{
-		input->currentState.keyModifiers &= ~ImUiInputModifier_RightAlt;
+		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightAlt;
 	}
 
-	input->currentState.keys[ key ] = false;
+	input->pushState->current.keys[ key ] = false;
 }
 
 void ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key )
 {
 	// fake key repeat by setting last state to released so 'was pressed' trigger again
-	input->lastState.keys[ key ] = false;
+	input->pushState->last.keys[ key ] = false;
 }
 
 void ImUiInputPushText( ImUiInput* input, const char* text )
 {
-	ImUiInputTextPush( input, &input->currentState.text, text, strlen( text ) );
+	ImUiInputTextPush( input, &input->pushState->current.text, text, strlen( text ) );
 }
 
 void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
@@ -226,7 +302,7 @@ void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
 		bytes[ 1u ] = 0x80 | (char)((c >> 12) & 0x3f);
 		bytes[ 2u ] = 0x80 | (char)((c >> 6) & 0x3f);
 		bytes[ 3u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else if( c >= 0x800u )
 	{
@@ -234,56 +310,56 @@ void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
 		bytes[ 0u ]	= 0xe0 | (char)(c >> 12);
 		bytes[ 1u ] = 0x80 | (char)((c >> 6) & 0x3f);
 		bytes[ 2u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else if( c >= 0x80u )
 	{
 		char bytes[ 2u ];
 		bytes[ 0u ]	= 0xc0 | (char)(c >> 6);
 		bytes[ 1u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else
 	{
 		char bytes[ 1u ];
 		bytes[ 0u ] = (char)c;
-		ImUiInputTextPush( input, &input->currentState.text, bytes, sizeof( bytes ) );
+		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 }
 
 void ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button )
 {
-	input->currentState.mouseButtons[ button ] = true;
+	input->pushState->current.mouseButtons[ button ] = true;
 }
 
 void ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button )
 {
-	input->currentState.mouseButtons[ button ] = false;
+	input->pushState->current.mouseButtons[ button ] = false;
 }
 
 void ImUiInputPushMouseDoubleClick( ImUiInput* input, ImUiInputMouseButton button )
 {
-	input->currentState.mouseButtonDoubleClick[ button ] = true;
+	input->pushState->current.mouseButtonDoubleClick[ button ] = true;
 }
 
 void ImUiInputPushMouseMove( ImUiInput* input, float x, float y )
 {
-	input->currentState.mousePos = ImUiPosCreate( x, y );
+	input->pushState->current.mousePos = ImUiPosCreate( x, y );
 }
 
 void ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float deltaY )
 {
-	input->currentState.mousePos = ImUiPosAdd( input->currentState.mousePos, deltaX, deltaY );
+	input->pushState->current.mousePos = ImUiPosAdd( input->pushState->current.mousePos, deltaX, deltaY );
 }
 
 void ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset )
 {
-	input->currentState.mouseScroll = ImUiPosCreate( horizontalOffset, verticalOffset );
+	input->pushState->current.mouseScroll = ImUiPosCreate( horizontalOffset, verticalOffset );
 }
 
 void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta )
 {
-	input->currentState.mouseScroll = ImUiPosAddPos( input->currentState.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
+	input->pushState->current.mouseScroll = ImUiPosAddPos( input->pushState->current.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
 void ImUiInputPushDirection( ImUiInput* input, float x, float y )
@@ -291,108 +367,103 @@ void ImUiInputPushDirection( ImUiInput* input, float x, float y )
 	const float lengthSquare = (x * x) + (y * y);
 	if( lengthSquare == 0.0f )
 	{
-		input->currentState.focusDirection = ImUiPosCreateZero();
+		input->pushState->current.focusDirection = ImUiPosCreateZero();
 		return;
 	}
 
 	const float length = sqrtf( lengthSquare );
-	input->currentState.focusDirection.x = x / length;
-	input->currentState.focusDirection.y = y / length;
+	input->pushState->current.focusDirection.x = x / length;
+	input->pushState->current.focusDirection.y = y / length;
 }
 
 void ImUiInputPushFocusExecute( ImUiInput* input )
 {
-	input->currentState.focusExecute = true;
+	input->pushState->current.focusExecute = true;
 }
 
-uint32_t ImUiInputGetKeyModifiers( const ImUiContext* imui )
+uint32_t ImUiInputGetKeyModifiers( const ImUiInputState* input )
 {
-	return imui->input.currentState.keyModifiers;
+	return input->current.keyModifiers;
 }
 
-bool ImUiInputIsKeyDown( const ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputIsKeyDown( const ImUiInputState* input, ImUiInputKey key )
 {
-	return imui->input.currentState.keys[ key ];
+	return input->current.keys[ key ];
 }
 
-bool ImUiInputIsKeyUp( const ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputIsKeyUp( const ImUiInputState* input, ImUiInputKey key )
 {
-	return !imui->input.currentState.keys[ key ];
+	return !input->current.keys[ key ];
 }
 
-bool ImUiInputHasKeyPressed( const ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputHasKeyPressed( const ImUiInputState* input, ImUiInputKey key )
 {
-	return imui->input.currentState.keys[ key ] && !imui->input.lastState.keys[ key ];
+	return input->current.keys[ key ] && !input->last.keys[ key ];
 }
 
-bool ImUiInputHasKeyReleased( const ImUiContext* imui, ImUiInputKey key )
+bool ImUiInputHasKeyReleased( const ImUiInputState* input, ImUiInputKey key )
 {
-	return !imui->input.currentState.keys[ key ] && imui->input.lastState.keys[ key ];
+	return !input->current.keys[ key ] && input->last.keys[ key ];
 }
 
-ImUiInputShortcut ImUiInputGetShortcut( const ImUiContext* imui )
+ImUiInputShortcut ImUiInputGetShortcut( const ImUiInputState* input )
 {
-	return imui->input.currentState.shortcut;
+	return input->current.shortcut;
 }
 
-const char* ImUiInputGetText( const ImUiContext* imui )
+const char* ImUiInputGetText( const ImUiInputState* input )
 {
-	return ImUiInputTextGetRead( &imui->input.currentState.text );
+	return ImUiInputTextGetRead( &input->current.text );
 }
 
-ImUiPos ImUiInputGetMousePos( const ImUiContext* imui )
+ImUiPos ImUiInputGetMousePos( const ImUiInputState* input )
 {
-	return imui->input.currentState.mousePos;
+	return input->current.mousePos;
 }
 
-ImUiInputMouseCursor ImUiInputGetMouseCursor( ImUiContext* imui )
+bool ImUiInputIsMouseInRect( const ImUiInputState* input, ImUiRect rectangle )
 {
-	return imui->input.currentState.mouseCursor;
+	return ImUiRectIncludesPos( rectangle, input->current.mousePos );
 }
 
-bool ImUiInputIsMouseInRect( const ImUiContext* imui, ImUiRect rectangle )
+bool ImUiInputIsMouseButtonDown( const ImUiInputState* input, ImUiInputMouseButton button )
 {
-	return ImUiRectIncludesPos( rectangle, imui->input.currentState.mousePos );
+	return input->current.mouseButtons[ button ];
 }
 
-bool ImUiInputIsMouseButtonDown( const ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputIsMouseButtonUp( const ImUiInputState* input, ImUiInputMouseButton button )
 {
-	return imui->input.currentState.mouseButtons[ button ];
+	return !input->current.mouseButtons[ button ];
 }
 
-bool ImUiInputIsMouseButtonUp( const ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonPressed( const ImUiInputState* input, ImUiInputMouseButton button )
 {
-	return !imui->input.currentState.mouseButtons[ button ];
+	return input->current.mouseButtons[ button ] && !input->last.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonPressed( const ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonReleased( const ImUiInputState* input, ImUiInputMouseButton button )
 {
-	return imui->input.currentState.mouseButtons[ button ] && !imui->input.lastState.mouseButtons[ button ];
+	return !input->current.mouseButtons[ button ] && input->last.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonReleased( const ImUiContext* imui, ImUiInputMouseButton button )
+bool ImUiInputHasMouseButtonDoubleClicked( const ImUiInputState* input, ImUiInputMouseButton button )
 {
-	return !imui->input.currentState.mouseButtons[ button ] && imui->input.lastState.mouseButtons[ button ];
+	return input->current.mouseButtonDoubleClick[ button ];
 }
 
-bool ImUiInputHasMouseButtonDoubleClicked( const ImUiContext* imui, ImUiInputMouseButton button )
+ImUiPos ImUiInputGetMouseScrollDelta( const ImUiInputState* input )
 {
-	return imui->input.currentState.mouseButtonDoubleClick[ button ];
+	return input->current.mouseScroll;
 }
 
-ImUiPos ImUiInputGetMouseScrollDelta( const ImUiContext* imui )
+ImUiPos ImUiInputGetDirection( const ImUiInputState* input )
 {
-	return imui->input.currentState.mouseScroll;
+	return input->current.focusDirection;
 }
 
-ImUiPos ImUiInputGetDirection( const ImUiContext* imui )
+bool ImUiInputGetFocusExecute( const ImUiInputState* input )
 {
-	return imui->input.currentState.focusDirection;
-}
-
-bool ImUiInputGetFocusExecute( const ImUiContext* imui )
-{
-	return imui->input.currentState.focusExecute;
+	return input->current.focusExecute;
 }
 
 static char* ImUiInputTextGet( ImUiInputText* text )

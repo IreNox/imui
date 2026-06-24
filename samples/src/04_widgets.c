@@ -81,7 +81,7 @@ void ImUiToolboxSampleTick( ImUiWindow* window )
 	}
 
 	{
-		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetContext( window ) );
+		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetInput( window ) );
 		ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
 		ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
 		ImUiWidgetSetVAlign( mouseLabel, 0.0f );

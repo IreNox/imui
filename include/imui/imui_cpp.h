@@ -156,10 +156,9 @@ namespace imui
 		bool			isValid() const;
 		ImUiContext*	getInternal() const;
 
-		UiInput&		beginInput();
+		UiInput&		beginInput( const ImUiInputState* previousInput );
 		void			endInput();
 
-		UiInputState	getInput() const;
 		void			setMouseCursor( ImUiInputMouseCursor cursor );
 
 	private:
@@ -170,31 +169,29 @@ namespace imui
 
 	class UiInputState
 	{
-		friend class UiContext;
-
 	public:
 
-		uint32_t			getKeyModifiers() const;	// returns ImUiInputModifier
-		bool				isKeyDown( ImUiInputKey key ) const;
-		bool				isKeyUp( ImUiInputKey key ) const;
-		bool				hasKeyPressed( ImUiInputKey key ) const;
-		bool				hasKeyReleased( ImUiInputKey key ) const;
+								UiInputState( const ImUiInputState* input );
 
-		const char*			getText() const;
+		uint32_t				getKeyModifiers() const;	// returns ImUiInputModifier
+		bool					isKeyDown( ImUiInputKey key ) const;
+		bool					isKeyUp( ImUiInputKey key ) const;
+		bool					hasKeyPressed( ImUiInputKey key ) const;
+		bool					hasKeyReleased( ImUiInputKey key ) const;
 
-		UiPos				getMousePos() const;
-		bool				isMouseInRect( UiRect rect ) const;
-		bool				isMouseButtonDown( ImUiInputMouseButton button ) const;
-		bool				isMouseButtonUp( ImUiInputMouseButton button ) const;
-		bool				hasMouseButtonPressed( ImUiInputMouseButton button ) const;
-		bool				hasMouseButtonReleased( ImUiInputMouseButton button ) const;
-		UiPos				getMouseScrollDelta() const;
+		const char*				getText() const;
+
+		UiPos					getMousePos() const;
+		bool					isMouseInRect( UiRect rect ) const;
+		bool					isMouseButtonDown( ImUiInputMouseButton button ) const;
+		bool					isMouseButtonUp( ImUiInputMouseButton button ) const;
+		bool					hasMouseButtonPressed( ImUiInputMouseButton button ) const;
+		bool					hasMouseButtonReleased( ImUiInputMouseButton button ) const;
+		UiPos					getMouseScrollDelta() const;
 
 	private:
 
-							UiInputState( const ImUiContext* imui );
-
-		const ImUiContext*	m_context;
+		const ImUiInputState*	m_state;
 	};
 
 	class UiFrame
@@ -224,17 +221,18 @@ namespace imui
 
 						UiSurface();
 						UiSurface( ImUiSurface* surface );
-						UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale );
-						UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale );
+						UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
+						UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
 						~UiSurface();
 
-		void			beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale );
-		void			beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale );
+		void			beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
+		void			beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
 		void			endSurface();
 
 		bool			isValid() const;
 		ImUiSurface*	getInternal() const;
 		UiContext		getContext() const;
+		UiInputState	getInput() const;
 
 		double			getTime() const;
 		UiRect			getRect() const;
@@ -265,6 +263,7 @@ namespace imui
 		ImUiWindow*		getInternal() const;
 		UiContext		getContext() const;
 		UiSurface		getSurface() const;
+		UiInputState	getInput() const;
 
 		double			getTime() const;
 

@@ -462,20 +462,15 @@ namespace imui
 		return m_context;
 	}
 
-	UiInput& UiContext::beginInput()
+	UiInput& UiContext::beginInput( const ImUiInputState* previousInput )
 	{
-		ImUiInput* input = ImUiInputBegin( m_context );
+		ImUiInput* input = ImUiInputBegin( m_context, previousInput );
 		return *(UiInput*)input;
 	}
 
 	void UiContext::endInput()
 	{
 		ImUiInputEnd( m_context );
-	}
-
-	UiInputState UiContext::getInput() const
-	{
-		return UiInputState( m_context );
 	}
 
 	void UiContext::setMouseCursor( ImUiInputMouseCursor cursor )
@@ -496,74 +491,74 @@ namespace imui
 		beginFrame( context, timeInSeconds );
 	}
 
-	UiInputState::UiInputState( const ImUiContext* imui )
-		: m_context( imui )
+	UiInputState::UiInputState( const ImUiInputState* input )
+		: m_state( input )
 	{
 	}
 
 	uint32_t UiInputState::getKeyModifiers() const
 	{
-		return ImUiInputGetKeyModifiers( m_context );
+		return ImUiInputGetKeyModifiers( m_state );
 	}
 
 	bool UiInputState::isKeyDown( ImUiInputKey key ) const
 	{
-		return ImUiInputIsKeyDown( m_context, key );
+		return ImUiInputIsKeyDown( m_state, key );
 	}
 
 	bool UiInputState::isKeyUp( ImUiInputKey key ) const
 	{
-		return ImUiInputIsKeyUp( m_context, key );
+		return ImUiInputIsKeyUp( m_state, key );
 	}
 
 	bool UiInputState::hasKeyPressed( ImUiInputKey key ) const
 	{
-		return ImUiInputHasKeyPressed( m_context, key );
+		return ImUiInputHasKeyPressed( m_state, key );
 	}
 
 	bool UiInputState::hasKeyReleased( ImUiInputKey key ) const
 	{
-		return ImUiInputHasKeyReleased( m_context, key );
+		return ImUiInputHasKeyReleased( m_state, key );
 	}
 
 	const char* UiInputState::getText() const
 	{
-		return ImUiInputGetText( m_context );
+		return ImUiInputGetText( m_state );
 	}
 
 	UiPos UiInputState::getMousePos() const
 	{
-		return (UiPos)ImUiInputGetMousePos( m_context );
+		return (UiPos)ImUiInputGetMousePos( m_state );
 	}
 
 	bool UiInputState::isMouseInRect( UiRect rect ) const
 	{
-		return ImUiInputIsMouseInRect( m_context, rect );
+		return ImUiInputIsMouseInRect( m_state, rect );
 	}
 
 	bool UiInputState::isMouseButtonDown( ImUiInputMouseButton button ) const
 	{
-		return ImUiInputIsMouseButtonDown( m_context, button );
+		return ImUiInputIsMouseButtonDown( m_state, button );
 	}
 
 	bool UiInputState::isMouseButtonUp( ImUiInputMouseButton button ) const
 	{
-		return ImUiInputIsMouseButtonUp( m_context, button );
+		return ImUiInputIsMouseButtonUp( m_state, button );
 	}
 
 	bool UiInputState::hasMouseButtonPressed( ImUiInputMouseButton button ) const
 	{
-		return ImUiInputHasMouseButtonReleased( m_context, button );
+		return ImUiInputHasMouseButtonReleased( m_state, button );
 	}
 
 	bool UiInputState::hasMouseButtonReleased( ImUiInputMouseButton button ) const
 	{
-		return ImUiInputHasMouseButtonReleased( m_context, button );
+		return ImUiInputHasMouseButtonReleased( m_state, button );
 	}
 
 	UiPos UiInputState::getMouseScrollDelta() const
 	{
-		return ImUiInputGetMouseScrollDelta( m_context );
+		return ImUiInputGetMouseScrollDelta( m_state );
 	}
 
 	UiFrame::UiFrame( ImUiFrame* frame )
@@ -615,14 +610,14 @@ namespace imui
 	{
 	}
 
-	UiSurface::UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale )
+	UiSurface::UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
 	{
-		beginSurface( frame, name, size, dpiScale );
+		beginSurface( frame, name, size, input, dpiScale );
 	}
 
-	UiSurface::UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale )
+	UiSurface::UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
 	{
-		beginSurface( frame, name, size, dpiScale );
+		beginSurface( frame, name, size, input, dpiScale );
 	}
 
 	UiSurface::~UiSurface()
@@ -630,15 +625,15 @@ namespace imui
 		endSurface();
 	}
 
-	void UiSurface::beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, float dpiScale )
+	void UiSurface::beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
 	{
-		m_surface = ImUiSurfaceBegin( frame, name, size, dpiScale );
+		m_surface = ImUiSurfaceBegin( frame, name, size, input, dpiScale );
 		m_owner = true;
 	}
 
-	void UiSurface::beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, float dpiScale )
+	void UiSurface::beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
 	{
-		beginSurface( frame.getInternal(), name, size, dpiScale );
+		beginSurface( frame.getInternal(), name, size, input, dpiScale );
 	}
 
 	void UiSurface::endSurface()
@@ -679,6 +674,11 @@ namespace imui
 	UiSize UiSurface::getSize() const
 	{
 		return (const UiSize&)m_surface->size;
+	}
+
+	UiInputState UiSurface::getInput() const
+	{
+		return UiInputState( ImUiSurfaceGetInput( m_surface ) );
 	}
 
 	float UiSurface::getDpiScale() const
@@ -753,6 +753,11 @@ namespace imui
 	UiSurface UiWindow::getSurface() const
 	{
 		return UiSurface( ImUiWindowGetSurface( m_window ) );
+	}
+
+	UiInputState UiWindow::getInput() const
+	{
+		return UiInputState( ImUiWindowGetInput( m_window ) );
 	}
 
 	double UiWindow::getTime() const

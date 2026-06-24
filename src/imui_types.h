@@ -45,6 +45,9 @@ typedef struct ImUiStringView
 #ifndef IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE
 #	define IMUI_DEFAULT_STRING_POOL_CHUNK_SIZE		4096u
 #endif
+#ifndef IMUI_DEFAULT_INPUT_STATE_CHUNK_SIZE
+#	define IMUI_DEFAULT_INPUT_STATE_CHUNK_SIZE		16u
+#endif
 
 #define IMUI_FLOAT_INF (FLT_MAX / 100.0f)
 #define IMUI_SIZE_MAX ((uintsize)-1)

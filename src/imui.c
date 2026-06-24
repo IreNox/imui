@@ -141,6 +141,7 @@ void ImUiEnd( ImUiFrame* frame )
 	ImUiContext* imui = frame->context;
 
 	ImUiDrawEndFrame( &imui->draw );
+	ImUiInputEndFrame( &imui->input );
 
 	// deleted unused surfaces and windows
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
@@ -207,17 +208,37 @@ void ImUiEnd( ImUiFrame* frame )
 	ImUiTextLayoutCacheEndFrame( &imui->layoutCache );
 }
 
+ImUiInput* ImUiInputBegin( ImUiContext* imui, const ImUiInputState* previousState )
+{
+	if( !ImUiInputBeginState( &imui->input, previousState ) )
+	{
+		return NULL;
+	}
+
+	return &imui->input;
+}
+
+const ImUiInputState* ImUiInputEnd( ImUiContext* imui )
+{
+	return ImUiInputEndState( &imui->input );
+}
+
+const ImUiInputState* ImUiInputGetPushState( ImUiInput* input )
+{
+	return input->pushState;
+}
+
 ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
 {
 	return frame->context;
 }
 
-ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, float dpiScale )
+ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, const ImUiInputState* input, float dpiScale )
 {
-	return ImUiSurfaceBeginId( frame, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), size, dpiScale );
+	return ImUiSurfaceBeginId( frame, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), size, input, dpiScale );
 }
 
-ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, float dpiScale )
+ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, const ImUiInputState* input, float dpiScale )
 {
 	ImUiContext* imui = frame->context;
 	const ImUiStringView nameView = ImUiStringViewCreate( name );
@@ -255,6 +276,7 @@ ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, 
 
 	surface->inUse		= true;
 	surface->size		= size;
+	surface->input		= input;
 	surface->dpiScale	= dpiScale;
 	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
 
@@ -294,6 +316,11 @@ ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )
 ImUiRect ImUiSurfaceGetRect( const ImUiSurface* surface )
 {
 	return ImUiRectCreateSize( 0.0f, 0.0f, surface->size );
+}
+
+const ImUiInputState* ImUiSurfaceGetInput( const ImUiSurface* surface )
+{
+	return surface->input;
 }
 
 float ImUiSurfaceGetDpiScale( const ImUiSurface* surface )
@@ -388,6 +415,11 @@ ImUiContext* ImUiWindowGetContext( const ImUiWindow* window )
 ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
 {
 	return window->surface;
+}
+
+const ImUiInputState* ImUiWindowGetInput( const ImUiWindow* window )
+{
+	return window->surface->input;
 }
 
 double ImUiWindowGetTime( const ImUiWindow* window )
@@ -499,12 +531,12 @@ static void ImUiWindowLayout( ImUiWindow* window )
 			window->focusPoint = window->rect.pos;
 		}
 
-		const ImUiPos direction = ImUiInputGetDirection( window->surface->context );
+		const ImUiPos direction = ImUiInputGetDirection( window->surface->input );
 		if( window->focusWidget && window->focusWrap && (direction.x != 0.0f || direction.y != 0.0f) )
 		{
 			const ImUiPos dirStart = window->focusPoint;
 
-			ImUiPos dirEnd = ImUiInputGetDirection( window->surface->context );
+			ImUiPos dirEnd = ImUiInputGetDirection( window->surface->input );
 			dirEnd.x *= -1.0f * window->diagonalLength;
 			dirEnd.y *= -1.0f * window->diagonalLength;
 
@@ -551,8 +583,8 @@ static void ImUiWindowLayout( ImUiWindow* window )
 		childIndex++;
 	}
 
-	const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->context );
-	if( window->surface->context->input.currentState.focusExecute )
+	const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->surface->input );
+	if( window->surface->input->current.focusExecute )
 	{
 		if( window->closesFocusWidget )
 		{
@@ -850,7 +882,7 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 	ImUiWindow* window = widget->window;
 	if( widget->canHaveFocus && window->hasFocus && widget != window->focusWidget )
 	{
-		const ImUiPos focusDirection	= ImUiInputGetDirection( window->surface->context );
+		const ImUiPos focusDirection	= ImUiInputGetDirection( window->surface->input );
 		const ImUiPos center			= ImUiRectGetCenter( widget->rect );
 
 		const ImUiPos distance			= ImUiPosSubPos( center, window->focusPoint );
@@ -883,7 +915,7 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 			}
 		}
 
-		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->context );
+		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->surface->input );
 		if( shortcut == ImUiInputShortcut_FocusNext )
 		{
 			const uint32 currentFocusIndex = window->focusWidget ? window->focusWidget->focusIndex : 0;
@@ -1230,6 +1262,11 @@ ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
 ImUiSurface* ImUiWidgetGetSurface( const ImUiWidget* widget )
 {
 	return widget->window->surface;
+}
+
+const ImUiInputState* ImUiWidgetGetInput( const ImUiWidget* widget )
+{
+	return widget->window->surface->input;
 }
 
 ImUiWindow* ImUiWidgetGetWindow( const ImUiWidget* widget )
@@ -1723,7 +1760,7 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 	ImUiWindow* window = widget->window;
 	ImUiSurface* surface = window->surface;
 	ImUiContext* imui = window->context;
-	ImUiInput* input = &imui->input;
+	const ImUiInputState* input = surface->input;
 
 	bool hasOverlappingWindow = false;
 	if( surface->windowCount > 1u )
@@ -1737,22 +1774,22 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 				continue;
 			}
 
-			hasOverlappingWindow |= ImUiRectIncludesPos( testWindow->rect, input->currentState.mousePos );
+			hasOverlappingWindow |= ImUiRectIncludesPos( testWindow->rect, input->current.mousePos );
 		}
 	}
 
-	target->relativeMousePos	= ImUiPosSubPos( input->currentState.mousePos, widget->rect.pos );
+	target->relativeMousePos	= ImUiPosSubPos( input->current.mousePos, widget->rect.pos );
 
 	target->hasFocus			= window->focusWidget == widget;
-	target->isMouseOver			= !hasOverlappingWindow && ImUiRectIncludesPos( widget->clipRect, input->currentState.mousePos );
-	target->isMouseDown			= target->isMouseOver && input->currentState.mouseButtons[ ImUiInputMouseButton_Left ];
-	target->hasMousePressed		= target->isMouseOver && ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left );
-	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( imui, ImUiInputMouseButton_Left );
+	target->isMouseOver			= !hasOverlappingWindow && ImUiRectIncludesPos( widget->clipRect, input->current.mousePos );
+	target->isMouseDown			= target->isMouseOver && input->current.mouseButtons[ ImUiInputMouseButton_Left ];
+	target->hasMousePressed		= target->isMouseOver && ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left );
+	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( input, ImUiInputMouseButton_Left );
 
-	if( (input->currentState.mouseButtons[ ImUiInputMouseButton_Left ] || input->lastState.mouseButtons[ ImUiInputMouseButton_Left ]) &&
+	if( (input->current.mouseButtons[ ImUiInputMouseButton_Left ] || input->last.mouseButtons[ ImUiInputMouseButton_Left ]) &&
 		widget->inputContext.lastFrameIndex >= imui->frame.index - 1u )
 	{
-		widget->inputContext.wasPressed	|= target->isMouseOver && ImUiInputHasMouseButtonPressed( imui, ImUiInputMouseButton_Left );
+		widget->inputContext.wasPressed	|= target->isMouseOver && ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left );
 		widget->inputContext.wasMouseOver	|= target->isMouseOver;
 	}
 	else

@@ -47,7 +47,7 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 			continue;
 		}
 
-		if( !ImUiInputHasKeyPressed( imui, (ImUiInputKey)i ) )
+		if( !ImUiInputHasKeyPressed( ImUiSurfaceGetInput( surface ), (ImUiInputKey)i ) )
 		{
 			continue;
 		}
