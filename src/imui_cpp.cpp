@@ -877,6 +877,11 @@ namespace imui
 		return UiWindow( ImUiWidgetGetWindow( m_widget ) );
 	}
 
+	UiInputState UiWidget::getInput() const
+	{
+		return UiInputState( ImUiWidgetGetInput( m_widget ) );
+	}
+
 	void* UiWidget::allocState( size_t size, ImUiId stateId )
 	{
 		return ImUiWidgetAllocState( m_widget, size, stateId );

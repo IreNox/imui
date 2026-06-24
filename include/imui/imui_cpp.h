@@ -305,6 +305,7 @@ namespace imui
 		UiContext		getContext() const;
 		UiSurface		getSurface() const;
 		UiWindow		getWindow() const;
+		UiInputState	getInput() const;
 
 		double			getTime();
 
