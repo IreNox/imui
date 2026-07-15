@@ -10,6 +10,10 @@ A simple to use Immediate Mode UI library written in C. This is in an early stat
 - C++ API wrapper included
 - a lot more
 
+## Sample
+
+![samples](samples/screen_shot.png)
+
 ## Example
 
 ```
