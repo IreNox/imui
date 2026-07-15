@@ -16,7 +16,7 @@ A simple to use Immediate Mode UI library written in C. This is in an early stat
 
 ## Example
 
-```
+```c++
 void doUi( ImUiContext* imui, float time )
 {
 	ImUiFrame* frame = ImUiBegin( imui, time );
