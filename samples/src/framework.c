@@ -1,8 +1,13 @@
 #include "framework.h"
 
 #include "imui/imui.h"
+#include "imui/imui_toolbox.h"
 
-#include <GL/glew.h>
+#ifdef IMUI_SAMPELS_USE_GLAD
+#	include <glad/gl.h>
+#else
+#	include <GL/glew.h>
+#endif
 #if defined( __EMSCRIPTEN__ )
 #	include <SDL2/SDL.h>
 #else
@@ -232,9 +237,13 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
+#ifdef IMUI_SAMPELS_USE_GLAD
+	if( !gladLoadGL( (GLADloadfunc)SDL_GL_GetProcAddress ) )
+#else
 	if( glewInit() != GLEW_OK )
+#endif
 	{
-		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize GLEW.\n", NULL );
+		SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "I'm Ui", "Failed to initialize GLAD.\n", NULL );
 		return 1;
 	}
 
@@ -399,7 +408,7 @@ static const char s_fragmentShaderFont[] =
 	"varying vec2 vtfUV;\n"
 	"varying vec4 vtfColor;\n"
 	"void main(){\n"
-	"	vec4 fontChar = texture2D(Texture, vtfUV.xy);\n"
+	"	vec4 fontChar = texture2D(Texture, vtfUV.xy).rrrr;\n"
 	"	gl_FragColor = vtfColor * fontChar;\n"
 	"}\n";
 
@@ -694,7 +703,7 @@ ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t wi
 	glBindTexture( GL_TEXTURE_2D, texture->handle );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexImage2D( GL_TEXTURE_2D, 0, isFont ? GL_INTENSITY8 : GL_RGBA8, width, height, 0, isFont ? GL_RED : GL_RGBA, GL_UNSIGNED_BYTE, textureData );
+	glTexImage2D( GL_TEXTURE_2D, 0, isFont ? GL_R8 : GL_RGBA8, width, height, 0, isFont ? GL_RED : GL_RGBA, GL_UNSIGNED_BYTE, textureData );
 
 	return texture;
 }

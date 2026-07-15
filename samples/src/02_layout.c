@@ -3,6 +3,9 @@
 #include "imui/imui.h"
 #include "imui/imui_toolbox.h"
 
+#include "framework.h"
+
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -18,7 +21,8 @@ static void ImUiLayoutSampleStretchElements( ImUiWindow* window, ImUiSize stretc
 
 static void ImUiLayoutSampleFocus( ImUiWidget* widget );
 
-static ImUiFrameworkToolboxConfigData	s_configData;
+static ImUiFrameworkToolboxConfigData s_configData;
+
 void ImUiLayoutSampleTick( ImUiWindow* window )
 {
 	ImUiContext* imui = ImUiWindowGetContext( window );

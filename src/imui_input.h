@@ -2,6 +2,8 @@
 
 #include "imui/imui.h"
 
+#include "imui_types.h"
+
 typedef struct ImUiInputText
 {
 	union ImUiInputTextData

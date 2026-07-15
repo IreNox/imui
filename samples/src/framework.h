@@ -5,6 +5,8 @@ extern "C"
 {
 #endif
 
+#include "imui/imui.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 

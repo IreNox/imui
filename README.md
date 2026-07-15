@@ -4,8 +4,8 @@ A simple to use Immediate Mode UI library written in C. This is in an early stat
 
 ## Features
 
-- Five different layout methods
-- Toolbox with a lot of generic widgets like: Button, Check Box etc.
+- Five different layout methods(Stack, Scroll, Horizintal, Vertical, Grid)
+- Toolbox with a lot of generic widgets like: Button, Check Box, List etc
 - Bitmap font generation
 - C++ API wrapper included
 - a lot more
@@ -50,11 +50,10 @@ void doUi( ImUiContext* imui, float time )
 
 Just import all files in `include` and `src` in your project and add `include` as include directory.
 
-To build the samples is current [tiki_build](https://github.com/IreNox/tiki_build) required. Use the provided batch files to generate Visual Studio files. 
+To build the samples with cmake run `cmake -B build` or tiki_build use the provided batch files to generate Visual Studio files.
 
 ## TODO
 
-- cmake build scripts
 - multiline text
 - fix: use pool for surface and window(broken pointer on resize)
 - more
