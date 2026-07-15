@@ -206,6 +206,17 @@ size_t ImUiTextLayoutCalculateGlyphCount( const char* text, size_t length )
 	return glyphCount;
 }
 
+ImUiSize ImUiTextLayoutCalculateSize( ImUiContext* imui, ImUiFont* font, const char* text, size_t length )
+{
+	ImUiTextLayout* pLayout = ImUiTextLayoutCreateLength( imui, font, text, length );
+	if( !pLayout )
+	{
+		return ImUiSizeCreateZero();
+	}
+
+	return pLayout->size;
+}
+
 static ImUiTextLayout* ImUiTextLayoutCreateNew( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters, ImUiTextLayout** mapLayout )
 {
 	uintsize glyphCount = ImUiTextLayoutCalculateGlyphCount( parameters->text.data, parameters->text.length );

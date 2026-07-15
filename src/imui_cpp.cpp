@@ -1143,14 +1143,50 @@ namespace imui
 		setLayoutHorizontal( spacing );
 	}
 
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, ImUiId id, float spacing /*= 0.0f */ )
+		: UiWidget( window, id ) 
+	{
+		setLayoutHorizontal( spacing );
+	}
+
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, const char* name, float spacing /*= 0.0f */ )
+		: UiWidget( window, name )
+	{
+		setLayoutHorizontal( spacing );
+	}
+
 	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, float spacing /* = 0.0f */ )
 		: UiWidget( window )
 	{
 		setLayoutVertical( spacing );
 	}
 
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, ImUiId id, float spacing /*= 0.0f */ )
+		: UiWidget( window, id )
+	{
+		setLayoutVertical( spacing );
+	}
+
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, const char* name, float spacing /*= 0.0f */ )
+		: UiWidget( window, name )
+	{
+		setLayoutVertical( spacing );
+	}
+
 	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
 		: UiWidget( window )
+	{
+		setLayoutGrid( columnCount, colSpacing, rowSpacing );
+	}
+
+	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, ImUiId id, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
+		: UiWidget( window, id )
+	{
+		setLayoutGrid( columnCount, colSpacing, rowSpacing );
+	}
+
+	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, const char* name, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
+		: UiWidget( window, name )
 	{
 		setLayoutGrid( columnCount, colSpacing, rowSpacing );
 	}

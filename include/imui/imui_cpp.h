@@ -384,6 +384,8 @@ namespace imui
 	public:
 
 						UiWidgetLayoutHorizontal( UiWindow& window, float spacing = 0.0f );
+						UiWidgetLayoutHorizontal( UiWindow& window, ImUiId id, float spacing = 0.0f );
+						UiWidgetLayoutHorizontal( UiWindow& window, const char* name, float spacing = 0.0f );
 	};
 
 	class UiWidgetLayoutVertical : public UiWidget
@@ -391,6 +393,8 @@ namespace imui
 	public:
 
 						UiWidgetLayoutVertical( UiWindow& window, float spacing = 0.0f );
+						UiWidgetLayoutVertical( UiWindow& window, ImUiId id, float spacing = 0.0f );
+						UiWidgetLayoutVertical( UiWindow& window, const char* name, float spacing = 0.0f );
 	};
 
 	class UiWidgetLayoutGrid : public UiWidget
@@ -398,6 +402,8 @@ namespace imui
 	public:
 
 						UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
+						UiWidgetLayoutGrid( UiWindow& window, ImUiId id, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
+						UiWidgetLayoutGrid( UiWindow& window, const char* name, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 	};
 
 	namespace toolbox

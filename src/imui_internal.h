@@ -135,6 +135,8 @@ struct ImUiLayoutContext
 	ImUiSize				minOuterSize;
 	ImUiSize				childrenStretch;
 	ImUiSize				childrenMaxStretch;
+	ImUiSize				childrenStretchFinal;
+	ImUiSize				childrenStretchMinSize;
 	ImUiSize				childrenMinSize;
 };
 

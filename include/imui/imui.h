@@ -692,6 +692,7 @@ ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* fo
 ImUiTextLayout*					ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length );
 
 size_t							ImUiTextLayoutCalculateGlyphCount( const char* text, size_t length );
+ImUiSize						ImUiTextLayoutCalculateSize( ImUiContext* imui, ImUiFont* font, const char* text, size_t length );
 
 size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
 size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, float scale );

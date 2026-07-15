@@ -54,9 +54,9 @@ To build the samples is current [tiki_build](https://github.com/IreNox/tiki_buil
 
 ## TODO
 
-- fix layout bugs
+- cmake build scripts
 - multiline text
-- use pool for surface and window(broken pointer on resize)
+- fix: use pool for surface and window(broken pointer on resize)
 - more
 
 ## Used Libraries

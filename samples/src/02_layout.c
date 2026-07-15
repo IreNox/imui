@@ -38,7 +38,7 @@ void ImUiLayoutSampleTick( ImUiWindow* window )
 	{
 		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
 		ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 50.0f ) );
-		ImUiWidgetSetStretchOne( hLayout );
+		ImUiWidgetSetStretch( hLayout, 1.0f, 2.0f );
 		ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 50.0f );
 
 		{
@@ -177,7 +177,56 @@ static void ImUiLayoutSampleStretchHorizontal( ImUiWindow* window )
 
 	ImUiWidgetDrawColor( layout, ImUiColorCreateWhite() );
 
-	ImUiLayoutSampleStretchElements( window, ImUiSizeCreate( 0.5f, 1.0f ), ImUiSizeCreate( 2.0f, 2.0f ), ImUiSizeCreate( 1.0f, 1.0f ) );
+	const ImUiSize stretches[] =
+	{
+		{ 0.5f, 1.0f },
+		{ 2.0f, 2.0f },
+		{ 1.0f, 1.0f }
+	};
+
+	const ImUiSize childSizes[] =
+	{
+		{ 100.0f, 20.0f },
+		{ 20.0f, 20.0f },
+		{ 75.0f, 20.0f }
+	};
+
+	const ImUiColor colors[] =
+	{
+		{ 0u, 0u, 0xffu, 0xffu },
+		{ 0xffu, 0u, 0u, 0xffu },
+		{ 0u, 0xffu, 0u, 0xffu }
+	};
+
+	const char* names[] =
+	{
+		"1blue",
+		"2red",
+		"3green"
+	};
+
+	for( size_t i = 0; i < 3u; ++i )
+	{
+		ImUiWidget* widget = ImUiWidgetBeginNamed( window, names[ i ] );
+		ImUiWidgetSetMargin( widget, ImUiBorderCreateAll( 10.0f ) );
+		ImUiWidgetSetStretch( widget, stretches[ i ].width, stretches[ i ].height);
+		ImUiLayoutSampleFocus( widget );
+
+		if( i == 2 )
+		{
+			ImUiWidgetSetAlign( widget, 0.5f, 0.5f );
+		}
+
+		ImUiWidgetDrawColor( widget, colors[ i ] );
+
+		ImUiWidget* childWidget = ImUiWidgetBegin( window );
+		ImUiWidgetSetAlign( childWidget, 0.5f, 0.5f );
+		ImUiWidgetSetFixedSize( childWidget, childSizes[ i ] );
+		ImUiWidgetDrawColor( childWidget, colors[ (i + 1) % 3 ] );
+		ImUiWidgetEnd( childWidget );
+
+		ImUiWidgetEnd( widget );
+	}
 
 	ImUiWidgetEnd( layout );
 }
