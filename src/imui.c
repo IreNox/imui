@@ -1943,6 +1943,10 @@ static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* 
 	while( state )
 	{
 		nextState = state->nextUsageState;
+		if( nextState->destructFunc )
+		{
+			nextState->destructFunc( nextState );
+		}
 		ImUiMemoryFree( allocator, state );
 		state = nextState;
 	}
