@@ -4,75 +4,75 @@
 
 #include "imui_types.h"
 
-typedef struct ImUiInputText
+typedef struct ImuiInputText
 {
-	union ImUiInputTextData
+	union imuiInputTextData
 	{
 		char*						pointer;
 		char						buffer[ sizeof( char* ) ];
 	}								data;
 	size_t							capacity;
 	size_t							length;
-} ImUiInputText;
+} ImuiInputText;
 
-typedef struct ImUiInputData
+typedef struct ImuiInputData
 {
-	ImUiPos							focusDirection;
+	ImuiPos							focusDirection;
 	bool							focusExecute;
 
-	bool							mouseButtons[ ImUiInputMouseButton_MAX ];
-	bool							mouseButtonDoubleClick[ ImUiInputMouseButton_MAX ];
-	ImUiPos							mousePos;
-	ImUiPos							mouseScroll;
+	bool							mouseButtons[ ImuiInputMouseButton_MAX ];
+	bool							mouseButtonDoubleClick[ ImuiInputMouseButton_MAX ];
+	ImuiPos							mousePos;
+	ImuiPos							mouseScroll;
 
-	bool							keys[ ImUiInputKey_MAX ];
+	bool							keys[ ImuiInputKey_MAX ];
 	uint32_t						keyModifiers;
 
-	ImUiInputText					text;
+	ImuiInputText					text;
 
-	ImUiInputShortcut				shortcut;
-} ImUiInputData;
+	ImuiInputShortcut				shortcut;
+} ImuiInputData;
 
-typedef struct ImUiInputState
+typedef struct ImuiInputState
 {
-	ImUiInputState*					nextState;
+	ImuiInputState*					nextState;
 
-	ImUiInputData					current;
-	ImUiInputData					last;
-} ImUiInputState;
+	ImuiInputData					current;
+	ImuiInputData					last;
+} ImuiInputState;
 
-typedef struct ImUiInputStateChunk
+typedef struct ImuiInputStateChunk
 {
-	struct ImUiInputStateChunk*		nextChunk;
-	ImUiInputState					states[ IMUI_DEFAULT_INPUT_STATE_CHUNK_SIZE ];
+	struct ImuiInputStateChunk*		nextChunk;
+	ImuiInputState					states[ IMUI_DEFAULT_INPUT_STATE_CHUNK_SIZE ];
 	uintsize						usedCount;
-} ImUiInputStateChunk;
+} ImuiInputStateChunk;
 
-struct ImUiInput
+struct ImuiInput
 {
-	ImUiAllocator*					allocator;
+	ImuiAllocator*					allocator;
 
-	const ImUiInputShortcutConfig*	shortcuts;
+	const ImuiInputShortcutConfig*	shortcuts;
 	size_t							shortcutCount;
 
-	ImUiInputStateChunk*			firstStateChunk;
+	ImuiInputStateChunk*			firstStateChunk;
 
-	ImUiInputState*					newStates;
-	ImUiInputState*					usedStates;
-	ImUiInputState*					freeStates;
+	ImuiInputState*					newStates;
+	ImuiInputState*					usedStates;
+	ImuiInputState*					freeStates;
 
-	ImUiInputState*					pushState;
+	ImuiInputState*					pushState;
 
-	ImUiInputText					copyText;
-	ImUiInputText					pasteText;
+	ImuiInputText					copyText;
+	ImuiInputText					pasteText;
 
-	ImUiInputMouseCursor			mouseCursor;
+	ImuiInputMouseCursor			mouseCursor;
 };
 
-bool								ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiInputShortcutConfig* shortcuts, size_t shortcutCount );
-void								ImUiInputDestruct( ImUiInput* input );
+bool								imuiInputConstruct( ImuiInput* input, ImuiAllocator* allocator, const ImuiInputShortcutConfig* shortcuts, size_t shortcutCount );
+void								imuiInputDestruct( ImuiInput* input );
 
-void								ImUiInputEndFrame( ImUiInput* input );
+void								imuiInputEndFrame( ImuiInput* input );
 
-bool								ImUiInputBeginState( ImUiInput* input, const ImUiInputState* previousState );
-const ImUiInputState*				ImUiInputEndState( ImUiInput* input );
+bool								imuiInputBeginState( ImuiInput* input, const ImuiInputState* previousState );
+const ImuiInputState*				imuiInputEndState( ImuiInput* input );

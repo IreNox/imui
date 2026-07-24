@@ -8,21 +8,21 @@
 #include <stdio.h>
 #include <math.h>
 
-typedef struct ImUiHelloWorldSampleContext
+typedef struct ImuiHelloWorldSampleContext
 {
-	ImUiFont*	font;
-	ImUiImage	fontTexture;
-} ImUiHelloWorldSampleContext;
+	ImuiFont*	font;
+	ImuiImage	fontTexture;
+} ImuiHelloWorldSampleContext;
 
-static ImUiHelloWorldSampleContext s_helloWorldContext = { NULL };
+static ImuiHelloWorldSampleContext s_helloWorldContext = { NULL };
 
-void ImUiHelloWorldSampleTick( ImUiWindow* window )
+void imuiHelloWorldSampleTick( ImuiWindow* window )
 {
-	ImUiContext* imui = ImUiWindowGetContext( window );
+	ImuiContext* imui = imuiWindowGetContext( window );
 
-	ImUiTextLayout* textLayout = ImUiTextLayoutCreate( imui, s_helloWorldContext.font, u8"ΑΒΓΔ Hello World! ΦΧΨΩ" );
+	ImuiTextLayout* textLayout = imuiTextLayoutCreate( imui, s_helloWorldContext.font, u8"ΑΒΓΔ Hello World! ΦΧΨΩ" );
 
-	const double time	= ImUiWindowGetTime( window );
+	const double time	= imuiWindowGetTime( window );
 	const float timeSin = (float)sin( time / -2.0 ) * 0.5f + 0.5f;
 	const float timeCos = (float)cos( time / -2.0 ) * 0.5f + 0.5f;
 
@@ -35,64 +35,64 @@ void ImUiHelloWorldSampleTick( ImUiWindow* window )
 	const float timeG		= (timeCos * 0.5f) + 0.5f;
 	const float timeB		= ((2.0f - (timeSin + timeCos)) * 0.25f) + 0.5f;
 
-	ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretchOne( vLayout );
-	ImUiWidgetSetLayoutVertical( vLayout );
+	ImuiWidget* vLayout = imuiWidgetBeginNamed( window, "vMain" );
+	imuiWidgetSetStretchOne( vLayout );
+	imuiWidgetSetLayoutVertical( vLayout );
 
 	{
-		ImUiWidget* vTop = ImUiWidgetBeginNamed( window, "vTop" );
-		ImUiWidgetSetStretch( vTop, 1.0f, timeTop );
-		ImUiWidgetEnd( vTop );
+		ImuiWidget* vTop = imuiWidgetBeginNamed( window, "vTop" );
+		imuiWidgetSetStretch( vTop, 1.0f, timeTop );
+		imuiWidgetEnd( vTop );
 	}
 
 	{
-		ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
-		ImUiWidgetSetHStretch( hLayout, 1.0f );
-		ImUiWidgetSetLayoutHorizontal( hLayout );
+		ImuiWidget* hLayout = imuiWidgetBeginNamed( window, "hMain" );
+		imuiWidgetSetHStretch( hLayout, 1.0f );
+		imuiWidgetSetLayoutHorizontal( hLayout );
 
 		{
-			ImUiWidget* hLeft = ImUiWidgetBeginNamed( window, "hLeft" );
-			ImUiWidgetSetStretch( hLeft, timeLeft, 1.0f );
-			ImUiWidgetEnd( hLeft );
+			ImuiWidget* hLeft = imuiWidgetBeginNamed( window, "hLeft" );
+			imuiWidgetSetStretch( hLeft, timeLeft, 1.0f );
+			imuiWidgetEnd( hLeft );
 
-			ImUiWidget* hCenter = ImUiWidgetBeginNamed( window, "hCenter" );
-			ImUiWidgetSetFixedSize( hCenter, ImUiSizeExpandBorder( ImUiTextLayoutGetSize( textLayout ), ImUiBorderCreateAll( 50.0f ) ) );
+			ImuiWidget* hCenter = imuiWidgetBeginNamed( window, "hCenter" );
+			imuiWidgetSetFixedSize( hCenter, imuiSizeExpandBorder( imuiTextLayoutGetSize( textLayout ), imuiBorderCreateAll( 50.0f ) ) );
 
-			ImUiWidgetDrawColor( hCenter, ImUiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
+			imuiWidgetDrawColor( hCenter, imuiColorCreateFloat( timeR, timeG, timeB, 1.0f ) );
 
-			ImUiWidget* text = ImUiWidgetBeginNamed( window, "centerText" );
-			ImUiWidgetSetFixedSize( text, ImUiTextLayoutGetSize( textLayout ) );
-			ImUiWidgetSetAlign( text, timeLeft, timeTop );
+			ImuiWidget* text = imuiWidgetBeginNamed( window, "centerText" );
+			imuiWidgetSetFixedSize( text, imuiTextLayoutGetSize( textLayout ) );
+			imuiWidgetSetAlign( text, timeLeft, timeTop );
 
-			ImUiWidgetDrawText( text, textLayout, ImUiColorCreateWhite() );
+			imuiWidgetDrawText( text, textLayout, imuiColorCreateWhite() );
 
-			ImUiWidgetEnd( text );
+			imuiWidgetEnd( text );
 
-			ImUiWidgetEnd( hCenter );
+			imuiWidgetEnd( hCenter );
 
-			ImUiWidget* hRight = ImUiWidgetBeginNamed( window, "hRight" );
-			ImUiWidgetSetStretch( hRight, timeRight, 1.0f );
-			ImUiWidgetEnd( hRight );
+			ImuiWidget* hRight = imuiWidgetBeginNamed( window, "hRight" );
+			imuiWidgetSetStretch( hRight, timeRight, 1.0f );
+			imuiWidgetEnd( hRight );
 		}
 
-		ImUiWidgetEnd( hLayout );
+		imuiWidgetEnd( hLayout );
 	}
 
 	{
-		ImUiWidget* vBottom = ImUiWidgetBeginNamed( window, "vBottom" );
-		ImUiWidgetSetStretch( vBottom, 1.0f, timeBottom );
-		ImUiWidgetEnd( vBottom );
+		ImuiWidget* vBottom = imuiWidgetBeginNamed( window, "vBottom" );
+		imuiWidgetSetStretch( vBottom, 1.0f, timeBottom );
+		imuiWidgetEnd( vBottom );
 	}
 
-	ImUiWidgetEnd( vLayout );
+	imuiWidgetEnd( vLayout );
 }
 
-bool ImUiHelloWorldSampleInitialize( ImUiContext* imui )
+bool imuiHelloWorldSampleInitialize( ImuiContext* imui )
 {
-	return ImUiFrameworkFontCreate( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture, "c:/windows/fonts/arial.ttf", 32.0f );
+	return imuiFrameworkFontCreate( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture, "c:/windows/fonts/arial.ttf", 32.0f );
 }
 
-void ImUiHelloWorldSampleShutdown( ImUiContext* imui )
+void imuiHelloWorldSampleShutdown( ImuiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture );
+	imuiFrameworkFontDestroy( &s_helloWorldContext.font, &s_helloWorldContext.fontTexture );
 }

@@ -1,53 +1,53 @@
 #include "00_samples.h"
 
-typedef bool (*ImUiSampleInitialize)( ImUiContext* imui );
-typedef void (*ImUiSampleShutdown)( ImUiContext* imui );
-typedef void (*ImUiSampleTick)( ImUiWindow* window );
+typedef bool (*imuiSampleInitialize)( ImuiContext* imui );
+typedef void (*imuiSampleShutdown)( ImuiContext* imui );
+typedef void (*imuiSampleTick)( ImuiWindow* window );
 
-typedef struct ImUiSample
+typedef struct ImuiSample
 {
-	ImUiSampleInitialize	initialize;
-	ImUiSampleShutdown		shutdown;
-	ImUiSampleTick			tick;
-} ImUiSample;
+	imuiSampleInitialize	initialize;
+	imuiSampleShutdown		shutdown;
+	imuiSampleTick			tick;
+} ImuiSample;
 
-static const ImUiSample s_samples[] =
+static const ImuiSample s_samples[] =
 {
-	{ ImUiHelloWorldSampleInitialize, ImUiHelloWorldSampleShutdown, ImUiHelloWorldSampleTick },
-	{ ImUiLayoutSampleInitialize, ImUiLayoutSampleShutdown, ImUiLayoutSampleTick },
-	{ ImUiInputSampleInitialize, ImUiInputSampleShutdown, ImUiInputSampleTick },
-	{ ImUiToolboxSampleInitialize, ImUiToolboxSampleShutdown, ImUiToolboxSampleTick },
-	{ ImUiToolboxCppSampleInitialize, ImUiToolboxCppSampleShutdown, ImUiToolboxCppSampleTick }
+	{ imuiHelloWorldSampleInitialize, imuiHelloWorldSampleShutdown, imuiHelloWorldSampleTick },
+	{ imuiLayoutSampleInitialize, imuiLayoutSampleShutdown, imuiLayoutSampleTick },
+	{ imuiInputSampleInitialize, imuiInputSampleShutdown, imuiInputSampleTick },
+	{ imuiToolboxSampleInitialize, imuiToolboxSampleShutdown, imuiToolboxSampleTick },
+	{ imuiToolboxCppSampleInitialize, imuiToolboxCppSampleShutdown, imuiToolboxCppSampleTick }
 };
 
 #define IMUI_SAMPLES_DEFAULT_INDEX 3
 
-static const ImUiSample* s_currentSample = &s_samples[ IMUI_SAMPLES_DEFAULT_INDEX ];
+static const ImuiSample* s_currentSample = &s_samples[ IMUI_SAMPLES_DEFAULT_INDEX ];
 
-bool ImUiFrameworkInitialize( ImUiContext* imui )
+bool imuiFrameworkInitialize( ImuiContext* imui )
 {
 	s_currentSample->initialize( imui );
 	return true;
 }
 
-void ImUiFrameworkShutdown( ImUiContext* imui )
+void imuiFrameworkShutdown( ImuiContext* imui )
 {
 	s_currentSample->shutdown( imui );
 }
 
-void ImUiFrameworkTick( ImUiSurface* surface )
+void imuiFrameworkTick( ImuiSurface* surface )
 {
-	ImUiContext* imui = ImUiSurfaceGetContext( surface );
+	ImuiContext* imui = imuiSurfaceGetContext( surface );
 
-	for( int i = ImUiInputKey_1; i < ImUiInputKey_1 + (sizeof( s_samples ) / sizeof( *s_samples )); ++i )
+	for( int i = ImuiInputKey_1; i < ImuiInputKey_1 + (sizeof( s_samples ) / sizeof( *s_samples )); ++i )
 	{
-		const ImUiSample* sample = &s_samples[ i - ImUiInputKey_1 ];
+		const ImuiSample* sample = &s_samples[ i - ImuiInputKey_1 ];
 		if( sample == s_currentSample )
 		{
 			continue;
 		}
 
-		if( !ImUiInputHasKeyPressed( ImUiSurfaceGetInput( surface ), (ImUiInputKey)i ) )
+		if( !imuiInputHasKeyPressed( imuiSurfaceGetInput( surface ), (ImuiInputKey)i ) )
 		{
 			continue;
 		}
@@ -58,10 +58,10 @@ void ImUiFrameworkTick( ImUiSurface* surface )
 		break;
 	}
 
-	const ImUiSize surfaceSize = ImUiSurfaceGetSize( surface );
-	ImUiWindow* window = ImUiWindowBegin( surface, "main", ImUiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
+	const ImuiSize surfaceSize = imuiSurfaceGetSize( surface );
+	ImuiWindow* window = imuiWindowBegin( surface, "main", imuiRectCreate( 0.0f, 0.0f, surfaceSize.width, surfaceSize.height ), 1 );
 
 	s_currentSample->tick( window );
 
-	ImUiWindowEnd( window );
+	imuiWindowEnd( window );
 }

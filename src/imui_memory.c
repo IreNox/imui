@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator )
+void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator )
 {
 	*targetAllocator = *sourceAllocator;
 
 	if( targetAllocator->mallocFunc == NULL ||
 		targetAllocator->freeFunc == NULL )
 	{
-		targetAllocator->mallocFunc		= ImUiMemoryDefaultAlloc;
-		targetAllocator->reallocFunc	= ImUiMemoryDefaultRealloc;
-		targetAllocator->freeFunc		= ImUiMemoryDefaultFree;
+		targetAllocator->mallocFunc		= imuiMemoryDefaultAlloc;
+		targetAllocator->reallocFunc	= imuiMemoryDefaultRealloc;
+		targetAllocator->freeFunc		= imuiMemoryDefaultFree;
 		targetAllocator->userData		= NULL;
 		targetAllocator->internalData	= NULL;
 	}
@@ -22,25 +22,25 @@ void ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAlloc
 	}
 }
 
-void ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator )
+void imuiMemoryAllocatorFinalize( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator )
 {
 	*targetAllocator = *sourceAllocator;
 
 	if( targetAllocator->reallocFunc == NULL )
 	{
-		targetAllocator->reallocFunc	= ImUiMemoryPseudoRealloc;
+		targetAllocator->reallocFunc	= imuiMemoryPseudoRealloc;
 		targetAllocator->internalData	= targetAllocator;
 	}
 }
 
-void* ImUiMemoryDefaultAlloc( uintsize size, void* userData )
+void* imuiMemoryDefaultAlloc( uintsize size, void* userData )
 {
 	(void)userData;
 
 	return malloc( size );
 }
 
-void* ImUiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
+void* imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
 	(void)oldSize;
 	(void)userData;
@@ -48,39 +48,39 @@ void* ImUiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newS
 	return realloc( oldMemory, newSize );
 }
 
-void* ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
+void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
 	(void)userData;
 
-	ImUiAllocator* allocator = (ImUiAllocator*)userData;
-	void* newMemory = ImUiMemoryAlloc( allocator, newSize );
+	ImuiAllocator* allocator = (ImuiAllocator*)userData;
+	void* newMemory = imuiMemoryAlloc( allocator, newSize );
 	if( newMemory == NULL )
 	{
-		ImUiMemoryFree( allocator, oldMemory );
+		imuiMemoryFree( allocator, oldMemory );
 		return NULL;
 	}
 
 	memcpy( newMemory, oldMemory, oldSize < newSize ? oldSize : newSize );
-	ImUiMemoryFree( allocator, oldMemory );
+	imuiMemoryFree( allocator, oldMemory );
 
 	return newMemory;
 }
 
-void ImUiMemoryDefaultFree( void* memory, void* userData )
+void imuiMemoryDefaultFree( void* memory, void* userData )
 {
 	(void)userData;
 
 	free( memory );
 }
 
-void* ImUiMemoryAlloc( ImUiAllocator* allocator, uintsize size )
+void* imuiMemoryAlloc( ImuiAllocator* allocator, uintsize size )
 {
 	return allocator->mallocFunc( size, allocator->userData );
 }
 
-void* ImUiMemoryAllocZero( ImUiAllocator* allocator, uintsize size )
+void* imuiMemoryAllocZero( ImuiAllocator* allocator, uintsize size )
 {
-	void* memory = ImUiMemoryAlloc( allocator, size );
+	void* memory = imuiMemoryAlloc( allocator, size );
 	if( memory == NULL )
 	{
 		return NULL;
@@ -90,17 +90,17 @@ void* ImUiMemoryAllocZero( ImUiAllocator* allocator, uintsize size )
 	return memory;
 }
 
-void* ImUiMemoryRealloc( ImUiAllocator* allocator, void* oldMemory, uintsize oldSize, uintsize newSize )
+void* imuiMemoryRealloc( ImuiAllocator* allocator, void* oldMemory, uintsize oldSize, uintsize newSize )
 {
 	return allocator->reallocFunc( oldMemory, oldSize, newSize, allocator->internalData );
 }
 
-void ImUiMemoryFree( ImUiAllocator* allocator, const void* memory )
+void imuiMemoryFree( ImuiAllocator* allocator, const void* memory )
 {
 	allocator->freeFunc( (void*)memory, allocator->userData );
 }
 
-bool ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero )
+bool imuiMemoryArrayCheckCapacity( ImuiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero )
 {
 	if( *capacity >= requiredCapacity )
 	{
@@ -115,7 +115,7 @@ bool ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uint
 
 	const uintsize oldSize = *capacity * elementSize;
 	const uintsize newSize = nextCapacity * elementSize;
-	void* newMemory = ImUiMemoryRealloc( allocator, *memory, oldSize, newSize );
+	void* newMemory = imuiMemoryRealloc( allocator, *memory, oldSize, newSize );
 	if( !newMemory )
 	{
 		return false;
@@ -132,7 +132,7 @@ bool ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uint
 	return true;
 }
 
-void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, uintsize elementIndex, uintsize elementSize, bool zero )
+void imuiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, uintsize elementIndex, uintsize elementSize, bool zero )
 {
 	IMUI_ASSERT( elementIndex < *arrayCount );
 
@@ -158,7 +158,7 @@ void ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, u
 	(*arrayCount)--;
 }
 
-void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize )
+void imuiMemoryArrayShrink( ImuiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize )
 {
 	uintsize shrinkCapacity = *capacity >> 1;
 	if( shrinkCapacity > 0 &&
@@ -173,7 +173,7 @@ void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* c
 		return;
 	}
 
-	*memory = ImUiMemoryRealloc( allocator, *memory, *capacity * elementSize, shrinkCapacity * elementSize );
+	*memory = imuiMemoryRealloc( allocator, *memory, *capacity * elementSize, shrinkCapacity * elementSize );
 
 	if( !*memory )
 	{
@@ -183,9 +183,9 @@ void ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* c
 	*capacity = shrinkCapacity;
 }
 
-void ImUiMemoryArrayFree( ImUiAllocator* allocator, void** memory, uintsize* capacity )
+void imuiMemoryArrayFree( ImuiAllocator* allocator, void** memory, uintsize* capacity )
 {
-	ImUiMemoryFree( allocator, *memory );
+	imuiMemoryFree( allocator, *memory );
 	*memory		= NULL;
 	*capacity	= 0u;
 }

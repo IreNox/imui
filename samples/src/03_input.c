@@ -5,66 +5,66 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-static void ImUiInputSampleElement( ImUiWindow* window );
+static void imuiInputSampleElement( ImuiWindow* window );
 
-void ImUiInputSampleTick( ImUiWindow* window )
+void imuiInputSampleTick( ImuiWindow* window )
 {
-	ImUiContext* imui = ImUiWindowGetContext( window );
+	ImuiContext* imui = imuiWindowGetContext( window );
 
-	ImUiWidget* cLayout = ImUiWidgetBeginNamed( window, "hMain" );
-	ImUiWidgetSetStretch( cLayout, 0.5f, 0.25f );
-	ImUiWidgetSetAlign( cLayout, 0.5f, 0.5f );
+	ImuiWidget* cLayout = imuiWidgetBeginNamed( window, "hMain" );
+	imuiWidgetSetStretch( cLayout, 0.5f, 0.25f );
+	imuiWidgetSetAlign( cLayout, 0.5f, 0.5f );
 
-	ImUiWidgetDrawColor( cLayout, ImUiColorCreateWhite() );
+	imuiWidgetDrawColor( cLayout, imuiColorCreateWhite() );
 
-	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "vMain" );
-	ImUiWidgetSetStretchOne( hLayout );
-	ImUiWidgetSetPadding( hLayout, ImUiBorderCreateAll( 20.0f ) );
-	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );
+	ImuiWidget* hLayout = imuiWidgetBeginNamed( window, "vMain" );
+	imuiWidgetSetStretchOne( hLayout );
+	imuiWidgetSetPadding( hLayout, imuiBorderCreateAll( 20.0f ) );
+	imuiWidgetSetLayoutHorizontalSpacing( hLayout, 20.0f );
 
 	for( size_t i = 0u; i < 5u; ++i )
 	{
-		ImUiInputSampleElement( window );
+		imuiInputSampleElement( window );
 	}
 
-	ImUiWidgetEnd( hLayout );
+	imuiWidgetEnd( hLayout );
 
-	ImUiWidgetEnd( cLayout );
+	imuiWidgetEnd( cLayout );
 }
 
-static void ImUiInputSampleElement( ImUiWindow* window )
+static void imuiInputSampleElement( ImuiWindow* window )
 {
-	ImUiWidget* widget = ImUiWidgetBegin( window );
-	ImUiWidgetSetStretchOne( widget );
+	ImuiWidget* widget = imuiWidgetBegin( window );
+	imuiWidgetSetStretchOne( widget );
 
-	ImUiColor color = ImUiColorCreateFloat( 0.1f, 0.5f, 0.8f, 1.0f );
+	ImuiColor color = imuiColorCreateFloat( 0.1f, 0.5f, 0.8f, 1.0f );
 
-	ImUiWidgetInputState inputState;
-	ImUiWidgetGetInputState( widget, &inputState );
+	ImuiWidgetInputState inputState;
+	imuiWidgetGetInputState( widget, &inputState );
 
 	if( inputState.hasMouseReleased )
 	{
-		color = ImUiColorCreateFloat( 1.0f, 0.3f, 0.2f, 1.0f );
+		color = imuiColorCreateFloat( 1.0f, 0.3f, 0.2f, 1.0f );
 	}
 	else if( inputState.isMouseDown )
 	{
-		color = ImUiColorCreateFloat( 0.0f, 0.3f, 0.7f, 1.0f );
+		color = imuiColorCreateFloat( 0.0f, 0.3f, 0.7f, 1.0f );
 	}
 	else if( inputState.isMouseOver )
 	{
-		color = ImUiColorCreateFloat( 0.5f, 0.9f, 1.0f, 1.0f );
+		color = imuiColorCreateFloat( 0.5f, 0.9f, 1.0f, 1.0f );
 	}
 
-	ImUiWidgetDrawColor( widget, color );
+	imuiWidgetDrawColor( widget, color );
 
-	ImUiWidgetEnd( widget );
+	imuiWidgetEnd( widget );
 }
 
-bool ImUiInputSampleInitialize( ImUiContext* imui )
+bool imuiInputSampleInitialize( ImuiContext* imui )
 {
 	return true;
 }
 
-void ImUiInputSampleShutdown( ImUiContext* imui )
+void imuiInputSampleShutdown( ImuiContext* imui )
 {
 }

@@ -28,19 +28,19 @@ namespace imui
 		height	= _height;
 	}
 
-	UiSize::UiSize( const ImUiSize& value )
+	UiSize::UiSize( const ImuiSize& value )
 	{
 		width	= value.width;
 		height	= value.height;
 	}
 
-	UiSize::UiSize( const ImUiSkin& value )
+	UiSize::UiSize( const ImuiSkin& value )
 	{
 		width	= (float)value.width;
 		height	= (float)value.height;
 	}
 
-	UiSize::UiSize( const ImUiImage& value )
+	UiSize::UiSize( const ImuiImage& value )
 	{
 		width	= (float)value.width;
 		height	= (float)value.height;
@@ -178,7 +178,7 @@ namespace imui
 		right	= _right;
 	}
 
-	UiBorder::UiBorder( const ImUiBorder& value )
+	UiBorder::UiBorder( const ImuiBorder& value )
 	{
 		top		= value.top;
 		left	= value.left;
@@ -211,13 +211,13 @@ namespace imui
 		y = _y;
 	}
 
-	UiPos::UiPos( const ImUiPos& value )
+	UiPos::UiPos( const ImuiPos& value )
 	{
 		x = value.x;
 		y = value.y;
 	}
 
-	UiPos::UiPos( const ImUiSize& value )
+	UiPos::UiPos( const ImuiSize& value )
 	{
 		x = value.width;
 		y = value.height;
@@ -299,25 +299,25 @@ namespace imui
 		size	= UiSize( width, height );
 	}
 
-	UiRect::UiRect( const ImUiRect& value )
+	UiRect::UiRect( const ImuiRect& value )
 	{
 		pos		= UiPos( value.pos );
 		size	= UiSize( value.size );
 	}
 
-	UiRect UiRect::shrinkBorder( const ImUiBorder& border ) const
+	UiRect UiRect::shrinkBorder( const ImuiBorder& border ) const
 	{
-		return (UiRect)ImUiRectShrinkBorder( *this, border );
+		return (UiRect)imuiRectShrinkBorder( *this, border );
 	}
 
-	bool UiRect::includesPos( ImUiPos _pos ) const
+	bool UiRect::includesPos( ImuiPos _pos ) const
 	{
-		return ImUiRectIncludesPos( *this, _pos );
+		return imuiRectIncludesPos( *this, _pos );
 	}
 
-	bool UiRect::intersectsRect( const ImUiRect& rect2 ) const
+	bool UiRect::intersectsRect( const ImuiRect& rect2 ) const
 	{
-		return ImUiRectIntersectsRect( *this, rect2 );
+		return imuiRectIntersectsRect( *this, rect2 );
 	}
 
 	float UiRect::getRight() const
@@ -355,58 +355,58 @@ namespace imui
 		return (const UiSize&)size;
 	}
 
-	UiColor UiColor::White				= UiColor( ImUiColorCreateWhite() );
-	UiColor UiColor::Black				= UiColor( ImUiColorCreateBlack() );
+	UiColor UiColor::White				= UiColor( imuiColorCreateWhite() );
+	UiColor UiColor::Black				= UiColor( imuiColorCreateBlack() );
 	UiColor UiColor::TransparentBlack	= UiColor();
 
 	UiColor::UiColor()
-		: ImUiColor( ImUiColorCreateTransparentBlack() )
+		: ImuiColor( imuiColorCreateTransparentBlack() )
 	{
 	}
 
 	UiColor::UiColor( uint8_t _red, uint8_t _green, uint8_t _blue )
-		: ImUiColor( ImUiColorCreate( _red, _green, _blue, 0xffu ) )
+		: ImuiColor( imuiColorCreate( _red, _green, _blue, 0xffu ) )
 	{
 	}
 
 	UiColor::UiColor( uint8_t _red, uint8_t _green, uint8_t _blue, uint8_t _alpha )
-		: ImUiColor( ImUiColorCreate( _red, _green, _blue, _alpha ) )
+		: ImuiColor( imuiColorCreate( _red, _green, _blue, _alpha ) )
 	{
 	}
 
 	UiColor::UiColor( float _red, float _green, float _blue )
-		: ImUiColor( ImUiColorCreateFloat( _red, _green, _blue, 1.0f ) )
+		: ImuiColor( imuiColorCreateFloat( _red, _green, _blue, 1.0f ) )
 	{
 	}
 
 	UiColor::UiColor( float _red, float _green, float _blue, float _alpha )
-		: ImUiColor( ImUiColorCreateFloat( _red, _green, _blue, _alpha ) )
+		: ImuiColor( imuiColorCreateFloat( _red, _green, _blue, _alpha ) )
 	{
 	}
 
-	UiColor::UiColor( ImUiColor value )
-		: ImUiColor( value )
+	UiColor::UiColor( ImuiColor value )
+		: ImuiColor( value )
 	{
 	}
 
 	UiColor UiColor::createWhite( uint8_t _alpha )
 	{
-		return UiColor( ImUiColorCreateWhiteA( _alpha ) );
+		return UiColor( imuiColorCreateWhiteA( _alpha ) );
 	}
 
 	UiColor UiColor::createBlack( uint8_t _alpha )
 	{
-		return UiColor( ImUiColorCreateBlackA( _alpha ) );
+		return UiColor( imuiColorCreateBlackA( _alpha ) );
 	}
 
 	UiColor UiColor::createGray( uint8_t gray )
 	{
-		return UiColor( ImUiColorCreateGray( gray ) );
+		return UiColor( imuiColorCreateGray( gray ) );
 	}
 
 	UiColor UiColor::createGray( uint8_t gray, uint8_t _alpha )
 	{
-		return UiColor( ImUiColorCreateGrayA( gray, _alpha ) );
+		return UiColor( imuiColorCreateGrayA( gray, _alpha ) );
 	}
 
 	UiTexCoord UiTexCoord::ZeroToOne = UiTexCoord( 0.0f, 0.0f, 1.0f, 1.0f );
@@ -430,7 +430,7 @@ namespace imui
 	{
 	}
 
-	UiContext::UiContext( ImUiContext* context )
+	UiContext::UiContext( ImuiContext* context )
 		: m_owner( false )
 		, m_context( context )
 	{
@@ -439,14 +439,14 @@ namespace imui
 	UiContext::UiContext( const UiContextParameters& parameters )
 	{
 		m_owner = true;
-		m_context = ImUiCreate( &parameters );
+		m_context = imuiCreate( &parameters );
 	}
 
 	UiContext::~UiContext()
 	{
 		if( m_owner && m_context )
 		{
-			ImUiDestroy( m_context );
+			imuiDestroy( m_context );
 			m_context = nullptr;
 			m_owner = false;
 		}
@@ -457,25 +457,25 @@ namespace imui
 		return m_context != nullptr;
 	}
 
-	ImUiContext* UiContext::getInternal() const
+	ImuiContext* UiContext::getInternal() const
 	{
 		return m_context;
 	}
 
-	UiInput& UiContext::beginInput( const ImUiInputState* previousInput )
+	UiInput& UiContext::beginInput( const ImuiInputState* previousInput )
 	{
-		ImUiInput* input = ImUiInputBegin( m_context, previousInput );
+		ImuiInput* input = imuiInputBegin( m_context, previousInput );
 		return *(UiInput*)input;
 	}
 
 	void UiContext::endInput()
 	{
-		ImUiInputEnd( m_context );
+		imuiInputEnd( m_context );
 	}
 
-	void UiContext::setMouseCursor( ImUiInputMouseCursor cursor )
+	void UiContext::setMouseCursor( ImuiInputMouseCursor cursor )
 	{
-		ImUiInputSetMouseCursor( m_context, cursor );
+		imuiInputSetMouseCursor( m_context, cursor );
 	}
 
 	UiFrame::UiFrame()
@@ -491,77 +491,77 @@ namespace imui
 		beginFrame( context, timeInSeconds );
 	}
 
-	UiInputState::UiInputState( const ImUiInputState* input )
+	UiInputState::UiInputState( const ImuiInputState* input )
 		: m_state( input )
 	{
 	}
 
 	uint32_t UiInputState::getKeyModifiers() const
 	{
-		return ImUiInputGetKeyModifiers( m_state );
+		return imuiInputGetKeyModifiers( m_state );
 	}
 
-	bool UiInputState::isKeyDown( ImUiInputKey key ) const
+	bool UiInputState::isKeyDown( ImuiInputKey key ) const
 	{
-		return ImUiInputIsKeyDown( m_state, key );
+		return imuiInputIsKeyDown( m_state, key );
 	}
 
-	bool UiInputState::isKeyUp( ImUiInputKey key ) const
+	bool UiInputState::isKeyUp( ImuiInputKey key ) const
 	{
-		return ImUiInputIsKeyUp( m_state, key );
+		return imuiInputIsKeyUp( m_state, key );
 	}
 
-	bool UiInputState::hasKeyPressed( ImUiInputKey key ) const
+	bool UiInputState::hasKeyPressed( ImuiInputKey key ) const
 	{
-		return ImUiInputHasKeyPressed( m_state, key );
+		return imuiInputHasKeyPressed( m_state, key );
 	}
 
-	bool UiInputState::hasKeyReleased( ImUiInputKey key ) const
+	bool UiInputState::hasKeyReleased( ImuiInputKey key ) const
 	{
-		return ImUiInputHasKeyReleased( m_state, key );
+		return imuiInputHasKeyReleased( m_state, key );
 	}
 
 	const char* UiInputState::getText() const
 	{
-		return ImUiInputGetText( m_state );
+		return imuiInputGetText( m_state );
 	}
 
 	UiPos UiInputState::getMousePos() const
 	{
-		return (UiPos)ImUiInputGetMousePos( m_state );
+		return (UiPos)imuiInputGetMousePos( m_state );
 	}
 
 	bool UiInputState::isMouseInRect( UiRect rect ) const
 	{
-		return ImUiInputIsMouseInRect( m_state, rect );
+		return imuiInputIsMouseInRect( m_state, rect );
 	}
 
-	bool UiInputState::isMouseButtonDown( ImUiInputMouseButton button ) const
+	bool UiInputState::isMouseButtonDown( ImuiInputMouseButton button ) const
 	{
-		return ImUiInputIsMouseButtonDown( m_state, button );
+		return imuiInputIsMouseButtonDown( m_state, button );
 	}
 
-	bool UiInputState::isMouseButtonUp( ImUiInputMouseButton button ) const
+	bool UiInputState::isMouseButtonUp( ImuiInputMouseButton button ) const
 	{
-		return ImUiInputIsMouseButtonUp( m_state, button );
+		return imuiInputIsMouseButtonUp( m_state, button );
 	}
 
-	bool UiInputState::hasMouseButtonPressed( ImUiInputMouseButton button ) const
+	bool UiInputState::hasMouseButtonPressed( ImuiInputMouseButton button ) const
 	{
-		return ImUiInputHasMouseButtonReleased( m_state, button );
+		return imuiInputHasMouseButtonReleased( m_state, button );
 	}
 
-	bool UiInputState::hasMouseButtonReleased( ImUiInputMouseButton button ) const
+	bool UiInputState::hasMouseButtonReleased( ImuiInputMouseButton button ) const
 	{
-		return ImUiInputHasMouseButtonReleased( m_state, button );
+		return imuiInputHasMouseButtonReleased( m_state, button );
 	}
 
 	UiPos UiInputState::getMouseScrollDelta() const
 	{
-		return ImUiInputGetMouseScrollDelta( m_state );
+		return imuiInputGetMouseScrollDelta( m_state );
 	}
 
-	UiFrame::UiFrame( ImUiFrame* frame )
+	UiFrame::UiFrame( ImuiFrame* frame )
 		: m_owner( false )
 		, m_frame( frame )
 	{
@@ -574,7 +574,7 @@ namespace imui
 
 	void UiFrame::beginFrame( UiContext& context, float timeInSeconds )
 	{
-		m_frame = ImUiBegin( context.getInternal(), timeInSeconds );
+		m_frame = imuiBegin( context.getInternal(), timeInSeconds );
 		m_owner = true;
 	}
 
@@ -582,7 +582,7 @@ namespace imui
 	{
 		if( m_owner && m_frame )
 		{
-			ImUiEnd( m_frame );
+			imuiEnd( m_frame );
 			m_frame = nullptr;
 			m_owner = false;
 		}
@@ -593,7 +593,7 @@ namespace imui
 		return m_frame != nullptr;
 	}
 
-	ImUiFrame* UiFrame::getInternal() const
+	ImuiFrame* UiFrame::getInternal() const
 	{
 		return m_frame;
 	}
@@ -604,18 +604,18 @@ namespace imui
 	{
 	}
 
-	UiSurface::UiSurface( ImUiSurface* surface )
+	UiSurface::UiSurface( ImuiSurface* surface )
 		: m_owner( false )
 		, m_surface( surface )
 	{
 	}
 
-	UiSurface::UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
+	UiSurface::UiSurface( ImuiFrame* frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale )
 	{
 		beginSurface( frame, name, size, input, dpiScale );
 	}
 
-	UiSurface::UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
+	UiSurface::UiSurface( UiFrame& frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale )
 	{
 		beginSurface( frame, name, size, input, dpiScale );
 	}
@@ -625,13 +625,13 @@ namespace imui
 		endSurface();
 	}
 
-	void UiSurface::beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
+	void UiSurface::beginSurface( ImuiFrame* frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale )
 	{
-		m_surface = ImUiSurfaceBegin( frame, name, size, input, dpiScale );
+		m_surface = imuiSurfaceBegin( frame, name, size, input, dpiScale );
 		m_owner = true;
 	}
 
-	void UiSurface::beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale )
+	void UiSurface::beginSurface( UiFrame& frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale )
 	{
 		beginSurface( frame.getInternal(), name, size, input, dpiScale );
 	}
@@ -640,7 +640,7 @@ namespace imui
 	{
 		if( m_owner && m_surface )
 		{
-			ImUiSurfaceEnd( m_surface );
+			imuiSurfaceEnd( m_surface );
 			m_surface = nullptr;
 			m_owner = false;
 		}
@@ -651,19 +651,19 @@ namespace imui
 		return m_surface != nullptr;
 	}
 
-	ImUiSurface* UiSurface::getInternal() const
+	ImuiSurface* UiSurface::getInternal() const
 	{
 		return m_surface;
 	}
 
 	UiContext UiSurface::getContext() const
 	{
-		return UiContext( ImUiSurfaceGetContext( m_surface ) );
+		return UiContext( imuiSurfaceGetContext( m_surface ) );
 	}
 
 	double UiSurface::getTime() const
 	{
-		return ImUiSurfaceGetTime( m_surface );
+		return imuiSurfaceGetTime( m_surface );
 	}
 
 	UiRect UiSurface::getRect() const
@@ -678,7 +678,7 @@ namespace imui
 
 	UiInputState UiSurface::getInput() const
 	{
-		return UiInputState( ImUiSurfaceGetInput( m_surface ) );
+		return UiInputState( imuiSurfaceGetInput( m_surface ) );
 	}
 
 	float UiSurface::getDpiScale() const
@@ -692,18 +692,18 @@ namespace imui
 	{
 	}
 
-	UiWindow::UiWindow( ImUiWindow* window )
+	UiWindow::UiWindow( ImuiWindow* window )
 		: m_owner( false )
 		, m_window( window )
 	{
 	}
 
-	UiWindow::UiWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	UiWindow::UiWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 	{
 		beginWindow( surface, name, rect, zOrder );
 	}
 
-	UiWindow::UiWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	UiWindow::UiWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 		: m_window( nullptr )
 	{
 		beginWindow( surface, name, rect, zOrder );
@@ -714,13 +714,13 @@ namespace imui
 		endWindow();
 	}
 
-	void UiWindow::beginWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	void UiWindow::beginWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 	{
-		m_window = ImUiWindowBegin( surface, name, rect, zOrder );
+		m_window = imuiWindowBegin( surface, name, rect, zOrder );
 		m_owner = true;
 	}
 
-	void UiWindow::beginWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	void UiWindow::beginWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 	{
 		beginWindow( surface.getInternal(), name, rect, zOrder );
 	}
@@ -729,7 +729,7 @@ namespace imui
 	{
 		if( m_owner && m_window )
 		{
-			ImUiWindowEnd( m_window );
+			imuiWindowEnd( m_window );
 			m_window = nullptr;
 			m_owner = false;
 		}
@@ -740,39 +740,39 @@ namespace imui
 		return m_window != nullptr;
 	}
 
-	ImUiWindow* UiWindow::getInternal() const
+	ImuiWindow* UiWindow::getInternal() const
 	{
 		return m_window;
 	}
 
 	UiContext UiWindow::getContext() const
 	{
-		return UiContext( ImUiWindowGetContext( m_window ) );
+		return UiContext( imuiWindowGetContext( m_window ) );
 	}
 
 	UiSurface UiWindow::getSurface() const
 	{
-		return UiSurface( ImUiWindowGetSurface( m_window ) );
+		return UiSurface( imuiWindowGetSurface( m_window ) );
 	}
 
 	UiInputState UiWindow::getInput() const
 	{
-		return UiInputState( ImUiWindowGetInput( m_window ) );
+		return UiInputState( imuiWindowGetInput( m_window ) );
 	}
 
 	double UiWindow::getTime() const
 	{
-		return ImUiWindowGetTime( m_window );
+		return imuiWindowGetTime( m_window );
 	}
 
-	void* UiWindow::allocState( size_t size, ImUiId stateId )
+	void* UiWindow::allocState( size_t size, ImuiId stateId )
 	{
-		return ImUiWindowAllocState( m_window, size, stateId );
+		return imuiWindowAllocState( m_window, size, stateId );
 	}
 
-	void* UiWindow::allocState( size_t size, ImUiId stateId, bool& isNew )
+	void* UiWindow::allocState( size_t size, ImuiId stateId, bool& isNew )
 	{
-		return ImUiWindowAllocStateNew( m_window, size, stateId, &isNew );
+		return imuiWindowAllocStateNew( m_window, size, stateId, &isNew );
 	}
 
 	UiRect UiWindow::getRect() const
@@ -796,7 +796,7 @@ namespace imui
 		beginWidget( window );
 	}
 
-	UiWidget::UiWidget( UiWindow& window, ImUiId id )
+	UiWidget::UiWidget( UiWindow& window, ImuiId id )
 	{
 		beginWidget( window, id );
 	}
@@ -807,7 +807,7 @@ namespace imui
 	}
 
 
-	UiWidget::UiWidget( ImUiWidget* widget )
+	UiWidget::UiWidget( ImuiWidget* widget )
 	{
 		beginWidget( widget );
 	}
@@ -820,22 +820,22 @@ namespace imui
 	void UiWidget::beginWidget( UiWindow& window )
 	{
 		m_owner = true;
-		m_widget = ImUiWidgetBegin( window.getInternal() );
+		m_widget = imuiWidgetBegin( window.getInternal() );
 	}
 
-	void UiWidget::beginWidget( UiWindow& window, ImUiId id )
+	void UiWidget::beginWidget( UiWindow& window, ImuiId id )
 	{
 		m_owner = true;
-		m_widget = ImUiWidgetBeginId( window.getInternal(), id );
+		m_widget = imuiWidgetBeginId( window.getInternal(), id );
 	}
 
 	void UiWidget::beginWidget( UiWindow& window, const char* name )
 	{
 		m_owner = true;
-		m_widget = ImUiWidgetBeginNamed( window.getInternal(), name );
+		m_widget = imuiWidgetBeginNamed( window.getInternal(), name );
 	}
 
-	void UiWidget::beginWidget( ImUiWidget* widget )
+	void UiWidget::beginWidget( ImuiWidget* widget )
 	{
 		m_owner = false;
 		m_widget = widget;
@@ -845,7 +845,7 @@ namespace imui
 	{
 		if( m_widget && m_owner )
 		{
-			ImUiWidgetEnd( m_widget );
+			imuiWidgetEnd( m_widget );
 		}
 
 		m_owner = false;
@@ -857,74 +857,74 @@ namespace imui
 		return m_widget != nullptr;
 	}
 
-	ImUiWidget* UiWidget::getInternal() const
+	ImuiWidget* UiWidget::getInternal() const
 	{
 		return m_widget;
 	}
 
 	UiContext UiWidget::getContext() const
 	{
-		return UiContext( ImUiWidgetGetContext( m_widget ) );
+		return UiContext( imuiWidgetGetContext( m_widget ) );
 	}
 
 	UiSurface UiWidget::getSurface() const
 	{
-		return UiSurface( ImUiWidgetGetSurface( m_widget ) );
+		return UiSurface( imuiWidgetGetSurface( m_widget ) );
 	}
 
 	UiWindow UiWidget::getWindow() const
 	{
-		return UiWindow( ImUiWidgetGetWindow( m_widget ) );
+		return UiWindow( imuiWidgetGetWindow( m_widget ) );
 	}
 
 	UiInputState UiWidget::getInput() const
 	{
-		return UiInputState( ImUiWidgetGetInput( m_widget ) );
+		return UiInputState( imuiWidgetGetInput( m_widget ) );
 	}
 
-	void* UiWidget::allocState( size_t size, ImUiId stateId )
+	void* UiWidget::allocState( size_t size, ImuiId stateId )
 	{
-		return ImUiWidgetAllocState( m_widget, size, stateId );
+		return imuiWidgetAllocState( m_widget, size, stateId );
 	}
 
-	void* UiWidget::allocState( size_t size, ImUiId stateId, bool& isNew )
+	void* UiWidget::allocState( size_t size, ImuiId stateId, bool& isNew )
 	{
-		return ImUiWidgetAllocStateNew( m_widget, size, stateId, &isNew );
+		return imuiWidgetAllocStateNew( m_widget, size, stateId, &isNew );
 	}
 
-	ImUiLayout UiWidget::getLayout() const
+	ImuiLayout UiWidget::getLayout() const
 	{
-		return ImUiWidgetGetLayout( m_widget );
+		return imuiWidgetGetLayout( m_widget );
 	}
 
 	void UiWidget::setLayoutStack()
 	{
-		ImUiWidgetSetLayoutStack( m_widget );
+		imuiWidgetSetLayoutStack( m_widget );
 	}
 
 	void UiWidget::setLayoutScroll( float offsetX, float offsetY )
 	{
-		ImUiWidgetSetLayoutScroll( m_widget, offsetX, offsetY );
+		imuiWidgetSetLayoutScroll( m_widget, offsetX, offsetY );
 	}
 
 	void UiWidget::setLayoutHorizontal( float spacing /* = 0.0f */ )
 	{
-		ImUiWidgetSetLayoutHorizontalSpacing( m_widget, spacing );
+		imuiWidgetSetLayoutHorizontalSpacing( m_widget, spacing );
 	}
 
 	void UiWidget::setLayoutVertical( float spacing /* = 0.0f */ )
 	{
-		ImUiWidgetSetLayoutVerticalSpacing( m_widget, spacing );
+		imuiWidgetSetLayoutVerticalSpacing( m_widget, spacing );
 	}
 
 	void UiWidget::setLayoutGrid( uint32_t columnCount, float colSpacing /* = 0.0f */, float rowSpacing /* = 0.0f */ )
 	{
-		ImUiWidgetSetLayoutGrid( m_widget, columnCount, colSpacing, rowSpacing );
+		imuiWidgetSetLayoutGrid( m_widget, columnCount, colSpacing, rowSpacing );
 	}
 
 	double UiWidget::getTime()
 	{
-		return ImUiWidgetGetTime( m_widget );
+		return imuiWidgetGetTime( m_widget );
 	}
 
 	UiBorder UiWidget::getMargin() const
@@ -932,9 +932,9 @@ namespace imui
 		return (const UiBorder&)m_widget->margin;
 	}
 
-	void UiWidget::setMargin( const ImUiBorder& margin )
+	void UiWidget::setMargin( const ImuiBorder& margin )
 	{
-		ImUiWidgetSetMargin( m_widget, margin );
+		imuiWidgetSetMargin( m_widget, margin );
 	}
 
 	UiBorder UiWidget::getPadding() const
@@ -942,9 +942,9 @@ namespace imui
 		return (const UiBorder&)m_widget->padding;
 	}
 
-	void UiWidget::setPadding( const ImUiBorder& padding )
+	void UiWidget::setPadding( const ImuiBorder& padding )
 	{
-		ImUiWidgetSetPadding( m_widget, padding );
+		imuiWidgetSetPadding( m_widget, padding );
 	}
 
 	UiSize UiWidget::getMinSize() const
@@ -954,17 +954,17 @@ namespace imui
 
 	void UiWidget::setMinWidth( float value )
 	{
-		ImUiWidgetSetMinWidth( m_widget, value );
+		imuiWidgetSetMinWidth( m_widget, value );
 	}
 
 	void UiWidget::setMinHeight( float value )
 	{
-		ImUiWidgetSetMinHeight( m_widget, value );
+		imuiWidgetSetMinHeight( m_widget, value );
 	}
 
 	void UiWidget::setMinSize( UiSize size )
 	{
-		ImUiWidgetSetMinSize( m_widget, size );
+		imuiWidgetSetMinSize( m_widget, size );
 	}
 
 	UiSize UiWidget::getMaxSize() const
@@ -974,87 +974,87 @@ namespace imui
 
 	void UiWidget::setMaxWidth( float value )
 	{
-		ImUiWidgetSetMaxWidth( m_widget, value );
+		imuiWidgetSetMaxWidth( m_widget, value );
 	}
 
 	void UiWidget::setMaxHeight( float value )
 	{
-		ImUiWidgetSetMaxHeight( m_widget, value );
+		imuiWidgetSetMaxHeight( m_widget, value );
 	}
 
 	void UiWidget::setMaxSize( UiSize size )
 	{
-		ImUiWidgetSetMaxSize( m_widget, size );
+		imuiWidgetSetMaxSize( m_widget, size );
 	}
 
 	void UiWidget::setFixedWidth( float value )
 	{
-		ImUiWidgetSetFixedWidth( m_widget, value );
+		imuiWidgetSetFixedWidth( m_widget, value );
 	}
 
 	void UiWidget::setFixedHeight( float value )
 	{
-		ImUiWidgetSetFixedHeight( m_widget, value );
+		imuiWidgetSetFixedHeight( m_widget, value );
 	}
 
 	void UiWidget::setFixedSize( UiSize size )
 	{
-		ImUiWidgetSetFixedSize( m_widget, size );
+		imuiWidgetSetFixedSize( m_widget, size );
 	}
 
 	void UiWidget::setStretch( float horizontal, float vertical )
 	{
-		ImUiWidgetSetStretch( m_widget, horizontal, vertical );
+		imuiWidgetSetStretch( m_widget, horizontal, vertical );
 	}
 
 	void UiWidget::setStretchOne()
 	{
-		ImUiWidgetSetStretchOne( m_widget );
+		imuiWidgetSetStretchOne( m_widget );
 	}
 
 	float UiWidget::getHStretch() const
 	{
-		return ImUiWidgetGetHStretch( m_widget );
+		return imuiWidgetGetHStretch( m_widget );
 	}
 
 	void UiWidget::setHStretch( float stretch )
 	{
-		ImUiWidgetSetHStretch( m_widget, stretch );
+		imuiWidgetSetHStretch( m_widget, stretch );
 	}
 
 	float UiWidget::getVStretch() const
 	{
-		return ImUiWidgetGetVStretch( m_widget );
+		return imuiWidgetGetVStretch( m_widget );
 	}
 
 	void UiWidget::setVStretch( float stretch )
 	{
-		ImUiWidgetSetVStretch( m_widget, stretch );
+		imuiWidgetSetVStretch( m_widget, stretch );
 	}
 
 	void UiWidget::setAlign( float horizontal, float vertical )
 	{
-		ImUiWidgetSetAlign( m_widget, horizontal, vertical );
+		imuiWidgetSetAlign( m_widget, horizontal, vertical );
 	}
 
 	float UiWidget::getHAlign() const
 	{
-		return ImUiWidgetGetHAlign( m_widget );
+		return imuiWidgetGetHAlign( m_widget );
 	}
 
 	void UiWidget::setHAlign( float align )
 	{
-		ImUiWidgetSetHAlign( m_widget, align );
+		imuiWidgetSetHAlign( m_widget, align );
 	}
 
 	float UiWidget::getVAlign() const
 	{
-		return ImUiWidgetGetVAlign( m_widget );
+		return imuiWidgetGetVAlign( m_widget );
 	}
 
 	void UiWidget::setVAlign( float align )
 	{
-		ImUiWidgetSetVAlign( m_widget, align );
+		imuiWidgetSetVAlign( m_widget, align );
 	}
 
 	UiPos UiWidget::getPos() const
@@ -1072,69 +1072,69 @@ namespace imui
 		return (const UiRect&)m_widget->rect;
 	}
 
-	void UiWidget::getInputState( ImUiWidgetInputState& inputState ) const
+	void UiWidget::getInputState( ImuiWidgetInputState& inputState ) const
 	{
-		ImUiWidgetGetInputState( m_widget, &inputState );
+		imuiWidgetGetInputState( m_widget, &inputState );
 	}
 
-	void UiWidget::drawLine( ImUiPos p0, ImUiPos p1, ImUiColor color )
+	void UiWidget::drawLine( ImuiPos p0, ImuiPos p1, ImuiColor color )
 	{
-		ImUiWidgetDrawLine( m_widget, p0, p1, color );
+		imuiWidgetDrawLine( m_widget, p0, p1, color );
 	}
 
-	void UiWidget::drawTriangle( ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color )
+	void UiWidget::drawTriangle( ImuiPos p0, ImuiPos p1, ImuiPos p2, ImuiColor color )
 	{
-		ImUiWidgetDrawTriangle( m_widget, p0, p1, p2, color );
+		imuiWidgetDrawTriangle( m_widget, p0, p1, p2, color );
 	}
 
-	void UiWidget::drawColor( ImUiColor color )
+	void UiWidget::drawColor( ImuiColor color )
 	{
-		ImUiWidgetDrawColor( m_widget, color );
+		imuiWidgetDrawColor( m_widget, color );
 	}
 
-	void UiWidget::drawImage( const ImUiImage& image )
+	void UiWidget::drawImage( const ImuiImage& image )
 	{
-		ImUiWidgetDrawImage( m_widget, &image );
+		imuiWidgetDrawImage( m_widget, &image );
 	}
 
-	void UiWidget::drawImage( const ImUiImage& image, ImUiColor color )
+	void UiWidget::drawImage( const ImuiImage& image, ImuiColor color )
 	{
-		ImUiWidgetDrawImageColor( m_widget, &image, color );
+		imuiWidgetDrawImageColor( m_widget, &image, color );
 	}
 
-	void UiWidget::drawSkin( const ImUiSkin& skin, ImUiColor color )
+	void UiWidget::drawSkin( const ImuiSkin& skin, ImuiColor color )
 	{
-		ImUiWidgetDrawSkin( m_widget, &skin, color );
+		imuiWidgetDrawSkin( m_widget, &skin, color );
 	}
 
-	void UiWidget::drawText( ImUiTextLayout* layout, ImUiColor color )
+	void UiWidget::drawText( ImuiTextLayout* layout, ImuiColor color )
 	{
-		ImUiWidgetDrawText( m_widget, layout, color );
+		imuiWidgetDrawText( m_widget, layout, color );
 	}
 
-	void UiWidget::drawPartialColor( const ImUiRect& rect, ImUiColor color )
+	void UiWidget::drawPartialColor( const ImuiRect& rect, ImuiColor color )
 	{
-		ImUiWidgetDrawPartialColor( m_widget, rect, color );
+		imuiWidgetDrawPartialColor( m_widget, rect, color );
 	}
 
-	void UiWidget::drawPartialImage( const ImUiRect& rect, const ImUiImage& image )
+	void UiWidget::drawPartialImage( const ImuiRect& rect, const ImuiImage& image )
 	{
-		ImUiWidgetDrawPartialImage( m_widget, rect, &image );
+		imuiWidgetDrawPartialImage( m_widget, rect, &image );
 	}
 
-	void UiWidget::drawPartialImage( const ImUiRect& rect, const ImUiImage& image, ImUiColor color )
+	void UiWidget::drawPartialImage( const ImuiRect& rect, const ImuiImage& image, ImuiColor color )
 	{
-		ImUiWidgetDrawPartialImageColor( m_widget, rect, &image, color );
+		imuiWidgetDrawPartialImageColor( m_widget, rect, &image, color );
 	}
 
-	void UiWidget::drawPartialSkin( const ImUiRect& rect, const ImUiSkin& skin, ImUiColor color )
+	void UiWidget::drawPartialSkin( const ImuiRect& rect, const ImuiSkin& skin, ImuiColor color )
 	{
-		ImUiWidgetDrawPartialSkin( m_widget, rect, &skin, color );
+		imuiWidgetDrawPartialSkin( m_widget, rect, &skin, color );
 	}
 
-	void UiWidget::drawPositionText( ImUiPos pos, ImUiTextLayout* layout, ImUiColor color )
+	void UiWidget::drawPositionText( ImuiPos pos, ImuiTextLayout* layout, ImuiColor color )
 	{
-		ImUiWidgetDrawPositionText( m_widget, pos, layout, color );
+		imuiWidgetDrawPositionText( m_widget, pos, layout, color );
 	}
 
 	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, float spacing /* = 0.0f */ )
@@ -1143,7 +1143,7 @@ namespace imui
 		setLayoutHorizontal( spacing );
 	}
 
-	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, ImUiId id, float spacing /*= 0.0f */ )
+	UiWidgetLayoutHorizontal::UiWidgetLayoutHorizontal( UiWindow& window, ImuiId id, float spacing /*= 0.0f */ )
 		: UiWidget( window, id ) 
 	{
 		setLayoutHorizontal( spacing );
@@ -1161,7 +1161,7 @@ namespace imui
 		setLayoutVertical( spacing );
 	}
 
-	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, ImUiId id, float spacing /*= 0.0f */ )
+	UiWidgetLayoutVertical::UiWidgetLayoutVertical( UiWindow& window, ImuiId id, float spacing /*= 0.0f */ )
 		: UiWidget( window, id )
 	{
 		setLayoutVertical( spacing );
@@ -1179,7 +1179,7 @@ namespace imui
 		setLayoutGrid( columnCount, colSpacing, rowSpacing );
 	}
 
-	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, ImUiId id, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
+	UiWidgetLayoutGrid::UiWidgetLayoutGrid( UiWindow& window, ImuiId id, uint32_t columnCount, float colSpacing /*= 0.0f*/, float rowSpacing /*= 0.0f */ )
 		: UiWidget( window, id )
 	{
 		setLayoutGrid( columnCount, colSpacing, rowSpacing );
@@ -1195,45 +1195,45 @@ namespace imui
 	{
 	}
 
-	toolbox::UiToolboxTheme::UiToolboxTheme( ImUiFont* inFont )
+	toolbox::UiToolboxTheme::UiToolboxTheme( ImuiFont* inFont )
 	{
 		setDefault( inFont );
 	}
 
-	void toolbox::UiToolboxTheme::setDefault( ImUiFont* inFont )
+	void toolbox::UiToolboxTheme::setDefault( ImuiFont* inFont )
 	{
-		ImUiToolboxThemeFillDefault( this, inFont );
+		imuiToolboxThemeFillDefault( this, inFont );
 	}
 
 	void toolbox::UiToolboxTheme::applyConfig()
 	{
-		ImUiToolboxThemeSet( this );
+		imuiToolboxThemeSet( this );
 	}
 
-	const UiColor& toolbox::UiToolboxTheme::getColor( ImUiToolboxColor color )
+	const UiColor& toolbox::UiToolboxTheme::getColor( ImuiToolboxColor color )
 	{
-		return (const UiColor&)ImUiToolboxThemeGet()->colors[ color ];
+		return (const UiColor&)imuiToolboxThemeGet()->colors[ color ];
 	}
 
-	const ImUiSkin& toolbox::UiToolboxTheme::getSkin( ImUiToolboxSkin skin )
+	const ImuiSkin& toolbox::UiToolboxTheme::getSkin( ImuiToolboxSkin skin )
 	{
-		return ImUiToolboxThemeGet()->skins[ skin ];
+		return imuiToolboxThemeGet()->skins[ skin ];
 	}
 
-	const ImUiImage& toolbox::UiToolboxTheme::getIcon( ImUiToolboxIcon icon )
+	const ImuiImage& toolbox::UiToolboxTheme::getIcon( ImuiToolboxIcon icon )
 	{
-		return ImUiToolboxThemeGet()->icons[ icon ];
+		return imuiToolboxThemeGet()->icons[ icon ];
 	}
 
-	ImUiToolboxTheme& toolbox::UiToolboxTheme::getTheme()
+	ImuiToolboxTheme& toolbox::UiToolboxTheme::getTheme()
 	{
-		return *ImUiToolboxThemeGet();
+		return *imuiToolboxThemeGet();
 	}
 
 	toolbox::UiToolboxConfigFloatScope::UiToolboxConfigFloatScope( float& value, float newValue, bool active /* = true */ )
 		: m_value( value )
 	{
-		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
+		IMUI_ASSERT( (void*)&value >= imuiToolboxThemeGet() && (void*)&value < imuiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
 		m_value = active ? newValue : m_oldValue;
@@ -1244,49 +1244,49 @@ namespace imui
 		m_value = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue, bool active /* = true */ )
+	toolbox::UiToolboxConfigColorScope::UiToolboxConfigColorScope( ImuiToolboxColor color, const ImuiColor& newValue, bool active /* = true */ )
 		: m_color( color )
 	{
-		ImUiColor& valueRef = ImUiToolboxThemeGet()->colors[ m_color ];
+		ImuiColor& valueRef = imuiToolboxThemeGet()->colors[ m_color ];
 		m_oldValue = valueRef;
 		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigColorScope::~UiToolboxConfigColorScope()
 	{
-		ImUiToolboxThemeGet()->colors[ m_color ] = m_oldValue;
+		imuiToolboxThemeGet()->colors[ m_color ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue, bool active /* = true */ )
+	toolbox::UiToolboxConfigSkinScope::UiToolboxConfigSkinScope( ImuiToolboxSkin skin, const ImuiSkin& newValue, bool active /* = true */ )
 		: m_skin( skin )
 	{
-		ImUiSkin& valueRef = ImUiToolboxThemeGet()->skins[ m_skin ];
+		ImuiSkin& valueRef = imuiToolboxThemeGet()->skins[ m_skin ];
 		m_oldValue = valueRef;
 		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigSkinScope::~UiToolboxConfigSkinScope()
 	{
-		ImUiToolboxThemeGet()->skins[ m_skin ] = m_oldValue;
+		imuiToolboxThemeGet()->skins[ m_skin ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue, bool active /* = true */ )
+	toolbox::UiToolboxConfigIconScope::UiToolboxConfigIconScope( ImuiToolboxIcon icon, const ImuiImage& newValue, bool active /* = true */ )
 		: m_icon( icon )
 	{
-		ImUiImage& valueRef = ImUiToolboxThemeGet()->icons[ m_icon ];
+		ImuiImage& valueRef = imuiToolboxThemeGet()->icons[ m_icon ];
 		m_oldValue = valueRef;
 		valueRef = active ? newValue : m_oldValue;
 	}
 
 	toolbox::UiToolboxConfigIconScope::~UiToolboxConfigIconScope()
 	{
-		ImUiToolboxThemeGet()->icons[ m_icon ] = m_oldValue;
+		imuiToolboxThemeGet()->icons[ m_icon ] = m_oldValue;
 	}
 
-	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue, bool active /* = true */ )
+	toolbox::UiToolboxConfigBorderScope::UiToolboxConfigBorderScope( ImuiBorder& value, UiBorder newValue, bool active /* = true */ )
 		: m_value( value )
 	{
-		IMUI_ASSERT( (void*)&value >= ImUiToolboxThemeGet() && (void*)&value < ImUiToolboxThemeGet() + 1u );
+		IMUI_ASSERT( (void*)&value >= imuiToolboxThemeGet() && (void*)&value < imuiToolboxThemeGet() + 1u );
 
 		m_oldValue = m_value;
 		m_value = active ? newValue : m_oldValue;
@@ -1307,127 +1307,127 @@ namespace imui
 		m_owner		= false;
 	}
 
-	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiWindow* window )
+	toolbox::UiToolboxWindow::UiToolboxWindow( ImuiWindow* window )
 		: UiWindow( window )
 	{
 	}
 
-	toolbox::UiToolboxWindow::UiToolboxWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	toolbox::UiToolboxWindow::UiToolboxWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 		: UiWindow( surface, name, rect, zOrder )
 	{
 	}
 
-	toolbox::UiToolboxWindow::UiToolboxWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder )
+	toolbox::UiToolboxWindow::UiToolboxWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder )
 		: UiWindow( surface, name, rect, zOrder )
 	{
 	}
 
 	void toolbox::UiToolboxWindow::spacer( float width, float height )
 	{
-		ImUiToolboxSpacer( m_window, width, height );
+		imuiToolboxSpacer( m_window, width, height );
 	}
 
 	void toolbox::UiToolboxWindow::strecher( float horizontal, float vertical )
 	{
-		ImUiToolboxStrecher( m_window, horizontal, vertical );
+		imuiToolboxStrecher( m_window, horizontal, vertical );
 	}
 
 	bool toolbox::UiToolboxWindow::buttonLabel( const char* text )
 	{
-		return ImUiToolboxButtonLabel( m_window, text );
+		return imuiToolboxButtonLabel( m_window, text );
 	}
 
 	bool toolbox::UiToolboxWindow::buttonLabelFormat( const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		const bool result = ImUiToolboxButtonLabelFormatArgs( m_window, format, args );
+		const bool result = imuiToolboxButtonLabelFormatArgs( m_window, format, args );
 		va_end( args );
 
 		return result;
 	}
 
-	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon )
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImuiImage& icon )
 	{
-		return ImUiToolboxButtonIcon( m_window, &icon );
+		return imuiToolboxButtonIcon( m_window, &icon );
 	}
 
-	bool toolbox::UiToolboxWindow::buttonIcon( const ImUiImage& icon, ImUiSize iconSize )
+	bool toolbox::UiToolboxWindow::buttonIcon( const ImuiImage& icon, ImuiSize iconSize )
 	{
-		return ImUiToolboxButtonIconSize( m_window, &icon, iconSize );
+		return imuiToolboxButtonIconSize( m_window, &icon, iconSize );
 	}
 
 	bool toolbox::UiToolboxWindow::checkBox( bool& checked, const char* text )
 	{
-		return ImUiToolboxCheckBox( m_window, &checked, text );
+		return imuiToolboxCheckBox( m_window, &checked, text );
 	}
 
 	bool toolbox::UiToolboxWindow::checkBoxState( const char* text, bool defaultValue /*= false */ )
 	{
-		return ImUiToolboxCheckBoxStateDefault( m_window, text, defaultValue );
+		return imuiToolboxCheckBoxStateDefault( m_window, text, defaultValue );
 	}
 
 	void toolbox::UiToolboxWindow::label( const char* text )
 	{
-		ImUiToolboxLabel( m_window, text );
+		imuiToolboxLabel( m_window, text );
 	}
 
 	void toolbox::UiToolboxWindow::label( const char* text, size_t length )
 	{
-		ImUiToolboxLabelLength( m_window, text, length );
+		imuiToolboxLabelLength( m_window, text, length );
 	}
 
 	void toolbox::UiToolboxWindow::labelFormat( const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		ImUiToolboxLabelFormatArgs( m_window, format, args);
+		imuiToolboxLabelFormatArgs( m_window, format, args);
 		va_end( args );
 	}
 
-	void toolbox::UiToolboxWindow::image( const ImUiImage& img )
+	void toolbox::UiToolboxWindow::image( const ImuiImage& img )
 	{
 		image( img, UiSize( img ) );
 	}
 
-	void toolbox::UiToolboxWindow::image( const ImUiImage& img, const ImUiSize& size )
+	void toolbox::UiToolboxWindow::image( const ImuiImage& img, const ImuiSize& size )
 	{
-		ImUiToolboxImageSize( m_window, &img, size );
+		imuiToolboxImageSize( m_window, &img, size );
 	}
 
 	bool toolbox::UiToolboxWindow::slider( float& value, float min /*= 0.0f*/, float max /*= 1.0f*/ )
 	{
-		return ImUiToolboxSliderMinMax( m_window, &value, min, max );
+		return imuiToolboxSliderMinMax( m_window, &value, min, max );
 	}
 
 	float toolbox::UiToolboxWindow::sliderState( float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
-		return ImUiToolboxSliderStateMinMax( m_window, min, max );
+		return imuiToolboxSliderStateMinMax( m_window, min, max );
 	}
 
 	float toolbox::UiToolboxWindow::sliderState( float min, float max, float defaultValue )
 	{
-		return ImUiToolboxSliderStateMinMaxDefault( m_window, min, max, defaultValue );
+		return imuiToolboxSliderStateMinMaxDefault( m_window, min, max, defaultValue );
 	}
 
 	bool toolbox::UiToolboxWindow::textEdit( char* buffer, size_t bufferSize, size_t* textLength /* = nullptr */ )
 	{
-		return ImUiToolboxTextEdit( m_window, buffer, bufferSize, textLength );
+		return imuiToolboxTextEdit( m_window, buffer, bufferSize, textLength );
 	}
 
 	const char* toolbox::UiToolboxWindow::textEditState( size_t bufferSize, const char* defaultValue /* = NULL */ )
 	{
-		return ImUiToolboxTextEditStateBufferDefault( m_window, bufferSize, defaultValue );
+		return imuiToolboxTextEditStateBufferDefault( m_window, bufferSize, defaultValue );
 	}
 
 	void toolbox::UiToolboxWindow::progressBar( float value, float min /*= 0.0f*/, float max /*= 1.0f */ )
 	{
-		ImUiToolboxProgressBarMinMax( m_window, value, min, max );
+		imuiToolboxProgressBarMinMax( m_window, value, min, max );
 	}
 
 	size_t toolbox::UiToolboxWindow::dropDown( const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )
 	{
-		return ImUiToolboxDropDown( m_window, (const char**)items, itemCount, itemStride );
+		return imuiToolboxDropDown( m_window, (const char**)items, itemCount, itemStride );
 	}
 
 	toolbox::UiToolboxButton::UiToolboxButton()
@@ -1446,14 +1446,14 @@ namespace imui
 
 	void toolbox::UiToolboxButton::begin( UiWindow& window )
 	{
-		m_widget = ImUiToolboxButtonBegin( window.getInternal() );
+		m_widget = imuiToolboxButtonBegin( window.getInternal() );
 	}
 
 	bool toolbox::UiToolboxButton::end()
 	{
 		if( m_widget )
 		{
-			const bool result = ImUiToolboxButtonEnd( m_widget );
+			const bool result = imuiToolboxButtonEnd( m_widget );
 			m_widget = nullptr;
 
 			return result;
@@ -1478,14 +1478,14 @@ namespace imui
 
 	void toolbox::UiToolboxButtonLabel::begin( UiWindow& window, const char* text )
 	{
-		m_widget = ImUiToolboxButtonLabelBegin( window.getInternal(), text );
+		m_widget = imuiToolboxButtonLabelBegin( window.getInternal(), text );
 	}
 
 	void toolbox::UiToolboxButtonLabel::beginFormat( UiWindow& window, const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		m_widget = ImUiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
+		m_widget = imuiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
 		va_end( args );
 	}
 
@@ -1493,7 +1493,7 @@ namespace imui
 	{
 		if( m_widget )
 		{
-			const bool result = ImUiToolboxButtonEnd( m_widget );
+			const bool result = imuiToolboxButtonEnd( m_widget );
 			m_widget = nullptr;
 
 			return result;
@@ -1523,19 +1523,19 @@ namespace imui
 
 	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text )
 	{
-		m_widget = ImUiToolboxLabelBegin( window.getInternal(), text );
+		m_widget = imuiToolboxLabelBegin( window.getInternal(), text );
 	}
 
 	void toolbox::UiToolboxLabel::begin( UiWindow& window, const char* text, size_t length )
 	{
-		m_widget = ImUiToolboxLabelBeginLength( window.getInternal(), text, length );
+		m_widget = imuiToolboxLabelBeginLength( window.getInternal(), text, length );
 	}
 
 	void toolbox::UiToolboxLabel::beginFormat( UiWindow& window, const char* format, ... )
 	{
 		va_list args;
 		va_start( args, format );
-		m_widget = ImUiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
+		m_widget = imuiToolboxLabelBeginFormatArgs( window.getInternal(), format, args );
 		va_end( args );
 	}
 
@@ -1543,7 +1543,7 @@ namespace imui
 	{
 		if( m_widget )
 		{
-			ImUiToolboxLabelEnd( m_widget );
+			imuiToolboxLabelEnd( m_widget );
 			m_widget = nullptr;
 		}
 	}
@@ -1568,7 +1568,7 @@ namespace imui
 		m_min		= min;
 		m_max		= max;
 
-		m_widget	= ImUiToolboxSliderBegin( window.getInternal() );
+		m_widget	= imuiToolboxSliderBegin( window.getInternal() );
 	}
 
 	bool toolbox::UiToolboxSlider::end()
@@ -1576,7 +1576,7 @@ namespace imui
 		bool changed = false;
 		if( m_widget )
 		{
-			changed = ImUiToolboxSliderEnd( m_widget, m_value, m_min, m_max );
+			changed = imuiToolboxSliderEnd( m_widget, m_value, m_min, m_max );
 			m_widget = nullptr;
 		}
 
@@ -1587,13 +1587,13 @@ namespace imui
 		: m_buffer( nullptr )
 		, m_bufferSize( 0u )
 	{
-		m_widget = ImUiToolboxTextEditBegin( window.getInternal() );
+		m_widget = imuiToolboxTextEditBegin( window.getInternal() );
 	}
 
 	toolbox::UiToolboxTextEdit::UiToolboxTextEdit( UiWindow& window, size_t bufferSize )
 	{
-		m_widget		= ImUiToolboxTextEditBegin( window.getInternal() );
-		m_buffer		= (char*)ImUiWidgetAllocState( m_widget, bufferSize, IMUI_ID_STR( "text buffer" ) );
+		m_widget		= imuiToolboxTextEditBegin( window.getInternal() );
+		m_buffer		= (char*)imuiWidgetAllocState( m_widget, bufferSize, IMUI_ID_STR( "text buffer" ) );
 		m_bufferSize	= bufferSize;
 	}
 
@@ -1601,7 +1601,7 @@ namespace imui
 		: m_buffer( buffer )
 		, m_bufferSize( bufferSize )
 	{
-		m_widget = ImUiToolboxTextEditBegin( window.getInternal() );
+		m_widget = imuiToolboxTextEditBegin( window.getInternal() );
 	}
 
 	toolbox::UiToolboxTextEdit::~UiToolboxTextEdit()
@@ -1616,7 +1616,7 @@ namespace imui
 			return false;
 		}
 
-		const bool changed = ImUiToolboxTextEditEnd( m_widget, m_buffer, m_bufferSize, textLength );
+		const bool changed = imuiToolboxTextEditEnd( m_widget, m_buffer, m_bufferSize, textLength );
 		m_widget = nullptr;
 		return changed;
 	}
@@ -1629,7 +1629,7 @@ namespace imui
 
 	toolbox::UiToolboxScrollArea::UiToolboxScrollArea( UiWindow& window )
 	{
-		ImUiToolboxScrollAreaBegin( &m_scrollArea, window.getInternal() );
+		imuiToolboxScrollAreaBegin( &m_scrollArea, window.getInternal() );
 		m_widget = m_scrollArea.area;
 	}
 
@@ -1637,19 +1637,19 @@ namespace imui
 	{
 		if( m_widget )
 		{
-			ImUiToolboxScrollAreaEnd( &m_scrollArea );
+			imuiToolboxScrollAreaEnd( &m_scrollArea );
 			m_widget = nullptr;
 		}
 	}
 
 	void toolbox::UiToolboxScrollArea::enableSpacing( bool horizontal, bool vertical )
 	{
-		ImUiToolboxScrollAreaEnableSpacing( &m_scrollArea, horizontal, vertical );
+		imuiToolboxScrollAreaEnableSpacing( &m_scrollArea, horizontal, vertical );
 	}
 
 	toolbox::UiToolboxList::UiToolboxList( UiWindow& window, float itemSize, size_t itemCount, bool selection )
 	{
-		ImUiToolboxListBegin( &m_list, window.getInternal(), itemSize, itemCount, selection );
+		imuiToolboxListBegin( &m_list, window.getInternal(), itemSize, itemCount, selection );
 		m_widget = m_list.list;
 	}
 
@@ -1660,7 +1660,7 @@ namespace imui
 
 	bool toolbox::UiToolboxList::end()
 	{
-		const bool changed = ImUiToolboxListEnd( &m_list );
+		const bool changed = imuiToolboxListEnd( &m_list );
 		endWidget();
 
 		return changed;
@@ -1668,27 +1668,27 @@ namespace imui
 
 	size_t toolbox::UiToolboxList::getBeginIndex() const
 	{
-		return ImUiToolboxListGetBeginIndex( &m_list );
+		return imuiToolboxListGetBeginIndex( &m_list );
 	}
 
 	size_t toolbox::UiToolboxList::getEndIndex() const
 	{
-		return ImUiToolboxListGetEndIndex( &m_list );
+		return imuiToolboxListGetEndIndex( &m_list );
 	}
 
 	size_t toolbox::UiToolboxList::getSelectedIndex() const
 	{
-		return ImUiToolboxListGetSelectedIndex( &m_list );
+		return imuiToolboxListGetSelectedIndex( &m_list );
 	}
 
 	void toolbox::UiToolboxList::setSelectedIndex( size_t index )
 	{
-		ImUiToolboxListSetSelectedIndex( &m_list, index );
+		imuiToolboxListSetSelectedIndex( &m_list, index );
 	}
 
-	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */, ImUiId id /* = IMUI_ID_DEFAULT */ )
+	void toolbox::UiToolboxList::nextItem( UiWidget* widget /* = nullptr */, ImuiId id /* = IMUI_ID_DEFAULT */ )
 	{
-		ImUiWidget* itemWidget = ImUiToolboxListNextItemId( &m_list, id );
+		ImuiWidget* itemWidget = imuiToolboxListNextItemId( &m_list, id );
 		if( widget )
 		{
 			widget->beginWidget( itemWidget );
@@ -1697,35 +1697,35 @@ namespace imui
 
 	toolbox::UiToolboxDropdown::UiToolboxDropdown( UiWindow& window, const char* const* items, size_t itemCount, size_t itemStride /* = sizeof( const char* ) */ )
 	{
-		ImUiToolboxDropDownBegin( &m_dropDown, window.getInternal(), (const char**)items, itemCount, itemStride );
+		imuiToolboxDropDownBegin( &m_dropDown, window.getInternal(), (const char**)items, itemCount, itemStride );
 		m_widget = m_dropDown.dropDown;
 	}
 
 	toolbox::UiToolboxDropdown::~UiToolboxDropdown()
 	{
-		ImUiToolboxDropDownEnd( &m_dropDown );
+		imuiToolboxDropDownEnd( &m_dropDown );
 		m_widget = nullptr;
 	}
 
 	size_t toolbox::UiToolboxDropdown::getSelectedIndex() const
 	{
-		return ImUiToolboxDropDownGetSelectedIndex( &m_dropDown );
+		return imuiToolboxDropDownGetSelectedIndex( &m_dropDown );
 	}
 
 	void toolbox::UiToolboxDropdown::setSelectedIndex( size_t index )
 	{
-		ImUiToolboxDropDownSetSelectedIndex( &m_dropDown, index );
+		imuiToolboxDropDownSetSelectedIndex( &m_dropDown, index );
 	}
 
 	toolbox::UiToolboxPopup::UiToolboxPopup( UiSurface& surface )
 	{
-		m_window = ImUiToolboxPopupBeginSurface( surface.getInternal() );
+		m_window = imuiToolboxPopupBeginSurface( surface.getInternal() );
 		m_owner = true;
 	}
 
 	toolbox::UiToolboxPopup::UiToolboxPopup( UiWindow& window )
 	{
-		m_window = ImUiToolboxPopupBegin( window.getInternal() );
+		m_window = imuiToolboxPopupBegin( window.getInternal() );
 		m_owner = true;
 	}
 
@@ -1736,7 +1736,7 @@ namespace imui
 
 	size_t toolbox::UiToolboxPopup::end( const char** buttons, size_t buttonCount )
 	{
-		const size_t result = ImUiToolboxPopupEndButtons( m_window, buttons, buttonCount );
+		const size_t result = imuiToolboxPopupEndButtons( m_window, buttons, buttonCount );
 		m_window = nullptr;
 
 		return result;
@@ -1746,7 +1746,7 @@ namespace imui
 	{
 		if( m_window )
 		{
-			ImUiToolboxPopupEnd( m_window );
+			imuiToolboxPopupEnd( m_window );
 			m_window = nullptr;
 		}
 	}
@@ -1757,38 +1757,38 @@ namespace imui
 
 	toolbox::UiToolboxTabView::UiToolboxTabView( UiWindow& window )
 	{
-		m_widget = ImUiToolboxTabViewBegin( &m_context, window.getInternal() );
+		m_widget = imuiToolboxTabViewBegin( &m_context, window.getInternal() );
 	}
 
 	toolbox::UiToolboxTabView::~UiToolboxTabView()
 	{
-		ImUiToolboxTabViewEnd( &m_context );
+		imuiToolboxTabViewEnd( &m_context );
 		m_widget = nullptr;
 	}
 
 	size_t toolbox::UiToolboxTabView::getSelectedIndex() const
 	{
-		return ImUiToolboxTabViewGetSelectedIndex( &m_context );
+		return imuiToolboxTabViewGetSelectedIndex( &m_context );
 	}
 
 	void toolbox::UiToolboxTabView::setSelectedIndex( size_t index )
 	{
-		ImUiToolboxTabViewSetSelectedIndex( &m_context, index );
+		imuiToolboxTabViewSetSelectedIndex( &m_context, index );
 	}
 
 	bool toolbox::UiToolboxTabView::header( const char* text )
 	{
-		return ImUiToolboxTabViewHeader( &m_context, text );
+		return imuiToolboxTabViewHeader( &m_context, text );
 	}
 
 	void toolbox::UiToolboxTabView::beginHeader( UiWidget& header )
 	{
-		header.beginWidget( ImUiToolboxTabViewHeaderBegin( &m_context ) );
+		header.beginWidget( imuiToolboxTabViewHeaderBegin( &m_context ) );
 	}
 
 	bool toolbox::UiToolboxTabView::endHeader( UiWidget& header )
 	{
-		const bool selected = ImUiToolboxTabViewHeaderEnd( &m_context, header.getInternal() );
+		const bool selected = imuiToolboxTabViewHeaderEnd( &m_context, header.getInternal() );
 		header.endWidget();
 
 		return selected;
@@ -1796,12 +1796,12 @@ namespace imui
 
 	void toolbox::UiToolboxTabView::beginBody( UiWidget& body )
 	{
-		body.beginWidget( ImUiToolboxTabViewBodyBegin( &m_context ) );
+		body.beginWidget( imuiToolboxTabViewBodyBegin( &m_context ) );
 	}
 
 	void toolbox::UiToolboxTabView::endBody( UiWidget& body )
 	{
-		ImUiToolboxTabViewBodyEnd( &m_context );
+		imuiToolboxTabViewBodyEnd( &m_context );
 		body.endWidget();
 	}
 }

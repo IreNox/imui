@@ -4,36 +4,36 @@
 
 #include "imui_types.h"
 
-#define IMUI_MEMORY_NEW( ALLOCATOR, TYPE )		(TYPE*)ImUiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) )
-#define IMUI_MEMORY_NEW_ZERO( ALLOCATOR, TYPE )	(TYPE*)ImUiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) )
+#define IMUI_MEMORY_NEW( ALLOCATOR, TYPE )		(TYPE*)imuiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) )
+#define IMUI_MEMORY_NEW_ZERO( ALLOCATOR, TYPE )	(TYPE*)imuiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) )
 
-#define IMUI_MEMORY_ARRAY_NEW( ALLOCATOR, TYPE, COUNT )			(TYPE*)ImUiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) * COUNT )
-#define IMUI_MEMORY_ARRAY_NEW_ZERO( ALLOCATOR, TYPE, COUNT )	(TYPE*)ImUiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) * COUNT )
+#define IMUI_MEMORY_ARRAY_NEW( ALLOCATOR, TYPE, COUNT )			(TYPE*)imuiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) * COUNT )
+#define IMUI_MEMORY_ARRAY_NEW_ZERO( ALLOCATOR, TYPE, COUNT )	(TYPE*)imuiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) * COUNT )
 
-#define IMUI_MEMORY_ARRAY_CHECK_CAPACITY( ALLOCATOR, ARRAY, CAPACITY, COUNT )		ImUiMemoryArrayCheckCapacity( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ), false )
-#define IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( ALLOCATOR, ARRAY, CAPACITY, COUNT )	ImUiMemoryArrayCheckCapacity( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ), true )
+#define IMUI_MEMORY_ARRAY_CHECK_CAPACITY( ALLOCATOR, ARRAY, CAPACITY, COUNT )		imuiMemoryArrayCheckCapacity( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ), false )
+#define IMUI_MEMORY_ARRAY_CHECK_CAPACITY_ZERO( ALLOCATOR, ARRAY, CAPACITY, COUNT )	imuiMemoryArrayCheckCapacity( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ), true )
 
-#define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED( ARRAY, COUNT, INDEX )		ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), false )
-#define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( ARRAY, COUNT, INDEX )	ImUiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), true )
+#define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED( ARRAY, COUNT, INDEX )		imuiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), false )
+#define IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( ARRAY, COUNT, INDEX )	imuiMemoryArrayRemoveElementUnsorted( ARRAY, &COUNT, INDEX, sizeof( *ARRAY ), true )
 
-#define IMUI_MEMORY_ARRAY_SHRINK( ALLOCATOR, ARRAY, CAPACITY, COUNT )	ImUiMemoryArrayShrink( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ) )
+#define IMUI_MEMORY_ARRAY_SHRINK( ALLOCATOR, ARRAY, CAPACITY, COUNT )	imuiMemoryArrayShrink( ALLOCATOR, (void**)&ARRAY, &CAPACITY, COUNT, sizeof( *ARRAY ) )
 
-#define IMUI_MEMORY_ARRAY_FREE( ALLOCATOR, ARRAY, CAPACITY )			ImUiMemoryArrayFree( ALLOCATOR, (void**)&ARRAY, &CAPACITY )
+#define IMUI_MEMORY_ARRAY_FREE( ALLOCATOR, ARRAY, CAPACITY )			imuiMemoryArrayFree( ALLOCATOR, (void**)&ARRAY, &CAPACITY )
 
-void	ImUiMemoryAllocatorPrepare( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator );
-void	ImUiMemoryAllocatorFinalize( ImUiAllocator* targetAllocator, const ImUiAllocator* sourceAllocator );
+void	imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
+void	imuiMemoryAllocatorFinalize( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
 
-void*	ImUiMemoryDefaultAlloc( uintsize size, void* userData );
-void*	ImUiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
-void*	ImUiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
-void	ImUiMemoryDefaultFree( void* memory, void* userData );
+void*	imuiMemoryDefaultAlloc( uintsize size, void* userData );
+void*	imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
+void*	imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
+void	imuiMemoryDefaultFree( void* memory, void* userData );
 
-void*	ImUiMemoryAlloc( ImUiAllocator* allocator, uintsize size );
-void*	ImUiMemoryAllocZero( ImUiAllocator* allocator, uintsize size );
-void*	ImUiMemoryRealloc( ImUiAllocator* allocator, void* oldMemory, uintsize oldSize, uintsize newSize );
-void	ImUiMemoryFree( ImUiAllocator* allocator, const void* memory );
+void*	imuiMemoryAlloc( ImuiAllocator* allocator, uintsize size );
+void*	imuiMemoryAllocZero( ImuiAllocator* allocator, uintsize size );
+void*	imuiMemoryRealloc( ImuiAllocator* allocator, void* oldMemory, uintsize oldSize, uintsize newSize );
+void	imuiMemoryFree( ImuiAllocator* allocator, const void* memory );
 
-bool	ImUiMemoryArrayCheckCapacity( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero );
-void	ImUiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, uintsize elementIndex, uintsize elementSize, bool zero );
-void	ImUiMemoryArrayShrink( ImUiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize );
-void	ImUiMemoryArrayFree( ImUiAllocator* allocator, void** memory, uintsize* capacity );
+bool	imuiMemoryArrayCheckCapacity( ImuiAllocator* allocator, void** memory, uintsize* capacity, uintsize requiredCapacity, uintsize elementSize, bool zero );
+void	imuiMemoryArrayRemoveElementUnsorted( void* memory, uintsize* arrayCount, uintsize elementIndex, uintsize elementSize, bool zero );
+void	imuiMemoryArrayShrink( ImuiAllocator* allocator, void** memory, uintsize* capacity, uintsize count, uintsize elementSize );
+void	imuiMemoryArrayFree( ImuiAllocator* allocator, void** memory, uintsize* capacity );

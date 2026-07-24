@@ -14,38 +14,38 @@
 using namespace imui;
 using namespace imui::toolbox;
 
-typedef struct ImUiToolboxCppSampleContext
+typedef struct ImuiToolboxCppSampleContext
 {
 	float							sliderValue1;
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	ImUiFrameworkToolboxConfigData	configData;
+	ImuiFrameworkToolboxConfigData	configData;
 #endif
-} ImUiToolboxCppSampleContext;
+} ImuiToolboxCppSampleContext;
 
-static ImUiToolboxCppSampleContext s_toolboxCppContext = { 2.5f };
+static ImuiToolboxCppSampleContext s_toolboxCppContext = { 2.5f };
 
-static void			ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
-static void			ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window );
-static void			ImUiToolboxCppSampleTextEdit( UiToolboxWindow& window );
-static void			ImUiToolboxCppSampleDropDown( UiToolboxWindow& window );
-static void			ImUiToolboxCppSamplePopup( UiToolboxWindow& window );
-static void			ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window );
+static void			imuiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout );
+static void			imuiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window );
+static void			imuiToolboxCppSampleTextEdit( UiToolboxWindow& window );
+static void			imuiToolboxCppSampleDropDown( UiToolboxWindow& window );
+static void			imuiToolboxCppSamplePopup( UiToolboxWindow& window );
+static void			imuiToolboxCppSampleScrollAndList( UiToolboxWindow& window );
 
-struct ImUiTestCheckBoxState
+struct ImuiTestCheckBoxState
 {
 	bool checked[ 3u ];
 };
 
-struct ImUiTestPopupState
+struct ImuiTestPopupState
 {
 	bool isOpen;
 };
 
-void ImUiToolboxCppSampleTick( ImUiWindow* cWindow )
+void imuiToolboxCppSampleTick( ImuiWindow* cWindow )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	ImUiFrameworkToolboxConfigDataApply( &s_toolboxCppContext.configData );
+	imuiFrameworkToolboxConfigDataApply( &s_toolboxCppContext.configData );
 #endif
 
 	UiToolboxWindow window( cWindow );
@@ -60,30 +60,30 @@ void ImUiToolboxCppSampleTick( ImUiWindow* cWindow )
 		vLayout.setHStretch( 1.0f );
 		vLayout.setLayoutVertical( 10.0f );
 
-		ImUiToolboxCppSampleButtonsAndCheckBoxes( window, vLayout );
-		ImUiToolboxCppSampleSlidersAndProgressBars( window );
-		ImUiToolboxCppSampleTextEdit( window );
-		ImUiToolboxCppSampleDropDown( window );
-		ImUiToolboxCppSamplePopup( window );
+		imuiToolboxCppSampleButtonsAndCheckBoxes( window, vLayout );
+		imuiToolboxCppSampleSlidersAndProgressBars( window );
+		imuiToolboxCppSampleTextEdit( window );
+		imuiToolboxCppSampleDropDown( window );
+		imuiToolboxCppSamplePopup( window );
 	}
 
-	ImUiToolboxCppSampleScrollAndList( window );
+	imuiToolboxCppSampleScrollAndList( window );
 
 	{
-		const ImUiPos mousePos = window.getInput().getMousePos();
+		const ImuiPos mousePos = window.getInput().getMousePos();
 		UiToolboxLabel mouseLabel;
 		mouseLabel.beginFormat( window, "X: %.0f, Y: %.0f", mousePos.x, mousePos.y );
 		mouseLabel.setMinWidth( 100.0f );
 		mouseLabel.setVAlign( 0.0f );
 	}
 
-	//ImUiDrawRectTexture( vLayout, ImUiRectCreateSize( 50.0f, 50.0f, s_toolboxCppContext.fontTexture.size ), s_toolboxCppContext.fontTexture );
+	//imuiDrawRectTexture( vLayout, imuiRectCreateSize( 50.0f, 50.0f, s_toolboxCppContext.fontTexture.size ), s_toolboxCppContext.fontTexture );
 }
 
-static void ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout )
+static void imuiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, UiWidget& vLayout )
 {
 	bool isNewState;
-	ImUiTestCheckBoxState* state = vLayout.newState< ImUiTestCheckBoxState >( isNewState );
+	ImuiTestCheckBoxState* state = vLayout.newState< ImuiTestCheckBoxState >( isNewState );
 	if( isNewState )
 	{
 		state->checked[ 1u ] = true;
@@ -124,7 +124,7 @@ static void ImUiToolboxCppSampleButtonsAndCheckBoxes( UiToolboxWindow& window, U
 	}
 }
 
-static void ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window )
+static void imuiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window )
 {
 	UiWidget sliderLayout( window, "sliders" );
 	sliderLayout.setHStretch( 1.0f );
@@ -140,12 +140,12 @@ static void ImUiToolboxCppSampleSlidersAndProgressBars( UiToolboxWindow& window 
 	window.progressBar( -1.0f );
 }
 
-static void ImUiToolboxCppSampleTextEdit( UiToolboxWindow& window )
+static void imuiToolboxCppSampleTextEdit( UiToolboxWindow& window )
 {
 	window.textEditState( 128u );
 }
 
-static void ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window )
+static void imuiToolboxCppSampleScrollAndList( UiToolboxWindow& window )
 {
 	UiWidget vLayout( window, "vLayout" );
 	vLayout.setHStretch( 1.0f );
@@ -189,7 +189,7 @@ static void ImUiToolboxCppSampleScrollAndList( UiToolboxWindow& window )
 	}
 }
 
-static void ImUiToolboxCppSampleDropDown( UiToolboxWindow& window )
+static void imuiToolboxCppSampleDropDown( UiToolboxWindow& window )
 {
 	const char* items[] =
 	{
@@ -212,10 +212,10 @@ static void ImUiToolboxCppSampleDropDown( UiToolboxWindow& window )
 	window.dropDown( items, IMUI_ARRAY_COUNT( items ) );
 }
 
-static void ImUiToolboxCppSamplePopup( UiToolboxWindow& window )
+static void imuiToolboxCppSamplePopup( UiToolboxWindow& window )
 {
 	UiToolboxButtonLabel button( window, "Open Popup" );
-	ImUiTestPopupState* state = button.newState< ImUiTestPopupState >();
+	ImuiTestPopupState* state = button.newState< ImuiTestPopupState >();
 
 	if( button.end() )
 	{
@@ -242,12 +242,12 @@ static void ImUiToolboxCppSamplePopup( UiToolboxWindow& window )
 	}
 }
 
-bool ImUiToolboxCppSampleInitialize( ImUiContext* imui )
+bool imuiToolboxCppSampleInitialize( ImuiContext* imui )
 {
-	return ImUiFrameworkToolboxConfigDataInitialize( &s_toolboxCppContext.configData, imui );
+	return imuiFrameworkToolboxConfigDataInitialize( &s_toolboxCppContext.configData, imui );
 }
 
-void ImUiToolboxCppSampleShutdown( ImUiContext* imui )
+void imuiToolboxCppSampleShutdown( ImuiContext* imui )
 {
-	ImUiFrameworkToolboxConfigDataShutdown( &s_toolboxCppContext.configData, imui );
+	imuiFrameworkToolboxConfigDataShutdown( &s_toolboxCppContext.configData, imui );
 }

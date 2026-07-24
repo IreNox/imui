@@ -11,24 +11,24 @@ namespace imui
 	class UiInputState;
 	struct UiSize;
 
-	struct UiBorder : public ImUiBorder
+	struct UiBorder : public ImuiBorder
 	{
 						UiBorder();
 						UiBorder( float all );
 						UiBorder( float horizontal, float vertical );
 						UiBorder( float _top, float _left, float _bottom, float _right );
-						UiBorder( const ImUiBorder& value );
+						UiBorder( const ImuiBorder& value );
 
 		UiSize			getMinSize() const;
 	};
 
-	struct UiPos : public ImUiPos
+	struct UiPos : public ImuiPos
 	{
 						UiPos();
 						UiPos( float all );
 						UiPos( float _x, float _y );
-						UiPos( const ImUiPos& value );
-		explicit		UiPos( const ImUiSize& value );
+						UiPos( const ImuiPos& value );
+		explicit		UiPos( const ImuiSize& value );
 
 		UiPos			add( float _x, float _y ) const;
 		UiPos			add( UiPos add ) const;
@@ -46,17 +46,17 @@ namespace imui
 		static UiPos	Zero;
 	};
 
-	struct UiRect : public ImUiRect
+	struct UiRect : public ImuiRect
 	{
 						UiRect();
 						UiRect( UiPos _pos, UiSize _size );
 						UiRect( float x, float y, float width, float height );
-						UiRect( const ImUiRect& value );
+						UiRect( const ImuiRect& value );
 
-		UiRect			shrinkBorder( const ImUiBorder& border ) const;
+		UiRect			shrinkBorder( const ImuiBorder& border ) const;
 
-		bool			includesPos( ImUiPos _pos ) const;
-		bool			intersectsRect( const ImUiRect& rect2 ) const;
+		bool			includesPos( ImuiPos _pos ) const;
+		bool			intersectsRect( const ImuiRect& rect2 ) const;
 
 		float			getRight() const;
 		float			getBottom() const;
@@ -69,14 +69,14 @@ namespace imui
 		UiSize			getSize() const;
 	};
 
-	struct UiSize : public ImUiSize
+	struct UiSize : public ImuiSize
 	{
 						UiSize();
 						UiSize( float all );
 						UiSize( float _width, float _height );
-						UiSize( const ImUiSize& value );
-						UiSize( const ImUiSkin& value );
-						UiSize( const ImUiImage& value );
+						UiSize( const ImuiSize& value );
+						UiSize( const ImuiSkin& value );
+						UiSize( const ImuiImage& value );
 
 		UiSize			add( float _width, float _height ) const;
 		UiSize			add( UiSize add ) const;
@@ -102,14 +102,14 @@ namespace imui
 		static UiSize	One;
 	};
 
-	struct UiColor : public ImUiColor
+	struct UiColor : public ImuiColor
 	{
 						UiColor();
 						UiColor( uint8_t _red, uint8_t _green, uint8_t _blue );
 						UiColor( uint8_t _red, uint8_t _green, uint8_t _blue, uint8_t _alpha );
 						UiColor( float _red, float _green, float _blue );
 						UiColor( float _red, float _green, float _blue, float _alpha );
-		explicit		UiColor( ImUiColor value );
+		explicit		UiColor( ImuiColor value );
 
 		static UiColor	createWhite( uint8_t _alpha );
 		static UiColor	createBlack( uint8_t _alpha );
@@ -121,14 +121,14 @@ namespace imui
 		static UiColor	TransparentBlack;
 	};
 
-	struct UiTexCoord : public ImUiTexCoord
+	struct UiTexCoord : public ImuiTexCoord
 	{
 							UiTexCoord( float _u0, float _v0, float _u1, float _v1 );
 
 		static UiTexCoord	ZeroToOne;
 	};
 
-	struct UiContextParameters : public ImUiParameters
+	struct UiContextParameters : public ImuiParameters
 	{
 						UiContextParameters();
 	};
@@ -149,49 +149,49 @@ namespace imui
 	public:
 
 						UiContext();
-						UiContext( ImUiContext* context );
+						UiContext( ImuiContext* context );
 						UiContext( const UiContextParameters& parameters );
 						~UiContext();
 
 		bool			isValid() const;
-		ImUiContext*	getInternal() const;
+		ImuiContext*	getInternal() const;
 
-		UiInput&		beginInput( const ImUiInputState* previousInput );
+		UiInput&		beginInput( const ImuiInputState* previousInput );
 		void			endInput();
 
-		void			setMouseCursor( ImUiInputMouseCursor cursor );
+		void			setMouseCursor( ImuiInputMouseCursor cursor );
 
 	private:
 
 		bool			m_owner;
-		ImUiContext*	m_context;
+		ImuiContext*	m_context;
 	};
 
 	class UiInputState
 	{
 	public:
 
-								UiInputState( const ImUiInputState* input );
+								UiInputState( const ImuiInputState* input );
 
-		uint32_t				getKeyModifiers() const;	// returns ImUiInputModifier
-		bool					isKeyDown( ImUiInputKey key ) const;
-		bool					isKeyUp( ImUiInputKey key ) const;
-		bool					hasKeyPressed( ImUiInputKey key ) const;
-		bool					hasKeyReleased( ImUiInputKey key ) const;
+		uint32_t				getKeyModifiers() const;	// returns imuiInputModifier
+		bool					isKeyDown( ImuiInputKey key ) const;
+		bool					isKeyUp( ImuiInputKey key ) const;
+		bool					hasKeyPressed( ImuiInputKey key ) const;
+		bool					hasKeyReleased( ImuiInputKey key ) const;
 
 		const char*				getText() const;
 
 		UiPos					getMousePos() const;
 		bool					isMouseInRect( UiRect rect ) const;
-		bool					isMouseButtonDown( ImUiInputMouseButton button ) const;
-		bool					isMouseButtonUp( ImUiInputMouseButton button ) const;
-		bool					hasMouseButtonPressed( ImUiInputMouseButton button ) const;
-		bool					hasMouseButtonReleased( ImUiInputMouseButton button ) const;
+		bool					isMouseButtonDown( ImuiInputMouseButton button ) const;
+		bool					isMouseButtonUp( ImuiInputMouseButton button ) const;
+		bool					hasMouseButtonPressed( ImuiInputMouseButton button ) const;
+		bool					hasMouseButtonReleased( ImuiInputMouseButton button ) const;
 		UiPos					getMouseScrollDelta() const;
 
 	private:
 
-		const ImUiInputState*	m_state;
+		const ImuiInputState*	m_state;
 	};
 
 	class UiFrame
@@ -199,7 +199,7 @@ namespace imui
 	public:
 
 						UiFrame();
-						UiFrame( ImUiFrame* frame );
+						UiFrame( ImuiFrame* frame );
 						UiFrame( UiContext& context, float timeInSeconds );
 						~UiFrame();
 
@@ -207,12 +207,12 @@ namespace imui
 		void			endFrame();
 
 		bool			isValid() const;
-		ImUiFrame*		getInternal() const;
+		ImuiFrame*		getInternal() const;
 
 	private:
 
 		bool			m_owner;
-		ImUiFrame*		m_frame;
+		ImuiFrame*		m_frame;
 	};
 
 	class UiSurface
@@ -220,17 +220,17 @@ namespace imui
 	public:
 
 						UiSurface();
-						UiSurface( ImUiSurface* surface );
-						UiSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
-						UiSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
+						UiSurface( ImuiSurface* surface );
+						UiSurface( ImuiFrame* frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale );
+						UiSurface( UiFrame& frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale );
 						~UiSurface();
 
-		void			beginSurface( ImUiFrame* frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
-		void			beginSurface( UiFrame& frame, const char* name, const ImUiSize& size, const ImUiInputState* input, float dpiScale );
+		void			beginSurface( ImuiFrame* frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale );
+		void			beginSurface( UiFrame& frame, const char* name, const ImuiSize& size, const ImuiInputState* input, float dpiScale );
 		void			endSurface();
 
 		bool			isValid() const;
-		ImUiSurface*	getInternal() const;
+		ImuiSurface*	getInternal() const;
 		UiContext		getContext() const;
 		UiInputState	getInput() const;
 
@@ -242,7 +242,7 @@ namespace imui
 	private:
 
 		bool			m_owner;
-		ImUiSurface*	m_surface;
+		ImuiSurface*	m_surface;
 	};
 
 	class UiWindow
@@ -250,25 +250,25 @@ namespace imui
 	public:
 
 						UiWindow();
-						UiWindow( ImUiWindow* window );
-						UiWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
-						UiWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
+						UiWindow( ImuiWindow* window );
+						UiWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
+						UiWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
 						~UiWindow();
 
-		void			beginWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
-		void			beginWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
+		void			beginWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
+		void			beginWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
 		void			endWindow();
 
 		bool			isValid() const;
-		ImUiWindow*		getInternal() const;
+		ImuiWindow*		getInternal() const;
 		UiContext		getContext() const;
 		UiSurface		getSurface() const;
 		UiInputState	getInput() const;
 
 		double			getTime() const;
 
-		void*			allocState( size_t size, ImUiId stateId );
-		void*			allocState( size_t size, ImUiId stateId, bool& isNew );
+		void*			allocState( size_t size, ImuiId stateId );
+		void*			allocState( size_t size, ImuiId stateId, bool& isNew );
 		template< class T >
 		T*				newState();
 		template< class T >
@@ -280,7 +280,7 @@ namespace imui
 	protected:
 
 		bool			m_owner;
-		ImUiWindow*		m_window;
+		ImuiWindow*		m_window;
 	};
 
 	class UiWidget : public UiNonCopyable
@@ -289,19 +289,19 @@ namespace imui
 
 						UiWidget();
 		explicit		UiWidget( UiWindow& window );
-						UiWidget( UiWindow& window, ImUiId id );
+						UiWidget( UiWindow& window, ImuiId id );
 						UiWidget( UiWindow& window, const char* name );
-		explicit		UiWidget( ImUiWidget* widget );
+		explicit		UiWidget( ImuiWidget* widget );
 						~UiWidget();
 
 		void			beginWidget( UiWindow& window );
-		void			beginWidget( UiWindow& window, ImUiId id );
+		void			beginWidget( UiWindow& window, ImuiId id );
 		void			beginWidget( UiWindow& window, const char* name );
-		void			beginWidget( ImUiWidget* widget );
+		void			beginWidget( ImuiWidget* widget );
 		void			endWidget();
 
 		bool			isValid() const;
-		ImUiWidget*		getInternal() const;
+		ImuiWidget*		getInternal() const;
 		UiContext		getContext() const;
 		UiSurface		getSurface() const;
 		UiWindow		getWindow() const;
@@ -309,14 +309,14 @@ namespace imui
 
 		double			getTime();
 
-		void*			allocState( size_t size, ImUiId stateId );
-		void*			allocState( size_t size, ImUiId stateId, bool& isNew );
+		void*			allocState( size_t size, ImuiId stateId );
+		void*			allocState( size_t size, ImuiId stateId, bool& isNew );
 		template< class T >
 		T*				newState();
 		template< class T >
 		T*				newState( bool& isNew );
 
-		ImUiLayout		getLayout() const;
+		ImuiLayout		getLayout() const;
 		void			setLayoutStack();							// default
 		void			setLayoutScroll( float offsetX, float offsetY );
 		void			setLayoutHorizontal( float spacing = 0.0f );
@@ -324,9 +324,9 @@ namespace imui
 		void			setLayoutGrid( uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 
 		UiBorder		getMargin() const;
-		void			setMargin( const ImUiBorder& margin );
+		void			setMargin( const ImuiBorder& margin );
 		UiBorder		getPadding() const;
-		void			setPadding( const ImUiBorder& padding );
+		void			setPadding( const ImuiBorder& padding );
 
 		UiSize			getMinSize() const;
 		void			setMinWidth( float value );
@@ -358,25 +358,25 @@ namespace imui
 		UiSize			getSize() const;
 		UiRect			getRect() const;
 
-		void			getInputState( ImUiWidgetInputState& inputState ) const;
+		void			getInputState( ImuiWidgetInputState& inputState ) const;
 
-		void			drawLine( ImUiPos p0, ImUiPos p1, ImUiColor color );
-		void			drawTriangle( ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color );
-		void			drawColor( ImUiColor color );
-		void			drawImage( const ImUiImage& image );
-		void			drawImage( const ImUiImage& image, ImUiColor color );
-		void			drawSkin( const ImUiSkin& skin, ImUiColor color );
-		void			drawText( ImUiTextLayout* layout, ImUiColor color );
-		void			drawPartialColor( const ImUiRect& rect, ImUiColor color );
-		void			drawPartialImage( const ImUiRect& rect, const ImUiImage& image );
-		void			drawPartialImage( const ImUiRect& rect, const ImUiImage& image, ImUiColor color );
-		void			drawPartialSkin( const ImUiRect& rect, const ImUiSkin& skin, ImUiColor color );
-		void			drawPositionText( ImUiPos pos, ImUiTextLayout* layout, ImUiColor color );
+		void			drawLine( ImuiPos p0, ImuiPos p1, ImuiColor color );
+		void			drawTriangle( ImuiPos p0, ImuiPos p1, ImuiPos p2, ImuiColor color );
+		void			drawColor( ImuiColor color );
+		void			drawImage( const ImuiImage& image );
+		void			drawImage( const ImuiImage& image, ImuiColor color );
+		void			drawSkin( const ImuiSkin& skin, ImuiColor color );
+		void			drawText( ImuiTextLayout* layout, ImuiColor color );
+		void			drawPartialColor( const ImuiRect& rect, ImuiColor color );
+		void			drawPartialImage( const ImuiRect& rect, const ImuiImage& image );
+		void			drawPartialImage( const ImuiRect& rect, const ImuiImage& image, ImuiColor color );
+		void			drawPartialSkin( const ImuiRect& rect, const ImuiSkin& skin, ImuiColor color );
+		void			drawPositionText( ImuiPos pos, ImuiTextLayout* layout, ImuiColor color );
 
 	protected:
 
 		bool			m_owner;
-		ImUiWidget*		m_widget;
+		ImuiWidget*		m_widget;
 	};
 
 	class UiWidgetLayoutHorizontal : public UiWidget
@@ -384,7 +384,7 @@ namespace imui
 	public:
 
 						UiWidgetLayoutHorizontal( UiWindow& window, float spacing = 0.0f );
-						UiWidgetLayoutHorizontal( UiWindow& window, ImUiId id, float spacing = 0.0f );
+						UiWidgetLayoutHorizontal( UiWindow& window, ImuiId id, float spacing = 0.0f );
 						UiWidgetLayoutHorizontal( UiWindow& window, const char* name, float spacing = 0.0f );
 	};
 
@@ -393,7 +393,7 @@ namespace imui
 	public:
 
 						UiWidgetLayoutVertical( UiWindow& window, float spacing = 0.0f );
-						UiWidgetLayoutVertical( UiWindow& window, ImUiId id, float spacing = 0.0f );
+						UiWidgetLayoutVertical( UiWindow& window, ImuiId id, float spacing = 0.0f );
 						UiWidgetLayoutVertical( UiWindow& window, const char* name, float spacing = 0.0f );
 	};
 
@@ -402,26 +402,26 @@ namespace imui
 	public:
 
 						UiWidgetLayoutGrid( UiWindow& window, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
-						UiWidgetLayoutGrid( UiWindow& window, ImUiId id, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
+						UiWidgetLayoutGrid( UiWindow& window, ImuiId id, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 						UiWidgetLayoutGrid( UiWindow& window, const char* name, uint32_t columnCount, float colSpacing = 0.0f, float rowSpacing = 0.0f );
 	};
 
 	namespace toolbox
 	{
-		struct UiToolboxTheme : public ImUiToolboxTheme, public UiNonCopyable
+		struct UiToolboxTheme : public ImuiToolboxTheme, public UiNonCopyable
 		{
 										UiToolboxTheme();
-										UiToolboxTheme( ImUiFont* inFont );
+										UiToolboxTheme( ImuiFont* inFont );
 
-			void		setDefault( ImUiFont* inFont );
+			void		setDefault( ImuiFont* inFont );
 
 			void		applyConfig();
 
-			static const UiColor&		getColor( ImUiToolboxColor color );
-			static const ImUiSkin&		getSkin( ImUiToolboxSkin skin );
-			static const ImUiImage&		getIcon( ImUiToolboxIcon icon );
+			static const UiColor&		getColor( ImuiToolboxColor color );
+			static const ImuiSkin&		getSkin( ImuiToolboxSkin skin );
+			static const ImuiImage&		getIcon( ImuiToolboxIcon icon );
 
-			static ImUiToolboxTheme&	getTheme();
+			static ImuiToolboxTheme&	getTheme();
 		};
 
 		class UiToolboxConfigFloatScope : public UiNonCopyable
@@ -441,51 +441,51 @@ namespace imui
 		{
 		public:
 
-								UiToolboxConfigColorScope( ImUiToolboxColor color, const ImUiColor& newValue, bool active = true );
+								UiToolboxConfigColorScope( ImuiToolboxColor color, const ImuiColor& newValue, bool active = true );
 								~UiToolboxConfigColorScope();
 
 		private:
 
-			ImUiToolboxColor	m_color;
-			ImUiColor			m_oldValue;
+			ImuiToolboxColor	m_color;
+			ImuiColor			m_oldValue;
 		};
 
 		class UiToolboxConfigSkinScope : public UiNonCopyable
 		{
 		public:
 
-								UiToolboxConfigSkinScope( ImUiToolboxSkin skin, const ImUiSkin& newValue, bool active = true );
+								UiToolboxConfigSkinScope( ImuiToolboxSkin skin, const ImuiSkin& newValue, bool active = true );
 								~UiToolboxConfigSkinScope();
 
 		private:
 
-			ImUiToolboxSkin		m_skin;
-			ImUiSkin			m_oldValue;
+			ImuiToolboxSkin		m_skin;
+			ImuiSkin			m_oldValue;
 		};
 
 		class UiToolboxConfigIconScope : public UiNonCopyable
 		{
 		public:
 
-								UiToolboxConfigIconScope( ImUiToolboxIcon icon, const ImUiImage& newValue, bool active = true );
+								UiToolboxConfigIconScope( ImuiToolboxIcon icon, const ImuiImage& newValue, bool active = true );
 								~UiToolboxConfigIconScope();
 
 		private:
 
-			ImUiToolboxIcon		m_icon;
-			ImUiImage			m_oldValue;
+			ImuiToolboxIcon		m_icon;
+			ImuiImage			m_oldValue;
 		};
 
 		class UiToolboxConfigBorderScope : public UiNonCopyable
 		{
 		public:
 
-								UiToolboxConfigBorderScope( ImUiBorder& value, UiBorder newValue, bool active = true );
+								UiToolboxConfigBorderScope( ImuiBorder& value, UiBorder newValue, bool active = true );
 								~UiToolboxConfigBorderScope();
 
 		private:
 
-			ImUiBorder&			m_value;
+			ImuiBorder&			m_value;
 			UiBorder			m_oldValue;
 		};
 
@@ -495,17 +495,17 @@ namespace imui
 
 							UiToolboxWindow();
 							UiToolboxWindow( UiWindow& window );
-							UiToolboxWindow( ImUiWindow* window );
-							UiToolboxWindow( ImUiSurface* surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
-							UiToolboxWindow( UiSurface& surface, const char* name, const ImUiRect& rect, uint32_t zOrder );
+							UiToolboxWindow( ImuiWindow* window );
+							UiToolboxWindow( ImuiSurface* surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
+							UiToolboxWindow( UiSurface& surface, const char* name, const ImuiRect& rect, uint32_t zOrder );
 
 			void			spacer( float width, float height );
 			void			strecher( float horizontal, float vertical );
 
 			bool			buttonLabel( const char* text );
 			bool			buttonLabelFormat( const char* format, ... );
-			bool			buttonIcon( const ImUiImage& icon );
-			bool			buttonIcon( const ImUiImage& icon, ImUiSize iconSize );
+			bool			buttonIcon( const ImuiImage& icon );
+			bool			buttonIcon( const ImuiImage& icon, ImuiSize iconSize );
 
 			bool			checkBox( bool& checked, const char* text );
 			bool			checkBoxState( const char* text, bool defaultValue = false );
@@ -513,8 +513,8 @@ namespace imui
 			void			label( const char* text );
 			void			label( const char* text, size_t length );
 			void			labelFormat( const char* format, ... );
-			void			image( const ImUiImage& img );
-			void			image( const ImUiImage& img, const ImUiSize& size );
+			void			image( const ImuiImage& img );
+			void			image( const ImuiImage& img, const ImuiSize& size );
 
 			bool			slider( float& value, float min = 0.0f, float max = 1.0f );
 			float			sliderState( float min = 0.0f, float max = 1.0f );
@@ -617,7 +617,7 @@ namespace imui
 
 		private:
 
-			ImUiToolboxScrollAreaContext m_scrollArea;
+			ImuiToolboxScrollAreaContext m_scrollArea;
 		};
 
 		class UiToolboxList : public UiWidget
@@ -634,11 +634,11 @@ namespace imui
 			size_t		getSelectedIndex() const;
 			void		setSelectedIndex( size_t index );
 
-			void		nextItem( UiWidget* widget = nullptr, ImUiId id = IMUI_ID_DEFAULT );
+			void		nextItem( UiWidget* widget = nullptr, ImuiId id = IMUI_ID_DEFAULT );
 
 		private:
 
-			ImUiToolboxListContext	m_list;
+			ImuiToolboxListContext	m_list;
 		};
 
 		class UiToolboxDropdown : public UiWidget
@@ -660,7 +660,7 @@ namespace imui
 
 		private:
 
-			ImUiToolboxDropDownContext	m_dropDown;
+			ImuiToolboxDropDownContext	m_dropDown;
 		};
 
 		class UiToolboxPopup : public UiToolboxWindow
@@ -695,7 +695,7 @@ namespace imui
 
 		private:
 
-			ImUiToolboxTabViewContext	m_context;
+			ImuiToolboxTabViewContext	m_context;
 		};
 	}
 
@@ -717,8 +717,8 @@ namespace imui
 	T* UiWindow::newState( bool& isNew )
 	{
 		void (*destructFunc)(void*) = &callDestructor< T >;
-		const ImUiId stateId = (ImUiId)(size_t)destructFunc;
-		void* memory = ImUiWindowAllocStateNewDestruct( m_window, sizeof( T ), stateId, &isNew, destructFunc );
+		const ImuiId stateId = (ImuiId)(size_t)destructFunc;
+		void* memory = imuiWindowAllocStateNewDestruct( m_window, sizeof( T ), stateId, &isNew, destructFunc );
 		if( !memory )
 		{
 			return nullptr;
@@ -744,8 +744,8 @@ namespace imui
 	T* UiWidget::newState( bool& isNew )
 	{
 		void (*destructFunc)( void* ) = &callDestructor< T >;
-		const ImUiId stateId = (ImUiId)(size_t)destructFunc;
-		void* memory = ImUiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), stateId, &isNew, destructFunc );
+		const ImuiId stateId = (ImuiId)(size_t)destructFunc;
+		void* memory = imuiWidgetAllocStateNewDestruct( m_widget, sizeof( T ), stateId, &isNew, destructFunc );
 		if( !memory )
 		{
 			return nullptr;

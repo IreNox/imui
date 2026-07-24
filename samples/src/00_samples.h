@@ -7,25 +7,25 @@ extern "C"
 {
 #endif
 
-bool					ImUiHelloWorldSampleInitialize( ImUiContext* imui );
-void					ImUiHelloWorldSampleShutdown( ImUiContext* imui );
-void					ImUiHelloWorldSampleTick( ImUiWindow* window );
+bool					imuiHelloWorldSampleInitialize( ImuiContext* imui );
+void					imuiHelloWorldSampleShutdown( ImuiContext* imui );
+void					imuiHelloWorldSampleTick( ImuiWindow* window );
 
-bool					ImUiLayoutSampleInitialize( ImUiContext* imui );
-void					ImUiLayoutSampleShutdown( ImUiContext* imui );
-void					ImUiLayoutSampleTick( ImUiWindow* window );
+bool					imuiLayoutSampleInitialize( ImuiContext* imui );
+void					imuiLayoutSampleShutdown( ImuiContext* imui );
+void					imuiLayoutSampleTick( ImuiWindow* window );
 
-bool					ImUiInputSampleInitialize( ImUiContext* imui );
-void					ImUiInputSampleShutdown( ImUiContext* imui );
-void					ImUiInputSampleTick( ImUiWindow* window );
+bool					imuiInputSampleInitialize( ImuiContext* imui );
+void					imuiInputSampleShutdown( ImuiContext* imui );
+void					imuiInputSampleTick( ImuiWindow* window );
 
-bool					ImUiToolboxSampleInitialize( ImUiContext* imui );
-void					ImUiToolboxSampleShutdown( ImUiContext* imui );
-void					ImUiToolboxSampleTick( ImUiWindow* window );
+bool					imuiToolboxSampleInitialize( ImuiContext* imui );
+void					imuiToolboxSampleShutdown( ImuiContext* imui );
+void					imuiToolboxSampleTick( ImuiWindow* window );
 
-bool					ImUiToolboxCppSampleInitialize( ImUiContext* imui );
-void					ImUiToolboxCppSampleShutdown( ImUiContext* imui );
-void					ImUiToolboxCppSampleTick( ImUiWindow* window );
+bool					imuiToolboxCppSampleInitialize( ImuiContext* imui );
+void					imuiToolboxCppSampleShutdown( ImuiContext* imui );
+void					imuiToolboxCppSampleTick( ImuiWindow* window );
 
 #ifdef __cplusplus
 }

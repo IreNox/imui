@@ -5,16 +5,16 @@
 #include "imui_types.h"
 #include "imui_helpers.h"
 
-struct ImUiFont
+struct ImuiFont
 {
-	ImUiImage			image;
+	ImuiImage			image;
 
-	ImUiFontCodepoint*	codepoints;
+	ImuiFontCodepoint*	codepoints;
 	uintsize			codepointCount;
 
 	float				fontSize;
 	float				lineGap;
 	bool				isScalable;
 
-	ImUiHashMap			codepointMap;
+	ImuiHashMap			codepointMap;
 };

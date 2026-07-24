@@ -3,12 +3,12 @@
 #include "imui/imui.h"
 #include "imui_types.h"
 
-typedef ImUiHash(*ImUiHashMapEntryHashFunc)( const void* entry );
-typedef bool(*ImUiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
+typedef ImuiHash(*imuiHashMapEntryHashFunc)( const void* entry );
+typedef bool(*imuiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
 
-typedef struct ImUiHashMap
+typedef struct ImuiHashMap
 {
-	ImUiAllocator*				allocator;
+	ImuiAllocator*				allocator;
 
 	uint64*						entriesInUse;
 	uint8*						entries;
@@ -16,41 +16,41 @@ typedef struct ImUiHashMap
 	uintsize					entryCapacity;
 
 	uintsize					entrySize;
-	ImUiHashMapEntryHashFunc	entryHashFunc;
-	ImUiHashMapIsKeyEqualsFunc	entryKeyEqualsFunc;
-} ImUiHashMap;
+	imuiHashMapEntryHashFunc	entryHashFunc;
+	imuiHashMapIsKeyEqualsFunc	entryKeyEqualsFunc;
+} ImuiHashMap;
 
-bool			ImUiHashMapConstructSize( ImUiHashMap* hashMap, ImUiAllocator* allocator, uintsize entrySize, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc, uintsize initialSize );
-bool			ImUiHashMapConstructStatic( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
-bool			ImUiHashMapConstructStaticPointer( ImUiHashMap* hashMap, ImUiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, ImUiHashMapEntryHashFunc entryHashFunc, ImUiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
-void			ImUiHashMapDestruct( ImUiHashMap* hashMap );
+bool			imuiHashMapConstructSize( ImuiHashMap* hashMap, ImuiAllocator* allocator, uintsize entrySize, imuiHashMapEntryHashFunc entryHashFunc, imuiHashMapIsKeyEqualsFunc entryKeyEqualsFunc, uintsize initialSize );
+bool			imuiHashMapConstructStatic( ImuiHashMap* hashMap, ImuiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, imuiHashMapEntryHashFunc entryHashFunc, imuiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
+bool			imuiHashMapConstructStaticPointer( ImuiHashMap* hashMap, ImuiAllocator* allocator, const void* data, uintsize entrySize, uintsize entryCount, imuiHashMapEntryHashFunc entryHashFunc, imuiHashMapIsKeyEqualsFunc entryKeyEqualsFunc );
+void			imuiHashMapDestruct( ImuiHashMap* hashMap );
 
-void*			ImUiHashMapFind( ImUiHashMap* hashMap, const void* entry );
+void*			imuiHashMapFind( ImuiHashMap* hashMap, const void* entry );
 
-void*			ImUiHashMapInsert( ImUiHashMap* hashMap, const void* entry );
-void*			ImUiHashMapInsertNew( ImUiHashMap* hashMap, const void* entry, bool* isNew );
-bool			ImUiHashMapRemove( ImUiHashMap* hashMap, const void* entry );
+void*			imuiHashMapInsert( ImuiHashMap* hashMap, const void* entry );
+void*			imuiHashMapInsertNew( ImuiHashMap* hashMap, const void* entry, bool* isNew );
+bool			imuiHashMapRemove( ImuiHashMap* hashMap, const void* entry );
 
-uintsize		ImUiHashMapFindFirstIndex( ImUiHashMap* hashMap );
-uintsize		ImUiHashMapFindNextIndex( ImUiHashMap* hashMap, uintsize entry );
+uintsize		imuiHashMapFindFirstIndex( ImuiHashMap* hashMap );
+uintsize		imuiHashMapFindNextIndex( ImuiHashMap* hashMap, uintsize entry );
 
-void*			ImUiHashMapGetEntry( ImUiHashMap* hashMap, uintsize index );
+void*			imuiHashMapGetEntry( ImuiHashMap* hashMap, uintsize index );
 
-typedef struct ImUiStringPoolChunk ImUiStringPoolChunk;
+typedef struct ImuiStringPoolChunk ImuiStringPoolChunk;
 
-typedef struct ImUiStringPool
+typedef struct ImuiStringPool
 {
-	ImUiAllocator*			allocator;
-	ImUiStringPoolChunk*	firstChunk;
+	ImuiAllocator*			allocator;
+	ImuiStringPoolChunk*	firstChunk;
 
-	ImUiHashMap				keyMap;
-} ImUiStringPool;
+	ImuiHashMap				keyMap;
+} ImuiStringPool;
 
-bool						ImUiStringPoolConstruct( ImUiStringPool* stringPool, ImUiAllocator* allocator );
-void						ImUiStringPoolDestruct( ImUiStringPool* stringPool );
+bool						imuiStringPoolConstruct( ImuiStringPool* stringPool, ImuiAllocator* allocator );
+void						imuiStringPoolDestruct( ImuiStringPool* stringPool );
 
-void						ImUiStringPoolClear( ImUiStringPool* stringPool );
+void						imuiStringPoolClear( ImuiStringPool* stringPool );
 
-ImUiStringView				ImUiStringPoolAdd( ImUiStringPool* stringPool, ImUiStringView string );
-const ImUiStringView*		ImUiStringPoolFind( ImUiStringPool* stringPool, ImUiStringView string );
+ImuiStringView				imuiStringPoolAdd( ImuiStringPool* stringPool, ImuiStringView string );
+const ImuiStringView*		imuiStringPoolFind( ImuiStringPool* stringPool, ImuiStringView string );
 

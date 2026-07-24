@@ -10,260 +10,260 @@ extern "C"
 #include <stdint.h>
 
 #define IMUI_ID_DEFAULT			0
-#define IMUI_ID_STR( STR )		(ImUiId)(size_t)(STR)
-#define IMUI_ID_TYPE( TYPE )	(ImUiId)(size_t)(#TYPE)
+#define IMUI_ID_STR( STR )		(ImuiId)(size_t)(STR)
+#define IMUI_ID_TYPE( TYPE )	(ImuiId)(size_t)(#TYPE)
 
-typedef struct ImUiContext ImUiContext;
-typedef struct ImUiDraw ImUiDraw;
-typedef struct ImUiFrame ImUiFrame;
-typedef struct ImUiInput ImUiInput;
-typedef struct ImUiInputShortcutConfig ImUiInputShortcutConfig;
-typedef struct ImUiInputState ImUiInputState;
-typedef struct ImUiSurface ImUiSurface;
-typedef struct ImUiTextLayout ImUiTextLayout;
-typedef struct ImUiWidget ImUiWidget;
-typedef struct ImUiWindow ImUiWindow;
+typedef struct ImuiContext ImuiContext;
+typedef struct ImuiDraw ImuiDraw;
+typedef struct ImuiFrame ImuiFrame;
+typedef struct ImuiInput ImuiInput;
+typedef struct ImuiInputShortcutConfig ImuiInputShortcutConfig;
+typedef struct ImuiInputState ImuiInputState;
+typedef struct ImuiSurface ImuiSurface;
+typedef struct ImuiTextLayout ImuiTextLayout;
+typedef struct ImuiWidget ImuiWidget;
+typedef struct ImuiWindow ImuiWindow;
 
-typedef uint32_t ImUiId;
-typedef uint32_t ImUiHash;
+typedef uint32_t ImuiId;
+typedef uint32_t ImuiHash;
 
-typedef void*(*ImUiAllocatorMallocFunc)(size_t size, void* userData);
-typedef void*(*ImUiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
-typedef void( *ImUiAllocatorFreeFunc )(void* memory, void* userData);
+typedef void*(*ImuiAllocatorMallocFunc)(size_t size, void* userData);
+typedef void*(*ImuiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
+typedef void( *ImuiAllocatorFreeFunc )(void* memory, void* userData);
 
-typedef struct ImUiAllocator
+typedef struct ImuiAllocator
 {
-	ImUiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
-	ImUiAllocatorReallocFunc	reallocFunc;	// can be NULL
-	ImUiAllocatorFreeFunc		freeFunc;
+	ImuiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
+	ImuiAllocatorReallocFunc	reallocFunc;	// can be NULL
+	ImuiAllocatorFreeFunc		freeFunc;
 	void*						userData;
 	void*						internalData;	// internal use only
-} ImUiAllocator;
+} ImuiAllocator;
 
-typedef void(*ImUiStateDestructFunc)(void* state);
+typedef void(*ImuiStateDestructFunc)(void* state);
 
 // needed?
-//typedef bool(*ImUiWindowEvalFocusFunc)(ImUiWindow* window, ImUiWidget* widget, void* userData);
+//typedef bool(*ImuiWindowEvalFocusFunc)(imuiWindow* window, imuiWidget* widget, void* userData);
 
-typedef enum ImUiVertexElementType
+typedef enum ImuiVertexElementType
 {
-	ImUiVertexElementType_Float,
-	ImUiVertexElementType_Float2,
-	ImUiVertexElementType_Float3,
-	ImUiVertexElementType_Float4,
+	ImuiVertexElementType_Float,
+	ImuiVertexElementType_Float2,
+	ImuiVertexElementType_Float3,
+	ImuiVertexElementType_Float4,
 
-	ImUiVertexElementType_Int,
-	ImUiVertexElementType_Int2,
-	ImUiVertexElementType_Int3,
-	ImUiVertexElementType_Int4,
+	ImuiVertexElementType_Int,
+	ImuiVertexElementType_Int2,
+	ImuiVertexElementType_Int3,
+	ImuiVertexElementType_Int4,
 
-	ImUiVertexElementType_UInt,
-	ImUiVertexElementType_UInt2,
-	ImUiVertexElementType_UInt3,
-	ImUiVertexElementType_UInt4,
+	ImuiVertexElementType_UInt,
+	ImuiVertexElementType_UInt2,
+	ImuiVertexElementType_UInt3,
+	ImuiVertexElementType_UInt4,
 
-	ImUiVertexElementType_MAX
-} ImUiVertexElementType;
+	ImuiVertexElementType_MAX
+} ImuiVertexElementType;
 
-typedef enum ImUiVertexElementSemantic
+typedef enum ImuiVertexElementSemantic
 {
-	ImUiVertexElementSemantic_Zero,
-	ImUiVertexElementSemantic_PositionScreenSpace,
-	ImUiVertexElementSemantic_PositionClipSpace,
-	ImUiVertexElementSemantic_TextureCoordinate,
-	ImUiVertexElementSemantic_ColorRGBA,
-	ImUiVertexElementSemantic_ColorABGR
-} ImUiVertexElementSemantic;
+	ImuiVertexElementSemantic_Zero,
+	ImuiVertexElementSemantic_PositionScreenSpace,
+	ImuiVertexElementSemantic_PositionClipSpace,
+	ImuiVertexElementSemantic_TextureCoordinate,
+	ImuiVertexElementSemantic_ColorRGBA,
+	ImuiVertexElementSemantic_ColorABGR
+} ImuiVertexElementSemantic;
 
-typedef struct ImUiVertexElement
+typedef struct ImuiVertexElement
 {
 	uint32_t					align;
-	ImUiVertexElementType		type;
-	ImUiVertexElementSemantic	semantic;
-} ImUiVertexElement;
+	ImuiVertexElementType		type;
+	ImuiVertexElementSemantic	semantic;
+} ImuiVertexElement;
 
-typedef struct ImUiVertexFormat
+typedef struct ImuiVertexFormat
 {
-	const ImUiVertexElement*	elements;
+	const ImuiVertexElement*	elements;
 	size_t						elementCount;
-} ImUiVertexFormat;
+} ImuiVertexFormat;
 
-typedef enum ImUiVertexType
+typedef enum ImuiVertexType
 {
-	ImUiVertexType_VertexList,
-	ImUiVertexType_IndexedVertexList
-} ImUiVertexType;
+	ImuiVertexType_VertexList,
+	ImuiVertexType_IndexedVertexList
+} ImuiVertexType;
 
-typedef struct ImUiParameters					// Fill with zero for default parameters
+typedef struct ImuiParameters					// Fill with zero for default parameters
 {
-	ImUiAllocator					allocator;			// Override memory Allocator. Default use malloc/free
-	const ImUiInputShortcutConfig*	shortcuts;			// Define keyboard shortcuts
+	ImuiAllocator					allocator;			// Override memory Allocator. Default use malloc/free
+	const ImuiInputShortcutConfig*	shortcuts;			// Define keyboard shortcuts
 	size_t							shortcutCount;
-	ImUiVertexFormat				vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
-	ImUiVertexType					vertexType;			// Override vertex type, Default: ImUiVertexType_VertexList
-} ImUiParameters;
+	ImuiVertexFormat				vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color
+	ImuiVertexType					vertexType;			// Override vertex type, Default: ImuiVertexType_VertexList
+} ImuiParameters;
 
-ImUiContext*				ImUiCreate( const ImUiParameters* parameters );
-void						ImUiDestroy( ImUiContext* imui );
+ImuiContext*				imuiCreate( const ImuiParameters* parameters );
+void						imuiDestroy( ImuiContext* imui );
 
-ImUiFrame*					ImUiBegin( ImUiContext* imui, double timeInSeconds );
-void						ImUiEnd( ImUiFrame* frame );
+ImuiFrame*					imuiBegin( ImuiContext* imui, double timeInSeconds );
+void						imuiEnd( ImuiFrame* frame );
 
-ImUiContext*				ImUiFrameGetContext( const ImUiFrame* frame );
+ImuiContext*				imuiFrameGetContext( const ImuiFrame* frame );
 
 //////////////////////////////////////////////////////////////////////////
 // Types
 
 #define IMUI_TEXTURE_HANDLE_INVALID 0
 
-typedef struct ImUiBorder
+typedef struct ImuiBorder
 {
 	float					top;
 	float					left;
 	float					bottom;
 	float					right;
-} ImUiBorder;
+} ImuiBorder;
 
-typedef struct ImUiColor
+typedef struct ImuiColor
 {
 	uint8_t					red;
 	uint8_t					green;
 	uint8_t					blue;
 	uint8_t					alpha;
-} ImUiColor;
+} ImuiColor;
 
-typedef struct ImUiPos
+typedef struct ImuiPos
 {
 	float					x;
 	float					y;
-} ImUiPos;
+} ImuiPos;
 
-typedef struct ImUiSize
+typedef struct ImuiSize
 {
 	float					width;
 	float					height;
-} ImUiSize;
+} ImuiSize;
 
-typedef struct ImUiRect
+typedef struct ImuiRect
 {
-	ImUiPos					pos;
-	ImUiSize				size;
-} ImUiRect;
+	ImuiPos					pos;
+	ImuiSize				size;
+} ImuiRect;
 
-typedef struct ImUiTexCoord
+typedef struct ImuiTexCoord
 {
 	float					u0;
 	float					v0;
 	float					u1;
 	float					v1;
-} ImUiTexCoord;
+} ImuiTexCoord;
 
-typedef struct ImUiImage
+typedef struct ImuiImage
 {
 	uint64_t				textureHandle;
 	uint32_t				width;
 	uint32_t				height;
-	ImUiTexCoord			uv;
-} ImUiImage;
+	ImuiTexCoord			uv;
+} ImuiImage;
 
-typedef struct ImUiSkin
+typedef struct ImuiSkin
 {
 	uint64_t				textureHandle;
 	uint32_t				width;
 	uint32_t				height;
-	ImUiTexCoord			uv;
-	ImUiBorder				border;
-} ImUiSkin;
+	ImuiTexCoord			uv;
+	ImuiBorder				border;
+} ImuiSkin;
 
-typedef enum ImUiLayout
+typedef enum ImuiLayout
 {
-	ImUiLayout_Stack,
-	ImUiLayout_Scroll,
-	ImUiLayout_Horizontal,
-	ImUiLayout_Vertical,
-	ImUiLayout_Grid
-} ImUiLayout;
+	ImuiLayout_Stack,
+	ImuiLayout_Scroll,
+	ImuiLayout_Horizontal,
+	ImuiLayout_Vertical,
+	ImuiLayout_Grid
+} ImuiLayout;
 
-typedef enum ImUiDrawTopology
+typedef enum ImuiDrawTopology
 {
-	ImUiDrawTopology_LineList,
-	ImUiDrawTopology_TriangleList,
-	ImUiDrawTopology_IndexedTriangleList,
+	ImuiDrawTopology_LineList,
+	ImuiDrawTopology_TriangleList,
+	ImuiDrawTopology_IndexedTriangleList,
 
-	ImUiDrawTopology_MAX
-} ImUiDrawTopology;
+	ImuiDrawTopology_MAX
+} ImuiDrawTopology;
 
-typedef struct ImUiDrawCommand
+typedef struct ImuiDrawCommand
 {
-	ImUiDrawTopology		topology;
+	ImuiDrawTopology		topology;
 	uint64_t				textureHandle;
-	ImUiRect				clipRect;
+	ImuiRect				clipRect;
 	size_t					count;				// index count if index buffer is used otherwise vertex count
-} ImUiDrawCommand;
+} ImuiDrawCommand;
 
-typedef struct ImUiDrawData
+typedef struct ImuiDrawData
 {
-	const ImUiDrawCommand*	commands;
+	const ImuiDrawCommand*	commands;
 	size_t					commandCount;
-} ImUiDrawData;
+} ImuiDrawData;
 
 //////////////////////////////////////////////////////////////////////////
 // Surface - Presents a OS window or a screen
 
-ImUiSurface*				ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, const ImUiInputState* input, float dpiScale );
-ImUiSurface*				ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, const ImUiInputState* input, float dpiScale );
-void						ImUiSurfaceEnd( ImUiSurface* surface );
+ImuiSurface*				imuiSurfaceBegin( ImuiFrame* frame, const char* name, ImuiSize size, const ImuiInputState* input, float dpiScale );
+ImuiSurface*				imuiSurfaceBeginId( ImuiFrame* frame, const char* name, ImuiId id, ImuiSize size, const ImuiInputState* input, float dpiScale );
+void						imuiSurfaceEnd( ImuiSurface* surface );
 
-ImUiContext*				ImUiSurfaceGetContext( const ImUiSurface* surface );
+ImuiContext*				imuiSurfaceGetContext( const ImuiSurface* surface );
 
-double						ImUiSurfaceGetTime( const ImUiSurface* surface );
-ImUiSize					ImUiSurfaceGetSize( const ImUiSurface* surface );
-ImUiRect					ImUiSurfaceGetRect( const ImUiSurface* surface );
-const ImUiInputState*		ImUiSurfaceGetInput( const ImUiSurface* surface );
-float						ImUiSurfaceGetDpiScale( const ImUiSurface* surface );
+double						imuiSurfaceGetTime( const ImuiSurface* surface );
+ImuiSize					imuiSurfaceGetSize( const ImuiSurface* surface );
+ImuiRect					imuiSurfaceGetRect( const ImuiSurface* surface );
+const ImuiInputState*		imuiSurfaceGetInput( const ImuiSurface* surface );
+float						imuiSurfaceGetDpiScale( const ImuiSurface* surface );
 
 // call after surface end but before end frame
-void						ImUiSurfaceGetMaxBufferSizes( ImUiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize );
-const ImUiDrawData*			ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize );
+void						imuiSurfaceGetMaxBufferSizes( ImuiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize );
+const ImuiDrawData*			imuiSurfaceGenerateDrawData( ImuiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize );
 
 
 //////////////////////////////////////////////////////////////////////////
 // Window - A part of a Surface with z ordering
 
-ImUiWindow*					ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder );
-ImUiWindow*					ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id, ImUiRect rect, uint32_t zOrder );
-void						ImUiWindowEnd( ImUiWindow* window );
+ImuiWindow*					imuiWindowBegin( ImuiSurface* surface, const char* name, ImuiRect rect, uint32_t zOrder );
+ImuiWindow*					imuiWindowBeginId( ImuiSurface* surface, const char* name, ImuiId id, ImuiRect rect, uint32_t zOrder );
+void						imuiWindowEnd( ImuiWindow* window );
 
-ImUiContext*				ImUiWindowGetContext( const ImUiWindow* window );
-ImUiSurface*				ImUiWindowGetSurface( const ImUiWindow* window );
-const ImUiInputState*		ImUiWindowGetInput( const ImUiWindow* window );
+ImuiContext*				imuiWindowGetContext( const ImuiWindow* window );
+ImuiSurface*				imuiWindowGetSurface( const ImuiWindow* window );
+const ImuiInputState*		imuiWindowGetInput( const ImuiWindow* window );
 
-double						ImUiWindowGetTime( const ImUiWindow* window );
-float						ImUiWindowGetDpiScale( const ImUiWindow* window );
-ImUiRect					ImUiWindowGetRect( const ImUiWindow* window );
+double						imuiWindowGetTime( const ImuiWindow* window );
+float						imuiWindowGetDpiScale( const ImuiWindow* window );
+ImuiRect					imuiWindowGetRect( const ImuiWindow* window );
 
-bool						ImUiWindowHasFocus( const ImUiWindow* window );
-void						ImUiWindowSetFocus( ImUiWindow* window, float angleThreshold, bool wrap );
+bool						imuiWindowHasFocus( const ImuiWindow* window );
+void						imuiWindowSetFocus( ImuiWindow* window, float angleThreshold, bool wrap );
 
-bool						ImUiWindowIsWidgetFocusLocked( const ImUiWindow* window );
-void						ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked );
-void						ImUiWindowClearWidgetFocus( ImUiWindow* window );
-const ImUiWidget*			ImUiWindowGetFocusWidget( const ImUiWindow* window );
-const ImUiWidget*			ImUiWindowPeekFocusWidget( const ImUiWindow* window );
+bool						imuiWindowIsWidgetFocusLocked( const ImuiWindow* window );
+void						imuiWindowSetWidgetFocusLock( ImuiWindow* window, bool locked );
+void						imuiWindowClearWidgetFocus( ImuiWindow* window );
+const ImuiWidget*			imuiWindowGetFocusWidget( const ImuiWindow* window );
+const ImuiWidget*			imuiWindowPeekFocusWidget( const ImuiWindow* window );
 
-void*						ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId );
-void*						ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew );
-void*						ImUiWindowAllocStateNewDestruct( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc );
+void*						imuiWindowAllocState( ImuiWindow* window, size_t size, ImuiId stateId );
+void*						imuiWindowAllocStateNew( ImuiWindow* window, size_t size, ImuiId stateId, bool* isNew );
+void*						imuiWindowAllocStateNewDestruct( ImuiWindow* window, size_t size, ImuiId stateId, bool* isNew, ImuiStateDestructFunc destructFunc );
 
-ImUiWidget*					ImUiWindowGetFirstChild( const ImUiWindow* window );
-ImUiWidget*					ImUiWindowGetLastChild( const ImUiWindow* window );
+ImuiWidget*					imuiWindowGetFirstChild( const ImuiWindow* window );
+ImuiWidget*					imuiWindowGetLastChild( const ImuiWindow* window );
 
 //////////////////////////////////////////////////////////////////////////
 // Widget - A layout element in the tree
 
-typedef struct ImUiWidgetInputState
+typedef struct ImuiWidgetInputState
 {
-	ImUiPos					relativeMousePos;
+	ImuiPos					relativeMousePos;
 
 	bool					hasFocus;
 	bool					wasPressed;
@@ -272,377 +272,377 @@ typedef struct ImUiWidgetInputState
 	bool					isMouseDown;
 	bool					hasMousePressed;
 	bool					hasMouseReleased;
-} ImUiWidgetInputState;
+} ImuiWidgetInputState;
 
-ImUiWidget*					ImUiWidgetBegin( ImUiWindow* window );
-ImUiWidget*					ImUiWidgetBeginId( ImUiWindow* window, ImUiId id );
-ImUiWidget*					ImUiWidgetBeginNamed( ImUiWindow* window, const char* name );
-void						ImUiWidgetEnd( ImUiWidget* widget );
+ImuiWidget*					imuiWidgetBegin( ImuiWindow* window );
+ImuiWidget*					imuiWidgetBeginId( ImuiWindow* window, ImuiId id );
+ImuiWidget*					imuiWidgetBeginNamed( ImuiWindow* window, const char* name );
+void						imuiWidgetEnd( ImuiWidget* widget );
 
-ImUiContext*				ImUiWidgetGetContext( const ImUiWidget* widget );
-ImUiSurface*				ImUiWidgetGetSurface( const ImUiWidget* widget );
-const ImUiInputState*		ImUiWidgetGetInput( const ImUiWidget* widget );
-ImUiWindow*					ImUiWidgetGetWindow( const ImUiWidget* widget );
+ImuiContext*				imuiWidgetGetContext( const ImuiWidget* widget );
+ImuiSurface*				imuiWidgetGetSurface( const ImuiWidget* widget );
+const ImuiInputState*		imuiWidgetGetInput( const ImuiWidget* widget );
+ImuiWindow*					imuiWidgetGetWindow( const ImuiWidget* widget );
 
-ImUiWidget*					ImUiWidgetGetParent( const ImUiWidget* widget );
-ImUiWidget*					ImUiWidgetGetFirstChild( const ImUiWidget* widget );
-ImUiWidget*					ImUiWidgetGetLastChild( const ImUiWidget* widget );
-ImUiWidget*					ImUiWidgetGetPrevSibling( const ImUiWidget* widget );
-ImUiWidget*					ImUiWidgetGetNextSibling( const ImUiWidget* widget );
+ImuiWidget*					imuiWidgetGetParent( const ImuiWidget* widget );
+ImuiWidget*					imuiWidgetGetFirstChild( const ImuiWidget* widget );
+ImuiWidget*					imuiWidgetGetLastChild( const ImuiWidget* widget );
+ImuiWidget*					imuiWidgetGetPrevSibling( const ImuiWidget* widget );
+ImuiWidget*					imuiWidgetGetNextSibling( const ImuiWidget* widget );
 
-double						ImUiWidgetGetTime( const ImUiWidget* widget );
-float						ImUiWidgetGetDpiScale( const ImUiWidget* widget );
+double						imuiWidgetGetTime( const ImuiWidget* widget );
+float						imuiWidgetGetDpiScale( const ImuiWidget* widget );
 
-void*						ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId );
-void*						ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew );
-void*						ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc );
+void*						imuiWidgetAllocState( ImuiWidget* widget, size_t size, ImuiId stateId );
+void*						imuiWidgetAllocStateNew( ImuiWidget* widget, size_t size, ImuiId stateId, bool* isNew );
+void*						imuiWidgetAllocStateNewDestruct( ImuiWidget* widget, size_t size, ImuiId stateId, bool* isNew, ImuiStateDestructFunc destructFunc );
 
-ImUiLayout					ImUiWidgetGetLayout( const ImUiWidget* widget );
-void						ImUiWidgetSetLayoutStack( ImUiWidget* widget );		// default
-void						ImUiWidgetSetLayoutScroll( ImUiWidget* widget, float offsetX, float offsetY );
-void						ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget );
-void						ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing );
-void						ImUiWidgetSetLayoutVertical( ImUiWidget* widget );
-void						ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing );
-void						ImUiWidgetSetLayoutGrid( ImUiWidget* widget, uint32_t columnCount, float colSpacing, float rowSpacing );
+ImuiLayout					imuiWidgetGetLayout( const ImuiWidget* widget );
+void						imuiWidgetSetLayoutStack( ImuiWidget* widget );		// default
+void						imuiWidgetSetLayoutScroll( ImuiWidget* widget, float offsetX, float offsetY );
+void						imuiWidgetSetLayoutHorizontal( ImuiWidget* widget );
+void						imuiWidgetSetLayoutHorizontalSpacing( ImuiWidget* widget, float spacing );
+void						imuiWidgetSetLayoutVertical( ImuiWidget* widget );
+void						imuiWidgetSetLayoutVerticalSpacing( ImuiWidget* widget, float spacing );
+void						imuiWidgetSetLayoutGrid( ImuiWidget* widget, uint32_t columnCount, float colSpacing, float rowSpacing );
 
-ImUiBorder					ImUiWidgetGetMargin( const ImUiWidget* widget );
-void						ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin );
-ImUiBorder					ImUiWidgetGetPadding( const ImUiWidget* widget );
-void						ImUiWidgetSetPadding( ImUiWidget* widget, ImUiBorder padding );
+ImuiBorder					imuiWidgetGetMargin( const ImuiWidget* widget );
+void						imuiWidgetSetMargin( ImuiWidget* widget, ImuiBorder margin );
+ImuiBorder					imuiWidgetGetPadding( const ImuiWidget* widget );
+void						imuiWidgetSetPadding( ImuiWidget* widget, ImuiBorder padding );
 
-ImUiSize					ImUiWidgetGetMinSize( const ImUiWidget* widget );
-void						ImUiWidgetSetMinWidth( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMinHeight( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size );
-void						ImUiWidgetSetMinSizeFloat( ImUiWidget* widget, float width, float height );
-ImUiSize					ImUiWidgetGetMaxSize( const ImUiWidget* widget );
-void						ImUiWidgetSetMaxWidth( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value );
-void						ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size );
-void						ImUiWidgetSetMaxSizeFloat( ImUiWidget* widget, float width, float height );
-void						ImUiWidgetSetFixedWidth( ImUiWidget* widget, float value );
-void						ImUiWidgetSetFixedHeight( ImUiWidget* widget, float value );
-void						ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size );
-void						ImUiWidgetSetFixedSizeFloat( ImUiWidget* widget, float width, float height );
+ImuiSize					imuiWidgetGetMinSize( const ImuiWidget* widget );
+void						imuiWidgetSetMinWidth( ImuiWidget* widget, float value );
+void						imuiWidgetSetMinHeight( ImuiWidget* widget, float value );
+void						imuiWidgetSetMinSize( ImuiWidget* widget, ImuiSize size );
+void						imuiWidgetSetMinSizeFloat( ImuiWidget* widget, float width, float height );
+ImuiSize					imuiWidgetGetMaxSize( const ImuiWidget* widget );
+void						imuiWidgetSetMaxWidth( ImuiWidget* widget, float value );
+void						imuiWidgetSetMaxHeight( ImuiWidget* widget, float value );
+void						imuiWidgetSetMaxSize( ImuiWidget* widget, ImuiSize size );
+void						imuiWidgetSetMaxSizeFloat( ImuiWidget* widget, float width, float height );
+void						imuiWidgetSetFixedWidth( ImuiWidget* widget, float value );
+void						imuiWidgetSetFixedHeight( ImuiWidget* widget, float value );
+void						imuiWidgetSetFixedSize( ImuiWidget* widget, ImuiSize size );
+void						imuiWidgetSetFixedSizeFloat( ImuiWidget* widget, float width, float height );
 
-void						ImUiWidgetSetStretch( ImUiWidget* widget, float horizontal, float vertical );
-void						ImUiWidgetSetStretchOne( ImUiWidget* widget );
-float						ImUiWidgetGetHStretch( const ImUiWidget* widget );
-void						ImUiWidgetSetHStretch( ImUiWidget* widget, float stretch );
-float						ImUiWidgetGetVStretch( const ImUiWidget* widget );
-void						ImUiWidgetSetVStretch( ImUiWidget* widget, float stretch );
+void						imuiWidgetSetStretch( ImuiWidget* widget, float horizontal, float vertical );
+void						imuiWidgetSetStretchOne( ImuiWidget* widget );
+float						imuiWidgetGetHStretch( const ImuiWidget* widget );
+void						imuiWidgetSetHStretch( ImuiWidget* widget, float stretch );
+float						imuiWidgetGetVStretch( const ImuiWidget* widget );
+void						imuiWidgetSetVStretch( ImuiWidget* widget, float stretch );
 
-void						ImUiWidgetSetAlign( ImUiWidget* widget, float horizontal, float vertical );
-float						ImUiWidgetGetHAlign( const ImUiWidget* widget );
-void						ImUiWidgetSetHAlign( ImUiWidget* widget, float align );
-float						ImUiWidgetGetVAlign( const ImUiWidget* widget );
-void						ImUiWidgetSetVAlign( ImUiWidget* widget, float align );
+void						imuiWidgetSetAlign( ImuiWidget* widget, float horizontal, float vertical );
+float						imuiWidgetGetHAlign( const ImuiWidget* widget );
+void						imuiWidgetSetHAlign( ImuiWidget* widget, float align );
+float						imuiWidgetGetVAlign( const ImuiWidget* widget );
+void						imuiWidgetSetVAlign( ImuiWidget* widget, float align );
 
-bool						ImUiWidgetHasFocus( const ImUiWidget* widget );
-void						ImUiWidgetSetFocus( ImUiWidget* widget );
-bool						ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget );
-void						ImUiWidgetSetCanHaveFocus( ImUiWidget* widget );
-void						ImUiWidgetSetCanHaveFocusIndex( ImUiWidget* widget, uint32_t focusIndex );
+bool						imuiWidgetHasFocus( const ImuiWidget* widget );
+void						imuiWidgetSetFocus( ImuiWidget* widget );
+bool						imuiWidgetGetCanHaveFocus( const ImuiWidget* widget );
+void						imuiWidgetSetCanHaveFocus( ImuiWidget* widget );
+void						imuiWidgetSetCanHaveFocusIndex( ImuiWidget* widget, uint32_t focusIndex );
 
-ImUiPos						ImUiWidgetGetPos( const ImUiWidget* widget );
-float						ImUiWidgetGetPosX( const ImUiWidget* widget );
-float						ImUiWidgetGetPosY( const ImUiWidget* widget );
-ImUiSize					ImUiWidgetGetSize( const ImUiWidget* widget );
-float						ImUiWidgetGetSizeWidth( const ImUiWidget* widget );
-float						ImUiWidgetGetSizeHeight( const ImUiWidget* widget );
-ImUiRect					ImUiWidgetGetRect( const ImUiWidget* widget );
-ImUiSize					ImUiWidgetGetInnerSize( const ImUiWidget* widget );
-ImUiRect					ImUiWidgetGetInnerRect( const ImUiWidget* widget );
+ImuiPos						imuiWidgetGetPos( const ImuiWidget* widget );
+float						imuiWidgetGetPosX( const ImuiWidget* widget );
+float						imuiWidgetGetPosY( const ImuiWidget* widget );
+ImuiSize					imuiWidgetGetSize( const ImuiWidget* widget );
+float						imuiWidgetGetSizeWidth( const ImuiWidget* widget );
+float						imuiWidgetGetSizeHeight( const ImuiWidget* widget );
+ImuiRect					imuiWidgetGetRect( const ImuiWidget* widget );
+ImuiSize					imuiWidgetGetInnerSize( const ImuiWidget* widget );
+ImuiRect					imuiWidgetGetInnerRect( const ImuiWidget* widget );
 
-void						ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target );
+void						imuiWidgetGetInputState( ImuiWidget* widget, ImuiWidgetInputState* target );
 
 // all positions are relative to the widget
-void						ImUiWidgetDrawColor( ImUiWidget* widget, ImUiColor color );
-void						ImUiWidgetDrawImage( ImUiWidget* widget, const ImUiImage* image);
-void						ImUiWidgetDrawImageColor( ImUiWidget* widget, const ImUiImage* image, ImUiColor color );
-void						ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor color );
-void						ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color );
-void						ImUiWidgetDrawTextSize( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color, float size );
-void						ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color );
-void						ImUiWidgetDrawPartialImage( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image );
-void						ImUiWidgetDrawPartialImageColor( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image, ImUiColor color );
-void						ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const ImUiSkin* skin, ImUiColor color );
-void						ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color );
-void						ImUiWidgetDrawPositionTextSize( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color, float size );
-void						ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color );
-void						ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color );
+void						imuiWidgetDrawColor( ImuiWidget* widget, ImuiColor color );
+void						imuiWidgetDrawImage( ImuiWidget* widget, const ImuiImage* image);
+void						imuiWidgetDrawImageColor( ImuiWidget* widget, const ImuiImage* image, ImuiColor color );
+void						imuiWidgetDrawSkin( ImuiWidget* widget, const ImuiSkin* skin, ImuiColor color );
+void						imuiWidgetDrawText( ImuiWidget* widget, ImuiTextLayout* layout, ImuiColor color );
+void						imuiWidgetDrawTextSize( ImuiWidget* widget, ImuiTextLayout* layout, ImuiColor color, float size );
+void						imuiWidgetDrawPartialColor( ImuiWidget* widget, ImuiRect relativRect, ImuiColor color );
+void						imuiWidgetDrawPartialImage( ImuiWidget* widget, ImuiRect relativRect, const ImuiImage* image );
+void						imuiWidgetDrawPartialImageColor( ImuiWidget* widget, ImuiRect relativRect, const ImuiImage* image, ImuiColor color );
+void						imuiWidgetDrawPartialSkin( ImuiWidget* widget, ImuiRect relativRect, const ImuiSkin* skin, ImuiColor color );
+void						imuiWidgetDrawPositionText( ImuiWidget* widget, ImuiPos offset, ImuiTextLayout* layout, ImuiColor color );
+void						imuiWidgetDrawPositionTextSize( ImuiWidget* widget, ImuiPos offset, ImuiTextLayout* layout, ImuiColor color, float size );
+void						imuiWidgetDrawLine( ImuiWidget* widget, ImuiPos p0, ImuiPos p1, ImuiColor color );
+void						imuiWidgetDrawTriangle( ImuiWidget* widget, ImuiPos p0, ImuiPos p1, ImuiPos p2, ImuiColor color );
 
 //////////////////////////////////////////////////////////////////////////
 // Input
 // see imui_input.c
 
-typedef enum ImUiInputMouseButton
+typedef enum ImuiInputMouseButton
 {
-	ImUiInputMouseButton_Left,
-	ImUiInputMouseButton_Right,
-	ImUiInputMouseButton_Middle,
+	ImuiInputMouseButton_Left,
+	ImuiInputMouseButton_Right,
+	ImuiInputMouseButton_Middle,
 
-	ImUiInputMouseButton_X1,
-	ImUiInputMouseButton_X2,
+	ImuiInputMouseButton_X1,
+	ImuiInputMouseButton_X2,
 
-	ImUiInputMouseButton_MAX
-} ImUiInputMouseButton;
+	ImuiInputMouseButton_MAX
+} ImuiInputMouseButton;
 
-typedef enum ImUiInputKey
+typedef enum ImuiInputKey
 {
-	ImUiInputKey_None,
+	ImuiInputKey_None,
 
-	ImUiInputKey_A,
-	ImUiInputKey_B,
-	ImUiInputKey_C,
-	ImUiInputKey_D,
-	ImUiInputKey_E,
-	ImUiInputKey_F,
-	ImUiInputKey_G,
-	ImUiInputKey_H,
-	ImUiInputKey_I,
-	ImUiInputKey_J,
-	ImUiInputKey_K,
-	ImUiInputKey_L,
-	ImUiInputKey_M,
-	ImUiInputKey_N,
-	ImUiInputKey_O,
-	ImUiInputKey_P,
-	ImUiInputKey_Q,
-	ImUiInputKey_R,
-	ImUiInputKey_S,
-	ImUiInputKey_T,
-	ImUiInputKey_U,
-	ImUiInputKey_V,
-	ImUiInputKey_W,
-	ImUiInputKey_X,
-	ImUiInputKey_Y,
-	ImUiInputKey_Z,
+	ImuiInputKey_A,
+	ImuiInputKey_B,
+	ImuiInputKey_C,
+	ImuiInputKey_D,
+	ImuiInputKey_E,
+	ImuiInputKey_F,
+	ImuiInputKey_G,
+	ImuiInputKey_H,
+	ImuiInputKey_I,
+	ImuiInputKey_J,
+	ImuiInputKey_K,
+	ImuiInputKey_L,
+	ImuiInputKey_M,
+	ImuiInputKey_N,
+	ImuiInputKey_O,
+	ImuiInputKey_P,
+	ImuiInputKey_Q,
+	ImuiInputKey_R,
+	ImuiInputKey_S,
+	ImuiInputKey_T,
+	ImuiInputKey_U,
+	ImuiInputKey_V,
+	ImuiInputKey_W,
+	ImuiInputKey_X,
+	ImuiInputKey_Y,
+	ImuiInputKey_Z,
 
-	ImUiInputKey_1,
-	ImUiInputKey_2,
-	ImUiInputKey_3,
-	ImUiInputKey_4,
-	ImUiInputKey_5,
-	ImUiInputKey_6,
-	ImUiInputKey_7,
-	ImUiInputKey_8,
-	ImUiInputKey_9,
-	ImUiInputKey_0,
+	ImuiInputKey_1,
+	ImuiInputKey_2,
+	ImuiInputKey_3,
+	ImuiInputKey_4,
+	ImuiInputKey_5,
+	ImuiInputKey_6,
+	ImuiInputKey_7,
+	ImuiInputKey_8,
+	ImuiInputKey_9,
+	ImuiInputKey_0,
 
-	ImUiInputKey_Enter,
-	ImUiInputKey_Escape,
-	ImUiInputKey_Backspace,
-	ImUiInputKey_Tab,
-	ImUiInputKey_Space,
+	ImuiInputKey_Enter,
+	ImuiInputKey_Escape,
+	ImuiInputKey_Backspace,
+	ImuiInputKey_Tab,
+	ImuiInputKey_Space,
 
-	ImUiInputKey_LeftShift,
-	ImUiInputKey_RightShift,
-	ImUiInputKey_LeftControl,
-	ImUiInputKey_RightControl,
-	ImUiInputKey_LeftAlt,
-	ImUiInputKey_RightAlt,
+	ImuiInputKey_LeftShift,
+	ImuiInputKey_RightShift,
+	ImuiInputKey_LeftControl,
+	ImuiInputKey_RightControl,
+	ImuiInputKey_LeftAlt,
+	ImuiInputKey_RightAlt,
 
-	ImUiInputKey_Minus,
-	ImUiInputKey_Equals,
-	ImUiInputKey_LeftBracket,
-	ImUiInputKey_RightBracket,
-	ImUiInputKey_Backslash,
-	ImUiInputKey_Semicolon,
-	ImUiInputKey_Apostrophe,
-	ImUiInputKey_Grave,
-	ImUiInputKey_Comma,
-	ImUiInputKey_Period,
-	ImUiInputKey_Slash,
+	ImuiInputKey_Minus,
+	ImuiInputKey_Equals,
+	ImuiInputKey_LeftBracket,
+	ImuiInputKey_RightBracket,
+	ImuiInputKey_Backslash,
+	ImuiInputKey_Semicolon,
+	ImuiInputKey_Apostrophe,
+	ImuiInputKey_Grave,
+	ImuiInputKey_Comma,
+	ImuiInputKey_Period,
+	ImuiInputKey_Slash,
 
-	ImUiInputKey_F1,
-	ImUiInputKey_F2,
-	ImUiInputKey_F3,
-	ImUiInputKey_F4,
-	ImUiInputKey_F5,
-	ImUiInputKey_F6,
-	ImUiInputKey_F7,
-	ImUiInputKey_F8,
-	ImUiInputKey_F9,
-	ImUiInputKey_F10,
-	ImUiInputKey_F11,
-	ImUiInputKey_F12,
+	ImuiInputKey_F1,
+	ImuiInputKey_F2,
+	ImuiInputKey_F3,
+	ImuiInputKey_F4,
+	ImuiInputKey_F5,
+	ImuiInputKey_F6,
+	ImuiInputKey_F7,
+	ImuiInputKey_F8,
+	ImuiInputKey_F9,
+	ImuiInputKey_F10,
+	ImuiInputKey_F11,
+	ImuiInputKey_F12,
 
-	ImUiInputKey_Print,
-	ImUiInputKey_Pause,
+	ImuiInputKey_Print,
+	ImuiInputKey_Pause,
 
-	ImUiInputKey_Insert,
-	ImUiInputKey_Delete,
-	ImUiInputKey_Home,
-	ImUiInputKey_End,
-	ImUiInputKey_PageUp,
-	ImUiInputKey_PageDown,
+	ImuiInputKey_Insert,
+	ImuiInputKey_Delete,
+	ImuiInputKey_Home,
+	ImuiInputKey_End,
+	ImuiInputKey_PageUp,
+	ImuiInputKey_PageDown,
 
-	ImUiInputKey_Up,
-	ImUiInputKey_Left,
-	ImUiInputKey_Down,
-	ImUiInputKey_Right,
+	ImuiInputKey_Up,
+	ImuiInputKey_Left,
+	ImuiInputKey_Down,
+	ImuiInputKey_Right,
 
-	ImUiInputKey_Numpad_Divide,
-	ImUiInputKey_Numpad_Multiply,
-	ImUiInputKey_Numpad_Minus,
-	ImUiInputKey_Numpad_Plus,
-	ImUiInputKey_Numpad_Enter,
-	ImUiInputKey_Numpad_1,
-	ImUiInputKey_Numpad_2,
-	ImUiInputKey_Numpad_3,
-	ImUiInputKey_Numpad_4,
-	ImUiInputKey_Numpad_5,
-	ImUiInputKey_Numpad_6,
-	ImUiInputKey_Numpad_7,
-	ImUiInputKey_Numpad_8,
-	ImUiInputKey_Numpad_9,
-	ImUiInputKey_Numpad_0,
-	ImUiInputKey_Numpad_Period,
+	ImuiInputKey_Numpad_Divide,
+	ImuiInputKey_Numpad_Multiply,
+	ImuiInputKey_Numpad_Minus,
+	ImuiInputKey_Numpad_Plus,
+	ImuiInputKey_Numpad_Enter,
+	ImuiInputKey_Numpad_1,
+	ImuiInputKey_Numpad_2,
+	ImuiInputKey_Numpad_3,
+	ImuiInputKey_Numpad_4,
+	ImuiInputKey_Numpad_5,
+	ImuiInputKey_Numpad_6,
+	ImuiInputKey_Numpad_7,
+	ImuiInputKey_Numpad_8,
+	ImuiInputKey_Numpad_9,
+	ImuiInputKey_Numpad_0,
+	ImuiInputKey_Numpad_Period,
 
-	ImUiInputKey_Gamepad_Dpad_Up,
-	ImUiInputKey_Gamepad_Dpad_Down,
-	ImUiInputKey_Gamepad_Dpad_Left,
-	ImUiInputKey_Gamepad_Dpad_Right,
-	ImUiInputKey_Gamepad_Start,
-	ImUiInputKey_Gamepad_Back,
-	ImUiInputKey_Gamepad_LeftThumb,
-	ImUiInputKey_Gamepad_RightThumb,
-	ImUiInputKey_Gamepad_LeftShoulder,
-	ImUiInputKey_Gamepad_RightShoulder,
-	ImUiInputKey_Gamepad_A,
-	ImUiInputKey_Gamepad_B,
-	ImUiInputKey_Gamepad_X,
-	ImUiInputKey_Gamepad_Y,
+	ImuiInputKey_Gamepad_Dpad_Up,
+	ImuiInputKey_Gamepad_Dpad_Down,
+	ImuiInputKey_Gamepad_Dpad_Left,
+	ImuiInputKey_Gamepad_Dpad_Right,
+	ImuiInputKey_Gamepad_Start,
+	ImuiInputKey_Gamepad_Back,
+	ImuiInputKey_Gamepad_LeftThumb,
+	ImuiInputKey_Gamepad_RightThumb,
+	ImuiInputKey_Gamepad_LeftShoulder,
+	ImuiInputKey_Gamepad_RightShoulder,
+	ImuiInputKey_Gamepad_A,
+	ImuiInputKey_Gamepad_B,
+	ImuiInputKey_Gamepad_X,
+	ImuiInputKey_Gamepad_Y,
 
-	ImUiInputKey_MAX
-} ImUiInputKey;
+	ImuiInputKey_MAX
+} ImuiInputKey;
 
-typedef enum ImUiInputModifier
+typedef enum ImuiInputModifier
 {
-	ImUiInputModifier_None			= 0u,
-	ImUiInputModifier_LeftShift		= 1u << 0u,
-	ImUiInputModifier_RightShift	= 1u << 1u,
-	ImUiInputModifier_LeftCtrl		= 1u << 2u,
-	ImUiInputModifier_RightCtrl		= 1u << 3u,
-	ImUiInputModifier_LeftAlt		= 1u << 4u,
-	ImUiInputModifier_RightAlt		= 1u << 5u,
-} ImUiInputModifier;
+	ImuiInputModifier_None			= 0u,
+	ImuiInputModifier_LeftShift		= 1u << 0u,
+	ImuiInputModifier_RightShift	= 1u << 1u,
+	ImuiInputModifier_LeftCtrl		= 1u << 2u,
+	ImuiInputModifier_RightCtrl		= 1u << 3u,
+	ImuiInputModifier_LeftAlt		= 1u << 4u,
+	ImuiInputModifier_RightAlt		= 1u << 5u,
+} ImuiInputModifier;
 
-typedef enum ImUiInputMouseCursor
+typedef enum ImuiInputMouseCursor
 {
-	ImUiInputMouseCursor_Arrow,
-	ImUiInputMouseCursor_Wait,
-	ImUiInputMouseCursor_WaitArrow,
-	ImUiInputMouseCursor_IBeam,
-	ImUiInputMouseCursor_Crosshair,
-	ImUiInputMouseCursor_Hand,
-	ImUiInputMouseCursor_ResizeNorthwestSoutheast,
-	ImUiInputMouseCursor_ResizeNortheastSouthwest,
-	ImUiInputMouseCursor_ResizeWestEast,
-	ImUiInputMouseCursor_ResizeNorthSouth,
-	ImUiInputMouseCursor_Move,
+	ImuiInputMouseCursor_Arrow,
+	ImuiInputMouseCursor_Wait,
+	ImuiInputMouseCursor_WaitArrow,
+	ImuiInputMouseCursor_IBeam,
+	ImuiInputMouseCursor_Crosshair,
+	ImuiInputMouseCursor_Hand,
+	ImuiInputMouseCursor_ResizeNorthwestSoutheast,
+	ImuiInputMouseCursor_ResizeNortheastSouthwest,
+	ImuiInputMouseCursor_ResizeWestEast,
+	ImuiInputMouseCursor_ResizeNorthSouth,
+	ImuiInputMouseCursor_Move,
 
-	ImUiInputMouseCursor_MAX
-} ImUiInputMouseCursor;
+	ImuiInputMouseCursor_MAX
+} ImuiInputMouseCursor;
 
-typedef enum ImUiInputShortcut
+typedef enum ImuiInputShortcut
 {
-	ImUiInputShortcut_None,
-	ImUiInputShortcut_Confirm,
-	ImUiInputShortcut_Back,
-	ImUiInputShortcut_ToggleInsertReplace,
-	ImUiInputShortcut_Home,
-	ImUiInputShortcut_End,
-	ImUiInputShortcut_Undo,
-	ImUiInputShortcut_Redo,
-	ImUiInputShortcut_Cut,
-	ImUiInputShortcut_Copy,			// use ImUiInputGetCopyText to set text to copy
-	ImUiInputShortcut_Paste,		// call ImUiInputGetPasteText before UI tick to set text to paste
-	ImUiInputShortcut_SelectAll,
-	ImUiInputShortcut_Backward,
-	ImUiInputShortcut_Forward,
-	ImUiInputShortcut_FocusNext,
-	ImUiInputShortcut_FocusPrevious
-} ImUiInputShortcut;
+	ImuiInputShortcut_None,
+	ImuiInputShortcut_Confirm,
+	ImuiInputShortcut_Back,
+	ImuiInputShortcut_ToggleInsertReplace,
+	ImuiInputShortcut_Home,
+	ImuiInputShortcut_End,
+	ImuiInputShortcut_Undo,
+	ImuiInputShortcut_Redo,
+	ImuiInputShortcut_Cut,
+	ImuiInputShortcut_Copy,			// use imuiInputGetCopyText to set text to copy
+	ImuiInputShortcut_Paste,		// call imuiInputGetPasteText before UI tick to set text to paste
+	ImuiInputShortcut_SelectAll,
+	ImuiInputShortcut_Backward,
+	ImuiInputShortcut_Forward,
+	ImuiInputShortcut_FocusNext,
+	ImuiInputShortcut_FocusPrevious
+} ImuiInputShortcut;
 
-struct ImUiInputShortcutConfig
+struct ImuiInputShortcutConfig
 {
-	ImUiInputShortcut			type;
-	uint32_t					modifiers;	// ImUiInputModifier
-	ImUiInputKey				key;
+	ImuiInputShortcut			type;
+	uint32_t					modifiers;	// imuiInputModifier
+	ImuiInputKey				key;
 };
 
 // Get/Set
 
-ImUiInputMouseCursor			ImUiInputGetMouseCursor( const ImUiContext* imui );
-void							ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor );
+ImuiInputMouseCursor			imuiInputGetMouseCursor( const ImuiContext* imui );
+void							imuiInputSetMouseCursor( ImuiContext* imui, ImuiInputMouseCursor cursor );
 
-const char*						ImUiInputGetCopyText( const ImUiContext* imui );
-void							ImUiInputSetCopyText( ImUiContext* imui, const char* text, size_t textLength );
-const char*						ImUiInputGetPasteText( const ImUiContext* imui );
-void							ImUiInputSetPasteText( ImUiContext* imui, const char* text );
-char*							ImUiInputBeginWritePasteText( ImUiContext* imui, size_t maxLength );
-void							ImUiInputEndWritePasteText( ImUiContext* imui, size_t finalLength );
+const char*						imuiInputGetCopyText( const ImuiContext* imui );
+void							imuiInputSetCopyText( ImuiContext* imui, const char* text, size_t textLength );
+const char*						imuiInputGetPasteText( const ImuiContext* imui );
+void							imuiInputSetPasteText( ImuiContext* imui, const char* text );
+char*							imuiInputBeginWritePasteText( ImuiContext* imui, size_t maxLength );
+void							imuiInputEndWritePasteText( ImuiContext* imui, size_t finalLength );
 
 // Push
 
-ImUiInput*						ImUiInputBegin( ImUiContext* imui, const ImUiInputState* previousState );
-// A ImUiInputState is valid for exactly two ticks and get freed automatically afterwards
-const ImUiInputState*			ImUiInputEnd( ImUiContext* imui );
+ImuiInput*						imuiInputBegin( ImuiContext* imui, const ImuiInputState* previousState );
+// A imuiInputState is valid for exactly two ticks and get freed automatically afterwards
+const ImuiInputState*			imuiInputEnd( ImuiContext* imui );
 
-const ImUiInputState*			ImUiInputGetPushState( ImUiInput* input );
+const ImuiInputState*			imuiInputGetPushState( ImuiInput* input );
 
-void							ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key );
-void							ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key );
-void							ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key );
-void							ImUiInputPushText( ImUiInput* input, const char* text );
-void							ImUiInputPushTextChar( ImUiInput* input, uint32_t c );
+void							imuiInputPushKeyDown( ImuiInput* input, ImuiInputKey key );
+void							imuiInputPushKeyUp( ImuiInput* input, ImuiInputKey key );
+void							imuiInputPushKeyRepeat( ImuiInput* input, ImuiInputKey key );
+void							imuiInputPushText( ImuiInput* input, const char* text );
+void							imuiInputPushTextChar( ImuiInput* input, uint32_t c );
 
-void							ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button );
-void							ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button );
-void							ImUiInputPushMouseDoubleClick( ImUiInput* input, ImUiInputMouseButton button );
-void							ImUiInputPushMouseMove( ImUiInput* input, float x, float y );
-void							ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float deltaY );
-void							ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset );
-void							ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta );
+void							imuiInputPushMouseDown( ImuiInput* input, ImuiInputMouseButton button );
+void							imuiInputPushMouseUp( ImuiInput* input, ImuiInputMouseButton button );
+void							imuiInputPushMouseDoubleClick( ImuiInput* input, ImuiInputMouseButton button );
+void							imuiInputPushMouseMove( ImuiInput* input, float x, float y );
+void							imuiInputPushMouseMoveDelta( ImuiInput* input, float deltaX, float deltaY );
+void							imuiInputPushMouseScroll( ImuiInput* input, float horizontalOffset, float verticalOffset );
+void							imuiInputPushMouseScrollDelta( ImuiInput* input, float horizontalDelta, float verticalDelta );
 
-void							ImUiInputPushDirection( ImUiInput* input, float x, float y );
-void							ImUiInputPushFocusExecute( ImUiInput* input );
+void							imuiInputPushDirection( ImuiInput* input, float x, float y );
+void							imuiInputPushFocusExecute( ImuiInput* input );
 
 // Read
 
-uint32_t						ImUiInputGetKeyModifiers( const ImUiInputState* input );	// returns ImUiInputModifier
-bool							ImUiInputIsKeyDown( const ImUiInputState* input, ImUiInputKey key );
-bool							ImUiInputIsKeyUp( const ImUiInputState* input, ImUiInputKey key );
-bool							ImUiInputHasKeyPressed( const ImUiInputState* input, ImUiInputKey key );
-bool							ImUiInputHasKeyReleased( const ImUiInputState* input, ImUiInputKey key );
-ImUiInputShortcut				ImUiInputGetShortcut( const ImUiInputState* input );
+uint32_t						imuiInputGetKeyModifiers( const ImuiInputState* input );	// returns imuiInputModifier
+bool							imuiInputIsKeyDown( const ImuiInputState* input, ImuiInputKey key );
+bool							imuiInputIsKeyUp( const ImuiInputState* input, ImuiInputKey key );
+bool							imuiInputHasKeyPressed( const ImuiInputState* input, ImuiInputKey key );
+bool							imuiInputHasKeyReleased( const ImuiInputState* input, ImuiInputKey key );
+ImuiInputShortcut				imuiInputGetShortcut( const ImuiInputState* input );
 
-const char*						ImUiInputGetText( const ImUiInputState* input );
+const char*						imuiInputGetText( const ImuiInputState* input );
 
-ImUiPos							ImUiInputGetMousePos( const ImUiInputState* input );
-bool							ImUiInputIsMouseInRect( const ImUiInputState* input, ImUiRect rect );
-bool							ImUiInputIsMouseButtonDown( const ImUiInputState* input, ImUiInputMouseButton button );
-bool							ImUiInputIsMouseButtonUp( const ImUiInputState* input, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonPressed( const ImUiInputState* input, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonReleased( const ImUiInputState* input, ImUiInputMouseButton button );
-bool							ImUiInputHasMouseButtonDoubleClicked( const ImUiInputState* input, ImUiInputMouseButton button );
-ImUiPos							ImUiInputGetMouseScrollDelta( const ImUiInputState* input );
+ImuiPos							imuiInputGetMousePos( const ImuiInputState* input );
+bool							imuiInputIsMouseInRect( const ImuiInputState* input, ImuiRect rect );
+bool							imuiInputIsMouseButtonDown( const ImuiInputState* input, ImuiInputMouseButton button );
+bool							imuiInputIsMouseButtonUp( const ImuiInputState* input, ImuiInputMouseButton button );
+bool							imuiInputHasMouseButtonPressed( const ImuiInputState* input, ImuiInputMouseButton button );
+bool							imuiInputHasMouseButtonReleased( const ImuiInputState* input, ImuiInputMouseButton button );
+bool							imuiInputHasMouseButtonDoubleClicked( const ImuiInputState* input, ImuiInputMouseButton button );
+ImuiPos							imuiInputGetMouseScrollDelta( const ImuiInputState* input );
 
-ImUiPos							ImUiInputGetDirection( const ImUiInputState* input );
-bool							ImUiInputGetFocusExecute( const ImUiInputState* input );
+ImuiPos							imuiInputGetDirection( const ImuiInputState* input );
+bool							imuiInputGetFocusExecute( const ImuiInputState* input );
 
 //////////////////////////////////////////////////////////////////////////
 // Font
 // see imui_font.c
 
-typedef struct ImUiFont ImUiFont;
-typedef struct ImUiFontTrueTypeData ImUiFontTrueTypeData;
-typedef struct ImUiFontTrueTypeImage ImUiFontTrueTypeImage;
+typedef struct ImuiFont ImuiFont;
+typedef struct ImuiFontTrueTypeData ImuiFontTrueTypeData;
+typedef struct ImuiFontTrueTypeImage ImuiFontTrueTypeImage;
 
-typedef struct ImUiFontCodepoint
+typedef struct ImuiFontCodepoint
 {
 	uint32_t					codepoint;
 	float						width;
@@ -650,134 +650,134 @@ typedef struct ImUiFontCodepoint
 	float						advance;
 	float						xOffset;
 	float						ascentOffset;
-	ImUiTexCoord				uv;
-} ImUiFontCodepoint;
+	ImuiTexCoord				uv;
+} ImuiFontCodepoint;
 
-typedef struct ImUiFontParameters
+typedef struct ImuiFontParameters
 {
-	ImUiImage					image;
+	ImuiImage					image;
 
-	const ImUiFontCodepoint*	codepoints;
+	const ImuiFontCodepoint*	codepoints;
 	size_t						codepointCount;
 
 	float						fontSize;		// for scalable fonts this is the default size when no one is given
 	float						lineGap;
 	bool						isScalable;
-} ImUiFontParameters;
+} ImuiFontParameters;
 
-ImUiFont*						ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters );
-ImUiFont*						ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiImage image );
-void							ImUiFontDestroy( ImUiContext* imui, ImUiFont* font );
+ImuiFont*						imuiFontCreate( ImuiContext* imui, const ImuiFontParameters* parameters );
+ImuiFont*						imuiFontCreateTrueType( ImuiContext* imui, ImuiFontTrueTypeImage* ttfImage, ImuiImage image );
+void							imuiFontDestroy( ImuiContext* imui, ImuiFont* font );
 
-ImUiFontTrueTypeData*			ImUiFontTrueTypeDataCreate( ImUiContext* imui, const void* data, size_t dataSize  ); // data must stay valid
-ImUiFontTrueTypeData*			ImUiFontTrueTypeDataCreateCopy( ImUiContext* imui, const void* data, size_t dataSize ); // data copied into an internal buffer
-void							ImUiFontTrueTypeDataDestroy( ImUiFontTrueTypeData* ttf );
-bool							ImUiFontTrueTypeDataAddCodepoints( ImUiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount );
-bool							ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint );
-void							ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight );
-void							ImUiFontTrueTypeDataCalculateMinSDFTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread );
-ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height );
-ImUiFontTrueTypeImage*			ImUiFontTrueTypeDataGenerateSDFTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread );
+ImuiFontTrueTypeData*			imuiFontTrueTypeDataCreate( ImuiContext* imui, const void* data, size_t dataSize  ); // data must stay valid
+ImuiFontTrueTypeData*			imuiFontTrueTypeDataCreateCopy( ImuiContext* imui, const void* data, size_t dataSize ); // data copied into an internal buffer
+void							imuiFontTrueTypeDataDestroy( ImuiFontTrueTypeData* ttf );
+bool							imuiFontTrueTypeDataAddCodepoints( ImuiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount );
+bool							imuiFontTrueTypeDataAddCodepointRange( ImuiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint );
+void							imuiFontTrueTypeDataCalculateMinTextureSize( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight );
+void							imuiFontTrueTypeDataCalculateMinSDFTextureSize( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread );
+ImuiFontTrueTypeImage*			imuiFontTrueTypeDataGenerateTextureData( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height );
+ImuiFontTrueTypeImage*			imuiFontTrueTypeDataGenerateSDFTextureData( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread );
 
-void							ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount );
-void							ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage );
+void							imuiFontTrueTypeImageGetCodepoints( ImuiFontTrueTypeImage* ttfImage, const ImuiFontCodepoint** codepoints, size_t* codepointCount );
+void							imuiFontTrueTypeImageDestroy( ImuiFontTrueTypeImage* ttfImage );
 
 //////////////////////////////////////////////////////////////////////////
 // Text
 // see imui_text.c
 
-ImUiTextLayout*					ImUiTextLayoutCreate( ImUiContext* imui, ImUiFont* font, const char* text );
-ImUiTextLayout*					ImUiTextLayoutCreateLength( ImUiContext* imui, ImUiFont* font, const char* text, size_t length );
-ImUiTextLayout*					ImUiTextLayoutCreateWidget( ImUiWidget* widget, ImUiFont* font, const char* text );
-ImUiTextLayout*					ImUiTextLayoutCreateWidgetLength( ImUiWidget* widget, ImUiFont* font, const char* text, size_t length );
+ImuiTextLayout*					imuiTextLayoutCreate( ImuiContext* imui, ImuiFont* font, const char* text );
+ImuiTextLayout*					imuiTextLayoutCreateLength( ImuiContext* imui, ImuiFont* font, const char* text, size_t length );
+ImuiTextLayout*					imuiTextLayoutCreateWidget( ImuiWidget* widget, ImuiFont* font, const char* text );
+ImuiTextLayout*					imuiTextLayoutCreateWidgetLength( ImuiWidget* widget, ImuiFont* font, const char* text, size_t length );
 
-size_t							ImUiTextLayoutCalculateGlyphCount( const char* text, size_t length );
-ImUiSize						ImUiTextLayoutCalculateSize( ImUiContext* imui, ImUiFont* font, const char* text, size_t length );
+size_t							imuiTextLayoutCalculateGlyphCount( const char* text, size_t length );
+ImuiSize						imuiTextLayoutCalculateSize( ImuiContext* imui, ImuiFont* font, const char* text, size_t length );
 
-size_t							ImUiTextLayoutGetGlyphCount( const ImUiTextLayout* layout );
-size_t							ImUiTextLayoutFindGlyphIndex( const ImUiTextLayout* layout, ImUiPos pos, float scale );
-size_t							ImUiTextLayoutGetGlyphCharIndex( const ImUiTextLayout* layout, size_t glyphIndex );
-ImUiSize						ImUiTextLayoutGetSize( const ImUiTextLayout* layout );
-ImUiPos							ImUiTextLayoutGetGlyphPos( const ImUiTextLayout* layout, size_t glyphIndex, float scale );
+size_t							imuiTextLayoutGetGlyphCount( const ImuiTextLayout* layout );
+size_t							imuiTextLayoutFindGlyphIndex( const ImuiTextLayout* layout, ImuiPos pos, float scale );
+size_t							imuiTextLayoutGetGlyphCharIndex( const ImuiTextLayout* layout, size_t glyphIndex );
+ImuiSize						imuiTextLayoutGetSize( const ImuiTextLayout* layout );
+ImuiPos							imuiTextLayoutGetGlyphPos( const ImuiTextLayout* layout, size_t glyphIndex, float scale );
 
 //////////////////////////////////////////////////////////////////////////
 // Data Type Functions
 // see imui_data_types.c
 
-ImUiHash						ImUiHashCreate( const void* data, size_t dataSize );
-ImUiHash						ImUiHashCreateSeed( const void* data, size_t dataSize, ImUiHash seed );
-ImUiHash						ImUiHashMix( ImUiHash hash1, ImUiHash hash2 );
+ImuiHash						imuiHashCreate( const void* data, size_t dataSize );
+ImuiHash						imuiHashCreateSeed( const void* data, size_t dataSize, ImuiHash seed );
+ImuiHash						imuiHashMix( ImuiHash hash1, ImuiHash hash2 );
 
-ImUiPos							ImUiPosCreate( float x, float y );
-ImUiPos							ImUiPosCreateZero();
-ImUiPos							ImUiPosAdd( ImUiPos pos, float x, float y );
-ImUiPos							ImUiPosAddPos( ImUiPos pos, ImUiPos add );
-ImUiPos							ImUiPosSub( ImUiPos pos, float x, float y );
-ImUiPos							ImUiPosSubPos( ImUiPos pos, ImUiPos sub );
-ImUiPos							ImUiPosScale( ImUiPos pos, float factor );
-ImUiPos							ImUiPosMin( ImUiPos a, ImUiPos b );
-ImUiPos							ImUiPosMax( ImUiPos a, ImUiPos b );
+ImuiPos							imuiPosCreate( float x, float y );
+ImuiPos							imuiPosCreateZero();
+ImuiPos							imuiPosAdd( ImuiPos pos, float x, float y );
+ImuiPos							imuiPosAddPos( ImuiPos pos, ImuiPos add );
+ImuiPos							imuiPosSub( ImuiPos pos, float x, float y );
+ImuiPos							imuiPosSubPos( ImuiPos pos, ImuiPos sub );
+ImuiPos							imuiPosScale( ImuiPos pos, float factor );
+ImuiPos							imuiPosMin( ImuiPos a, ImuiPos b );
+ImuiPos							imuiPosMax( ImuiPos a, ImuiPos b );
 
-ImUiSize						ImUiSizeCreate( float width, float height );
-ImUiSize						ImUiSizeCreateAll( float value );
-ImUiSize						ImUiSizeCreateOne();
-ImUiSize						ImUiSizeCreateZero();
-ImUiSize						ImUiSizeCreateSkin( const ImUiSkin* skin );
-ImUiSize						ImUiSizeCreateImage( const ImUiImage* image );
-ImUiSize						ImUiSizeAdd( ImUiSize size, float width, float height );
-ImUiSize						ImUiSizeAddSize( ImUiSize size, ImUiSize add );
-ImUiSize						ImUiSizeSub( ImUiSize size, float width, float height );
-ImUiSize						ImUiSizeSubSize( ImUiSize size, ImUiSize sub );
-ImUiSize						ImUiSizeScale( ImUiSize size, float factor );
-ImUiSize						ImUiSizeShrinkBorder( ImUiSize size, ImUiBorder border );
-ImUiSize						ImUiSizeExpandBorder( ImUiSize size, ImUiBorder border );
-ImUiSize						ImUiSizeLerp( ImUiSize a, ImUiSize b, float t );
-ImUiSize						ImUiSizeLerp2( ImUiSize a, ImUiSize b, float widthT, float heightT );
-ImUiSize						ImUiSizeMin( ImUiSize a, ImUiSize b );
-ImUiSize						ImUiSizeMax( ImUiSize a, ImUiSize b );
-ImUiSize						ImUiSizeFloor( ImUiSize size );
-ImUiSize						ImUiSizeCeil( ImUiSize size );
-ImUiPos							ImUiSizeToPos( ImUiSize size );
+ImuiSize						imuiSizeCreate( float width, float height );
+ImuiSize						imuiSizeCreateAll( float value );
+ImuiSize						imuiSizeCreateOne();
+ImuiSize						imuiSizeCreateZero();
+ImuiSize						imuiSizeCreateSkin( const ImuiSkin* skin );
+ImuiSize						imuiSizeCreateImage( const ImuiImage* image );
+ImuiSize						imuiSizeAdd( ImuiSize size, float width, float height );
+ImuiSize						imuiSizeAddSize( ImuiSize size, ImuiSize add );
+ImuiSize						imuiSizeSub( ImuiSize size, float width, float height );
+ImuiSize						imuiSizeSubSize( ImuiSize size, ImuiSize sub );
+ImuiSize						imuiSizeScale( ImuiSize size, float factor );
+ImuiSize						imuiSizeShrinkBorder( ImuiSize size, ImuiBorder border );
+ImuiSize						imuiSizeExpandBorder( ImuiSize size, ImuiBorder border );
+ImuiSize						imuiSizeLerp( ImuiSize a, ImuiSize b, float t );
+ImuiSize						imuiSizeLerp2( ImuiSize a, ImuiSize b, float widthT, float heightT );
+ImuiSize						imuiSizeMin( ImuiSize a, ImuiSize b );
+ImuiSize						imuiSizeMax( ImuiSize a, ImuiSize b );
+ImuiSize						imuiSizeFloor( ImuiSize size );
+ImuiSize						imuiSizeCeil( ImuiSize size );
+ImuiPos							imuiSizeToPos( ImuiSize size );
 
-ImUiBorder						ImUiBorderCreate( float top, float left, float bottom, float right );
-ImUiBorder						ImUiBorderCreateAll( float all );
-ImUiBorder						ImUiBorderCreateZero();
-ImUiBorder						ImUiBorderCreateHorizontalVertical( float horizontal, float vertical );
-ImUiBorder						ImUiBorderScale( ImUiBorder border, float factor );
-ImUiSize						ImUiBorderGetMinSize( ImUiBorder border );
+ImuiBorder						imuiBorderCreate( float top, float left, float bottom, float right );
+ImuiBorder						imuiBorderCreateAll( float all );
+ImuiBorder						imuiBorderCreateZero();
+ImuiBorder						imuiBorderCreateHorizontalVertical( float horizontal, float vertical );
+ImuiBorder						imuiBorderScale( ImuiBorder border, float factor );
+ImuiSize						imuiBorderGetMinSize( ImuiBorder border );
 
-ImUiRect						ImUiRectCreate( float x, float y, float width, float height );
-ImUiRect						ImUiRectCreatePos( ImUiPos pos, float width, float height );
-ImUiRect						ImUiRectCreateSize( float x, float y, ImUiSize size );
-ImUiRect						ImUiRectCreatePosSize( ImUiPos pos, ImUiSize size );
-ImUiRect						ImUiRectCreateMinMax( float minX, float minY, float maxX, float maxY );
-ImUiRect						ImUiRectCreateMinMaxPos( ImUiPos tl, ImUiPos br );
-ImUiRect						ImUiRectCreateCenter( float x, float y, float width, float height );
-ImUiRect						ImUiRectCreateCenterPos( ImUiPos pos, float width, float height );
-ImUiRect						ImUiRectCreateCenterSize( float x, float y, ImUiSize size );
-ImUiRect						ImUiRectCreateCenterPosSize( ImUiPos pos, ImUiSize size );
-ImUiRect						ImUiRectCreateZero();
-ImUiRect						ImUiRectShrinkBorder( ImUiRect rect, ImUiBorder border );
-ImUiRect						ImUiRectIntersection( ImUiRect rect1, ImUiRect rect2 );
-bool							ImUiRectIncludesPos( ImUiRect rect, ImUiPos pos );
-bool							ImUiRectIntersectsRect( ImUiRect rect1, ImUiRect rect2 );
-ImUiPos							ImUiRectGetTopLeft( ImUiRect rect );
-ImUiPos							ImUiRectGetTopRight( ImUiRect rect );
-ImUiPos							ImUiRectGetBottomLeft( ImUiRect rect );
-ImUiPos							ImUiRectGetBottomRight( ImUiRect rect );
-ImUiPos							ImUiRectGetCenter( ImUiRect rect );
-float							ImUiRectGetRight( ImUiRect rect );
-float							ImUiRectGetBottom( ImUiRect rect );
+ImuiRect						imuiRectCreate( float x, float y, float width, float height );
+ImuiRect						imuiRectCreatePos( ImuiPos pos, float width, float height );
+ImuiRect						imuiRectCreateSize( float x, float y, ImuiSize size );
+ImuiRect						imuiRectCreatePosSize( ImuiPos pos, ImuiSize size );
+ImuiRect						imuiRectCreateMinMax( float minX, float minY, float maxX, float maxY );
+ImuiRect						imuiRectCreateMinMaxPos( ImuiPos tl, ImuiPos br );
+ImuiRect						imuiRectCreateCenter( float x, float y, float width, float height );
+ImuiRect						imuiRectCreateCenterPos( ImuiPos pos, float width, float height );
+ImuiRect						imuiRectCreateCenterSize( float x, float y, ImuiSize size );
+ImuiRect						imuiRectCreateCenterPosSize( ImuiPos pos, ImuiSize size );
+ImuiRect						imuiRectCreateZero();
+ImuiRect						imuiRectShrinkBorder( ImuiRect rect, ImuiBorder border );
+ImuiRect						imuiRectIntersection( ImuiRect rect1, ImuiRect rect2 );
+bool							imuiRectIncludesPos( ImuiRect rect, ImuiPos pos );
+bool							imuiRectIntersectsRect( ImuiRect rect1, ImuiRect rect2 );
+ImuiPos							imuiRectGetTopLeft( ImuiRect rect );
+ImuiPos							imuiRectGetTopRight( ImuiRect rect );
+ImuiPos							imuiRectGetBottomLeft( ImuiRect rect );
+ImuiPos							imuiRectGetBottomRight( ImuiRect rect );
+ImuiPos							imuiRectGetCenter( ImuiRect rect );
+float							imuiRectGetRight( ImuiRect rect );
+float							imuiRectGetBottom( ImuiRect rect );
 
-ImUiColor						ImUiColorCreate( uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha );
-ImUiColor						ImUiColorCreateFloat( float red, float green, float blue, float alpha );
-ImUiColor						ImUiColorCreateBlack();
-ImUiColor						ImUiColorCreateBlackA( uint8_t alpha );
-ImUiColor						ImUiColorCreateWhite();
-ImUiColor						ImUiColorCreateWhiteA( uint8_t alpha );
-ImUiColor						ImUiColorCreateGray( uint8_t gray );
-ImUiColor						ImUiColorCreateGrayA( uint8_t gray, uint8_t alpha );
-ImUiColor						ImUiColorCreateTransparentBlack();
+ImuiColor						imuiColorCreate( uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha );
+ImuiColor						imuiColorCreateFloat( float red, float green, float blue, float alpha );
+ImuiColor						imuiColorCreateBlack();
+ImuiColor						imuiColorCreateBlackA( uint8_t alpha );
+ImuiColor						imuiColorCreateWhite();
+ImuiColor						imuiColorCreateWhiteA( uint8_t alpha );
+ImuiColor						imuiColorCreateGray( uint8_t gray );
+ImuiColor						imuiColorCreateGrayA( uint8_t gray, uint8_t alpha );
+ImuiColor						imuiColorCreateTransparentBlack();
 
 #ifdef __cplusplus
 }

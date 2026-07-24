@@ -9,254 +9,254 @@ extern "C"
 
 #include <stdarg.h>
 
-typedef enum ImUiToolboxColor
+typedef enum ImuiToolboxColor
 {
-	ImUiToolboxColor_Text,
+	ImuiToolboxColor_Text,
 
-	ImUiToolboxColor_Button,
-	ImUiToolboxColor_ButtonHover,
-	ImUiToolboxColor_ButtonClicked,
-	ImUiToolboxColor_ButtonText,
+	ImuiToolboxColor_Button,
+	ImuiToolboxColor_ButtonHover,
+	ImuiToolboxColor_ButtonClicked,
+	ImuiToolboxColor_ButtonText,
 
-	ImUiToolboxColor_CheckBox,
-	ImUiToolboxColor_CheckBoxHover,
-	ImUiToolboxColor_CheckBoxClicked,
-	ImUiToolboxColor_CheckBoxUnchecked,
-	ImUiToolboxColor_CheckBoxChecked,
+	ImuiToolboxColor_CheckBox,
+	ImuiToolboxColor_CheckBoxHover,
+	ImuiToolboxColor_CheckBoxClicked,
+	ImuiToolboxColor_CheckBoxUnchecked,
+	ImuiToolboxColor_CheckBoxChecked,
 
-	ImUiToolboxColor_SliderBackground,
-	ImUiToolboxColor_SliderPivot,
-	ImUiToolboxColor_SliderPivotHover,
-	ImUiToolboxColor_SliderPivotClicked,
+	ImuiToolboxColor_SliderBackground,
+	ImuiToolboxColor_SliderPivot,
+	ImuiToolboxColor_SliderPivotHover,
+	ImuiToolboxColor_SliderPivotClicked,
 
-	ImUiToolboxColor_TextEditBackground,
-	ImUiToolboxColor_TextEditText,
-	ImUiToolboxColor_TextEditCursor,
-	ImUiToolboxColor_TextEditSelection,
+	ImuiToolboxColor_TextEditBackground,
+	ImuiToolboxColor_TextEditText,
+	ImuiToolboxColor_TextEditCursor,
+	ImuiToolboxColor_TextEditSelection,
 
-	ImUiToolboxColor_ProgressBarBackground,
-	ImUiToolboxColor_ProgressBarProgress,
+	ImuiToolboxColor_ProgressBarBackground,
+	ImuiToolboxColor_ProgressBarProgress,
 
-	ImUiToolboxColor_ScrollAreaBarBackground,
-	ImUiToolboxColor_ScrollAreaBarPivot,
+	ImuiToolboxColor_ScrollAreaBarBackground,
+	ImuiToolboxColor_ScrollAreaBarPivot,
 
-	ImUiToolboxColor_ListItemHover,
-	ImUiToolboxColor_ListItemClicked,
-	ImUiToolboxColor_ListItemSelected,
+	ImuiToolboxColor_ListItemHover,
+	ImuiToolboxColor_ListItemClicked,
+	ImuiToolboxColor_ListItemSelected,
 
-	ImUiToolboxColor_DropDown,
-	ImUiToolboxColor_DropDownText,
-	ImUiToolboxColor_DropDownIcon,
-	ImUiToolboxColor_DropDownHover,
-	ImUiToolboxColor_DropDownClicked,
-	ImUiToolboxColor_DropDownOpen,
-	ImUiToolboxColor_DropDownList,
-	ImUiToolboxColor_DropDownItemText,
-	ImUiToolboxColor_DropDownItemHover,
-	ImUiToolboxColor_DropDownItemClicked,
-	ImUiToolboxColor_DropDownItemSelected,
+	ImuiToolboxColor_DropDown,
+	ImuiToolboxColor_DropDownText,
+	ImuiToolboxColor_DropDownIcon,
+	ImuiToolboxColor_DropDownHover,
+	ImuiToolboxColor_DropDownClicked,
+	ImuiToolboxColor_DropDownOpen,
+	ImuiToolboxColor_DropDownList,
+	ImuiToolboxColor_DropDownItemText,
+	ImuiToolboxColor_DropDownItemHover,
+	ImuiToolboxColor_DropDownItemClicked,
+	ImuiToolboxColor_DropDownItemSelected,
 
-	ImUiToolboxColor_PopupBackground,
-	ImUiToolboxColor_Popup,
+	ImuiToolboxColor_PopupBackground,
+	ImuiToolboxColor_Popup,
 
-	ImUiToolboxColor_TabViewHeadBackground,
-	ImUiToolboxColor_TabViewHeaderActive,
-	ImUiToolboxColor_TabViewHeaderInactive,
-	ImUiToolboxColor_TabViewBody,
+	ImuiToolboxColor_TabViewHeadBackground,
+	ImuiToolboxColor_TabViewHeaderActive,
+	ImuiToolboxColor_TabViewHeaderInactive,
+	ImuiToolboxColor_TabViewBody,
 
-	ImUiToolboxColor_MAX
-} ImUiToolboxColor;
+	ImuiToolboxColor_MAX
+} ImuiToolboxColor;
 
-typedef enum ImUiToolboxSkin
+typedef enum ImuiToolboxSkin
 {
-	ImUiToolboxSkin_Button,
-	ImUiToolboxSkin_ButtonHover,
-	ImUiToolboxSkin_ButtonClicked,
-	ImUiToolboxSkin_CheckBox,
-	ImUiToolboxSkin_CheckBoxChecked,
-	ImUiToolboxSkin_SliderBackground,
-	ImUiToolboxSkin_SliderPivot,
-	ImUiToolboxSkin_TextEditBackground,
-	ImUiToolboxSkin_ProgressBarBackground,
-	ImUiToolboxSkin_ProgressBarProgress,
-	ImUiToolboxSkin_ScrollAreaBarBackground,
-	ImUiToolboxSkin_ScrollAreaBarPivot,
-	ImUiToolboxSkin_ListItem,
-	ImUiToolboxSkin_ItemSelected,
-	ImUiToolboxSkin_DropDown,
-	ImUiToolboxSkin_DropDownList,
-	ImUiToolboxSkin_DropDownItem,
-	ImUiToolboxSkin_Popup,
-	ImUiToolboxSkin_TabViewHeadBackground,
-	ImUiToolboxSkin_TabViewHeaderActive,
-	ImUiToolboxSkin_TabViewHeaderInactive,
-	ImUiToolboxSkin_TabViewBody,
+	ImuiToolboxSkin_Button,
+	ImuiToolboxSkin_ButtonHover,
+	ImuiToolboxSkin_ButtonClicked,
+	ImuiToolboxSkin_CheckBox,
+	ImuiToolboxSkin_CheckBoxChecked,
+	ImuiToolboxSkin_SliderBackground,
+	ImuiToolboxSkin_SliderPivot,
+	ImuiToolboxSkin_TextEditBackground,
+	ImuiToolboxSkin_ProgressBarBackground,
+	ImuiToolboxSkin_ProgressBarProgress,
+	ImuiToolboxSkin_ScrollAreaBarBackground,
+	ImuiToolboxSkin_ScrollAreaBarPivot,
+	ImuiToolboxSkin_ListItem,
+	ImuiToolboxSkin_ItemSelected,
+	ImuiToolboxSkin_DropDown,
+	ImuiToolboxSkin_DropDownList,
+	ImuiToolboxSkin_DropDownItem,
+	ImuiToolboxSkin_Popup,
+	ImuiToolboxSkin_TabViewHeadBackground,
+	ImuiToolboxSkin_TabViewHeaderActive,
+	ImuiToolboxSkin_TabViewHeaderInactive,
+	ImuiToolboxSkin_TabViewBody,
 
-	ImUiToolboxSkin_MAX
-} ImUiToolboxSkin;
+	ImuiToolboxSkin_MAX
+} ImuiToolboxSkin;
 
-typedef enum ImUiToolboxIcon
+typedef enum ImuiToolboxIcon
 {
-	ImUiToolboxIcon_CheckBoxUnchecked,
-	ImUiToolboxIcon_CheckBoxChecked,
-	ImUiToolboxIcon_DropDownOpen,
-	ImUiToolboxIcon_DropDownClose,
+	ImuiToolboxIcon_CheckBoxUnchecked,
+	ImuiToolboxIcon_CheckBoxChecked,
+	ImuiToolboxIcon_DropDownOpen,
+	ImuiToolboxIcon_DropDownClose,
 
-	ImUiToolboxIcon_MAX
-} ImUiToolboxIcon;
+	ImuiToolboxIcon_MAX
+} ImuiToolboxIcon;
 
-typedef struct ImUiToolboxThemeButton
+typedef struct ImuiToolboxThemeButton
 {
 	float			height;
-	ImUiBorder		padding;
-} ImUiToolboxThemeButton;
+	ImuiBorder		padding;
+} ImuiToolboxThemeButton;
 
-typedef struct ImUiToolboxThemeCheckBox
+typedef struct ImuiToolboxThemeCheckBox
 {
-	ImUiSize		size;
+	ImuiSize		size;
 	float			textSpacing;
-} ImUiToolboxThemeCheckBox;
+} ImuiToolboxThemeCheckBox;
 
-typedef struct ImUiToolboxThemeSlider
+typedef struct ImuiToolboxThemeSlider
 {
 	float			height;
-	ImUiBorder		padding;
-	ImUiSize		pivotSize;
-} ImUiToolboxThemeSlider;
+	ImuiBorder		padding;
+	ImuiSize		pivotSize;
+} ImuiToolboxThemeSlider;
 
-typedef struct ImUiToolboxThemeTextEdit
+typedef struct ImuiToolboxThemeTextEdit
 {
 	float			height;
-	ImUiBorder		padding;
-	ImUiSize		cursorSize;
+	ImuiBorder		padding;
+	ImuiSize		cursorSize;
 	double			blinkTime;
-} ImUiToolboxThemeTextEdit;
+} ImuiToolboxThemeTextEdit;
 
-typedef struct ImUiToolboxThemeProgressBar
+typedef struct ImuiToolboxThemeProgressBar
 {
 	float			height;
-	ImUiBorder		padding;
-} ImUiToolboxThemeProgressBar;
+	ImuiBorder		padding;
+} ImuiToolboxThemeProgressBar;
 
-typedef struct ImUiToolboxThemeScrollArea
+typedef struct ImuiToolboxThemeScrollArea
 {
 	float			barSize;
 	float			barSpacing;
 	float			barMinSize;
-} ImUiToolboxThemeScrollArea;
+} ImuiToolboxThemeScrollArea;
 
-typedef struct ImUiToolboxThemeList
+typedef struct ImuiToolboxThemeList
 {
 	float			itemSpacing;
-} ImUiToolboxThemeList;
+} ImuiToolboxThemeList;
 
-typedef struct ImUiToolboxThemeDropDown
+typedef struct ImuiToolboxThemeDropDown
 {
 	float			height;
-	ImUiBorder		padding;
+	ImuiBorder		padding;
 
 	uint32_t		listZOrder;
-	ImUiBorder		listMargin;
+	ImuiBorder		listMargin;
 	uint32_t		listMaxLength;
 
-	ImUiBorder		itemPadding;
+	ImuiBorder		itemPadding;
 	float			itemSize;
 	float			itemSpacing;
-} ImUiToolboxThemeDropDown;
+} ImuiToolboxThemeDropDown;
 
-typedef struct ImUiToolboxThemePopup
+typedef struct ImuiToolboxThemePopup
 {
 	uint32_t		zOrder;
-	ImUiBorder		padding;
+	ImuiBorder		padding;
 
 	float			buttonSpacing;
-} ImUiToolboxThemePopup;
+} ImuiToolboxThemePopup;
 
-typedef struct ImUiToolboxThemeTabView
+typedef struct ImuiToolboxThemeTabView
 {
 	float			headerSpacing;
 	float			headerCutLeft;
 	float			headerCutRight;
-	ImUiBorder		headerPadding;
+	ImuiBorder		headerPadding;
 
-	ImUiBorder		bodyPadding;
+	ImuiBorder		bodyPadding;
 
-} ImUiToolboxThemeTabView;
+} ImuiToolboxThemeTabView;
 
-typedef struct ImUiToolboxTheme
+typedef struct ImuiToolboxTheme
 {
-	ImUiColor						colors[ ImUiToolboxColor_MAX ];
-	ImUiSkin						skins[ ImUiToolboxSkin_MAX ];
-	ImUiImage						icons[ ImUiToolboxIcon_MAX ];
+	ImuiColor						colors[ ImuiToolboxColor_MAX ];
+	ImuiSkin						skins[ ImuiToolboxSkin_MAX ];
+	ImuiImage						icons[ ImuiToolboxIcon_MAX ];
 
-	ImUiFont*						font;
+	ImuiFont*						font;
 
-	ImUiToolboxThemeButton			button;
-	ImUiToolboxThemeCheckBox		checkBox;
-	ImUiToolboxThemeSlider			slider;
-	ImUiToolboxThemeTextEdit		textEdit;
-	ImUiToolboxThemeProgressBar		progressBar;
-	ImUiToolboxThemeScrollArea		scrollArea;
-	ImUiToolboxThemeList			list;
-	ImUiToolboxThemeDropDown		dropDown;
-	ImUiToolboxThemePopup			popup;
-	ImUiToolboxThemeTabView			tabView;
-} ImUiToolboxTheme;
+	ImuiToolboxThemeButton			button;
+	ImuiToolboxThemeCheckBox		checkBox;
+	ImuiToolboxThemeSlider			slider;
+	ImuiToolboxThemeTextEdit		textEdit;
+	ImuiToolboxThemeProgressBar		progressBar;
+	ImuiToolboxThemeScrollArea		scrollArea;
+	ImuiToolboxThemeList			list;
+	ImuiToolboxThemeDropDown		dropDown;
+	ImuiToolboxThemePopup			popup;
+	ImuiToolboxThemeTabView			tabView;
+} ImuiToolboxTheme;
 
-typedef enum ImUiToolboxThemeReflectionType
+typedef enum ImuiToolboxThemeReflectionType
 {
-	ImUiToolboxThemeReflectionType_Color,
-	ImUiToolboxThemeReflectionType_Skin,
-	ImUiToolboxThemeReflectionType_Image,
-	ImUiToolboxThemeReflectionType_Font,
-	ImUiToolboxThemeReflectionType_Size,
-	ImUiToolboxThemeReflectionType_Border,
-	ImUiToolboxThemeReflectionType_Float,
-	ImUiToolboxThemeReflectionType_Double,
-	ImUiToolboxThemeReflectionType_UInt32
-} ImUiToolboxThemeReflectionType;
+	ImuiToolboxThemeReflectionType_Color,
+	ImuiToolboxThemeReflectionType_Skin,
+	ImuiToolboxThemeReflectionType_Image,
+	ImuiToolboxThemeReflectionType_Font,
+	ImuiToolboxThemeReflectionType_Size,
+	ImuiToolboxThemeReflectionType_Border,
+	ImuiToolboxThemeReflectionType_Float,
+	ImuiToolboxThemeReflectionType_Double,
+	ImuiToolboxThemeReflectionType_UInt32
+} ImuiToolboxThemeReflectionType;
 
-typedef struct ImUiToolboxThemeReflectionField
+typedef struct ImuiToolboxThemeReflectionField
 {
 	const char*						name;
-	ImUiToolboxThemeReflectionType	type;
+	ImuiToolboxThemeReflectionType	type;
 	size_t							offset;
-} ImUiToolboxThemeReflectionField;
+} ImuiToolboxThemeReflectionField;
 
-typedef struct ImUiToolboxThemeReflection
+typedef struct ImuiToolboxThemeReflection
 {
-	const ImUiToolboxThemeReflectionField*	fields;
+	const ImuiToolboxThemeReflectionField*	fields;
 	size_t									count;
-} ImUiToolboxThemeReflection;
+} ImuiToolboxThemeReflection;
 
-typedef struct ImUiToolboxTextBuffer ImUiToolboxTextBuffer;
+typedef struct ImuiToolboxTextBuffer ImuiToolboxTextBuffer;
 
-typedef struct ImUiToolboxScrollAreaState ImUiToolboxScrollAreaState;
+typedef struct ImuiToolboxScrollAreaState ImuiToolboxScrollAreaState;
 
-typedef struct ImUiToolboxScrollAreaContext
+typedef struct ImuiToolboxScrollAreaContext
 {
 	bool							horizontalSpacing;
 	bool							verticalSpacing;
 
-	ImUiWidget*						area;
-	ImUiWidget*						content;
-	ImUiToolboxScrollAreaState*		state;
-} ImUiToolboxScrollAreaContext;
+	ImuiWidget*						area;
+	ImuiWidget*						content;
+	ImuiToolboxScrollAreaState*		state;
+} ImuiToolboxScrollAreaContext;
 
-typedef struct ImUiToolboxListState ImUiToolboxListState;
+typedef struct ImuiToolboxListState ImuiToolboxListState;
 
-typedef struct ImUiToolboxListContext
+typedef struct ImuiToolboxListContext
 {
 	float							itemSize;
 	size_t							itemCount;
 
-	ImUiToolboxScrollAreaContext	scrollArea;
+	ImuiToolboxScrollAreaContext	scrollArea;
 
-	ImUiWidget*						list;
-	ImUiWidget*						listLayout;
-	ImUiToolboxListState*			state;
+	ImuiWidget*						list;
+	ImuiWidget*						listLayout;
+	ImuiToolboxListState*			state;
 
-	ImUiWidget*						item;
+	ImuiWidget*						item;
 	size_t							itemIndex;
 
 	size_t							beginIndex;
@@ -264,159 +264,159 @@ typedef struct ImUiToolboxListContext
 
 	bool							selection;
 	bool							changed;
-} ImUiToolboxListContext;
+} ImuiToolboxListContext;
 
-typedef struct ImUiToolboxTextViewState ImUiToolboxTextViewState;
+typedef struct ImuiToolboxTextViewState ImuiToolboxTextViewState;
 
-typedef struct ImUiToolboxTextViewContext
+typedef struct ImuiToolboxTextViewContext
 {
-	ImUiToolboxListContext			list;
+	ImuiToolboxListContext			list;
 
 	bool							ownsBuffer;
-	const ImUiToolboxTextBuffer*	textBuffer;
-} ImUiToolboxTextViewContext;
+	const ImuiToolboxTextBuffer*	textBuffer;
+} ImuiToolboxTextViewContext;
 
-typedef struct ImUiToolboxDropDownState ImUiToolboxDropDownState;
+typedef struct ImuiToolboxDropDownState ImuiToolboxDropDownState;
 
-typedef struct ImUiToolboxDropDownContext
+typedef struct ImuiToolboxDropDownContext
 {
-	ImUiWidget*						dropDown;
+	ImuiWidget*						dropDown;
 
-	ImUiToolboxDropDownState*		state;
+	ImuiToolboxDropDownState*		state;
 
 	bool							changed;
-} ImUiToolboxDropDownContext;
+} ImuiToolboxDropDownContext;
 
-typedef struct ImUiToolboxTabViewState ImUiToolboxTabViewState;
+typedef struct ImuiToolboxTabViewState ImuiToolboxTabViewState;
 
-typedef struct ImUiToolboxTabViewContext
+typedef struct ImuiToolboxTabViewContext
 {
-	ImUiWidget*						view;
-	ImUiWidget*						head;
-	ImUiWidget*						body;
+	ImuiWidget*						view;
+	ImuiWidget*						head;
+	ImuiWidget*						body;
 
 	size_t							headerCount;
 	float							selectedHeaderOffset;
 	float							selectedHeaderWidth;
-	ImUiToolboxTabViewState*		state;
-} ImUiToolboxTabViewContext;
+	ImuiToolboxTabViewState*		state;
+} ImuiToolboxTabViewContext;
 
-ImUiToolboxThemeReflection	ImUiToolboxThemeReflectionGet();
+ImuiToolboxThemeReflection	imuiToolboxThemeReflectionGet();
 
-ImUiToolboxTheme*		ImUiToolboxThemeGet();
-void					ImUiToolboxThemeFillDefault( ImUiToolboxTheme* config, ImUiFont* font );
-void					ImUiToolboxThemeSet( const ImUiToolboxTheme* config );
+ImuiToolboxTheme*		imuiToolboxThemeGet();
+void					imuiToolboxThemeFillDefault( ImuiToolboxTheme* config, ImuiFont* font );
+void					imuiToolboxThemeSet( const ImuiToolboxTheme* config );
 
 // TODO: add theme config scopes
 
-void					ImUiToolboxSpacer( ImUiWindow* window, float width, float height );
-void					ImUiToolboxStrecher( ImUiWindow* window, float horizontal, float vertical );
+void					imuiToolboxSpacer( ImuiWindow* window, float width, float height );
+void					imuiToolboxStrecher( ImuiWindow* window, float horizontal, float vertical );
 
-ImUiWidget*				ImUiToolboxButtonBegin( ImUiWindow* window );
-bool					ImUiToolboxButtonEnd( ImUiWidget* button );
-ImUiWidget*				ImUiToolboxButtonLabelBegin( ImUiWindow* window, const char* text );
-ImUiWidget*				ImUiToolboxButtonLabelBeginFormat( ImUiWindow* window, const char* format, ... );
-ImUiWidget*				ImUiToolboxButtonLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
-bool					ImUiToolboxButtonLabel( ImUiWindow* window, const char* text );
-bool					ImUiToolboxButtonLabelFormat( ImUiWindow* window, const char* format, ... );
-bool					ImUiToolboxButtonLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
-ImUiWidget*				ImUiToolboxButtonIconBegin( ImUiWindow* window, const ImUiImage* icon, ImUiSize iconSize );
-bool					ImUiToolboxButtonIcon( ImUiWindow* window, const ImUiImage* icon );
-bool					ImUiToolboxButtonIconSize( ImUiWindow* window, const ImUiImage* icon, ImUiSize iconSize );
+ImuiWidget*				imuiToolboxButtonBegin( ImuiWindow* window );
+bool					imuiToolboxButtonEnd( ImuiWidget* button );
+ImuiWidget*				imuiToolboxButtonLabelBegin( ImuiWindow* window, const char* text );
+ImuiWidget*				imuiToolboxButtonLabelBeginFormat( ImuiWindow* window, const char* format, ... );
+ImuiWidget*				imuiToolboxButtonLabelBeginFormatArgs( ImuiWindow* window, const char* format, va_list args );
+bool					imuiToolboxButtonLabel( ImuiWindow* window, const char* text );
+bool					imuiToolboxButtonLabelFormat( ImuiWindow* window, const char* format, ... );
+bool					imuiToolboxButtonLabelFormatArgs( ImuiWindow* window, const char* format, va_list args );
+ImuiWidget*				imuiToolboxButtonIconBegin( ImuiWindow* window, const ImuiImage* icon, ImuiSize iconSize );
+bool					imuiToolboxButtonIcon( ImuiWindow* window, const ImuiImage* icon );
+bool					imuiToolboxButtonIconSize( ImuiWindow* window, const ImuiImage* icon, ImuiSize iconSize );
 
-ImUiWidget*				ImUiToolboxCheckBoxBegin( ImUiWindow* window );
-bool					ImUiToolboxCheckBoxEnd( ImUiWidget* checkBox, bool* checked, const char* text );
-bool					ImUiToolboxCheckBox( ImUiWindow* window, bool* checked, const char* text );
-bool					ImUiToolboxCheckBoxState( ImUiWindow* window, const char* text );
-bool					ImUiToolboxCheckBoxStateDefault( ImUiWindow* window, const char* text, bool defaultValue );
+ImuiWidget*				imuiToolboxCheckBoxBegin( ImuiWindow* window );
+bool					imuiToolboxCheckBoxEnd( ImuiWidget* checkBox, bool* checked, const char* text );
+bool					imuiToolboxCheckBox( ImuiWindow* window, bool* checked, const char* text );
+bool					imuiToolboxCheckBoxState( ImuiWindow* window, const char* text );
+bool					imuiToolboxCheckBoxStateDefault( ImuiWindow* window, const char* text, bool defaultValue );
 
-ImUiWidget*				ImUiToolboxLabelBegin( ImUiWindow* window, const char* text );
-ImUiWidget*				ImUiToolboxLabelBeginColor( ImUiWindow* window, const char* text, ImUiColor color );
-ImUiWidget*				ImUiToolboxLabelBeginLength( ImUiWindow* window, const char* text, size_t length );
-ImUiWidget*				ImUiToolboxLabelBeginLengthColor( ImUiWindow* window, const char* text, size_t length, ImUiColor color );
-ImUiWidget*				ImUiToolboxLabelBeginFormat( ImUiWindow* window, const char* format, ... );
-ImUiWidget*				ImUiToolboxLabelBeginFormatArgs( ImUiWindow* window, const char* format, va_list args );
-void					ImUiToolboxLabelEnd( ImUiWidget* label );
-void					ImUiToolboxLabel( ImUiWindow* window, const char* text );
-void					ImUiToolboxLabelLength( ImUiWindow* window, const char* text, size_t length );
-void					ImUiToolboxLabelColor( ImUiWindow* window, const char* text, ImUiColor color );
-void					ImUiToolboxLabelFormat( ImUiWindow* window, const char* format, ... );
-void					ImUiToolboxLabelFormatArgs( ImUiWindow* window, const char* format, va_list args );
+ImuiWidget*				imuiToolboxLabelBegin( ImuiWindow* window, const char* text );
+ImuiWidget*				imuiToolboxLabelBeginColor( ImuiWindow* window, const char* text, ImuiColor color );
+ImuiWidget*				imuiToolboxLabelBeginLength( ImuiWindow* window, const char* text, size_t length );
+ImuiWidget*				imuiToolboxLabelBeginLengthColor( ImuiWindow* window, const char* text, size_t length, ImuiColor color );
+ImuiWidget*				imuiToolboxLabelBeginFormat( ImuiWindow* window, const char* format, ... );
+ImuiWidget*				imuiToolboxLabelBeginFormatArgs( ImuiWindow* window, const char* format, va_list args );
+void					imuiToolboxLabelEnd( ImuiWidget* label );
+void					imuiToolboxLabel( ImuiWindow* window, const char* text );
+void					imuiToolboxLabelLength( ImuiWindow* window, const char* text, size_t length );
+void					imuiToolboxLabelColor( ImuiWindow* window, const char* text, ImuiColor color );
+void					imuiToolboxLabelFormat( ImuiWindow* window, const char* format, ... );
+void					imuiToolboxLabelFormatArgs( ImuiWindow* window, const char* format, va_list args );
 
-ImUiWidget*				ImUiToolboxImageBegin( ImUiWindow* window, ImUiSize imgSize );
-void					ImUiToolboxImageEnd( ImUiWidget* imgWidget, const ImUiImage* img );
-void					ImUiToolboxImage( ImUiWindow* window, const ImUiImage* img );
-void					ImUiToolboxImageSize( ImUiWindow* window, const ImUiImage* img, ImUiSize imgSize );
+ImuiWidget*				imuiToolboxImageBegin( ImuiWindow* window, ImuiSize imgSize );
+void					imuiToolboxImageEnd( ImuiWidget* imgWidget, const ImuiImage* img );
+void					imuiToolboxImage( ImuiWindow* window, const ImuiImage* img );
+void					imuiToolboxImageSize( ImuiWindow* window, const ImuiImage* img, ImuiSize imgSize );
 
-ImUiWidget*				ImUiToolboxSliderBegin( ImUiWindow* window );
-bool					ImUiToolboxSliderEnd( ImUiWidget* slider, float* value, float min, float max );
-bool					ImUiToolboxSlider( ImUiWindow* window, float* value );								// value range is 0 to 1
-bool					ImUiToolboxSliderMinMax (ImUiWindow* window, float* value, float min, float max);
-float					ImUiToolboxSliderState( ImUiWindow* window );										// value range is 0 to 1
-float					ImUiToolboxSliderStateDefault( ImUiWindow* window, float defaultValue );			// value range is 0 to 1
-float					ImUiToolboxSliderStateMinMax( ImUiWindow* window, float min, float max );
-float					ImUiToolboxSliderStateMinMaxDefault( ImUiWindow* window, float min, float max, float defaultValue );
+ImuiWidget*				imuiToolboxSliderBegin( ImuiWindow* window );
+bool					imuiToolboxSliderEnd( ImuiWidget* slider, float* value, float min, float max );
+bool					imuiToolboxSlider( ImuiWindow* window, float* value );								// value range is 0 to 1
+bool					imuiToolboxSliderMinMax (ImuiWindow* window, float* value, float min, float max);
+float					imuiToolboxSliderState( ImuiWindow* window );										// value range is 0 to 1
+float					imuiToolboxSliderStateDefault( ImuiWindow* window, float defaultValue );			// value range is 0 to 1
+float					imuiToolboxSliderStateMinMax( ImuiWindow* window, float min, float max );
+float					imuiToolboxSliderStateMinMaxDefault( ImuiWindow* window, float min, float max, float defaultValue );
 
-ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreate( ImUiContext* imui );
-ImUiToolboxTextBuffer*	ImUiToolboxTextBufferCreateText( ImUiContext* imui, const char* text );
-void					ImUiToolboxTextBufferFree( ImUiToolboxTextBuffer* textBuffer );
-void					ImUiToolboxTextBufferSet( ImUiToolboxTextBuffer* textBuffer, const char* text );
-void					ImUiToolboxTextBufferAppend( ImUiToolboxTextBuffer* textBuffer, const char* text );
-void					ImUiToolboxTextBufferAppendLength( ImUiToolboxTextBuffer* textBuffer, const char* text, size_t textLength );
-const char*				ImUiToolboxTextBufferGetData( const ImUiToolboxTextBuffer* textBuffer );
-size_t					ImUiToolboxTextBufferGetLength( const ImUiToolboxTextBuffer* textBuffer );
+ImuiToolboxTextBuffer*	imuiToolboxTextBufferCreate( ImuiContext* imui );
+ImuiToolboxTextBuffer*	imuiToolboxTextBufferCreateText( ImuiContext* imui, const char* text );
+void					imuiToolboxTextBufferFree( ImuiToolboxTextBuffer* textBuffer );
+void					imuiToolboxTextBufferSet( ImuiToolboxTextBuffer* textBuffer, const char* text );
+void					imuiToolboxTextBufferAppend( ImuiToolboxTextBuffer* textBuffer, const char* text );
+void					imuiToolboxTextBufferAppendLength( ImuiToolboxTextBuffer* textBuffer, const char* text, size_t textLength );
+const char*				imuiToolboxTextBufferGetData( const ImuiToolboxTextBuffer* textBuffer );
+size_t					imuiToolboxTextBufferGetLength( const ImuiToolboxTextBuffer* textBuffer );
 
-ImUiWidget*				ImUiToolboxTextEditBegin( ImUiWindow* window );
-bool					ImUiToolboxTextEditEnd( ImUiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
-bool					ImUiToolboxTextEdit( ImUiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
-const char*				ImUiToolboxTextEditStateBuffer( ImUiWindow* window, size_t bufferSize );
-const char*				ImUiToolboxTextEditStateBufferDefault( ImUiWindow* window, size_t bufferSize, const char* defaultValue );
+ImuiWidget*				imuiToolboxTextEditBegin( ImuiWindow* window );
+bool					imuiToolboxTextEditEnd( ImuiWidget* textEdit, char* buffer, size_t bufferSize, size_t* textLength );
+bool					imuiToolboxTextEdit( ImuiWindow* window, char* buffer, size_t bufferSize, size_t* textLength );
+const char*				imuiToolboxTextEditStateBuffer( ImuiWindow* window, size_t bufferSize );
+const char*				imuiToolboxTextEditStateBufferDefault( ImuiWindow* window, size_t bufferSize, const char* defaultValue );
 
-ImUiWidget*				ImUiToolboxTextViewBegin( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const char* text );
-ImUiWidget*				ImUiToolboxTextViewBeginBuffer( ImUiToolboxTextViewContext* textView, ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
-void					ImUiToolboxTextViewEnd( ImUiToolboxTextViewContext* textView );
-void					ImUiToolboxTextView( ImUiWindow* window, const char* text );
-void					ImUiToolboxTextViewBuffer( ImUiWindow* window, const ImUiToolboxTextBuffer* textBuffer );
+ImuiWidget*				imuiToolboxTextViewBegin( ImuiToolboxTextViewContext* textView, ImuiWindow* window, const char* text );
+ImuiWidget*				imuiToolboxTextViewBeginBuffer( ImuiToolboxTextViewContext* textView, ImuiWindow* window, const ImuiToolboxTextBuffer* textBuffer );
+void					imuiToolboxTextViewEnd( ImuiToolboxTextViewContext* textView );
+void					imuiToolboxTextView( ImuiWindow* window, const char* text );
+void					imuiToolboxTextViewBuffer( ImuiWindow* window, const ImuiToolboxTextBuffer* textBuffer );
 
-void					ImUiToolboxProgressBar( ImUiWindow* window, float value ); // value range 0 to 1
-void					ImUiToolboxProgressBarMinMax( ImUiWindow* window, float value, float min, float max );
+void					imuiToolboxProgressBar( ImuiWindow* window, float value ); // value range 0 to 1
+void					imuiToolboxProgressBarMinMax( ImuiWindow* window, float value, float min, float max );
 
-ImUiWidget*				ImUiToolboxScrollAreaBegin( ImUiToolboxScrollAreaContext* scrollArea, ImUiWindow* window );
-void					ImUiToolboxScrollAreaEnableSpacing( ImUiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
-void					ImUiToolboxScrollAreaSetOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
-void					ImUiToolboxScrollAreaMoveOffset( ImUiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
-void					ImUiToolboxScrollAreaOffsetTo( ImUiToolboxScrollAreaContext* scrollArea, const ImUiWidget* widgetToScrollTo );
-void					ImUiToolboxScrollAreaEnd( ImUiToolboxScrollAreaContext* scrollArea );
+ImuiWidget*				imuiToolboxScrollAreaBegin( ImuiToolboxScrollAreaContext* scrollArea, ImuiWindow* window );
+void					imuiToolboxScrollAreaEnableSpacing( ImuiToolboxScrollAreaContext* scrollArea, bool horizontal, bool vertical );
+void					imuiToolboxScrollAreaSetOffset( ImuiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
+void					imuiToolboxScrollAreaMoveOffset( ImuiToolboxScrollAreaContext* scrollArea, float offsetX, float offsetY );
+void					imuiToolboxScrollAreaOffsetTo( ImuiToolboxScrollAreaContext* scrollArea, const ImuiWidget* widgetToScrollTo );
+void					imuiToolboxScrollAreaEnd( ImuiToolboxScrollAreaContext* scrollArea );
 
-ImUiWidget*				ImUiToolboxListBegin( ImUiToolboxListContext* list, ImUiWindow* window, float itemSize, size_t itemCount, bool selection );
-size_t					ImUiToolboxListGetBeginIndex( const ImUiToolboxListContext* list );
-size_t					ImUiToolboxListGetEndIndex( const ImUiToolboxListContext* list );
-size_t					ImUiToolboxListGetSelectedIndex( const ImUiToolboxListContext* list );
-void					ImUiToolboxListSetSelectedIndex( ImUiToolboxListContext* list, size_t index );
-ImUiWidget*				ImUiToolboxListNextItem( ImUiToolboxListContext* list );
-ImUiWidget*				ImUiToolboxListNextItemId( ImUiToolboxListContext* list, ImUiId id );
-bool					ImUiToolboxListEnd( ImUiToolboxListContext* list );
+ImuiWidget*				imuiToolboxListBegin( ImuiToolboxListContext* list, ImuiWindow* window, float itemSize, size_t itemCount, bool selection );
+size_t					imuiToolboxListGetBeginIndex( const ImuiToolboxListContext* list );
+size_t					imuiToolboxListGetEndIndex( const ImuiToolboxListContext* list );
+size_t					imuiToolboxListGetSelectedIndex( const ImuiToolboxListContext* list );
+void					imuiToolboxListSetSelectedIndex( ImuiToolboxListContext* list, size_t index );
+ImuiWidget*				imuiToolboxListNextItem( ImuiToolboxListContext* list );
+ImuiWidget*				imuiToolboxListNextItemId( ImuiToolboxListContext* list, ImuiId id );
+bool					imuiToolboxListEnd( ImuiToolboxListContext* list );
 
-ImUiWidget*				ImUiToolboxDropDownBegin( ImUiToolboxDropDownContext* dropDown, ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
-size_t					ImUiToolboxDropDownGetSelectedIndex( const ImUiToolboxDropDownContext* dropDown );
-void					ImUiToolboxDropDownSetSelectedIndex( const ImUiToolboxDropDownContext* dropDown, size_t index );
-bool					ImUiToolboxDropDownEnd( ImUiToolboxDropDownContext* dropDown );
-size_t					ImUiToolboxDropDown( ImUiWindow* window, const char** items, size_t itemCount, size_t itemStride );
+ImuiWidget*				imuiToolboxDropDownBegin( ImuiToolboxDropDownContext* dropDown, ImuiWindow* window, const char** items, size_t itemCount, size_t itemStride );
+size_t					imuiToolboxDropDownGetSelectedIndex( const ImuiToolboxDropDownContext* dropDown );
+void					imuiToolboxDropDownSetSelectedIndex( const ImuiToolboxDropDownContext* dropDown, size_t index );
+bool					imuiToolboxDropDownEnd( ImuiToolboxDropDownContext* dropDown );
+size_t					imuiToolboxDropDown( ImuiWindow* window, const char** items, size_t itemCount, size_t itemStride );
 
-ImUiWindow*				ImUiToolboxPopupBegin( ImUiWindow* window );
-ImUiWindow*				ImUiToolboxPopupBeginSurface( ImUiSurface* surface );
-size_t					ImUiToolboxPopupEndButtons( ImUiWindow* popupWindow, const char** buttons, size_t buttonCount );
-void					ImUiToolboxPopupEnd( ImUiWindow* popupWindow );
+ImuiWindow*				imuiToolboxPopupBegin( ImuiWindow* window );
+ImuiWindow*				imuiToolboxPopupBeginSurface( ImuiSurface* surface );
+size_t					imuiToolboxPopupEndButtons( ImuiWindow* popupWindow, const char** buttons, size_t buttonCount );
+void					imuiToolboxPopupEnd( ImuiWindow* popupWindow );
 
-ImUiWidget*				ImUiToolboxTabViewBegin( ImUiToolboxTabViewContext* tabView, ImUiWindow* window );
-size_t					ImUiToolboxTabViewGetSelectedIndex( const ImUiToolboxTabViewContext* tabView );
-void					ImUiToolboxTabViewSetSelectedIndex( ImUiToolboxTabViewContext* tabView, size_t index );
-bool					ImUiToolboxTabViewHeader( ImUiToolboxTabViewContext* tabView, const char* text );
-ImUiWidget*				ImUiToolboxTabViewHeaderBegin( ImUiToolboxTabViewContext* tabView );
-bool					ImUiToolboxTabViewHeaderEnd( ImUiToolboxTabViewContext* tabView, ImUiWidget* tabHeader );
-ImUiWidget*				ImUiToolboxTabViewBodyBegin( ImUiToolboxTabViewContext* tabView );
-void					ImUiToolboxTabViewBodyEnd( ImUiToolboxTabViewContext* tabView );
-void					ImUiToolboxTabViewEnd( ImUiToolboxTabViewContext* tabView );
+ImuiWidget*				imuiToolboxTabViewBegin( ImuiToolboxTabViewContext* tabView, ImuiWindow* window );
+size_t					imuiToolboxTabViewGetSelectedIndex( const ImuiToolboxTabViewContext* tabView );
+void					imuiToolboxTabViewSetSelectedIndex( ImuiToolboxTabViewContext* tabView, size_t index );
+bool					imuiToolboxTabViewHeader( ImuiToolboxTabViewContext* tabView, const char* text );
+ImuiWidget*				imuiToolboxTabViewHeaderBegin( ImuiToolboxTabViewContext* tabView );
+bool					imuiToolboxTabViewHeaderEnd( ImuiToolboxTabViewContext* tabView, ImuiWidget* tabHeader );
+ImuiWidget*				imuiToolboxTabViewBodyBegin( ImuiToolboxTabViewContext* tabView );
+void					imuiToolboxTabViewBodyEnd( ImuiToolboxTabViewContext* tabView );
+void					imuiToolboxTabViewEnd( ImuiToolboxTabViewContext* tabView );
 
 #ifdef __cplusplus
 }

@@ -14,200 +14,200 @@
 
 #define IMUI_ARRAY_COUNT( arr ) (sizeof( arr ) / sizeof( *(arr) ))
 
-typedef struct ImUiToolboxSampleContext
+typedef struct ImuiToolboxSampleContext
 {
 	float							sliderValue1;
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	ImUiFrameworkToolboxConfigData	configData;
+	ImuiFrameworkToolboxConfigData	configData;
 #endif
-} ImUiToolboxSampleContext;
+} ImuiToolboxSampleContext;
 
-static ImUiToolboxSampleContext s_toolboxContext =
+static ImuiToolboxSampleContext s_toolboxContext =
 {
 	.sliderValue1 = 2.5f
 };
 
-static void			ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout );
-static void			ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window );
-static void			ImUiToolboxSampleTextEdit( ImUiWindow* window );
-static void			ImUiToolboxSampleDropDown( ImUiWindow* window );
-static void			ImUiToolboxSamplePopup( ImUiWindow* window );
-static void			ImUiToolboxSampleScrollAndList( ImUiWindow* window );
-static void			ImUiToolboxSampleTabView( ImUiWindow* window );
-static void			ImUiToolboxSampleTextView( ImUiWindow* window );
+static void			imuiToolboxSampleButtonsAndCheckBoxes( ImuiWindow* window, ImuiWidget* vLayout );
+static void			imuiToolboxSampleSlidersAndProgressBars( ImuiWindow* window );
+static void			imuiToolboxSampleTextEdit( ImuiWindow* window );
+static void			imuiToolboxSampleDropDown( ImuiWindow* window );
+static void			imuiToolboxSamplePopup( ImuiWindow* window );
+static void			imuiToolboxSampleScrollAndList( ImuiWindow* window );
+static void			imuiToolboxSampleTabView( ImuiWindow* window );
+static void			imuiToolboxSampleTextView( ImuiWindow* window );
 
-typedef struct ImUiTestPopupState ImUiTestPopupState;
-struct ImUiTestPopupState
+typedef struct ImuiTestPopupState ImuiTestPopupState;
+struct ImuiTestPopupState
 {
 	bool isOpen;
 };
 
-void ImUiToolboxSampleTick( ImUiWindow* window )
+void imuiToolboxSampleTick( ImuiWindow* window )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	ImUiFrameworkToolboxConfigDataApply( &s_toolboxContext.configData );
+	imuiFrameworkToolboxConfigDataApply( &s_toolboxContext.configData );
 #endif
 
-	ImUiWidget* hLayout = ImUiWidgetBeginNamed( window, "hMain" );
-	ImUiWidgetSetStretchOne( hLayout );
-	ImUiWidgetSetMargin( hLayout, ImUiBorderCreateAll( 25.0f ) );
-	ImUiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
+	ImuiWidget* hLayout = imuiWidgetBeginNamed( window, "hMain" );
+	imuiWidgetSetStretchOne( hLayout );
+	imuiWidgetSetMargin( hLayout, imuiBorderCreateAll( 25.0f ) );
+	imuiWidgetSetLayoutHorizontalSpacing( hLayout, 10.0f );
 
 	{
-		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vMain" );
-		ImUiWidgetSetHStretch( vLayout, 1.0f );
-		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
+		ImuiWidget* vLayout = imuiWidgetBeginNamed( window, "vMain" );
+		imuiWidgetSetHStretch( vLayout, 1.0f );
+		imuiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-		ImUiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
-		ImUiToolboxSampleSlidersAndProgressBars( window );
-		ImUiToolboxSampleTextEdit( window );
-		ImUiToolboxSampleDropDown( window );
-		ImUiToolboxSamplePopup( window );
+		imuiToolboxSampleButtonsAndCheckBoxes( window, vLayout );
+		imuiToolboxSampleSlidersAndProgressBars( window );
+		imuiToolboxSampleTextEdit( window );
+		imuiToolboxSampleDropDown( window );
+		imuiToolboxSamplePopup( window );
 
-		ImUiWidgetEnd( vLayout );
+		imuiWidgetEnd( vLayout );
 	}
 
 	{
-		ImUiWidget* vLayout = ImUiWidgetBeginNamed( window, "vLayout" );
-		ImUiWidgetSetHStretch( vLayout, 1.0f );
-		ImUiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
+		ImuiWidget* vLayout = imuiWidgetBeginNamed( window, "vLayout" );
+		imuiWidgetSetHStretch( vLayout, 1.0f );
+		imuiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-		ImUiToolboxSampleScrollAndList( window );
-		ImUiToolboxSampleTabView( window );
-		ImUiToolboxSampleTextView( window );
+		imuiToolboxSampleScrollAndList( window );
+		imuiToolboxSampleTabView( window );
+		imuiToolboxSampleTextView( window );
 
-		ImUiWidgetEnd( vLayout );
+		imuiWidgetEnd( vLayout );
 	}
 
 	{
-		const ImUiPos mousePos = ImUiInputGetMousePos( ImUiWindowGetInput( window ) );
-		ImUiWidget* mouseLabel = ImUiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
-		ImUiWidgetSetFixedWidth( mouseLabel, 100.0f );
-		ImUiWidgetSetVAlign( mouseLabel, 0.0f );
-		ImUiToolboxLabelEnd( mouseLabel );
+		const ImuiPos mousePos = imuiInputGetMousePos( imuiWindowGetInput( window ) );
+		ImuiWidget* mouseLabel = imuiToolboxLabelBeginFormat( window, "X: %.0f\nY: %.0f", mousePos.x, mousePos.y );
+		imuiWidgetSetFixedWidth( mouseLabel, 100.0f );
+		imuiWidgetSetVAlign( mouseLabel, 0.0f );
+		imuiToolboxLabelEnd( mouseLabel );
 	}
 
-	ImUiWidgetEnd( hLayout );
+	imuiWidgetEnd( hLayout );
 }
 
-static void ImUiToolboxSampleButtonsAndCheckBoxes( ImUiWindow* window, ImUiWidget* vLayout )
+static void imuiToolboxSampleButtonsAndCheckBoxes( ImuiWindow* window, ImuiWidget* vLayout )
 {
 	bool isNewState;
-	bool* checked = (bool*)ImUiWidgetAllocStateNew( vLayout, sizeof( bool ) * 3u, IMUI_ID_STR( "check" ), &isNewState);
+	bool* checked = (bool*)imuiWidgetAllocStateNew( vLayout, sizeof( bool ) * 3u, IMUI_ID_STR( "check" ), &isNewState);
 	if( isNewState )
 	{
 		checked[ 1u ] = true;
 	}
 
 	{
-		ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, "buttons" );
-		ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
+		ImuiWidget* buttonsLayout = imuiWidgetBeginNamed( window, "buttons" );
+		imuiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
 
-		if( ImUiToolboxButtonLabel( window, "Button 1" ) )
+		if( imuiToolboxButtonLabel( window, "Button 1" ) )
 		{
 			checked[ 0u ] = !checked[ 0u ];
 		}
 
-		if( ImUiToolboxButtonLabel( window, "Button 2" ) )
+		if( imuiToolboxButtonLabel( window, "Button 2" ) )
 		{
 			checked[ 1u ] = !checked[ 1u ];
 		}
 
-		if( ImUiToolboxButtonLabel( window, "Button 3" ) )
+		if( imuiToolboxButtonLabel( window, "Button 3" ) )
 		{
 			checked[ 2u ] = !checked[ 2u ];
 		}
 
-		ImUiWidgetEnd( buttonsLayout );
+		imuiWidgetEnd( buttonsLayout );
 	}
 
 	{
-		ImUiWidget* checkLayout = ImUiWidgetBeginNamed( window, "checks" );
-		ImUiWidgetSetHStretch( checkLayout, 1.0f );
-		ImUiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
+		ImuiWidget* checkLayout = imuiWidgetBeginNamed( window, "checks" );
+		imuiWidgetSetHStretch( checkLayout, 1.0f );
+		imuiWidgetSetLayoutVerticalSpacing( checkLayout, 10.0f );
 
-		ImUiToolboxCheckBox( window, &checked[ 0u ], "Check 1" );
-		ImUiToolboxCheckBox( window, &checked[ 1u ], "Check 2" );
-		ImUiToolboxCheckBox( window, &checked[ 2u ], "Check 3" );
+		imuiToolboxCheckBox( window, &checked[ 0u ], "Check 1" );
+		imuiToolboxCheckBox( window, &checked[ 1u ], "Check 2" );
+		imuiToolboxCheckBox( window, &checked[ 2u ], "Check 3" );
 
-		ImUiToolboxCheckBoxState( window, "Check State" );
+		imuiToolboxCheckBoxState( window, "Check State" );
 
-		ImUiToolboxLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
+		imuiToolboxLabelFormat( window, "C1: %d, C2: %d, C3: %d", checked[ 0u ], checked[ 1u ], checked[ 2u ] );
 
-		ImUiWidgetEnd( checkLayout );
+		imuiWidgetEnd( checkLayout );
 	}
 }
 
-static void ImUiToolboxSampleSlidersAndProgressBars( ImUiWindow* window )
+static void imuiToolboxSampleSlidersAndProgressBars( ImuiWindow* window )
 {
-	ImUiWidget* sliderLayout = ImUiWidgetBeginNamed( window, "sliders" );
-	ImUiWidgetSetHStretch( sliderLayout, 1.0f );
-	ImUiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
+	ImuiWidget* sliderLayout = imuiWidgetBeginNamed( window, "sliders" );
+	imuiWidgetSetHStretch( sliderLayout, 1.0f );
+	imuiWidgetSetLayoutVerticalSpacing( sliderLayout, 10.0f );
 
-	ImUiToolboxSliderMinMax( window, &s_toolboxContext.sliderValue1, 1.0f, 5.0f );
+	imuiToolboxSliderMinMax( window, &s_toolboxContext.sliderValue1, 1.0f, 5.0f );
 
-	const float value2 = ImUiToolboxSliderStateMinMax( window, 1.0f, 5.0f );
+	const float value2 = imuiToolboxSliderStateMinMax( window, 1.0f, 5.0f );
 
-	ImUiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", s_toolboxContext.sliderValue1, value2 );
+	imuiToolboxLabelFormat( window, "V1: %.2f, V2: %.2f", s_toolboxContext.sliderValue1, value2 );
 
-	ImUiToolboxProgressBarMinMax( window, s_toolboxContext.sliderValue1, 1.0f, 5.0f );
-	ImUiToolboxProgressBar( window, -1.0f );
+	imuiToolboxProgressBarMinMax( window, s_toolboxContext.sliderValue1, 1.0f, 5.0f );
+	imuiToolboxProgressBar( window, -1.0f );
 
-	ImUiWidgetEnd( sliderLayout );
+	imuiWidgetEnd( sliderLayout );
 }
 
-static void ImUiToolboxSampleTextEdit( ImUiWindow* window )
+static void imuiToolboxSampleTextEdit( ImuiWindow* window )
 {
-	ImUiToolboxTextEditStateBuffer( window, 128u );
+	imuiToolboxTextEditStateBuffer( window, 128u );
 }
 
-static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
+static void imuiToolboxSampleScrollAndList( ImuiWindow* window )
 {
-	ImUiToolboxLabel( window, "Item count:" );
-	const float itemCount = ImUiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
+	imuiToolboxLabel( window, "Item count:" );
+	const float itemCount = imuiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
-	const bool useList = ImUiToolboxCheckBoxStateDefault( window, "List", false );
+	const bool useList = imuiToolboxCheckBoxStateDefault( window, "List", false );
 
 	const size_t count = (size_t)itemCount;
 	if( useList )
 	{
-		ImUiToolboxListContext list;
-		ImUiToolboxListBegin( &list, window, 25.0f, count, true );
-		ImUiWidgetSetMinSizeFloat( list.list, 200.0f, 200.0f );
+		ImuiToolboxListContext list;
+		imuiToolboxListBegin( &list, window, 25.0f, count, true );
+		imuiWidgetSetMinSizeFloat( list.list, 200.0f, 200.0f );
 
-		for( size_t i = ImUiToolboxListGetBeginIndex( &list ); i < ImUiToolboxListGetEndIndex( &list ); ++i )
+		for( size_t i = imuiToolboxListGetBeginIndex( &list ); i < imuiToolboxListGetEndIndex( &list ); ++i )
 		{
-			ImUiWidget* item = ImUiToolboxListNextItem( &list );
-			ImUiWidgetSetPadding( item, ImUiBorderCreateAll( 4.0f ) );
+			ImuiWidget* item = imuiToolboxListNextItem( &list );
+			imuiWidgetSetPadding( item, imuiBorderCreateAll( 4.0f ) );
 
-			ImUiWidget* label = ImUiToolboxLabelBeginFormat( window, "List Label %i", i );
-			ImUiWidgetSetVAlign( label, 0.5f );
-			ImUiToolboxLabelEnd( label );
+			ImuiWidget* label = imuiToolboxLabelBeginFormat( window, "List Label %i", i );
+			imuiWidgetSetVAlign( label, 0.5f );
+			imuiToolboxLabelEnd( label );
 		}
 
-		ImUiToolboxListEnd( &list );
+		imuiToolboxListEnd( &list );
 	}
 	else
 	{
-		ImUiToolboxScrollAreaContext scrollArea;
-		ImUiToolboxScrollAreaBegin( &scrollArea, window );
-		ImUiWidgetSetMinSizeFloat( scrollArea.area, 200.0f, 200.0f );
+		ImuiToolboxScrollAreaContext scrollArea;
+		imuiToolboxScrollAreaBegin( &scrollArea, window );
+		imuiWidgetSetMinSizeFloat( scrollArea.area, 200.0f, 200.0f );
 
-		ImUiWidget* scrollLayout = ImUiWidgetBeginNamed( window, "scroll" );
-		ImUiWidgetSetHStretch( scrollLayout, 1.0f );
-		ImUiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
+		ImuiWidget* scrollLayout = imuiWidgetBeginNamed( window, "scroll" );
+		imuiWidgetSetHStretch( scrollLayout, 1.0f );
+		imuiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
 
 		size_t scrollIndices[ 3 ];
-		ImUiWidget* scrollWidgets[ 3 ];
+		ImuiWidget* scrollWidgets[ 3 ];
 		scrollIndices[ 0 ] = 0;
 		scrollIndices[ 1 ] = count / 2;
 		scrollIndices[ 2 ] = count - 1;
 
 		for( size_t i = 0; i < count; ++i )
 		{
-			ImUiWidget* itemWidget = ImUiToolboxLabelBeginFormat( window, "Scroll Label %i", i );
-			ImUiToolboxLabelEnd( itemWidget );
+			ImuiWidget* itemWidget = imuiToolboxLabelBeginFormat( window, "Scroll Label %i", i );
+			imuiToolboxLabelEnd( itemWidget );
 
 			for( size_t j = 0; j < IMUI_ARRAY_COUNT( scrollIndices ); ++j )
 			{
@@ -218,29 +218,29 @@ static void ImUiToolboxSampleScrollAndList( ImUiWindow* window )
 			}
 		}
 
-		ImUiWidgetEnd( scrollLayout );
-		ImUiToolboxScrollAreaEnd( &scrollArea );
+		imuiWidgetEnd( scrollLayout );
+		imuiToolboxScrollAreaEnd( &scrollArea );
 
 		if( count > 0 )
 		{
-			ImUiWidget* scrollToLayout = ImUiWidgetBegin( window );
-			ImUiWidgetSetHStretch( scrollToLayout, 1.0f );
-			ImUiWidgetSetLayoutHorizontalSpacing( scrollToLayout, 4.0f );
+			ImuiWidget* scrollToLayout = imuiWidgetBegin( window );
+			imuiWidgetSetHStretch( scrollToLayout, 1.0f );
+			imuiWidgetSetLayoutHorizontalSpacing( scrollToLayout, 4.0f );
 
 			for( size_t i = 0; i < IMUI_ARRAY_COUNT( scrollWidgets ); ++i )
 			{
-				if( ImUiToolboxButtonLabelFormat( window, "Scroll to %d", scrollIndices[ i ] ) )
+				if( imuiToolboxButtonLabelFormat( window, "Scroll to %d", scrollIndices[ i ] ) )
 				{
-					ImUiToolboxScrollAreaOffsetTo( &scrollArea, scrollWidgets[ i ] );
+					imuiToolboxScrollAreaOffsetTo( &scrollArea, scrollWidgets[ i ] );
 				}
 			}
 
-			ImUiWidgetEnd( scrollToLayout );
+			imuiWidgetEnd( scrollToLayout );
 		}
 	}
 }
 
-static void ImUiToolboxSampleDropDown( ImUiWindow* window )
+static void imuiToolboxSampleDropDown( ImuiWindow* window )
 {
 	const char* items[] =
 	{
@@ -260,16 +260,16 @@ static void ImUiToolboxSampleDropDown( ImUiWindow* window )
 		"Item 14"
 	};
 
-	ImUiToolboxDropDown( window, items, IMUI_ARRAY_COUNT( items ), sizeof( const char* ) );
+	imuiToolboxDropDown( window, items, IMUI_ARRAY_COUNT( items ), sizeof( const char* ) );
 }
 
-static void ImUiToolboxSamplePopup( ImUiWindow* window )
+static void imuiToolboxSamplePopup( ImuiWindow* window )
 {
-	ImUiWidget* button = ImUiToolboxButtonLabelBegin( window, "Open Popup" );
+	ImuiWidget* button = imuiToolboxButtonLabelBegin( window, "Open Popup" );
 
-	ImUiTestPopupState* state = (ImUiTestPopupState*)ImUiWidgetAllocState( button, sizeof( *state ), IMUI_ID_TYPE( ImUiTestPopupState ) );
+	ImuiTestPopupState* state = (ImuiTestPopupState*)imuiWidgetAllocState( button, sizeof( *state ), IMUI_ID_TYPE( ImuiTestPopupState ) );
 
-	if( ImUiToolboxButtonEnd( button ) )
+	if( imuiToolboxButtonEnd( button ) )
 	{
 		state->isOpen = !state->isOpen;
 	}
@@ -282,11 +282,11 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 			"Cancel"
 		};
 
-		ImUiWindow* popup = ImUiToolboxPopupBegin( window );
+		ImuiWindow* popup = imuiToolboxPopupBegin( window );
 
-		ImUiToolboxLabel( popup, "Hello from a popup window!" );
+		imuiToolboxLabel( popup, "Hello from a popup window!" );
 
-		const size_t clickedButton = ImUiToolboxPopupEndButtons( popup, buttons, IMUI_ARRAY_COUNT( buttons ) );
+		const size_t clickedButton = imuiToolboxPopupEndButtons( popup, buttons, IMUI_ARRAY_COUNT( buttons ) );
 		if( clickedButton < IMUI_ARRAY_COUNT( buttons ) )
 		{
 			state->isOpen = false;
@@ -294,11 +294,11 @@ static void ImUiToolboxSamplePopup( ImUiWindow* window )
 	}
 }
 
-static void ImUiToolboxSampleTabView( ImUiWindow* window )
+static void imuiToolboxSampleTabView( ImuiWindow* window )
 {
-	ImUiToolboxTabViewContext tabView;
-	ImUiToolboxTabViewBegin( &tabView, window );
-	ImUiWidgetSetHStretch( tabView.view, 1.0f );
+	ImuiToolboxTabViewContext tabView;
+	imuiToolboxTabViewBegin( &tabView, window );
+	imuiWidgetSetHStretch( tabView.view, 1.0f );
 
 	char buffer[ 32u ];
 
@@ -307,51 +307,51 @@ static void ImUiToolboxSampleTabView( ImUiWindow* window )
 	{
 		snprintf( buffer, sizeof( buffer ), "Tab %zu", i + 1u );
 
-		if( ImUiToolboxTabViewHeader( &tabView, buffer ) )
+		if( imuiToolboxTabViewHeader( &tabView, buffer ) )
 		{
 			selectedTab = i;
 		}
 	}
 
-	ImUiToolboxTabViewBodyBegin( &tabView );
+	imuiToolboxTabViewBodyBegin( &tabView );
 
 	snprintf( buffer, sizeof( buffer ), "Hello from Tab %zu", selectedTab + 1u );
-	ImUiToolboxLabel( window, buffer );
+	imuiToolboxLabel( window, buffer );
 
-	ImUiToolboxTabViewBodyEnd( &tabView );
-	ImUiToolboxTabViewEnd( &tabView );
+	imuiToolboxTabViewBodyEnd( &tabView );
+	imuiToolboxTabViewEnd( &tabView );
 }
 
-static void ImUiToolboxSampleTextView( ImUiWindow* window )
+static void imuiToolboxSampleTextView( ImuiWindow* window )
 {
-	ImUiToolboxTextBuffer* textBuffer = ImUiToolboxTextBufferCreateText( ImUiWindowGetContext( window ), "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
+	ImuiToolboxTextBuffer* textBuffer = imuiToolboxTextBufferCreateText( imuiWindowGetContext( window ), "Hello\nWorld\nLine 3\nLine 4\nLine 5\nLine 6\n" );
 
-	ImUiToolboxTextBufferAppend( textBuffer, "Line 7" );
-	ImUiToolboxTextBufferAppend( textBuffer, " and more for 7\n" );
-	ImUiToolboxTextBufferAppend( textBuffer, "Line 8\n\nLine 10 after empty Line" );
-	ImUiToolboxTextBufferAppend( textBuffer, "\nLine 11\nLine 12\n" );
-	ImUiToolboxTextBufferAppend( textBuffer, "Line 13\nLine 14" );
+	imuiToolboxTextBufferAppend( textBuffer, "Line 7" );
+	imuiToolboxTextBufferAppend( textBuffer, " and more for 7\n" );
+	imuiToolboxTextBufferAppend( textBuffer, "Line 8\n\nLine 10 after empty Line" );
+	imuiToolboxTextBufferAppend( textBuffer, "\nLine 11\nLine 12\n" );
+	imuiToolboxTextBufferAppend( textBuffer, "Line 13\nLine 14" );
 
-	ImUiToolboxTextViewContext textViewContext;
-	ImUiWidget* textView = ImUiToolboxTextViewBeginBuffer( &textViewContext, window, textBuffer );
+	ImuiToolboxTextViewContext textViewContext;
+	ImuiWidget* textView = imuiToolboxTextViewBeginBuffer( &textViewContext, window, textBuffer );
 
-	ImUiWidgetSetFixedWidth( textView, 250.0f );
-	ImUiWidgetSetFixedHeight( textView, 150.0f );
+	imuiWidgetSetFixedWidth( textView, 250.0f );
+	imuiWidgetSetFixedHeight( textView, 150.0f );
 
-	ImUiToolboxTextViewEnd( &textViewContext );
+	imuiToolboxTextViewEnd( &textViewContext );
 
 
-	ImUiToolboxTextBufferFree( textBuffer );
+	imuiToolboxTextBufferFree( textBuffer );
 }
 
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-bool ImUiToolboxSampleInitialize( ImUiContext* imui )
+bool imuiToolboxSampleInitialize( ImuiContext* imui )
 {
-	return ImUiFrameworkToolboxConfigDataInitialize( &s_toolboxContext.configData, imui );
+	return imuiFrameworkToolboxConfigDataInitialize( &s_toolboxContext.configData, imui );
 }
 
-void ImUiToolboxSampleShutdown( ImUiContext* imui )
+void imuiToolboxSampleShutdown( ImuiContext* imui )
 {
-	ImUiFrameworkToolboxConfigDataShutdown( &s_toolboxContext.configData, imui );
+	imuiFrameworkToolboxConfigDataShutdown( &s_toolboxContext.configData, imui );
 }
 #endif

@@ -30,11 +30,11 @@ typedef ptrdiff_t 	sintsize;
 
 typedef uint8_t		byte;
 
-typedef struct ImUiStringView
+typedef struct ImuiStringView
 {
 	const char*		data;
 	uintsize		length;
-} ImUiStringView;
+} ImuiStringView;
 
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
 #	define IMUI_DEFAULT_ARRAY_CAPACITY				16u

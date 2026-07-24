@@ -6,68 +6,68 @@
 #include <math.h>
 #include <string.h>
 
-static char*		ImUiInputTextGet( ImUiInputText* text );
-static const char*	ImUiInputTextGetRead( const ImUiInputText* text );
-static void			ImUiInputTextFree( ImUiInput* input, ImUiInputText* text );
-static bool			ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, uintsize requiredCapacity );
-static bool			ImUiInputTextPush( ImUiInput* input, ImUiInputText* text, const char* string, uintsize length );
+static char*		imuiInputTextGet( ImuiInputText* text );
+static const char*	imuiInputTextGetRead( const ImuiInputText* text );
+static void			imuiInputTextFree( ImuiInput* input, ImuiInputText* text );
+static bool			imuiInputTextCheckCapacity( ImuiInput* input, ImuiInputText* text, uintsize requiredCapacity );
+static bool			imuiInputTextPush( ImuiInput* input, ImuiInputText* text, const char* string, uintsize length );
 
-bool ImUiInputConstruct( ImUiInput* input, ImUiAllocator* allocator, const ImUiInputShortcutConfig* shortcuts, size_t shortcutCount )
+bool imuiInputConstruct( ImuiInput* input, ImuiAllocator* allocator, const ImuiInputShortcutConfig* shortcuts, size_t shortcutCount )
 {
 	input->allocator = allocator;
 
-	ImUiInputShortcutConfig* newShortcuts = NULL;
+	ImuiInputShortcutConfig* newShortcuts = NULL;
 	if( shortcutCount > 0u )
 	{
-		newShortcuts = IMUI_MEMORY_ARRAY_NEW( allocator, ImUiInputShortcutConfig, shortcutCount );
+		newShortcuts = IMUI_MEMORY_ARRAY_NEW( allocator, ImuiInputShortcutConfig, shortcutCount );
 		if( !newShortcuts )
 		{
 			return false;
 		}
 
-		memcpy( newShortcuts, shortcuts, sizeof( ImUiInputShortcutConfig ) * shortcutCount );
+		memcpy( newShortcuts, shortcuts, sizeof( ImuiInputShortcutConfig ) * shortcutCount );
 	}
 
 	input->shortcuts		= newShortcuts;
 	input->shortcutCount	= shortcutCount;
 
-	ImUiInputTextFree( input, &input->copyText );
-	ImUiInputTextFree( input, &input->pasteText );
+	imuiInputTextFree( input, &input->copyText );
+	imuiInputTextFree( input, &input->pasteText );
 
 	return true;
 }
 
-void ImUiInputDestruct( ImUiInput* input )
+void imuiInputDestruct( ImuiInput* input )
 {
 	// call end frame twice to release all states as states live for two ticks
-	ImUiInputEndFrame( input );
-	ImUiInputEndFrame( input );
+	imuiInputEndFrame( input );
+	imuiInputEndFrame( input );
 
 	while( input->firstStateChunk )
 	{
-		ImUiInputStateChunk* chunk = input->firstStateChunk;
+		ImuiInputStateChunk* chunk = input->firstStateChunk;
 		input->firstStateChunk = chunk->nextChunk;
 
-		ImUiMemoryFree( input->allocator, chunk );
+		imuiMemoryFree( input->allocator, chunk );
 	}
 
-	ImUiInputTextFree( input, &input->copyText );
-	ImUiInputTextFree( input, &input->pasteText );
+	imuiInputTextFree( input, &input->copyText );
+	imuiInputTextFree( input, &input->pasteText );
 
-	ImUiMemoryFree( input->allocator, input->shortcuts );
+	imuiMemoryFree( input->allocator, input->shortcuts );
 
 	input->allocator = NULL;
 }
 
-void ImUiInputEndFrame( ImUiInput* input )
+void imuiInputEndFrame( ImuiInput* input )
 {
 	while( input->usedStates )
 	{
-		ImUiInputState* state = input->usedStates;
+		ImuiInputState* state = input->usedStates;
 		input->usedStates = state->nextState;
 
-		ImUiInputTextFree( input, &state->current.text );
-		ImUiInputTextFree( input, &state->last.text );
+		imuiInputTextFree( input, &state->current.text );
+		imuiInputTextFree( input, &state->last.text );
 
 		state->nextState = input->freeStates;
 		input->freeStates = state;
@@ -76,14 +76,14 @@ void ImUiInputEndFrame( ImUiInput* input )
 	input->usedStates = input->newStates;
 	input->newStates = NULL;
 
-	input->mouseCursor = ImUiInputMouseCursor_Arrow;
+	input->mouseCursor = ImuiInputMouseCursor_Arrow;
 }
 
-bool ImUiInputBeginState( ImUiInput* input, const ImUiInputState* previousState )
+bool imuiInputBeginState( ImuiInput* input, const ImuiInputState* previousState )
 {
 	assert( input->pushState == NULL );
 
-	ImUiInputState* state;
+	ImuiInputState* state;
 	if( input->freeStates )
 	{
 		state = input->freeStates;
@@ -94,7 +94,7 @@ bool ImUiInputBeginState( ImUiInput* input, const ImUiInputState* previousState 
 		if( !input->firstStateChunk ||
 			input->firstStateChunk->usedCount == IMUI_ARRAY_COUNT( input->firstStateChunk->states ) )
 		{
-			ImUiInputStateChunk* chunk = IMUI_MEMORY_NEW( input->allocator, ImUiInputStateChunk );
+			ImuiInputStateChunk* chunk = IMUI_MEMORY_NEW( input->allocator, ImuiInputStateChunk );
 			if( !chunk )
 			{
 				return false;
@@ -127,32 +127,32 @@ bool ImUiInputBeginState( ImUiInput* input, const ImUiInputState* previousState 
 		memset( &state->last, 0, sizeof( state->last ) );
 	}
 
-	ImUiInputTextFree( input, &state->current.text );
-	ImUiInputTextFree( input, &state->last.text );
+	imuiInputTextFree( input, &state->current.text );
+	imuiInputTextFree( input, &state->last.text );
 
 	state->current.focusExecute = false;
 
-	for( uintsize i = 0u; i < ImUiInputMouseButton_MAX; ++i )
+	for( uintsize i = 0u; i < ImuiInputMouseButton_MAX; ++i )
 	{
 		state->current.mouseButtonDoubleClick[ i ] = false;
 	}
 
-	state->current.mouseScroll = ImUiPosCreateZero();
+	state->current.mouseScroll = imuiPosCreateZero();
 
 	return true;
 }
 
-const ImUiInputState* ImUiInputEndState( ImUiInput* input )
+const ImuiInputState* imuiInputEndState( ImuiInput* input )
 {
-	ImUiInputState* state = input->pushState;
+	ImuiInputState* state = input->pushState;
 
-	state->current.shortcut = ImUiInputShortcut_None;
+	state->current.shortcut = ImuiInputShortcut_None;
 
 	for( size_t i = 0u; i < input->shortcutCount; ++i )
 	{
-		const ImUiInputShortcutConfig* shortcut = &input->shortcuts[ i ];
+		const ImuiInputShortcutConfig* shortcut = &input->shortcuts[ i ];
 		if( (state->current.keyModifiers & shortcut->modifiers) != shortcut->modifiers ||
-			!ImUiInputHasKeyPressed( state, shortcut->key ) )
+			!imuiInputHasKeyPressed( state, shortcut->key ) )
 		{
 			continue;
 		}
@@ -165,130 +165,130 @@ const ImUiInputState* ImUiInputEndState( ImUiInput* input )
 	return state;
 }
 
-ImUiInputMouseCursor ImUiInputGetMouseCursor( const ImUiContext* imui )
+ImuiInputMouseCursor imuiInputGetMouseCursor( const ImuiContext* imui )
 {
 	return imui->input.mouseCursor;
 }
 
-void ImUiInputSetMouseCursor( ImUiContext* imui, ImUiInputMouseCursor cursor )
+void imuiInputSetMouseCursor( ImuiContext* imui, ImuiInputMouseCursor cursor )
 {
 	imui->input.mouseCursor = cursor;
 }
 
-const char* ImUiInputGetCopyText( const ImUiContext* imui )
+const char* imuiInputGetCopyText( const ImuiContext* imui )
 {
-	return ImUiInputTextGetRead( &imui->input.copyText );
+	return imuiInputTextGetRead( &imui->input.copyText );
 }
 
-void ImUiInputSetCopyText( ImUiContext* imui, const char* text, size_t textLength )
+void imuiInputSetCopyText( ImuiContext* imui, const char* text, size_t textLength )
 {
-	ImUiInputTextFree( &imui->input, &imui->input.copyText );
-	ImUiInputTextPush( &imui->input, &imui->input.copyText, text, textLength );
+	imuiInputTextFree( &imui->input, &imui->input.copyText );
+	imuiInputTextPush( &imui->input, &imui->input.copyText, text, textLength );
 }
 
-const char* ImUiInputGetPasteText( const ImUiContext* imui )
+const char* imuiInputGetPasteText( const ImuiContext* imui )
 {
-	return ImUiInputTextGetRead( &imui->input.pasteText );
+	return imuiInputTextGetRead( &imui->input.pasteText );
 }
 
-void ImUiInputSetPasteText( ImUiContext* imui, const char* text )
+void imuiInputSetPasteText( ImuiContext* imui, const char* text )
 {
-	ImUiInputTextFree( &imui->input, &imui->input.pasteText );
-	ImUiInputTextPush( &imui->input, &imui->input.pasteText, text, strlen( text ) );
+	imuiInputTextFree( &imui->input, &imui->input.pasteText );
+	imuiInputTextPush( &imui->input, &imui->input.pasteText, text, strlen( text ) );
 }
 
-char* ImUiInputBeginWritePasteText( ImUiContext* imui, size_t maxLength )
+char* imuiInputBeginWritePasteText( ImuiContext* imui, size_t maxLength )
 {
-	if( !ImUiInputTextCheckCapacity( &imui->input, &imui->input.pasteText, maxLength +1u ) )
+	if( !imuiInputTextCheckCapacity( &imui->input, &imui->input.pasteText, maxLength +1u ) )
 	{
 		return NULL;
 	}
 
-	return ImUiInputTextGet( &imui->input.pasteText );
+	return imuiInputTextGet( &imui->input.pasteText );
 }
 
-void ImUiInputEndWritePasteText( ImUiContext* imui, size_t finalLength )
+void imuiInputEndWritePasteText( ImuiContext* imui, size_t finalLength )
 {
 	IMUI_ASSERT( finalLength < imui->input.pasteText.capacity );
 
-	char* buffer = ImUiInputTextGet( &imui->input.pasteText );
+	char* buffer = imuiInputTextGet( &imui->input.pasteText );
 	buffer[ finalLength ] = '\0';
 
 	imui->input.pasteText.length = finalLength;
 }
 
-void ImUiInputPushKeyDown( ImUiInput* input, ImUiInputKey key )
+void imuiInputPushKeyDown( ImuiInput* input, ImuiInputKey key )
 {
-	if( key == ImUiInputKey_LeftShift )
+	if( key == ImuiInputKey_LeftShift )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftShift;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_LeftShift;
 	}
-	else if( key == ImUiInputKey_RightShift )
+	else if( key == ImuiInputKey_RightShift )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_RightShift;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_RightShift;
 	}
-	else if( key == ImUiInputKey_LeftControl )
+	else if( key == ImuiInputKey_LeftControl )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftCtrl;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_LeftCtrl;
 	}
-	else if( key == ImUiInputKey_RightControl )
+	else if( key == ImuiInputKey_RightControl )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_RightCtrl;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_RightCtrl;
 	}
-	else if( key == ImUiInputKey_LeftAlt )
+	else if( key == ImuiInputKey_LeftAlt )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_LeftAlt;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_LeftAlt;
 	}
-	else if( key == ImUiInputKey_RightAlt )
+	else if( key == ImuiInputKey_RightAlt )
 	{
-		input->pushState->current.keyModifiers |= ImUiInputModifier_RightAlt;
+		input->pushState->current.keyModifiers |= ImuiInputModifier_RightAlt;
 	}
 
 	input->pushState->current.keys[ key ] = true;
 }
 
-void ImUiInputPushKeyUp( ImUiInput* input, ImUiInputKey key )
+void imuiInputPushKeyUp( ImuiInput* input, ImuiInputKey key )
 {
-	if( key == ImUiInputKey_LeftShift )
+	if( key == ImuiInputKey_LeftShift )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftShift;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_LeftShift;
 	}
-	else if( key == ImUiInputKey_RightShift )
+	else if( key == ImuiInputKey_RightShift )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightShift;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_RightShift;
 	}
-	else if( key == ImUiInputKey_LeftControl )
+	else if( key == ImuiInputKey_LeftControl )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftCtrl;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_LeftCtrl;
 	}
-	else if( key == ImUiInputKey_RightControl )
+	else if( key == ImuiInputKey_RightControl )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightCtrl;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_RightCtrl;
 	}
-	else if( key == ImUiInputKey_LeftAlt )
+	else if( key == ImuiInputKey_LeftAlt )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_LeftAlt;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_LeftAlt;
 	}
-	else if( key == ImUiInputKey_RightAlt )
+	else if( key == ImuiInputKey_RightAlt )
 	{
-		input->pushState->current.keyModifiers &= ~ImUiInputModifier_RightAlt;
+		input->pushState->current.keyModifiers &= ~ImuiInputModifier_RightAlt;
 	}
 
 	input->pushState->current.keys[ key ] = false;
 }
 
-void ImUiInputPushKeyRepeat( ImUiInput* input, ImUiInputKey key )
+void imuiInputPushKeyRepeat( ImuiInput* input, ImuiInputKey key )
 {
 	// fake key repeat by setting last state to released so 'was pressed' trigger again
 	input->pushState->last.keys[ key ] = false;
 }
 
-void ImUiInputPushText( ImUiInput* input, const char* text )
+void imuiInputPushText( ImuiInput* input, const char* text )
 {
-	ImUiInputTextPush( input, &input->pushState->current.text, text, strlen( text ) );
+	imuiInputTextPush( input, &input->pushState->current.text, text, strlen( text ) );
 }
 
-void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
+void imuiInputPushTextChar( ImuiInput* input, uint32_t c )
 {
 	if( c > 0x1fffff )
 	{
@@ -302,7 +302,7 @@ void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
 		bytes[ 1u ] = 0x80 | (char)((c >> 12) & 0x3f);
 		bytes[ 2u ] = 0x80 | (char)((c >> 6) & 0x3f);
 		bytes[ 3u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
+		imuiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else if( c >= 0x800u )
 	{
@@ -310,64 +310,64 @@ void ImUiInputPushTextChar( ImUiInput* input, uint32_t c )
 		bytes[ 0u ]	= 0xe0 | (char)(c >> 12);
 		bytes[ 1u ] = 0x80 | (char)((c >> 6) & 0x3f);
 		bytes[ 2u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
+		imuiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else if( c >= 0x80u )
 	{
 		char bytes[ 2u ];
 		bytes[ 0u ]	= 0xc0 | (char)(c >> 6);
 		bytes[ 1u ] = 0x80 | (char)(c & 0x3f);
-		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
+		imuiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 	else
 	{
 		char bytes[ 1u ];
 		bytes[ 0u ] = (char)c;
-		ImUiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
+		imuiInputTextPush( input, &input->pushState->current.text, bytes, sizeof( bytes ) );
 	}
 }
 
-void ImUiInputPushMouseDown( ImUiInput* input, ImUiInputMouseButton button )
+void imuiInputPushMouseDown( ImuiInput* input, ImuiInputMouseButton button )
 {
 	input->pushState->current.mouseButtons[ button ] = true;
 }
 
-void ImUiInputPushMouseUp( ImUiInput* input, ImUiInputMouseButton button )
+void imuiInputPushMouseUp( ImuiInput* input, ImuiInputMouseButton button )
 {
 	input->pushState->current.mouseButtons[ button ] = false;
 }
 
-void ImUiInputPushMouseDoubleClick( ImUiInput* input, ImUiInputMouseButton button )
+void imuiInputPushMouseDoubleClick( ImuiInput* input, ImuiInputMouseButton button )
 {
 	input->pushState->current.mouseButtonDoubleClick[ button ] = true;
 }
 
-void ImUiInputPushMouseMove( ImUiInput* input, float x, float y )
+void imuiInputPushMouseMove( ImuiInput* input, float x, float y )
 {
-	input->pushState->current.mousePos = ImUiPosCreate( x, y );
+	input->pushState->current.mousePos = imuiPosCreate( x, y );
 }
 
-void ImUiInputPushMouseMoveDelta( ImUiInput* input, float deltaX, float deltaY )
+void imuiInputPushMouseMoveDelta( ImuiInput* input, float deltaX, float deltaY )
 {
-	input->pushState->current.mousePos = ImUiPosAdd( input->pushState->current.mousePos, deltaX, deltaY );
+	input->pushState->current.mousePos = imuiPosAdd( input->pushState->current.mousePos, deltaX, deltaY );
 }
 
-void ImUiInputPushMouseScroll( ImUiInput* input, float horizontalOffset, float verticalOffset )
+void imuiInputPushMouseScroll( ImuiInput* input, float horizontalOffset, float verticalOffset )
 {
-	input->pushState->current.mouseScroll = ImUiPosCreate( horizontalOffset, verticalOffset );
+	input->pushState->current.mouseScroll = imuiPosCreate( horizontalOffset, verticalOffset );
 }
 
-void ImUiInputPushMouseScrollDelta( ImUiInput* input, float horizontalDelta, float verticalDelta )
+void imuiInputPushMouseScrollDelta( ImuiInput* input, float horizontalDelta, float verticalDelta )
 {
-	input->pushState->current.mouseScroll = ImUiPosAddPos( input->pushState->current.mouseScroll, ImUiPosCreate( horizontalDelta, verticalDelta ) );
+	input->pushState->current.mouseScroll = imuiPosAddPos( input->pushState->current.mouseScroll, imuiPosCreate( horizontalDelta, verticalDelta ) );
 }
 
-void ImUiInputPushDirection( ImUiInput* input, float x, float y )
+void imuiInputPushDirection( ImuiInput* input, float x, float y )
 {
 	const float lengthSquare = (x * x) + (y * y);
 	if( lengthSquare == 0.0f )
 	{
-		input->pushState->current.focusDirection = ImUiPosCreateZero();
+		input->pushState->current.focusDirection = imuiPosCreateZero();
 		return;
 	}
 
@@ -376,102 +376,102 @@ void ImUiInputPushDirection( ImUiInput* input, float x, float y )
 	input->pushState->current.focusDirection.y = y / length;
 }
 
-void ImUiInputPushFocusExecute( ImUiInput* input )
+void imuiInputPushFocusExecute( ImuiInput* input )
 {
 	input->pushState->current.focusExecute = true;
 }
 
-uint32_t ImUiInputGetKeyModifiers( const ImUiInputState* input )
+uint32_t imuiInputGetKeyModifiers( const ImuiInputState* input )
 {
 	return input->current.keyModifiers;
 }
 
-bool ImUiInputIsKeyDown( const ImUiInputState* input, ImUiInputKey key )
+bool imuiInputIsKeyDown( const ImuiInputState* input, ImuiInputKey key )
 {
 	return input->current.keys[ key ];
 }
 
-bool ImUiInputIsKeyUp( const ImUiInputState* input, ImUiInputKey key )
+bool imuiInputIsKeyUp( const ImuiInputState* input, ImuiInputKey key )
 {
 	return !input->current.keys[ key ];
 }
 
-bool ImUiInputHasKeyPressed( const ImUiInputState* input, ImUiInputKey key )
+bool imuiInputHasKeyPressed( const ImuiInputState* input, ImuiInputKey key )
 {
 	return input->current.keys[ key ] && !input->last.keys[ key ];
 }
 
-bool ImUiInputHasKeyReleased( const ImUiInputState* input, ImUiInputKey key )
+bool imuiInputHasKeyReleased( const ImuiInputState* input, ImuiInputKey key )
 {
 	return !input->current.keys[ key ] && input->last.keys[ key ];
 }
 
-ImUiInputShortcut ImUiInputGetShortcut( const ImUiInputState* input )
+ImuiInputShortcut imuiInputGetShortcut( const ImuiInputState* input )
 {
 	return input->current.shortcut;
 }
 
-const char* ImUiInputGetText( const ImUiInputState* input )
+const char* imuiInputGetText( const ImuiInputState* input )
 {
-	return ImUiInputTextGetRead( &input->current.text );
+	return imuiInputTextGetRead( &input->current.text );
 }
 
-ImUiPos ImUiInputGetMousePos( const ImUiInputState* input )
+ImuiPos imuiInputGetMousePos( const ImuiInputState* input )
 {
 	return input->current.mousePos;
 }
 
-bool ImUiInputIsMouseInRect( const ImUiInputState* input, ImUiRect rectangle )
+bool imuiInputIsMouseInRect( const ImuiInputState* input, ImuiRect rectangle )
 {
-	return ImUiRectIncludesPos( rectangle, input->current.mousePos );
+	return imuiRectIncludesPos( rectangle, input->current.mousePos );
 }
 
-bool ImUiInputIsMouseButtonDown( const ImUiInputState* input, ImUiInputMouseButton button )
+bool imuiInputIsMouseButtonDown( const ImuiInputState* input, ImuiInputMouseButton button )
 {
 	return input->current.mouseButtons[ button ];
 }
 
-bool ImUiInputIsMouseButtonUp( const ImUiInputState* input, ImUiInputMouseButton button )
+bool imuiInputIsMouseButtonUp( const ImuiInputState* input, ImuiInputMouseButton button )
 {
 	return !input->current.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonPressed( const ImUiInputState* input, ImUiInputMouseButton button )
+bool imuiInputHasMouseButtonPressed( const ImuiInputState* input, ImuiInputMouseButton button )
 {
 	return input->current.mouseButtons[ button ] && !input->last.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonReleased( const ImUiInputState* input, ImUiInputMouseButton button )
+bool imuiInputHasMouseButtonReleased( const ImuiInputState* input, ImuiInputMouseButton button )
 {
 	return !input->current.mouseButtons[ button ] && input->last.mouseButtons[ button ];
 }
 
-bool ImUiInputHasMouseButtonDoubleClicked( const ImUiInputState* input, ImUiInputMouseButton button )
+bool imuiInputHasMouseButtonDoubleClicked( const ImuiInputState* input, ImuiInputMouseButton button )
 {
 	return input->current.mouseButtonDoubleClick[ button ];
 }
 
-ImUiPos ImUiInputGetMouseScrollDelta( const ImUiInputState* input )
+ImuiPos imuiInputGetMouseScrollDelta( const ImuiInputState* input )
 {
 	return input->current.mouseScroll;
 }
 
-ImUiPos ImUiInputGetDirection( const ImUiInputState* input )
+ImuiPos imuiInputGetDirection( const ImuiInputState* input )
 {
 	return input->current.focusDirection;
 }
 
-bool ImUiInputGetFocusExecute( const ImUiInputState* input )
+bool imuiInputGetFocusExecute( const ImuiInputState* input )
 {
 	return input->current.focusExecute;
 }
 
-static char* ImUiInputTextGet( ImUiInputText* text )
+static char* imuiInputTextGet( ImuiInputText* text )
 {
 	return text->capacity > sizeof( text->data.buffer ) ? text->data.pointer : text->data.buffer;
 }
 
-static const char* ImUiInputTextGetRead( const ImUiInputText* text )
+static const char* imuiInputTextGetRead( const ImuiInputText* text )
 {
 	if( text->length == 0u )
 	{
@@ -485,11 +485,11 @@ static const char* ImUiInputTextGetRead( const ImUiInputText* text )
 	return text->data.buffer;
 }
 
-static void ImUiInputTextFree( ImUiInput* input, ImUiInputText* text )
+static void imuiInputTextFree( ImuiInput* input, ImuiInputText* text )
 {
 	if( text->capacity > sizeof( text->data.buffer ) )
 	{
-		ImUiMemoryFree( input->allocator, text->data.pointer );
+		imuiMemoryFree( input->allocator, text->data.pointer );
 	}
 
 	text->data.buffer[ 0u ]	= '\0';
@@ -497,7 +497,7 @@ static void ImUiInputTextFree( ImUiInput* input, ImUiInputText* text )
 	text->length			= 0u;
 }
 
-static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, uintsize requiredCapacity )
+static bool imuiInputTextCheckCapacity( ImuiInput* input, ImuiInputText* text, uintsize requiredCapacity )
 {
 	if( text->capacity >= requiredCapacity )
 	{
@@ -512,7 +512,7 @@ static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, u
 
 	if( text->capacity <= sizeof( text->data.buffer ) )
 	{
-		char* newText = (char*)ImUiMemoryAlloc( input->allocator, nextCapacity );
+		char* newText = (char*)imuiMemoryAlloc( input->allocator, nextCapacity );
 		if( !newText )
 		{
 			return false;
@@ -526,7 +526,7 @@ static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, u
 	}
 	else
 	{
-		char* newText = (char*)ImUiMemoryRealloc( input->allocator, text->data.pointer, text->capacity, nextCapacity );
+		char* newText = (char*)imuiMemoryRealloc( input->allocator, text->data.pointer, text->capacity, nextCapacity );
 		if( !newText )
 		{
 			return false;
@@ -539,10 +539,10 @@ static bool ImUiInputTextCheckCapacity( ImUiInput* input, ImUiInputText* text, u
 	return true;
 }
 
-static bool ImUiInputTextPush( ImUiInput* input, ImUiInputText* text, const char* string, uintsize length )
+static bool imuiInputTextPush( ImuiInput* input, ImuiInputText* text, const char* string, uintsize length )
 {
 	const uintsize requiredLength = text->length + length;
-	if( !ImUiInputTextCheckCapacity( input, text, requiredLength + 1u ) )
+	if( !imuiInputTextCheckCapacity( input, text, requiredLength + 1u ) )
 	{
 		return false;
 	}

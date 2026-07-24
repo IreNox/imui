@@ -8,104 +8,104 @@
 #include "imui_types.h"
 #include "imui_text.h"
 
-struct ImUiSurface
+struct ImuiSurface
 {
 	bool					inUse;
 
-	ImUiContext*			context;
+	ImuiContext*			context;
 
-	ImUiId					id;
-	ImUiStringView			name;
-	ImUiSize				size;
-	const ImUiInputState*	input;
+	ImuiId					id;
+	ImuiStringView			name;
+	ImuiSize				size;
+	const ImuiInputState*	input;
 	float					dpiScale;
 
 	uintsize				drawIndex;
 
-	ImUiWindow*				windows;
+	ImuiWindow*				windows;
 	uintsize				windowCapacity;
 	uintsize				windowCount;
 };
 
-struct ImUiWindow
+struct ImuiWindow
 {
 	bool			inUse;
 
-	ImUiContext*	context;
-	ImUiSurface*	surface;
+	ImuiContext*	context;
+	ImuiSurface*	surface;
 
-	ImUiId			id;
-	ImUiStringView	name;
-	ImUiRect		rect;
+	ImuiId			id;
+	ImuiStringView	name;
+	ImuiRect		rect;
 	uint32			zOrder;
 	bool			hasFocus;
 	bool			focusLocked;
 	bool			focusWrap;
-	ImUiPos			focusPoint;
-	ImUiPos			focusWrapPoint;
+	ImuiPos			focusPoint;
+	ImuiPos			focusWrapPoint;
 	float			focusAngleThreshold;
 	float			diagonalLength;
 
 	uintsize		drawIndex;
 
-	ImUiWidget*		rootWidget;
-	ImUiWidget*		lastFrameRootWidget;
-	ImUiWidget*		currentWidget;
-	ImUiWidget*		lastFrameCurrentWidget;
-	ImUiWidget*		focusWidget;
-	ImUiWidget*		lastFrameFocusWidget;
+	ImuiWidget*		rootWidget;
+	ImuiWidget*		lastFrameRootWidget;
+	ImuiWidget*		currentWidget;
+	ImuiWidget*		lastFrameCurrentWidget;
+	ImuiWidget*		focusWidget;
+	ImuiWidget*		lastFrameFocusWidget;
 
 	float			closesFocusWidgetFactor;
-	ImUiWidget*		closesFocusWidget;
+	ImuiWidget*		closesFocusWidget;
 	float			wrapFocusWidgetFactor;
-	ImUiWidget*		wrapFocusWidget;
+	ImuiWidget*		wrapFocusWidget;
 
 	uint32			lastFocusIndex;
-	ImUiWidget*		closesFocusIndexWidget;
-	ImUiWidget*		wrapFocusIndexWidget;
+	ImuiWidget*		closesFocusIndexWidget;
+	ImuiWidget*		wrapFocusIndexWidget;
 };
 
-typedef struct ImUiWidgetState ImUiWidgetState;
-struct ImUiWidgetState
+typedef struct ImuiWidgetState ImuiWidgetState;
+struct ImuiWidgetState
 {
-	ImUiWidgetState*		prevUsageState;
-	ImUiWidgetState*		nextUsageState;
-	ImUiWidgetState*		prevWidgetState;
-	ImUiWidgetState*		nextWidgetState;
+	ImuiWidgetState*		prevUsageState;
+	ImuiWidgetState*		nextUsageState;
+	ImuiWidgetState*		prevWidgetState;
+	ImuiWidgetState*		nextWidgetState;
 
-	ImUiId					id;
+	ImuiId					id;
 	uintsize				size;
-	ImUiStateDestructFunc	destructFunc;
+	ImuiStateDestructFunc	destructFunc;
 
 	uint8					data[ 1u ];
 };
 
-typedef struct ImUiLayoutScrollData
+typedef struct ImuiLayoutScrollData
 {
-	ImUiPos								offset;
-} ImUiLayoutScrollData;
+	ImuiPos								offset;
+} ImuiLayoutScrollData;
 
-typedef struct ImUiLayoutHorizontalVerticalData
+typedef struct ImuiLayoutHorizontalVerticalData
 {
 	float								spacing;
-} ImUiLayoutHorizontalVerticalData;
+} ImuiLayoutHorizontalVerticalData;
 
-typedef struct ImUiLayoutGridData
+typedef struct ImuiLayoutGridData
 {
 	uint32								columnCount;
 	float								colSpacing;
 	float								rowSpacing;
-} ImUiLayoutGridData;
+} ImuiLayoutGridData;
 
-typedef union ImUiLayoutData
+typedef union ImuiLayoutData
 {
-	ImUiLayoutScrollData				scroll;
-	ImUiLayoutHorizontalVerticalData	horizintalVertical;
-	ImUiLayoutGridData					grid;
-} ImUiLayoutData;
+	ImuiLayoutScrollData				scroll;
+	ImuiLayoutHorizontalVerticalData	horizintalVertical;
+	ImuiLayoutGridData					grid;
+} ImuiLayoutData;
 
-typedef struct ImUiLayoutGridElement ImUiLayoutGridElement;
-struct ImUiLayoutGridElement
+typedef struct ImuiLayoutGridElement ImuiLayoutGridElement;
+struct ImuiLayoutGridElement
 {
 	float				childrenMaxStretch;
 	float				childrenMinSize;
@@ -114,68 +114,66 @@ struct ImUiLayoutGridElement
 	float				size;
 };
 
-typedef struct ImUiLayoutGridContext ImUiLayoutGridContext;
-struct ImUiLayoutGridContext
+typedef struct ImuiLayoutGridContext ImuiLayoutGridContext;
+struct ImuiLayoutGridContext
 {
-	ImUiLayoutGridContext*	nextContext;
-	ImUiLayoutGridContext*	prevContext;
+	ImuiLayoutGridContext*	nextContext;
+	ImuiLayoutGridContext*	prevContext;
 
-	ImUiLayoutGridElement*	columns;
+	ImuiLayoutGridElement*	columns;
 	uintsize				columnCount;
 
-	ImUiLayoutGridElement*	rows;
+	ImuiLayoutGridElement*	rows;
 	uintsize				rowCount;
 
 	uint32					frameIndex;
 };
 
-typedef struct ImUiLayoutContext ImUiLayoutContext;
-struct ImUiLayoutContext
+typedef struct ImuiLayoutContext
 {
-	ImUiSize				minOuterSize;
-	ImUiSize				childrenStretch;
-	ImUiSize				childrenMaxStretch;
-	ImUiSize				childrenStretchFinal;
-	ImUiSize				childrenStretchMinSize;
-	ImUiSize				childrenMinSize;
-};
+	ImuiSize				minOuterSize;
+	ImuiSize				childrenStretch;
+	ImuiSize				childrenMaxStretch;
+	ImuiSize				childrenStretchFinal;
+	ImuiSize				childrenStretchMinSize;
+	ImuiSize				childrenMinSize;
+} ImuiLayoutContext;
 
-typedef struct ImUiWidgetInputContext ImUiWidgetInputContext;
-struct ImUiWidgetInputContext
+typedef struct ImuiWidgetInputContext
 {
 	uint32					lastFrameIndex;
 	bool					wasPressed;
 	bool					wasMouseOver;
-};
+} ImuiWidgetInputContext;
 
-struct ImUiWidget
+struct ImuiWidget
 {
-	ImUiWindow*				window;
-	ImUiWidget*				parent;
+	ImuiWindow*				window;
+	ImuiWidget*				parent;
 
-	ImUiWidget*				prevSibling;
-	ImUiWidget*				nextSibling;
+	ImuiWidget*				prevSibling;
+	ImuiWidget*				nextSibling;
 
-	ImUiWidget*				firstChild;
-	ImUiWidget*				lastChild;
+	ImuiWidget*				firstChild;
+	ImuiWidget*				lastChild;
 	uintsize				childCount;
 
-	ImUiHash				hash;
-	ImUiId					id;
-	ImUiStringView			name;
+	ImuiHash				hash;
+	ImuiId					id;
+	ImuiStringView			name;
 
-	ImUiWidgetState*		firstState;
+	ImuiWidgetState*		firstState;
 
-	ImUiBorder				margin;
-	ImUiBorder				padding;
+	ImuiBorder				margin;
+	ImuiBorder				padding;
 
-	ImUiSize				minSize;
-	ImUiSize				maxSize;
+	ImuiSize				minSize;
+	ImuiSize				maxSize;
 	float					stretchH;
 	float					stretchV;
 
-	ImUiLayout				layout;
-	ImUiLayoutData			layoutData;
+	ImuiLayout				layout;
+	ImuiLayoutData			layoutData;
 
 	float					alignH;
 	float					alignV;
@@ -184,59 +182,59 @@ struct ImUiWidget
 	uint32					focusIndex;
 
 	// generated data
-	ImUiRect				rect;
-	ImUiRect				clipRect;
-	ImUiWidget*				lastFrameWidget;
-	ImUiLayoutContext		layoutContext;
-	ImUiLayoutGridContext*	gridContext;
-	ImUiWidgetInputContext	inputContext;
+	ImuiRect				rect;
+	ImuiRect				clipRect;
+	ImuiWidget*				lastFrameWidget;
+	ImuiLayoutContext		layoutContext;
+	ImuiLayoutGridContext*	gridContext;
+	ImuiWidgetInputContext	inputContext;
 };
 
-typedef struct ImUiWidgetChunk ImUiWidgetChunk;
-struct ImUiWidgetChunk
+typedef struct ImuiWidgetChunk ImuiWidgetChunk;
+struct ImuiWidgetChunk
 {
-	ImUiWidgetChunk*		nextChunk;
-	ImUiWidget				data[ IMUI_DEFAULT_WIDGET_CHUNK_SIZE ];
+	ImuiWidgetChunk*		nextChunk;
+	ImuiWidget				data[ IMUI_DEFAULT_WIDGET_CHUNK_SIZE ];
 	uintsize				usedCount;
 };
 
-struct ImUiFrame
+struct ImuiFrame
 {
-	ImUiContext*			context;
+	ImuiContext*			context;
 	uint32					index;
 	double					timeInSeconds;
 };
 
-struct ImUiContext
+struct ImuiContext
 {
-	ImUiAllocator			allocator;
+	ImuiAllocator			allocator;
 
-	ImUiInput				input;
-	ImUiDraw				draw;
-	ImUiStringPool			strings;
-	ImUiTextLayoutCache		layoutCache;
+	ImuiInput				input;
+	ImuiDraw				draw;
+	ImuiStringPool			strings;
+	ImuiTextLayoutCache		layoutCache;
 
-	ImUiFrame				frame;
+	ImuiFrame				frame;
 
-	ImUiSurface*			surfaces;
+	ImuiSurface*			surfaces;
 	uintsize				surfaceCapacity;
 	uintsize				surfaceCount;
 
-	ImUiWidgetChunk*		firstChunk;
-	ImUiWidgetChunk*		firstLastFrameChunk;
-	ImUiWidgetChunk*		firstFreeChunk;
+	ImuiWidgetChunk*		firstChunk;
+	ImuiWidgetChunk*		firstLastFrameChunk;
+	ImuiWidgetChunk*		firstFreeChunk;
 
-	ImUiWidgetState*		firstState;
-	ImUiWidgetState*		firstUnusedState;
+	ImuiWidgetState*		firstState;
+	ImuiWidgetState*		firstUnusedState;
 
-	ImUiLayoutGridContext*	firstGridContext;
-	ImUiLayoutGridContext*	firstUnusedGridContext;
+	ImuiLayoutGridContext*	firstGridContext;
+	ImuiLayoutGridContext*	firstUnusedGridContext;
 };
 
-ImUiStringView				ImUiStringViewCreate( const char* str );
-ImUiStringView				ImUiStringViewCreateLength( const char* str, size_t length );
-ImUiStringView				ImUiStringViewCreateEmpty();
-bool						ImUiStringViewIsEquals( ImUiStringView string1, ImUiStringView string2 );
+ImuiStringView				imuiStringViewCreate( const char* str );
+ImuiStringView				imuiStringViewCreateLength( const char* str, size_t length );
+ImuiStringView				imuiStringViewCreateEmpty();
+bool						imuiStringViewIsEquals( ImuiStringView string1, ImuiStringView string2 );
 
-ImUiHash					ImUiHashString( ImUiStringView string );
-ImUiHash					ImUiHashStringSeed( ImUiStringView string, ImUiHash seed );
+ImuiHash					imuiHashString( ImuiStringView string );
+ImuiHash					imuiHashStringSeed( ImuiStringView string, ImuiHash seed );

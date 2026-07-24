@@ -8,9 +8,9 @@
 
 #include <string.h>
 
-struct ImUiFontTrueTypeData
+struct ImuiFontTrueTypeData
 {
-	ImUiAllocator*		allocator;
+	ImuiAllocator*		allocator;
 
 	const void*			data;
 	uintsize			dataSize;
@@ -23,83 +23,82 @@ struct ImUiFontTrueTypeData
 	uintsize			codepointCapacity;
 };
 
-struct ImUiFontTrueTypeImage
+struct ImuiFontTrueTypeImage
 {
-	ImUiAllocator*		allocator;
-	ImUiFontParameters	parameters;
+	ImuiAllocator*		allocator;
+	ImuiFontParameters	parameters;
 };
 
-typedef struct ImUiFontCodepointMapEntry ImUiFontCodepointMapEntry;
-struct ImUiFontCodepointMapEntry
+typedef struct ImuiFontCodepointMapEntry
 {
-	const ImUiFontCodepoint*	codepoints;
-};
+	const ImuiFontCodepoint*	codepoints;
+} ImuiFontCodepointMapEntry;
 
-static ImUiHash ImUiFontCodepointHash( const void* entry )
+static ImuiHash imuiFontCodepointHash( const void* entry )
 {
-	const ImUiFontCodepoint* codepoint = *(const ImUiFontCodepoint**)entry;
+	const ImuiFontCodepoint* codepoint = *(const ImuiFontCodepoint**)entry;
 	return codepoint->codepoint;
 }
 
-static bool ImUiFontCodepointIsKeyEquals( const void* lhs, const void* rhs )
+static bool imuiFontCodepointIsKeyEquals( const void* lhs, const void* rhs )
 {
-	const ImUiFontCodepoint* lhsCp = *(const ImUiFontCodepoint**)lhs;
-	const ImUiFontCodepoint* rhsCp = *(const ImUiFontCodepoint**)rhs;
+	const ImuiFontCodepoint* lhsCp = *(const ImuiFontCodepoint**)lhs;
+	const ImuiFontCodepoint* rhsCp = *(const ImuiFontCodepoint**)rhs;
 	return lhsCp->codepoint == rhsCp->codepoint;
 }
 
-ImUiFont* ImUiFontCreate( ImUiContext* imui, const ImUiFontParameters* parameters )
+ImuiFont* imuiFontCreate( ImuiContext* imui, const ImuiFontParameters* parameters )
 {
-	ImUiFont* font = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImUiFont );
+	ImuiFont* font = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImuiFont );
 	if( !font )
 	{
 		return NULL;
 	}
 
 	font->image				= parameters->image;
-	font->codepoints		= IMUI_MEMORY_ARRAY_NEW( &imui->allocator, ImUiFontCodepoint, parameters->codepointCount );
+	font->codepoints		= IMUI_MEMORY_ARRAY_NEW( &imui->allocator, ImuiFontCodepoint, parameters->codepointCount );
 	font->codepointCount	= parameters->codepointCount;
 	font->fontSize			= parameters->fontSize;
 	font->lineGap			= parameters->lineGap;
 
 	if( !font->codepoints )
 	{
-		ImUiFontDestroy( imui, font );
+		imuiFontDestroy( imui, font );
 		return NULL;
 	}
 
 	memcpy( font->codepoints, parameters->codepoints, sizeof( *parameters->codepoints ) * parameters->codepointCount );
 
-	if( !ImUiHashMapConstructStaticPointer( &font->codepointMap, &imui->allocator, font->codepoints, sizeof( *font->codepoints ), parameters->codepointCount, ImUiFontCodepointHash, ImUiFontCodepointIsKeyEquals ) )
+	if( !imuiHashMapConstructStaticPointer( &font->codepointMap, &imui->allocator, font->codepoints, sizeof( *font->codepoints ), parameters->codepointCount, imuiFontCodepointHash, imuiFontCodepointIsKeyEquals ) )
 	{
-		ImUiFontDestroy( imui, font );
+		imuiFontDestroy( imui, font );
 		return NULL;
 	}
 
 	return font;
 }
 
-ImUiFont* ImUiFontCreateTrueType( ImUiContext* imui, ImUiFontTrueTypeImage* ttfImage, ImUiImage image )
+ImuiFont* imuiFontCreateTrueType( ImuiContext* imui, ImuiFontTrueTypeImage* ttfImage, ImuiImage image )
 {
 	ttfImage->parameters.image = image;
 
-	ImUiFont* font = ImUiFontCreate( imui, &ttfImage->parameters );
+	ImuiFont* font = imuiFontCreate( imui, &ttfImage->parameters );
 
-	ImUiFontTrueTypeImageDestroy( ttfImage );
+	imuiFontTrueTypeImageDestroy( ttfImage );
 
 	return font;
 }
 
-void ImUiFontDestroy( ImUiContext* imui, ImUiFont* font )
+void imuiFontDestroy( ImuiContext* imui, ImuiFont* font )
 {
-	ImUiHashMapDestruct( &font->codepointMap );
-	ImUiMemoryFree( &imui->allocator, font->codepoints );
-	ImUiMemoryFree( &imui->allocator, font );
+	imuiHashMapDestruct( &font->codepointMap );
+	imuiMemoryFree( &imui->allocator, font->codepoints );
+	imuiMemoryFree( &imui->allocator, font );
 }
 
-ImUiFontTrueTypeData* ImUiFontTrueTypeDataCreate( ImUiContext* imui, const void* data, size_t dataSize )
+ImuiFontTrueTypeData* imuiFontTrueTypeDataCreate( ImuiContext* imui, const void* data, size_t dataSize )
 {
-	ImUiFontTrueTypeData* ttf = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImUiFontTrueTypeData );
+	ImuiFontTrueTypeData* ttf = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImuiFontTrueTypeData );
 	if( !ttf )
 	{
 		return NULL;
@@ -111,16 +110,16 @@ ImUiFontTrueTypeData* ImUiFontTrueTypeDataCreate( ImUiContext* imui, const void*
 
 	if( !stbtt_InitFont( &ttf->font, (const uint8*)ttf->data, 0 ) )
 	{
-		ImUiFontTrueTypeDataDestroy( ttf );
+		imuiFontTrueTypeDataDestroy( ttf );
 		return NULL;
 	}
 
 	return ttf;
 }
 
-ImUiFontTrueTypeData* ImUiFontTrueTypeDataCreateCopy( ImUiContext* imui, const void* data, size_t dataSize )
+ImuiFontTrueTypeData* imuiFontTrueTypeDataCreateCopy( ImuiContext* imui, const void* data, size_t dataSize )
 {
-	void* dataCopy = ImUiMemoryAlloc( &imui->allocator, dataSize );
+	void* dataCopy = imuiMemoryAlloc( &imui->allocator, dataSize );
 	if( !dataCopy )
 	{
 		return NULL;
@@ -128,10 +127,10 @@ ImUiFontTrueTypeData* ImUiFontTrueTypeDataCreateCopy( ImUiContext* imui, const v
 
 	memcpy( dataCopy, data, dataSize );
 
-	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( imui, dataCopy, dataSize );
+	ImuiFontTrueTypeData* ttf = imuiFontTrueTypeDataCreate( imui, dataCopy, dataSize );
 	if( !ttf )
 	{
-		ImUiMemoryFree( &imui->allocator, dataCopy );
+		imuiMemoryFree( &imui->allocator, dataCopy );
 		return NULL;
 	}
 
@@ -140,18 +139,18 @@ ImUiFontTrueTypeData* ImUiFontTrueTypeDataCreateCopy( ImUiContext* imui, const v
 	return ttf;
 }
 
-void ImUiFontTrueTypeDataDestroy( ImUiFontTrueTypeData* ttf )
+void imuiFontTrueTypeDataDestroy( ImuiFontTrueTypeData* ttf )
 {
 	if( ttf->ownsData )
 	{
-		ImUiMemoryFree( ttf->allocator, ttf->data );
+		imuiMemoryFree( ttf->allocator, ttf->data );
 	}
 
-	ImUiMemoryFree( ttf->allocator, ttf->codepoints );
-	ImUiMemoryFree( ttf->allocator, ttf );
+	imuiMemoryFree( ttf->allocator, ttf->codepoints );
+	imuiMemoryFree( ttf->allocator, ttf );
 }
 
-bool ImUiFontTrueTypeDataAddCodepoints( ImUiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount )
+bool imuiFontTrueTypeDataAddCodepoints( ImuiFontTrueTypeData* ttf, const uint32_t* codepoints, size_t codepointCount )
 {
 	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( ttf->allocator, ttf->codepoints, ttf->codepointCapacity, ttf->codepointCount + codepointCount ) )
 	{
@@ -164,7 +163,7 @@ bool ImUiFontTrueTypeDataAddCodepoints( ImUiFontTrueTypeData* ttf, const uint32_
 	return true;
 }
 
-bool ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint )
+bool imuiFontTrueTypeDataAddCodepointRange( ImuiFontTrueTypeData* ttf, uint32_t firstCodepoint, uint32_t lastCodepoint )
 {
 	const uintsize codepointCount = (lastCodepoint - firstCodepoint) + 1u;
 	if( !IMUI_MEMORY_ARRAY_CHECK_CAPACITY( ttf->allocator, ttf->codepoints, ttf->codepointCapacity, ttf->codepointCount + codepointCount ) )
@@ -180,7 +179,7 @@ bool ImUiFontTrueTypeDataAddCodepointRange( ImUiFontTrueTypeData* ttf, uint32_t 
 	return true;
 }
 
-void ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, int padding )
+void imuiFontTrueTypeDataCalculateMinTextureSizeInternal( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, int padding )
 {
 	const float scale = stbtt_ScaleForPixelHeight( &ttf->font, fontSizeInPixel );
 
@@ -220,18 +219,18 @@ void ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ImUiFontTrueTypeData* 
 	*targetHeight = minSize;
 }
 
-void ImUiFontTrueTypeDataCalculateMinTextureSize( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
+void imuiFontTrueTypeDataCalculateMinTextureSize( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight )
 {
-	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, 0 );
+	imuiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, 0 );
 }
 
-void ImUiFontTrueTypeDataCalculateMinSDFTextureSize(ImUiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread)
+void imuiFontTrueTypeDataCalculateMinSDFTextureSize(ImuiFontTrueTypeData* ttf, float fontSizeInPixel, uint32_t* targetWidth, uint32_t* targetHeight, float sdfSpread)
 {
 	const int padding = IMUI_MIN( 16, IMUI_MAX( 4, (int)ceilf( fontSizeInPixel * sdfSpread ) ) );
-	ImUiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, padding );
+	imuiFontTrueTypeDataCalculateMinTextureSizeInternal( ttf, fontSizeInPixel, targetWidth, targetHeight, padding );
 }
 
-bool ImUiFontTrueTypeDataAddCodepointBitmapToTexture( ImUiFontTrueTypeData* ttf, ImUiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scaleX, float scaleY, int codepoint, uint32_t width, uint32_t height )
+bool imuiFontTrueTypeDataAddCodepointBitmapToTexture( ImuiFontTrueTypeData* ttf, ImuiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scaleX, float scaleY, int codepoint, uint32_t width, uint32_t height )
 {
 	bool reachedAtlasXLimit = false;
 	int advance;
@@ -272,7 +271,7 @@ bool ImUiFontTrueTypeDataAddCodepointBitmapToTexture( ImUiFontTrueTypeData* ttf,
 	return reachedAtlasXLimit;
 }
 
-bool ImUiFontTrueTypeDataAddCodepointSDFToTexture(ImUiFontTrueTypeData* ttf, ImUiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scale, int padding, int codepoint, uint32_t width, uint32_t height)
+bool imuiFontTrueTypeDataAddCodepointSDFToTexture(ImuiFontTrueTypeData* ttf, ImuiFontCodepoint* targetCodepoint, uint8* data, uint32* x, uint32* y, float ascent, uint32 lineHeight, float scale, int padding, int codepoint, uint32_t width, uint32_t height)
 {
 	bool reachedAtlasXLimit = false;
 	int advance;
@@ -336,7 +335,7 @@ bool ImUiFontTrueTypeDataAddCodepointSDFToTexture(ImUiFontTrueTypeData* ttf, ImU
 	return reachedAtlasXLimit;
 }
 
-ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread)
+ImuiFontTrueTypeImage* imuiFontTrueTypeDataGenerateTextureDataInternal(ImuiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread)
 {
 	if( targetDataSize < width * height )
 	{
@@ -344,12 +343,12 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontT
 		return NULL;
 	}
 
-	ImUiFontTrueTypeImage* image = IMUI_MEMORY_NEW_ZERO( ttf->allocator, ImUiFontTrueTypeImage );
-	ImUiFontCodepoint* codepoints = IMUI_MEMORY_ARRAY_NEW( ttf->allocator, ImUiFontCodepoint, ttf->codepointCount );
+	ImuiFontTrueTypeImage* image = IMUI_MEMORY_NEW_ZERO( ttf->allocator, ImuiFontTrueTypeImage );
+	ImuiFontCodepoint* codepoints = IMUI_MEMORY_ARRAY_NEW( ttf->allocator, ImuiFontCodepoint, ttf->codepointCount );
 	if( !image || !codepoints )
 	{
-		ImUiMemoryFree( ttf->allocator, image );
-		ImUiMemoryFree( ttf->allocator, codepoints );
+		imuiMemoryFree( ttf->allocator, image );
+		imuiMemoryFree( ttf->allocator, codepoints );
 		return NULL;
 	}
 
@@ -384,7 +383,7 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontT
 		const int padding = IMUI_MIN(16, IMUI_MAX(4, (int)ceilf( fontSizeInPixel * sdfSpread ) ) );
 		for( uintsize i = 0; i < ttf->codepointCount; ++i )
 		{
-			if( ImUiFontTrueTypeDataAddCodepointSDFToTexture( ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, padding, (int)ttf->codepoints[ i ], width, height ) )
+			if( imuiFontTrueTypeDataAddCodepointSDFToTexture( ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, padding, (int)ttf->codepoints[ i ], width, height ) )
 			{
 				lineHeight = 0u;
 			}
@@ -395,7 +394,7 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontT
 	{
 		for( uintsize i = 0; i < ttf->codepointCount; ++i )
 		{
-			if( ImUiFontTrueTypeDataAddCodepointBitmapToTexture(ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, scale, (int)ttf->codepoints[ i ], width, height ) )
+			if( imuiFontTrueTypeDataAddCodepointBitmapToTexture(ttf, &codepoints[ i ], data, &x, &y, ascent, lineHeight, scale, scale, (int)ttf->codepoints[ i ], width, height ) )
 			{
 				lineHeight = 0u;
 			}
@@ -409,26 +408,26 @@ ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureDataInternal(ImUiFontT
 	return image;
 }
 
-ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height )
+ImuiFontTrueTypeImage* imuiFontTrueTypeDataGenerateTextureData( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height )
 {
-	return ImUiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, /*sdfSpread =*/ 0.0f );
+	return imuiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, /*sdfSpread =*/ 0.0f );
 }
 
-ImUiFontTrueTypeImage* ImUiFontTrueTypeDataGenerateSDFTextureData( ImUiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread )
+ImuiFontTrueTypeImage* imuiFontTrueTypeDataGenerateSDFTextureData( ImuiFontTrueTypeData* ttf, float fontSizeInPixel, void* targetData, size_t targetDataSize, uint32_t width, uint32_t height, float sdfSpread )
 {
 	// sdfSpread is a fraction of the font size, values around [0.1f, 0.3f] work
-	// If using SDFs you need a larger target image than for pure bitmap font, so use ImUiFontTrueTypeDataCalculateMinSDFTextureSize to compute that.
-	return ImUiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, sdfSpread );
+	// If using SDFs you need a larger target image than for pure bitmap font, so use imuiFontTrueTypeDataCalculateMinSDFTextureSize to compute that.
+	return imuiFontTrueTypeDataGenerateTextureDataInternal( ttf, fontSizeInPixel, targetData, targetDataSize, width, height, sdfSpread );
 }
 
-void ImUiFontTrueTypeImageGetCodepoints( ImUiFontTrueTypeImage* ttfImage, const ImUiFontCodepoint** codepoints, size_t* codepointCount )
+void imuiFontTrueTypeImageGetCodepoints( ImuiFontTrueTypeImage* ttfImage, const ImuiFontCodepoint** codepoints, size_t* codepointCount )
 {
 	*codepoints		= ttfImage->parameters.codepoints;
 	*codepointCount	= ttfImage->parameters.codepointCount;
 }
 
-void ImUiFontTrueTypeImageDestroy( ImUiFontTrueTypeImage* ttfImage )
+void imuiFontTrueTypeImageDestroy( ImuiFontTrueTypeImage* ttfImage )
 {
-	ImUiMemoryFree( ttfImage->allocator, ttfImage->parameters.codepoints );
-	ImUiMemoryFree( ttfImage->allocator, ttfImage );
+	imuiMemoryFree( ttfImage->allocator, ttfImage->parameters.codepoints );
+	imuiMemoryFree( ttfImage->allocator, ttfImage );
 }

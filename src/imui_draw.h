@@ -4,96 +4,96 @@
 
 #include "imui_types.h"
 
-typedef struct ImUiDrawSurfaceData ImUiDrawSurfaceData;
-typedef struct ImUiDrawWindowData ImUiDrawWindowData;
+typedef struct ImuiDrawSurfaceData ImuiDrawSurfaceData;
+typedef struct ImuiDrawWindowData ImuiDrawWindowData;
 
-typedef enum ImUiDrawElementType
+typedef enum ImuiDrawElementType
 {
-	ImUiDrawElementType_Line,
-	ImUiDrawElementType_Triangle,
-	ImUiDrawElementType_Rect,
-	ImUiDrawElementType_RectPartial,
-	ImUiDrawElementType_Skin,
-	ImUiDrawElementType_SkinPartial,
-	ImUiDrawElementType_Text,
-	ImUiDrawElementType_TextOffset,
-} ImUiDrawElementType;
+	ImuiDrawElementType_Line,
+	ImuiDrawElementType_Triangle,
+	ImuiDrawElementType_Rect,
+	ImuiDrawElementType_RectPartial,
+	ImuiDrawElementType_Skin,
+	ImuiDrawElementType_SkinPartial,
+	ImuiDrawElementType_Text,
+	ImuiDrawElementType_TextOffset,
+} ImuiDrawElementType;
 
-typedef struct ImUiDrawElementDataPrimitive
+typedef struct ImuiDrawElementDataPrimitive
 {
-	ImUiPos				p0;
-	ImUiPos				p1;
-	ImUiPos				p2;
-	ImUiColor			color;
-} ImUiDrawElementDataPrimitive;
+	ImuiPos				p0;
+	ImuiPos				p1;
+	ImuiPos				p2;
+	ImuiColor			color;
+} ImuiDrawElementDataPrimitive;
 
-typedef struct ImUiDrawElementDataRect
+typedef struct ImuiDrawElementDataRect
 {
-	ImUiRect			relativRect;
-	ImUiColor			color;
-	ImUiTexCoord		uv;
-} ImUiDrawElementDataRect;
+	ImuiRect			relativRect;
+	ImuiColor			color;
+	ImuiTexCoord		uv;
+} ImuiDrawElementDataRect;
 
-// has to be the same layout as ImUiDrawElementDataRect
-typedef struct ImUiDrawElementDataSkin
+// must have the same layout as imuiDrawElementDataRect
+typedef struct ImuiDrawElementDataSkin
 {
-	ImUiRect			relativRect;
-	ImUiColor			color;
-	ImUiTexCoord		uv;
-	ImUiBorder			border;
-	ImUiSize			texSize;
-} ImUiDrawElementDataSkin;
+	ImuiRect			relativRect;
+	ImuiColor			color;
+	ImuiTexCoord		uv;
+	ImuiBorder			border;
+	ImuiSize			texSize;
+} ImuiDrawElementDataSkin;
 
-typedef struct ImUiDrawElementDataText
+typedef struct ImuiDrawElementDataText
 {
-	ImUiPos				relativPos;
-	ImUiColor			color;
-	ImUiTextLayout*		layout;
+	ImuiPos				relativPos;
+	ImuiColor			color;
+	ImuiTextLayout*		layout;
 	float				size;
-} ImUiDrawElementDataText;
+} ImuiDrawElementDataText;
 
-typedef union ImUiDrawElementData
+typedef union ImuiDrawElementData
 {
-	ImUiDrawElementDataPrimitive	primitive;
-	ImUiDrawElementDataRect			rect;
-	ImUiDrawElementDataSkin			skin;
-	ImUiDrawElementDataText			text;
-} ImUiDrawElementData;
+	ImuiDrawElementDataPrimitive	primitive;
+	ImuiDrawElementDataRect			rect;
+	ImuiDrawElementDataSkin			skin;
+	ImuiDrawElementDataText			text;
+} ImuiDrawElementData;
 
-typedef struct ImUiDrawElement
+typedef struct ImuiDrawElement
 {
-	ImUiDrawElementType		type;
-	ImUiDrawElementData		data;
-	ImUiWidget*				widget;
+	ImuiDrawElementType		type;
+	ImuiDrawElementData		data;
+	ImuiWidget*				widget;
 	uint64_t				textureHandle;
-} ImUiDrawElement;
+} ImuiDrawElement;
 
-struct ImUiDraw
+struct ImuiDraw
 {
-	ImUiAllocator*			allocator;
-	ImUiVertexFormat		vertexFormat;
+	ImuiAllocator*			allocator;
+	ImuiVertexFormat		vertexFormat;
 	uintsize				vertexSize;
-	ImUiVertexType			vertexType;
-	ImUiDrawTopology		triangleTopology;
+	ImuiVertexType			vertexType;
+	ImuiDrawTopology		triangleTopology;
 
-	ImUiDrawSurfaceData*	surfaces;
+	ImuiDrawSurfaceData*	surfaces;
 	uintsize				surfaceCapacity;
 	uintsize				surfaceCount;
-	ImUiDrawWindowData*		windows;
+	ImuiDrawWindowData*		windows;
 	uintsize				windowCapacity;
 	uintsize				windowCount;
 };
 
-bool				ImUiDrawConstruct( ImUiDraw* draw, ImUiAllocator* allocator, const ImUiVertexFormat* vertexFormat, ImUiVertexType vertexType );
-void				ImUiDrawDestruct( ImUiDraw* draw );
+bool				imuiDrawConstruct( ImuiDraw* draw, ImuiAllocator* allocator, const ImuiVertexFormat* vertexFormat, ImuiVertexType vertexType );
+void				imuiDrawDestruct( ImuiDraw* draw );
 
-uintsize			ImUiDrawRegisterSurface( ImUiDraw* draw, ImUiStringView name, ImUiSize size );
-uintsize			ImUiDrawRegisterWindow( ImUiDraw* draw, ImUiStringView name, uintsize surfaceIndex, uint32 zOrder );
-void				ImUiDrawSurfaceEnd( ImUiDraw* draw, uintsize surfaceIndex );
-void				ImUiDrawEndFrame( ImUiDraw* draw );
+uintsize			imuiDrawRegisterSurface( ImuiDraw* draw, ImuiStringView name, ImuiSize size );
+uintsize			imuiDrawRegisterWindow( ImuiDraw* draw, ImuiStringView name, uintsize surfaceIndex, uint32 zOrder );
+void				imuiDrawSurfaceEnd( ImuiDraw* draw, uintsize surfaceIndex );
+void				imuiDrawEndFrame( ImuiDraw* draw );
 
-ImUiDrawElement*	ImUiDrawPushElement( ImUiWidget* widget, ImUiDrawElementType type, uint64_t textureHandle );
-ImUiDrawElement*	ImUiDrawPushElementText( ImUiWidget* widget, ImUiDrawElementType type, ImUiTextLayout* layout );
+ImuiDrawElement*	imuiDrawPushElement( ImuiWidget* widget, ImuiDrawElementType type, uint64_t textureHandle );
+ImuiDrawElement*	imuiDrawPushElementText( ImuiWidget* widget, ImuiDrawElementType type, ImuiTextLayout* layout );
 
-void				ImUiDrawGetSurfaceMaxBufferSizes( ImUiDraw* draw, uintsize surfaceIndex, size_t* outVertexDataSize, size_t* outIndexDataSize );
-const ImUiDrawData*	ImUiDrawGenerateSurfaceData( ImUiDraw* draw, uintsize surfaceIndex, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize );
+void				imuiDrawGetSurfaceMaxBufferSizes( ImuiDraw* draw, uintsize surfaceIndex, size_t* outVertexDataSize, size_t* outIndexDataSize );
+const ImuiDrawData*	imuiDrawGenerateSurfaceData( ImuiDraw* draw, uintsize surfaceIndex, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize );

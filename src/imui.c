@@ -8,31 +8,31 @@
 #include <string.h>
 #include <math.h>
 
-static void			ImUiWindowLayout( ImUiWindow* window );
+static void			imuiWindowLayout( ImuiWindow* window );
 
-static ImUiWidget*	ImUiWidgetAlloc( ImUiContext* imui );
-static void			ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIndex, float dpiScale, bool update );
-static void			ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widget );
-static void			ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget );
-static void			ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update );
-static void			ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static void			ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static void			ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static void			ImUiWidgetLayoutHorizontalCollectStrecher( ImUiWidget* widget, const ImUiRect* innerRect, float dpiScale );
-static void			ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static void			ImUiWidgetLayoutVerticalCollectStrecher( ImUiWidget* widget, const ImUiRect* innerRect, float dpiScale );
-static void			ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static void			ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex );
-static ImUiSize		ImUiWidgetLayoutMinSize( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale );
-static ImUiSize		ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight, float dpiScale );
-static float		ImUiWidgetLayoutPositionX( ImUiWidget* widget, const ImUiRect* parentInnerRect, float width, float dpiScale );
-static float		ImUiWidgetLayoutPositionY( ImUiWidget* widget, const ImUiRect* parentInnerRect, float height, float dpiScale );
-static void			ImUiWidgetLayoutRect( ImUiWidget* widget, ImUiPos pos, ImUiSize size );
+static ImuiWidget*	imuiWidgetAlloc( ImuiContext* imui );
+static void			imuiWidgetUpdateLayoutContext( ImuiWidget* widget, uintsize widgetIndex, float dpiScale, bool update );
+static void			imuiWidgetUpdateLayoutContextCheckGridContextSize( ImuiWidget* widget );
+static void			imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget );
+static void			imuiWidgetLayout( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update );
+static void			imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static void			imuiWidgetLayoutStack( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static void			imuiWidgetLayoutScroll( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static void			imuiWidgetLayoutHorizontalCollectStrecher( ImuiWidget* widget, const ImuiRect* innerRect, float dpiScale );
+static void			imuiWidgetLayoutHorizontal( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static void			imuiWidgetLayoutVerticalCollectStrecher( ImuiWidget* widget, const ImuiRect* innerRect, float dpiScale );
+static void			imuiWidgetLayoutVertical( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static void			imuiWidgetLayoutGrid( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale, uintsize widgetIndex );
+static ImuiSize		imuiWidgetLayoutMinSize( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
+static ImuiSize		imuiWidgetCalculateSize( ImuiWidget* widget, ImuiSize minSize, ImuiSize maxSize, float factorWidth, float factorHeight, float dpiScale );
+static float		imuiWidgetLayoutPositionX( ImuiWidget* widget, const ImuiRect* parentInnerRect, float width, float dpiScale );
+static float		imuiWidgetLayoutPositionY( ImuiWidget* widget, const ImuiRect* parentInnerRect, float height, float dpiScale );
+static void			imuiWidgetLayoutRect( ImuiWidget* widget, ImuiPos pos, ImuiSize size );
 
-static void			ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState );
-static void			ImUiLayoutGridContextFreeList( ImUiAllocator* allocator, ImUiLayoutGridContext* firstContext );
+static void			imuiWidgetStateFreeList( ImuiAllocator* allocator, ImuiWidgetState* firstState );
+static void			imuiLayoutGridContextFreeList( ImuiAllocator* allocator, ImuiLayoutGridContext* firstContext );
 
-static const ImUiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
+static const ImuiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
 {
 	.childrenMaxStretch =
 	{
@@ -45,7 +45,7 @@ static const ImUiLayoutContext IMUI_DEFAULT_LAYOUT_CONTEXT =
 	}*/
 };
 
-static const ImUiWidget IMUI_DEFAULT_WIDGET =
+static const ImuiWidget IMUI_DEFAULT_WIDGET =
 {
 	.maxSize = {
 		.width = IMUI_FLOAT_INF,
@@ -60,76 +60,76 @@ static const ImUiWidget IMUI_DEFAULT_WIDGET =
 	}
 };
 
-ImUiContext* ImUiCreate( const ImUiParameters* parameters )
+ImuiContext* imuiCreate( const ImuiParameters* parameters )
 {
-	ImUiAllocator allocator;
-	ImUiMemoryAllocatorPrepare( &allocator, &parameters->allocator );
+	ImuiAllocator allocator;
+	imuiMemoryAllocatorPrepare( &allocator, &parameters->allocator );
 
-	ImUiContext* imui = IMUI_MEMORY_NEW_ZERO( &allocator, ImUiContext );
+	ImuiContext* imui = IMUI_MEMORY_NEW_ZERO( &allocator, ImuiContext );
 	if( !imui )
 	{
 		return NULL;
 	}
 
-	ImUiMemoryAllocatorFinalize( &imui->allocator, &allocator );
+	imuiMemoryAllocatorFinalize( &imui->allocator, &allocator );
 
-	if( !ImUiInputConstruct( &imui->input, &imui->allocator, parameters->shortcuts, parameters->shortcutCount ) ||
-		!ImUiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType ) ||
-		!ImUiStringPoolConstruct( &imui->strings, &imui->allocator ) ||
-		!ImUiTextLayoutCacheConstruct( &imui->layoutCache, &imui->allocator ) )
+	if( !imuiInputConstruct( &imui->input, &imui->allocator, parameters->shortcuts, parameters->shortcutCount ) ||
+		!imuiDrawConstruct( &imui->draw, &imui->allocator, &parameters->vertexFormat, parameters->vertexType ) ||
+		!imuiStringPoolConstruct( &imui->strings, &imui->allocator ) ||
+		!imuiTextLayoutCacheConstruct( &imui->layoutCache, &imui->allocator ) )
 	{
-		ImUiDestroy( imui );
+		imuiDestroy( imui );
 		return NULL;
 	}
 
 	return imui;
 }
 
-void ImUiDestroy( ImUiContext* imui )
+void imuiDestroy( ImuiContext* imui )
 {
 	for( uintsize i = 0u; i < imui->surfaceCapacity; ++i )
 	{
-		ImUiSurface* surface = &imui->surfaces[ i ];
-		ImUiMemoryFree( &imui->allocator, surface->windows );
+		ImuiSurface* surface = &imui->surfaces[ i ];
+		imuiMemoryFree( &imui->allocator, surface->windows );
 	}
-	ImUiMemoryFree( &imui->allocator, imui->surfaces );
+	imuiMemoryFree( &imui->allocator, imui->surfaces );
 
-	ImUiWidgetStateFreeList( &imui->allocator, imui->firstState );
-	ImUiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
+	imuiWidgetStateFreeList( &imui->allocator, imui->firstState );
+	imuiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
 
-	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstGridContext );
-	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
+	imuiLayoutGridContextFreeList( &imui->allocator, imui->firstGridContext );
+	imuiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
 
-	for( ImUiWidgetChunk* pChunk = imui->firstChunk; pChunk != NULL; )
+	for( ImuiWidgetChunk* pChunk = imui->firstChunk; pChunk != NULL; )
 	{
-		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
-		ImUiMemoryFree( &imui->allocator, pChunk );
+		ImuiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		imuiMemoryFree( &imui->allocator, pChunk );
 		pChunk = pNextChunk;
 	}
 
-	for( ImUiWidgetChunk* pChunk = imui->firstLastFrameChunk; pChunk != NULL; )
+	for( ImuiWidgetChunk* pChunk = imui->firstLastFrameChunk; pChunk != NULL; )
 	{
-		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
-		ImUiMemoryFree( &imui->allocator, pChunk );
+		ImuiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		imuiMemoryFree( &imui->allocator, pChunk );
 		pChunk = pNextChunk;
 	}
 
-	for( ImUiWidgetChunk* pChunk = imui->firstFreeChunk; pChunk != NULL; )
+	for( ImuiWidgetChunk* pChunk = imui->firstFreeChunk; pChunk != NULL; )
 	{
-		ImUiWidgetChunk* pNextChunk = pChunk->nextChunk;
-		ImUiMemoryFree( &imui->allocator, pChunk );
+		ImuiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		imuiMemoryFree( &imui->allocator, pChunk );
 		pChunk = pNextChunk;
 	}
 
-	ImUiInputDestruct( &imui->input );
-	ImUiDrawDestruct( &imui->draw );
-	ImUiStringPoolDestruct( &imui->strings );
-	ImUiTextLayoutCacheDestruct( &imui->layoutCache );
+	imuiInputDestruct( &imui->input );
+	imuiDrawDestruct( &imui->draw );
+	imuiStringPoolDestruct( &imui->strings );
+	imuiTextLayoutCacheDestruct( &imui->layoutCache );
 
-	ImUiMemoryFree( &imui->allocator, imui );
+	imuiMemoryFree( &imui->allocator, imui );
 }
 
-ImUiFrame* ImUiBegin( ImUiContext* imui, double timeInSeconds )
+ImuiFrame* imuiBegin( ImuiContext* imui, double timeInSeconds )
 {
 	imui->frame.context			= imui;
 	imui->frame.index++;
@@ -138,20 +138,20 @@ ImUiFrame* ImUiBegin( ImUiContext* imui, double timeInSeconds )
 	return &imui->frame;
 }
 
-void ImUiEnd( ImUiFrame* frame )
+void imuiEnd( ImuiFrame* frame )
 {
-	ImUiContext* imui = frame->context;
+	ImuiContext* imui = frame->context;
 
-	ImUiDrawEndFrame( &imui->draw );
-	ImUiInputEndFrame( &imui->input );
+	imuiDrawEndFrame( &imui->draw );
+	imuiInputEndFrame( &imui->input );
 
 	// deleted unused surfaces and windows
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		ImUiSurface* surface = &imui->surfaces[ surfaceIndex ];
+		ImuiSurface* surface = &imui->surfaces[ surfaceIndex ];
 		if( !surface->inUse )
 		{
-			ImUiMemoryFree( &imui->allocator, surface->windows );
+			imuiMemoryFree( &imui->allocator, surface->windows );
 
 			IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( imui->surfaces, imui->surfaceCount, surfaceIndex );
 
@@ -161,7 +161,7 @@ void ImUiEnd( ImUiFrame* frame )
 
 		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 		{
-			ImUiWindow* window = &surface->windows[ windowIndex ];
+			ImuiWindow* window = &surface->windows[ windowIndex ];
 			if( !window->inUse )
 			{
 				IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( surface->windows, surface->windowCount, windowIndex );
@@ -180,14 +180,14 @@ void ImUiEnd( ImUiFrame* frame )
 	{
 		while( imui->firstFreeChunk )
 		{
-			ImUiWidgetChunk* nextFreeChunk = imui->firstFreeChunk->nextChunk;
+			ImuiWidgetChunk* nextFreeChunk = imui->firstFreeChunk->nextChunk;
 
-			ImUiMemoryFree( &imui->allocator, imui->firstFreeChunk );
+			imuiMemoryFree( &imui->allocator, imui->firstFreeChunk );
 
 			imui->firstFreeChunk = nextFreeChunk;
 		}
 
-		for( ImUiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
+		for( ImuiWidgetChunk* chunk = imui->firstLastFrameChunk; chunk != NULL; chunk = chunk->nextChunk )
 		{
 			chunk->usedCount = 0u;
 		}
@@ -198,21 +198,21 @@ void ImUiEnd( ImUiFrame* frame )
 	}
 
 	// free unused states
-	ImUiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
+	imuiWidgetStateFreeList( &imui->allocator, imui->firstUnusedState );
 	imui->firstUnusedState	= imui->firstState;
 	imui->firstState		= NULL;
 
 	// free unused grid context
-	ImUiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
+	imuiLayoutGridContextFreeList( &imui->allocator, imui->firstUnusedGridContext );
 	imui->firstUnusedGridContext	= imui->firstGridContext;
 	imui->firstGridContext			= NULL;
 
-	ImUiTextLayoutCacheEndFrame( &imui->layoutCache );
+	imuiTextLayoutCacheEndFrame( &imui->layoutCache );
 }
 
-ImUiInput* ImUiInputBegin( ImUiContext* imui, const ImUiInputState* previousState )
+ImuiInput* imuiInputBegin( ImuiContext* imui, const ImuiInputState* previousState )
 {
-	if( !ImUiInputBeginState( &imui->input, previousState ) )
+	if( !imuiInputBeginState( &imui->input, previousState ) )
 	{
 		return NULL;
 	}
@@ -220,32 +220,32 @@ ImUiInput* ImUiInputBegin( ImUiContext* imui, const ImUiInputState* previousStat
 	return &imui->input;
 }
 
-const ImUiInputState* ImUiInputEnd( ImUiContext* imui )
+const ImuiInputState* imuiInputEnd( ImuiContext* imui )
 {
-	return ImUiInputEndState( &imui->input );
+	return imuiInputEndState( &imui->input );
 }
 
-const ImUiInputState* ImUiInputGetPushState( ImUiInput* input )
+const ImuiInputState* imuiInputGetPushState( ImuiInput* input )
 {
 	return input->pushState;
 }
 
-ImUiContext* ImUiFrameGetContext( const ImUiFrame* frame )
+ImuiContext* imuiFrameGetContext( const ImuiFrame* frame )
 {
 	return frame->context;
 }
 
-ImUiSurface* ImUiSurfaceBegin( ImUiFrame* frame, const char* name, ImUiSize size, const ImUiInputState* input, float dpiScale )
+ImuiSurface* imuiSurfaceBegin( ImuiFrame* frame, const char* name, ImuiSize size, const ImuiInputState* input, float dpiScale )
 {
-	return ImUiSurfaceBeginId( frame, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), size, input, dpiScale );
+	return imuiSurfaceBeginId( frame, name, (ImuiId)imuiHashCreate( name, strlen( name ) ), size, input, dpiScale );
 }
 
-ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, ImUiSize size, const ImUiInputState* input, float dpiScale )
+ImuiSurface* imuiSurfaceBeginId( ImuiFrame* frame, const char* name, ImuiId id, ImuiSize size, const ImuiInputState* input, float dpiScale )
 {
-	ImUiContext* imui = frame->context;
-	const ImUiStringView nameView = ImUiStringViewCreate( name );
+	ImuiContext* imui = frame->context;
+	const ImuiStringView nameView = imuiStringViewCreate( name );
 
-	ImUiSurface* surface = NULL;
+	ImuiSurface* surface = NULL;
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
 		if( imui->surfaces[ surfaceIndex ].id != id )
@@ -273,76 +273,76 @@ ImUiSurface* ImUiSurfaceBeginId( ImUiFrame* frame, const char* name, ImUiId id, 
 
 		surface->id			= id;
 		surface->context	= imui;
-		surface->name		= ImUiStringPoolAdd( &imui->strings, nameView );
+		surface->name		= imuiStringPoolAdd( &imui->strings, nameView );
 	}
 
 	surface->inUse		= true;
 	surface->size		= size;
 	surface->input		= input;
 	surface->dpiScale	= dpiScale;
-	surface->drawIndex	= ImUiDrawRegisterSurface( &imui->draw, surface->name, size );
+	surface->drawIndex	= imuiDrawRegisterSurface( &imui->draw, surface->name, size );
 
 	return surface;
 }
 
-void ImUiSurfaceEnd( ImUiSurface* surface )
+void imuiSurfaceEnd( ImuiSurface* surface )
 {
-	ImUiDrawSurfaceEnd( &surface->context->draw, surface->drawIndex );
+	imuiDrawSurfaceEnd( &surface->context->draw, surface->drawIndex );
 }
 
-void ImUiSurfaceGetMaxBufferSizes( ImUiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize )
+void imuiSurfaceGetMaxBufferSizes( ImuiSurface* surface, size_t* outVertexDataSize, size_t* outIndexDataSize )
 {
-	ImUiDrawGetSurfaceMaxBufferSizes( &surface->context->draw, surface->drawIndex, outVertexDataSize, outIndexDataSize );
+	imuiDrawGetSurfaceMaxBufferSizes( &surface->context->draw, surface->drawIndex, outVertexDataSize, outIndexDataSize );
 }
 
-const ImUiDrawData* ImUiSurfaceGenerateDrawData( ImUiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize )
+const ImuiDrawData* imuiSurfaceGenerateDrawData( ImuiSurface* surface, void* outVertexData, size_t* inOutVertexDataSize, void* outIndexData, size_t* inOutIndexDataSize )
 {
-	return ImUiDrawGenerateSurfaceData( &surface->context->draw, surface->drawIndex, outVertexData, inOutVertexDataSize, outIndexData, inOutIndexDataSize );
+	return imuiDrawGenerateSurfaceData( &surface->context->draw, surface->drawIndex, outVertexData, inOutVertexDataSize, outIndexData, inOutIndexDataSize );
 }
 
-ImUiContext* ImUiSurfaceGetContext( const ImUiSurface* surface )
+ImuiContext* imuiSurfaceGetContext( const ImuiSurface* surface )
 {
 	return surface->context;
 }
 
-double ImUiSurfaceGetTime( const ImUiSurface* surface )
+double imuiSurfaceGetTime( const ImuiSurface* surface )
 {
 	return surface->context->frame.timeInSeconds;
 }
 
-ImUiSize ImUiSurfaceGetSize( const ImUiSurface* surface )
+ImuiSize imuiSurfaceGetSize( const ImuiSurface* surface )
 {
 	return surface->size;
 }
 
-ImUiRect ImUiSurfaceGetRect( const ImUiSurface* surface )
+ImuiRect imuiSurfaceGetRect( const ImuiSurface* surface )
 {
-	return ImUiRectCreateSize( 0.0f, 0.0f, surface->size );
+	return imuiRectCreateSize( 0.0f, 0.0f, surface->size );
 }
 
-const ImUiInputState* ImUiSurfaceGetInput( const ImUiSurface* surface )
+const ImuiInputState* imuiSurfaceGetInput( const ImuiSurface* surface )
 {
 	return surface->input;
 }
 
-float ImUiSurfaceGetDpiScale( const ImUiSurface* surface )
+float imuiSurfaceGetDpiScale( const ImuiSurface* surface )
 {
 	return surface->dpiScale;
 }
 
-ImUiWindow* ImUiWindowBegin( ImUiSurface* surface, const char* name, ImUiRect rect, uint32_t zOrder )
+ImuiWindow* imuiWindowBegin( ImuiSurface* surface, const char* name, ImuiRect rect, uint32_t zOrder )
 {
-	return ImUiWindowBeginId( surface, name, (ImUiId)ImUiHashCreate( name, strlen( name ) ), rect, zOrder );
+	return imuiWindowBeginId( surface, name, (ImuiId)imuiHashCreate( name, strlen( name ) ), rect, zOrder );
 }
 
-ImUiWindow* ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id, ImUiRect rect, uint32_t zOrder )
+ImuiWindow* imuiWindowBeginId( ImuiSurface* surface, const char* name, ImuiId id, ImuiRect rect, uint32_t zOrder )
 {
 	IMUI_ASSERT( surface );
 
-	ImUiContext* imui = surface->context;
-	const ImUiStringView nameView = ImUiStringViewCreate( name );
+	ImuiContext* imui = surface->context;
+	const ImuiStringView nameView = imuiStringViewCreate( name );
 
-	ImUiWindow* window = NULL;
+	ImuiWindow* window = NULL;
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
 		if( surface->windows[ windowIndex ].id != id )
@@ -372,15 +372,15 @@ ImUiWindow* ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id
 	window->context						= imui;
 	window->surface						= surface;
 	window->id							= id;
-	window->name						= ImUiStringPoolAdd( &imui->strings, nameView );
+	window->name						= imuiStringPoolAdd( &imui->strings, nameView );
 	window->rect						= rect;
 	window->zOrder						= zOrder;
-	window->drawIndex					= ImUiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
+	window->drawIndex					= imuiDrawRegisterWindow( &imui->draw, window->name, surface->drawIndex, zOrder );
 
-	ImUiWidget* rootWidget = ImUiWidgetAlloc( imui );
+	ImuiWidget* rootWidget = imuiWidgetAlloc( imui );
 	rootWidget->window		= window;
 	rootWidget->name		= window->name;
-	rootWidget->hash		= ImUiHashString( window->name );
+	rootWidget->hash		= imuiHashString( window->name );
 	rootWidget->minSize		= rect.size;
 	rootWidget->maxSize		= rect.size;
 	rootWidget->rect		= rect;
@@ -403,70 +403,70 @@ ImUiWindow* ImUiWindowBeginId( ImUiSurface* surface, const char* name, ImUiId id
 	return window;
 }
 
-void ImUiWindowEnd( ImUiWindow* window )
+void imuiWindowEnd( ImuiWindow* window )
 {
-	ImUiWidgetEnd( window->rootWidget );
-	ImUiWindowLayout( window );
+	imuiWidgetEnd( window->rootWidget );
+	imuiWindowLayout( window );
 }
 
-ImUiContext* ImUiWindowGetContext( const ImUiWindow* window )
+ImuiContext* imuiWindowGetContext( const ImuiWindow* window )
 {
 	return window->surface->context;
 }
 
-ImUiSurface* ImUiWindowGetSurface( const ImUiWindow* window )
+ImuiSurface* imuiWindowGetSurface( const ImuiWindow* window )
 {
 	return window->surface;
 }
 
-const ImUiInputState* ImUiWindowGetInput( const ImUiWindow* window )
+const ImuiInputState* imuiWindowGetInput( const ImuiWindow* window )
 {
 	return window->surface->input;
 }
 
-double ImUiWindowGetTime( const ImUiWindow* window )
+double imuiWindowGetTime( const ImuiWindow* window )
 {
 	return window->context->frame.timeInSeconds;
 }
 
-float ImUiWindowGetDpiScale( const ImUiWindow* window )
+float imuiWindowGetDpiScale( const ImuiWindow* window )
 {
 	return window->surface->dpiScale;
 }
 
-ImUiRect ImUiWindowGetRect( const ImUiWindow* window )
+ImuiRect imuiWindowGetRect( const ImuiWindow* window )
 {
 	return window->rect;
 }
 
-bool ImUiWindowHasFocus( const ImUiWindow* window )
+bool imuiWindowHasFocus( const ImuiWindow* window )
 {
 	return window->hasFocus;
 }
 
-void ImUiWindowSetFocus( ImUiWindow* window, float angleThreshold, bool wrap )
+void imuiWindowSetFocus( ImuiWindow* window, float angleThreshold, bool wrap )
 {
 	window->hasFocus			= true;
 	window->focusWrap			= wrap;
 	window->focusAngleThreshold	= 1.0f - angleThreshold;
 }
 
-bool ImUiWindowIsWidgetFocusLocked( const ImUiWindow* window )
+bool imuiWindowIsWidgetFocusLocked( const ImuiWindow* window )
 {
 	return window->focusLocked;
 }
 
-void ImUiWindowSetWidgetFocusLock( ImUiWindow* window, bool locked )
+void imuiWindowSetWidgetFocusLock( ImuiWindow* window, bool locked )
 {
 	window->focusLocked = locked;
 }
 
-void ImUiWindowClearWidgetFocus( ImUiWindow* window )
+void imuiWindowClearWidgetFocus( ImuiWindow* window )
 {
 	window->focusWidget = NULL;
 }
 
-const ImUiWidget* ImUiWindowGetFocusWidget( const ImUiWindow* window )
+const ImuiWidget* imuiWindowGetFocusWidget( const ImuiWindow* window )
 {
 	if( window->focusWidget )
 	{
@@ -476,37 +476,37 @@ const ImUiWidget* ImUiWindowGetFocusWidget( const ImUiWindow* window )
 	return window->lastFrameFocusWidget;
 }
 
-const ImUiWidget* ImUiWindowPeekFocusWidget( const ImUiWindow* window )
+const ImuiWidget* imuiWindowPeekFocusWidget( const ImuiWindow* window )
 {
 	return window->closesFocusWidget;
 }
 
-void* ImUiWindowAllocState( ImUiWindow* window, size_t size, ImUiId stateId )
+void* imuiWindowAllocState( ImuiWindow* window, size_t size, ImuiId stateId )
 {
-	return ImUiWidgetAllocState( window->rootWidget, size, stateId );
+	return imuiWidgetAllocState( window->rootWidget, size, stateId );
 }
 
-void* ImUiWindowAllocStateNew( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew )
+void* imuiWindowAllocStateNew( ImuiWindow* window, size_t size, ImuiId stateId, bool* isNew )
 {
-	return ImUiWidgetAllocStateNew( window->rootWidget, size, stateId, isNew );
+	return imuiWidgetAllocStateNew( window->rootWidget, size, stateId, isNew );
 }
 
-void* ImUiWindowAllocStateNewDestruct( ImUiWindow* window, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc )
+void* imuiWindowAllocStateNewDestruct( ImuiWindow* window, size_t size, ImuiId stateId, bool* isNew, ImuiStateDestructFunc destructFunc )
 {
-	return ImUiWidgetAllocStateNewDestruct( window->rootWidget, size, stateId, isNew, destructFunc );
+	return imuiWidgetAllocStateNewDestruct( window->rootWidget, size, stateId, isNew, destructFunc );
 }
 
-ImUiWidget* ImUiWindowGetFirstChild( const ImUiWindow* window )
+ImuiWidget* imuiWindowGetFirstChild( const ImuiWindow* window )
 {
 	return window->rootWidget->firstChild;
 }
 
-ImUiWidget* ImUiWindowGetLastChild( const ImUiWindow* window )
+ImuiWidget* imuiWindowGetLastChild( const ImuiWindow* window )
 {
 	return window->rootWidget->lastChild;
 }
 
-static void ImUiWindowLayout( ImUiWindow* window )
+static void imuiWindowLayout( ImuiWindow* window )
 {
 	const bool update = true; // !window->rootWidget->lastFrameWidget || (window->rootWidget->hash != window->rootWidget->lastFrameWidget->hash);
 
@@ -526,34 +526,34 @@ static void ImUiWindowLayout( ImUiWindow* window )
 
 		if( window->focusWidget )
 		{
-			window->focusPoint = ImUiRectGetCenter( window->focusWidget->rect );
+			window->focusPoint = imuiRectGetCenter( window->focusWidget->rect );
 		}
 		else
 		{
 			window->focusPoint = window->rect.pos;
 		}
 
-		const ImUiPos direction = ImUiInputGetDirection( window->surface->input );
+		const ImuiPos direction = imuiInputGetDirection( window->surface->input );
 		if( window->focusWidget && window->focusWrap && (direction.x != 0.0f || direction.y != 0.0f) )
 		{
-			const ImUiPos dirStart = window->focusPoint;
+			const ImuiPos dirStart = window->focusPoint;
 
-			ImUiPos dirEnd = ImUiInputGetDirection( window->surface->input );
+			ImuiPos dirEnd = imuiInputGetDirection( window->surface->input );
 			dirEnd.x *= -1.0f * window->diagonalLength;
 			dirEnd.y *= -1.0f * window->diagonalLength;
 
-			const ImUiPos windowTopLeft		= ImUiRectGetTopLeft( window->rect );
-			const ImUiPos windowTopRight	= ImUiRectGetTopRight( window->rect );
-			const ImUiPos windowBottomLeft	= ImUiRectGetBottomLeft( window->rect );
-			const ImUiPos windowBottomRight	= ImUiRectGetBottomRight( window->rect );
+			const ImuiPos windowTopLeft		= imuiRectGetTopLeft( window->rect );
+			const ImuiPos windowTopRight	= imuiRectGetTopRight( window->rect );
+			const ImuiPos windowBottomLeft	= imuiRectGetBottomLeft( window->rect );
+			const ImuiPos windowBottomRight	= imuiRectGetBottomRight( window->rect );
 
-			const ImUiPos lineStart[]		= { windowTopLeft, windowTopLeft, windowBottomRight, windowBottomRight };
-			const ImUiPos lineEnd[]			= { windowTopRight, windowBottomLeft, windowTopRight, windowBottomLeft };
+			const ImuiPos lineStart[]		= { windowTopLeft, windowTopLeft, windowBottomRight, windowBottomRight };
+			const ImuiPos lineEnd[]			= { windowTopRight, windowBottomLeft, windowTopRight, windowBottomLeft };
 
 			for( uintsize i = 0; i < IMUI_ARRAY_COUNT( lineStart ); ++i )
 			{
-				const ImUiPos rectStart = lineStart[ i ];
-				const ImUiPos rectEnd = lineEnd[ i ];
+				const ImuiPos rectStart = lineStart[ i ];
+				const ImuiPos rectEnd = lineEnd[ i ];
 
 				const float uA = ((rectEnd.x - rectStart.x) * (dirStart.y - rectStart.y) - (rectEnd.y - rectStart.y) * (dirStart.x - rectStart.x)) / ((rectEnd.y - rectStart.y) * (dirEnd.x - dirStart.x) - (rectEnd.x-rectStart.x) * (dirEnd.y - dirStart.y));
 				const float uB = ((dirEnd.x - dirStart.x) * (dirStart.y - rectStart.y) - (dirEnd.y - dirStart.y) * (dirStart.x - rectStart.x)) / ((rectEnd.y - rectStart.y) * (dirEnd.x - dirStart.x) - (rectEnd.x - rectStart.x) * (dirEnd.y - dirStart.y));
@@ -564,7 +564,7 @@ static void ImUiWindowLayout( ImUiWindow* window )
 					const float intersectionX = dirStart.x + (uA * (dirEnd.x-dirStart.x));
 					const float intersectionY = dirStart.y + (uA * (dirEnd.y-dirStart.y));
 
-					window->focusWrapPoint = ImUiPosCreate( intersectionX, intersectionY );
+					window->focusWrapPoint = imuiPosCreate( intersectionX, intersectionY );
 					break;
 				}
 			}
@@ -572,20 +572,20 @@ static void ImUiWindowLayout( ImUiWindow* window )
 	}
 
 	uintsize childIndex = 0u;
-	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
+	for( ImuiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
-		ImUiWidgetUpdateLayoutContext( widget, childIndex, window->surface->dpiScale, update );
+		imuiWidgetUpdateLayoutContext( widget, childIndex, window->surface->dpiScale, update );
 		childIndex++;
 	}
 
 	childIndex = 0u;
-	for( ImUiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
+	for( ImuiWidget* widget = window->rootWidget->firstChild; widget != NULL; widget = widget->nextSibling )
 	{
-		ImUiWidgetLayout( widget, &window->rootWidget->rect, window->surface->dpiScale, childIndex, update );
+		imuiWidgetLayout( widget, &window->rootWidget->rect, window->surface->dpiScale, childIndex, update );
 		childIndex++;
 	}
 
-	const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->surface->input );
+	const ImuiInputShortcut shortcut = imuiInputGetShortcut( window->surface->input );
 	if( window->surface->input->current.focusExecute )
 	{
 		if( window->closesFocusWidget )
@@ -597,22 +597,22 @@ static void ImUiWindowLayout( ImUiWindow* window )
 			window->focusWidget = window->wrapFocusWidget;
 		}
 	}
-	else if( shortcut == ImUiInputShortcut_FocusNext ||
-			 shortcut == ImUiInputShortcut_FocusPrevious )
+	else if( shortcut == ImuiInputShortcut_FocusNext ||
+			 shortcut == ImuiInputShortcut_FocusPrevious )
 	{
 		IMUI_ASSERT( !window->focusWidget || window->focusWidget != window->closesFocusIndexWidget );
 		window->focusWidget = window->closesFocusIndexWidget ? window->closesFocusIndexWidget : window->wrapFocusIndexWidget;
 	}
 }
 
-static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
+static ImuiWidget* imuiWidgetAlloc( ImuiContext* imui )
 {
 	if( imui->firstChunk == NULL ||
 		imui->firstChunk->usedCount == IMUI_DEFAULT_WIDGET_CHUNK_SIZE )
 	{
 		if( imui->firstFreeChunk )
 		{
-			ImUiWidgetChunk* newChunk = imui->firstFreeChunk;
+			ImuiWidgetChunk* newChunk = imui->firstFreeChunk;
 			IMUI_ASSERT( newChunk->usedCount == 0u );
 
 			imui->firstFreeChunk = newChunk->nextChunk;
@@ -622,7 +622,7 @@ static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 		}
 		else
 		{
-			ImUiWidgetChunk* newChunk = IMUI_MEMORY_NEW( &imui->allocator, ImUiWidgetChunk );
+			ImuiWidgetChunk* newChunk = IMUI_MEMORY_NEW( &imui->allocator, ImuiWidgetChunk );
 			if( newChunk == NULL )
 			{
 				return NULL;
@@ -635,7 +635,7 @@ static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 		}
 	}
 
-	ImUiWidget* widget = &imui->firstChunk->data[ imui->firstChunk->usedCount ];
+	ImuiWidget* widget = &imui->firstChunk->data[ imui->firstChunk->usedCount ];
 	imui->firstChunk->usedCount++;
 
 	*widget = IMUI_DEFAULT_WIDGET;
@@ -643,26 +643,26 @@ static ImUiWidget* ImUiWidgetAlloc( ImUiContext* imui )
 	return widget;
 }
 
-static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIndex, float dpiScale, bool update )
+static void imuiWidgetUpdateLayoutContext( ImuiWidget* widget, uintsize widgetIndex, float dpiScale, bool update )
 {
 	if( !update && widget->lastFrameWidget && widget->hash == widget->lastFrameWidget->hash )
 	{
 		uintsize childIndex = 0u;
-		for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+		for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 		{
-			ImUiWidgetUpdateLayoutContext( childWidget, childIndex, dpiScale, false );
+			imuiWidgetUpdateLayoutContext( childWidget, childIndex, dpiScale, false );
 			childIndex++;
 		}
 		return;
 	}
-	ImUiLayoutContext* context			= &widget->layoutContext;
-	ImUiLayoutContext* parentContext	= &widget->parent->layoutContext;
+	ImuiLayoutContext* context			= &widget->layoutContext;
+	ImuiLayoutContext* parentContext	= &widget->parent->layoutContext;
 
 	*context = IMUI_DEFAULT_LAYOUT_CONTEXT;
 
-	if( widget->layout == ImUiLayout_Grid )
+	if( widget->layout == ImuiLayout_Grid )
 	{
-		ImUiWidgetUpdateLayoutContextCheckGridContextSize( widget );
+		imuiWidgetUpdateLayoutContextCheckGridContextSize( widget );
 	}
 
 	parentContext->childrenStretch.width		+= widget->stretchH;
@@ -672,33 +672,33 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 
 	{
 		uintsize childIndex = 0u;
-		for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+		for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 		{
-			ImUiWidgetUpdateLayoutContext( childWidget, childIndex, dpiScale, true );
+			imuiWidgetUpdateLayoutContext( childWidget, childIndex, dpiScale, true );
 			childIndex++;
 		}
 	}
 
-	if( widget->layout == ImUiLayout_Grid )
+	if( widget->layout == ImuiLayout_Grid )
 	{
-		ImUiWidgetUpdateLayoutContextGrid( widget );
+		imuiWidgetUpdateLayoutContextGrid( widget );
 	}
 
-	const ImUiSize marginPaddingSize	= ImUiSizeScale( ImUiSizeAddSize( ImUiBorderGetMinSize( widget->margin ), ImUiBorderGetMinSize( widget->padding ) ), dpiScale );
-	context->minOuterSize				= ImUiSizeAddSize( ImUiSizeMax( ImUiSizeScale( ImUiSizeShrinkBorder( ImUiSizeCeil( widget->minSize ), widget->padding ), dpiScale ), context->childrenMinSize ), marginPaddingSize );
-	context->childrenStretch			= ImUiSizeMax( context->childrenStretch, ImUiSizeCreateOne() );
+	const ImuiSize marginPaddingSize	= imuiSizeScale( imuiSizeAddSize( imuiBorderGetMinSize( widget->margin ), imuiBorderGetMinSize( widget->padding ) ), dpiScale );
+	context->minOuterSize				= imuiSizeAddSize( imuiSizeMax( imuiSizeScale( imuiSizeShrinkBorder( imuiSizeCeil( widget->minSize ), widget->padding ), dpiScale ), context->childrenMinSize ), marginPaddingSize );
+	context->childrenStretch			= imuiSizeMax( context->childrenStretch, imuiSizeCreateOne() );
 
 	switch( widget->parent->layout )
 	{
-	case ImUiLayout_Stack:
+	case ImuiLayout_Stack:
 		parentContext->childrenMinSize.width	= IMUI_MAX( parentContext->childrenMinSize.width, context->minOuterSize.width );
 		parentContext->childrenMinSize.height	= IMUI_MAX( parentContext->childrenMinSize.height, context->minOuterSize.height );
 		break;
 
-	case ImUiLayout_Scroll:
+	case ImuiLayout_Scroll:
 		break;
 
-	case ImUiLayout_Horizontal:
+	case ImuiLayout_Horizontal:
 		if( widgetIndex > 0u )
 		{
 			parentContext->childrenMinSize.width	+= widget->parent->layoutData.horizintalVertical.spacing * dpiScale;
@@ -707,7 +707,7 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 		parentContext->childrenMinSize.height		= IMUI_MAX( parentContext->childrenMinSize.height, context->minOuterSize.height );
 		break;
 
-	case ImUiLayout_Vertical:
+	case ImuiLayout_Vertical:
 		if( widgetIndex > 0u )
 		{
 			parentContext->childrenMinSize.height	+= widget->parent->layoutData.horizintalVertical.spacing * dpiScale;
@@ -716,12 +716,12 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 		parentContext->childrenMinSize.height		+= context->minOuterSize.height;
 		break;
 
-	case ImUiLayout_Grid:
+	case ImuiLayout_Grid:
 		{
 			const uintsize colIndex				= widgetIndex % widget->parent->layoutData.grid.columnCount;
 			const uintsize rowIndex				= widgetIndex / widget->parent->layoutData.grid.columnCount;
-			ImUiLayoutGridElement* colElement	= &widget->parent->gridContext->columns[ colIndex ];
-			ImUiLayoutGridElement* rowElement	= &widget->parent->gridContext->rows[ rowIndex ];
+			ImuiLayoutGridElement* colElement	= &widget->parent->gridContext->columns[ colIndex ];
+			ImuiLayoutGridElement* rowElement	= &widget->parent->gridContext->rows[ rowIndex ];
 
 			colElement->childrenMinSize		= IMUI_MAX( colElement->childrenMinSize, context->minOuterSize.width );
 			rowElement->childrenMinSize		= IMUI_MAX( rowElement->childrenMinSize, context->minOuterSize.height );
@@ -733,9 +733,9 @@ static void ImUiWidgetUpdateLayoutContext( ImUiWidget* widget, uintsize widgetIn
 	}
 }
 
-static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widget )
+static void imuiWidgetUpdateLayoutContextCheckGridContextSize( ImuiWidget* widget )
 {
-	ImUiContext* imui = widget->window->context;
+	ImuiContext* imui = widget->window->context;
 
 	const uintsize colCount = widget->layoutData.grid.columnCount;
 	const uintsize rowCount = (widget->childCount + colCount - 1u) / colCount;
@@ -743,10 +743,10 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 		widget->gridContext->columnCount != colCount ||
 		widget->gridContext->rowCount != rowCount )
 	{
-		const uintsize contextSize = sizeof( ImUiLayoutGridContext ) + (sizeof( ImUiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
-		ImUiLayoutGridContext* gridContext = (ImUiLayoutGridContext*)ImUiMemoryAllocZero( &widget->window->context->allocator, contextSize );
+		const uintsize contextSize = sizeof( ImuiLayoutGridContext ) + (sizeof( ImuiLayoutGridElement ) * (widget->layoutData.grid.columnCount + rowCount));
+		ImuiLayoutGridContext* gridContext = (ImuiLayoutGridContext*)imuiMemoryAllocZero( &widget->window->context->allocator, contextSize );
 
-		gridContext->columns		= (ImUiLayoutGridElement*)&gridContext[ 1u ];
+		gridContext->columns		= (ImuiLayoutGridElement*)&gridContext[ 1u ];
 		gridContext->columnCount	= widget->layoutData.grid.columnCount;
 
 		gridContext->rows			= gridContext->columns + gridContext->columnCount;
@@ -767,7 +767,7 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 	}
 	else if( widget->gridContext->frameIndex != imui->frame.index )
 	{
-		ImUiLayoutGridContext* gridContext = widget->gridContext;
+		ImuiLayoutGridContext* gridContext = widget->gridContext;
 
 		if( gridContext->prevContext )
 		{
@@ -798,17 +798,17 @@ static void ImUiWidgetUpdateLayoutContextCheckGridContextSize( ImUiWidget* widge
 	}
 }
 
-static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
+static void imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget )
 {
-	ImUiLayoutContext* context = &widget->layoutContext;
-	ImUiLayoutGridContext* gridContext = widget->gridContext;
+	ImuiLayoutContext* context = &widget->layoutContext;
+	ImuiLayoutGridContext* gridContext = widget->gridContext;
 
 	context->childrenMaxStretch.width	= 0.0f;
 	context->childrenMaxStretch.height	= 0.0f;
 
 	for( uintsize col = 0u; col < gridContext->columnCount; ++col )
 	{
-		ImUiLayoutGridElement* colElement = &gridContext->columns[ col ];
+		ImuiLayoutGridElement* colElement = &gridContext->columns[ col ];
 
 		context->childrenMaxStretch.width += colElement->childrenMaxStretch;
 		context->childrenMinSize.width += colElement->childrenMinSize;
@@ -817,7 +817,7 @@ static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
 
 	for( uintsize row = 0u; row < gridContext->rowCount; ++row )
 	{
-		ImUiLayoutGridElement* rowElement = &gridContext->rows[ row ];
+		ImuiLayoutGridElement* rowElement = &gridContext->rows[ row ];
 
 		context->childrenMaxStretch.height += rowElement->childrenMaxStretch;
 		context->childrenMinSize.height += rowElement->childrenMinSize;
@@ -828,73 +828,73 @@ static void ImUiWidgetUpdateLayoutContextGrid( ImUiWidget* widget )
 	context->childrenMaxStretch.height	= IMUI_MAX( 1.0f, context->childrenMaxStretch.height );
 }
 
-static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update )
+static void imuiWidgetLayout( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update )
 {
 	if( !update && widget->lastFrameWidget && widget->hash == widget->lastFrameWidget->hash )
 	{
-		const ImUiRect innerRect = ImUiRectShrinkBorder( widget->rect, ImUiBorderScale( widget->padding, dpiScale ) );
-		for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+		const ImuiRect innerRect = imuiRectShrinkBorder( widget->rect, imuiBorderScale( widget->padding, dpiScale ) );
+		for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 		{
-			ImUiWidgetLayout( childWidget, &innerRect, dpiScale, widgetIndex, update );
+			imuiWidgetLayout( childWidget, &innerRect, dpiScale, widgetIndex, update );
 		}
 		return;
 	}
 
 	switch( widget->parent->layout )
 	{
-	case ImUiLayout_Stack:
-		ImUiWidgetLayoutStack( widget, parentInnerRect, dpiScale );
+	case ImuiLayout_Stack:
+		imuiWidgetLayoutStack( widget, parentInnerRect, dpiScale );
 		break;
 
-	case ImUiLayout_Scroll:
-		ImUiWidgetLayoutScroll( widget, parentInnerRect, dpiScale );
+	case ImuiLayout_Scroll:
+		imuiWidgetLayoutScroll( widget, parentInnerRect, dpiScale );
 		break;
 
-	case ImUiLayout_Horizontal:
-		ImUiWidgetLayoutHorizontal( widget, parentInnerRect, dpiScale );
+	case ImuiLayout_Horizontal:
+		imuiWidgetLayoutHorizontal( widget, parentInnerRect, dpiScale );
 		break;
 
-	case ImUiLayout_Vertical:
-		ImUiWidgetLayoutVertical( widget, parentInnerRect, dpiScale );
+	case ImuiLayout_Vertical:
+		imuiWidgetLayoutVertical( widget, parentInnerRect, dpiScale );
 		break;
 
-	case ImUiLayout_Grid:
-		ImUiWidgetLayoutGrid( widget, parentInnerRect, dpiScale, widgetIndex );
+	case ImuiLayout_Grid:
+		imuiWidgetLayoutGrid( widget, parentInnerRect, dpiScale, widgetIndex );
 		break;
 	}
 
-	widget->clipRect = ImUiRectIntersection( widget->rect, widget->parent->clipRect );
+	widget->clipRect = imuiRectIntersection( widget->rect, widget->parent->clipRect );
 
-	const ImUiRect innerRect = ImUiRectShrinkBorder( widget->rect, ImUiBorderScale( widget->padding, dpiScale ) );
-	if( widget->layout == ImUiLayout_Horizontal )
+	const ImuiRect innerRect = imuiRectShrinkBorder( widget->rect, imuiBorderScale( widget->padding, dpiScale ) );
+	if( widget->layout == ImuiLayout_Horizontal )
 	{
-		ImUiWidgetLayoutHorizontalCollectStrecher( widget, &innerRect, dpiScale );
+		imuiWidgetLayoutHorizontalCollectStrecher( widget, &innerRect, dpiScale );
 	}
-	else if( widget->layout == ImUiLayout_Vertical )
+	else if( widget->layout == ImuiLayout_Vertical )
 	{
-		ImUiWidgetLayoutVerticalCollectStrecher( widget, &innerRect, dpiScale );
+		imuiWidgetLayoutVerticalCollectStrecher( widget, &innerRect, dpiScale );
 	}
-	else if( widget->layout == ImUiLayout_Grid )
+	else if( widget->layout == ImuiLayout_Grid )
 	{
-		ImUiWidgetLayoutPrepareGrid( widget, &innerRect, dpiScale );
+		imuiWidgetLayoutPrepareGrid( widget, &innerRect, dpiScale );
 	}
 
 	uintsize childIndex = 0u;
-	for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+	for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 	{
-		ImUiWidgetLayout( childWidget, &innerRect, dpiScale, childIndex, true );
+		imuiWidgetLayout( childWidget, &innerRect, dpiScale, childIndex, true );
 		childIndex++;
 	}
 
-	ImUiWindow* window = widget->window;
+	ImuiWindow* window = widget->window;
 	if( widget->canHaveFocus && window->hasFocus && widget != window->focusWidget )
 	{
-		const ImUiPos focusDirection	= ImUiInputGetDirection( window->surface->input );
-		const ImUiPos center			= ImUiRectGetCenter( widget->rect );
+		const ImuiPos focusDirection	= imuiInputGetDirection( window->surface->input );
+		const ImuiPos center			= imuiRectGetCenter( widget->rect );
 
-		const ImUiPos distance			= ImUiPosSubPos( center, window->focusPoint );
+		const ImuiPos distance			= imuiPosSubPos( center, window->focusPoint );
 		const float distanceLength		= sqrtf( (distance.x * distance.x) + (distance.y * distance.y) );
-		const ImUiPos direction			= ImUiPosScale( distance, 1.0f / distanceLength );
+		const ImuiPos direction			= imuiPosScale( distance, 1.0f / distanceLength );
 
 		const float angleFactor			= (direction.x * focusDirection.x) + (direction.y * focusDirection.y);
 		const float distanceFactor		= 1.0f - (distanceLength / window->diagonalLength);
@@ -907,9 +907,9 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 		}
 		else
 		{
-			const ImUiPos wrapDistance		= ImUiPosSubPos( center, window->focusWrapPoint );
+			const ImuiPos wrapDistance		= imuiPosSubPos( center, window->focusWrapPoint );
 			const float wrapDistanceLength	= sqrtf( (wrapDistance.x * wrapDistance.x) + (wrapDistance.y * wrapDistance.y) );
-			const ImUiPos wrapDirection		= ImUiPosScale( wrapDistance, 1.0f / wrapDistanceLength );
+			const ImuiPos wrapDirection		= imuiPosScale( wrapDistance, 1.0f / wrapDistanceLength );
 
 			const float wrapAngleFactor		= (wrapDirection.x * focusDirection.x) + (wrapDirection.y * focusDirection.y);
 			const float wrapDistanceFactor	= 1.0f - (wrapDistanceLength / window->diagonalLength);
@@ -922,8 +922,8 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 			}
 		}
 
-		const ImUiInputShortcut shortcut = ImUiInputGetShortcut( window->surface->input );
-		if( shortcut == ImUiInputShortcut_FocusNext )
+		const ImuiInputShortcut shortcut = imuiInputGetShortcut( window->surface->input );
+		if( shortcut == ImuiInputShortcut_FocusNext )
 		{
 			const uint32 currentFocusIndex = window->focusWidget ? window->focusWidget->focusIndex : 0;
 			const uint32 closesFocusIndex = window->closesFocusIndexWidget ? window->closesFocusIndexWidget->focusIndex : 0xffffffffu;
@@ -938,7 +938,7 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 				window->wrapFocusIndexWidget = widget;
 			}
 		}
-		else if( shortcut == ImUiInputShortcut_FocusPrevious )
+		else if( shortcut == ImuiInputShortcut_FocusPrevious )
 		{
 			const uint32 currentFocusIndex = window->focusWidget ? window->focusWidget->focusIndex : 0;
 			const uint32 closesFocusIndex = window->closesFocusIndexWidget ? window->closesFocusIndexWidget->focusIndex : 0;
@@ -956,10 +956,10 @@ static void ImUiWidgetLayout( ImUiWidget* widget, const ImUiRect* parentInnerRec
 	}
 }
 
-static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
-	const ImUiLayoutContext* context = &widget->layoutContext;
-	ImUiLayoutGridContext* gridContext = widget->gridContext;
+	const ImuiLayoutContext* context = &widget->layoutContext;
+	ImuiLayoutGridContext* gridContext = widget->gridContext;
 
 	const float maxFreeWidth		= parentInnerRect->size.width - context->childrenMinSize.width;
 	const float maxFreeHeight		= parentInnerRect->size.height - context->childrenMinSize.height;
@@ -967,7 +967,7 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 	float pos = parentInnerRect->pos.x;
 	for( uintsize col = 0u; col < gridContext->columnCount; ++col )
 	{
-		ImUiLayoutGridElement* colElement = &gridContext->columns[ col ];
+		ImuiLayoutGridElement* colElement = &gridContext->columns[ col ];
 
 		colElement->pos = pos;
 
@@ -981,7 +981,7 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 	pos = parentInnerRect->pos.y;
 	for( uintsize row = 0u; row < gridContext->rowCount; ++row )
 	{
-		ImUiLayoutGridElement* rowElement = &gridContext->rows[ row ];
+		ImuiLayoutGridElement* rowElement = &gridContext->rows[ row ];
 
 		rowElement->pos = pos;
 
@@ -993,46 +993,46 @@ static void ImUiWidgetLayoutPrepareGrid( ImUiWidget* widget, const ImUiRect* par
 	}
 }
 
-static void ImUiWidgetLayoutStack( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void imuiWidgetLayoutStack( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
 	const float factorWidth			= IMUI_MIN( widget->stretchH, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretchV, widget->parent->layoutContext.childrenMaxStretch.height );
-	const ImUiSize minSize			= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
-	const ImUiSize maxSize			= parentInnerRect->size;
-	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
+	const ImuiSize minSize			= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
+	const ImuiSize maxSize			= parentInnerRect->size;
+	ImuiSize size					= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
-	ImUiPos pos;
-	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
-	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
+	ImuiPos pos;
+	pos.x = imuiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
+	pos.y = imuiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
 
-	ImUiWidgetLayoutRect( widget, pos, size );
+	imuiWidgetLayoutRect( widget, pos, size );
 }
 
-static void ImUiWidgetLayoutScroll( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void imuiWidgetLayoutScroll( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
 	const float factorWidth			= IMUI_MIN( widget->stretchH, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretchV, widget->parent->layoutContext.childrenMaxStretch.height );
-	const ImUiSize minSize			= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
-	const ImUiSize maxSize			= ImUiSizeMax( parentInnerRect->size, minSize );
-	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
+	const ImuiSize minSize			= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
+	const ImuiSize maxSize			= imuiSizeMax( parentInnerRect->size, minSize );
+	ImuiSize size					= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
-	ImUiPos pos;
-	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
-	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
+	ImuiPos pos;
+	pos.x = imuiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
+	pos.y = imuiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
 	pos.x -= widget->parent->layoutData.scroll.offset.x;
 	pos.y -= widget->parent->layoutData.scroll.offset.y;
 
-	ImUiWidgetLayoutRect( widget, pos, size );
+	imuiWidgetLayoutRect( widget, pos, size );
 }
 
-static void ImUiWidgetLayoutHorizontalCollectStrecher( ImUiWidget* widget, const ImUiRect* innerRect, float dpiScale )
+static void imuiWidgetLayoutHorizontalCollectStrecher( ImuiWidget* widget, const ImuiRect* innerRect, float dpiScale )
 {
-	ImUiLayoutContext* context = &widget->layoutContext;
+	ImuiLayoutContext* context = &widget->layoutContext;
 
 	const float extraChildrenWidth	= ((widget->childCount - 1) * widget->layoutData.horizintalVertical.spacing);
 	const float maxChildrenWidth	= innerRect->size.width - (extraChildrenWidth * dpiScale);
 
-	for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+	for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 	{
 		const float factorWidth = context->childrenStretch.width ? childWidget->stretchH / context->childrenStretch.width : 0.0f;
 
@@ -1052,28 +1052,28 @@ static void ImUiWidgetLayoutHorizontalCollectStrecher( ImUiWidget* widget, const
 	}
 }
 
-static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void imuiWidgetLayoutHorizontal( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
-	const ImUiLayoutContext* parentContext = &widget->parent->layoutContext;
+	const ImuiLayoutContext* parentContext = &widget->parent->layoutContext;
 
 	const float factorWidth			= parentContext->childrenStretch.width ? widget->stretchH / parentContext->childrenStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenMaxStretch.height ? widget->stretchV / parentContext->childrenMaxStretch.height : 0.0f;
-	ImUiSize minSize				= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
+	ImuiSize minSize				= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
 
 	const float extraChildrenWidth	= ((widget->parent->childCount - 1) * widget->parent->layoutData.horizintalVertical.spacing);
 	const float maxChildrenWidth	= parentInnerRect->size.width - (extraChildrenWidth * dpiScale);
 	const float factorStretchWidth	= parentContext->childrenStretchFinal.width ? widget->stretchH / parentContext->childrenStretchFinal.width : 0.0f;
 	const float freeWidth			= parentInnerRect->size.width - parentContext->childrenStretchMinSize.width;
-	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeScale( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), ImUiSizeCreate( minSize.width, parentInnerRect->size.height ) );
+	const ImuiSize maxSize			= imuiSizeMin( imuiSizeScale( imuiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), imuiSizeCreate( minSize.width, parentInnerRect->size.height ) );
 
 	if( widget->layoutContext.minOuterSize.width < maxChildrenWidth * factorWidth )
 	{
 		minSize.width				= IMUI_MAX( minSize.width, freeWidth * factorStretchWidth );
 	}
 
-	const ImUiSize size				= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
+	const ImuiSize size				= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
-	ImUiPos pos;
+	ImuiPos pos;
 	if( widget->prevSibling )
 	{
 		pos.x = widget->prevSibling->rect.pos.x + widget->prevSibling->rect.size.width + ((widget->prevSibling->margin.right + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.left) * dpiScale);
@@ -1082,19 +1082,19 @@ static void ImUiWidgetLayoutHorizontal( ImUiWidget* widget, const ImUiRect* pare
 	{
 		pos.x = parentInnerRect->pos.x + (widget->margin.left * dpiScale);
 	}
-	pos.y = ImUiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
+	pos.y = imuiWidgetLayoutPositionY( widget, parentInnerRect, size.height, dpiScale );
 
-	ImUiWidgetLayoutRect( widget, pos, size );
+	imuiWidgetLayoutRect( widget, pos, size );
 }
 
-static void ImUiWidgetLayoutVerticalCollectStrecher( ImUiWidget* widget, const ImUiRect* innerRect, float dpiScale )
+static void imuiWidgetLayoutVerticalCollectStrecher( ImuiWidget* widget, const ImuiRect* innerRect, float dpiScale )
 {
-	ImUiLayoutContext* context = &widget->layoutContext;
+	ImuiLayoutContext* context = &widget->layoutContext;
 
 	const float extraChildrenHeight	= ((widget->childCount - 1) * widget->layoutData.horizintalVertical.spacing);
 	const float maxChildrenHeight	= innerRect->size.height - (extraChildrenHeight * dpiScale);
 
-	for( ImUiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
+	for( ImuiWidget* childWidget = widget->firstChild; childWidget != NULL; childWidget = childWidget->nextSibling )
 	{
 		const float factorHeight = context->childrenStretch.height ? childWidget->stretchV / context->childrenStretch.height : 0.0f;
 
@@ -1114,29 +1114,29 @@ static void ImUiWidgetLayoutVerticalCollectStrecher( ImUiWidget* widget, const I
 	}
 }
 
-static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static void imuiWidgetLayoutVertical( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
-	const ImUiLayoutContext* parentContext = &widget->parent->layoutContext;
+	const ImuiLayoutContext* parentContext = &widget->parent->layoutContext;
 
 	const float factorWidth			= parentContext->childrenMaxStretch.width ? widget->stretchH / parentContext->childrenMaxStretch.width : 0.0f;
 	const float factorHeight		= parentContext->childrenStretch.height ? widget->stretchV / parentContext->childrenStretch.height : 0.0f;
-	ImUiSize minSize				= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
+	ImuiSize minSize				= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
 
 	const float extraChildrenHeight	= ((widget->parent->childCount - 1) * widget->parent->layoutData.horizintalVertical.spacing);
 	const float maxChildrenHeight	= parentInnerRect->size.height - (extraChildrenHeight * dpiScale);
 	const float factorStretchHeight	= parentContext->childrenStretchFinal.height ? widget->stretchV / parentContext->childrenStretchFinal.height : 0.0f;
 	const float freeHeight			= parentInnerRect->size.height - parentContext->childrenStretchMinSize.height;
-	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeScale( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), ImUiSizeCreate( parentInnerRect->size.width, minSize.height ) );
+	const ImuiSize maxSize			= imuiSizeMin( imuiSizeScale( imuiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), imuiSizeCreate( parentInnerRect->size.width, minSize.height ) );
 
 	if( widget->layoutContext.minOuterSize.height < maxChildrenHeight * factorHeight )
 	{
 		minSize.height				= IMUI_MAX( minSize.height, freeHeight * factorStretchHeight );
 	}
 
-	const ImUiSize size				= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
+	const ImuiSize size				= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
-	ImUiPos pos;
-	pos.x = ImUiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
+	ImuiPos pos;
+	pos.x = imuiWidgetLayoutPositionX( widget, parentInnerRect, size.width, dpiScale );
 	if( widget->prevSibling )
 	{
 		pos.y = widget->prevSibling->rect.pos.y + widget->prevSibling->rect.size.height + ((widget->prevSibling->margin.bottom + widget->parent->layoutData.horizintalVertical.spacing + widget->margin.top) * dpiScale);
@@ -1146,64 +1146,64 @@ static void ImUiWidgetLayoutVertical( ImUiWidget* widget, const ImUiRect* parent
 		pos.y = parentInnerRect->pos.y + (widget->margin.top * dpiScale);
 	}
 
-	ImUiWidgetLayoutRect( widget, pos, size );
+	imuiWidgetLayoutRect( widget, pos, size );
 }
 
-static void ImUiWidgetLayoutGrid( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale, uintsize widgetIndex )
+static void imuiWidgetLayoutGrid( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale, uintsize widgetIndex )
 {
 	const uintsize colIndex				= widgetIndex % widget->parent->layoutData.grid.columnCount;
 	const uintsize rowIndex				= widgetIndex / widget->parent->layoutData.grid.columnCount;
-	ImUiLayoutGridElement* colElement	= &widget->parent->gridContext->columns[ colIndex ];
-	ImUiLayoutGridElement* rowElement	= &widget->parent->gridContext->rows[ rowIndex ];
+	ImuiLayoutGridElement* colElement	= &widget->parent->gridContext->columns[ colIndex ];
+	ImuiLayoutGridElement* rowElement	= &widget->parent->gridContext->rows[ rowIndex ];
 
 	const float factorWidth			= colElement->childrenMaxStretch ? widget->stretchH / colElement->childrenMaxStretch : 0.0f;
 	const float factorHeight		= rowElement->childrenMaxStretch ? widget->stretchV / rowElement->childrenMaxStretch : 0.0f;
-	const ImUiSize minSize			= ImUiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
-	const ImUiSize maxSize			= ImUiSizeMin( ImUiSizeScale( ImUiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), ImUiSizeCreate( colElement->size, rowElement->size ) );
-	ImUiSize size					= ImUiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
-	const ImUiRect cellInnerRect	= ImUiRectCreate( colElement->pos, rowElement->pos, colElement->size, rowElement->size );
+	const ImuiSize minSize			= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
+	const ImuiSize maxSize			= imuiSizeMin( imuiSizeScale( imuiSizeExpandBorder( widget->maxSize, widget->margin ), dpiScale ), imuiSizeCreate( colElement->size, rowElement->size ) );
+	ImuiSize size					= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
+	const ImuiRect cellInnerRect	= imuiRectCreate( colElement->pos, rowElement->pos, colElement->size, rowElement->size );
 
-	ImUiPos pos;
-	pos.x = ImUiWidgetLayoutPositionX( widget, &cellInnerRect, size.width, dpiScale );
-	pos.y = ImUiWidgetLayoutPositionY( widget, &cellInnerRect, size.height, dpiScale );
+	ImuiPos pos;
+	pos.x = imuiWidgetLayoutPositionX( widget, &cellInnerRect, size.width, dpiScale );
+	pos.y = imuiWidgetLayoutPositionY( widget, &cellInnerRect, size.height, dpiScale );
 
-	ImUiWidgetLayoutRect( widget, pos, size );
+	imuiWidgetLayoutRect( widget, pos, size );
 }
 
-static ImUiSize ImUiWidgetLayoutMinSize( ImUiWidget* widget, const ImUiRect* parentInnerRect, float dpiScale )
+static ImuiSize imuiWidgetLayoutMinSize( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale )
 {
 	(void)parentInnerRect;
 	(void)dpiScale;
 
-	//const ImUiBorder margin		= ImUiBorderScale( widget->margin, dpiScale );
-	//const ImUiBorder padding	= ImUiBorderScale( widget->padding, dpiScale );
-	//const ImUiSize minChildren	= ImUiSizeExpandBorder( ImUiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding ), margin );
-	const ImUiSize minSize		= widget->layoutContext.minOuterSize; // ImUiSizeMax( , minChildren );
-	return minSize; // ImUiSizeMin( parentInnerRect->size, minSize );
+	//const imuiBorder margin		= imuiBorderScale( widget->margin, dpiScale );
+	//const imuiBorder padding	= imuiBorderScale( widget->padding, dpiScale );
+	//const imuiSize minChildren	= imuiSizeExpandBorder( imuiSizeExpandBorder( widget->layoutContext.childrenMinSize, padding ), margin );
+	const ImuiSize minSize		= widget->layoutContext.minOuterSize; // imuiSizeMax( , minChildren );
+	return minSize; // imuiSizeMin( parentInnerRect->size, minSize );
 }
 
-static ImUiSize ImUiWidgetCalculateSize( ImUiWidget* widget, ImUiSize minSize, ImUiSize maxSize, float factorWidth, float factorHeight, float dpiScale )
+static ImuiSize imuiWidgetCalculateSize( ImuiWidget* widget, ImuiSize minSize, ImuiSize maxSize, float factorWidth, float factorHeight, float dpiScale )
 {
-	ImUiSize size = ImUiSizeLerp2( minSize, maxSize, factorWidth, factorHeight );
-	size = ImUiSizeMax( size, minSize );
-	size = ImUiSizeShrinkBorder( size, ImUiBorderScale( widget->margin, dpiScale ) );
+	ImuiSize size = imuiSizeLerp2( minSize, maxSize, factorWidth, factorHeight );
+	size = imuiSizeMax( size, minSize );
+	size = imuiSizeShrinkBorder( size, imuiBorderScale( widget->margin, dpiScale ) );
 
 	return size;
 }
 
-static float ImUiWidgetLayoutPositionX( ImUiWidget* widget, const ImUiRect* parentInnerRect, float width, float dpiScale )
+static float imuiWidgetLayoutPositionX( ImuiWidget* widget, const ImuiRect* parentInnerRect, float width, float dpiScale )
 {
 	const float remainingWidth = parentInnerRect->size.width - (width + ((widget->margin.left + widget->margin.right) * dpiScale));
 	return parentInnerRect->pos.x + (widget->margin.left * dpiScale) + (remainingWidth * widget->alignH);
 }
 
-static float ImUiWidgetLayoutPositionY( ImUiWidget* widget, const ImUiRect* parentInnerRect, float height, float dpiScale )
+static float imuiWidgetLayoutPositionY( ImuiWidget* widget, const ImuiRect* parentInnerRect, float height, float dpiScale )
 {
 	const float remainingHeight = parentInnerRect->size.height - (height + ((widget->margin.top + widget->margin.bottom) * dpiScale));
 	return parentInnerRect->pos.y + (widget->margin.top * dpiScale) + (remainingHeight * widget->alignV);
 }
 
-static void ImUiWidgetLayoutRect( ImUiWidget* widget, ImUiPos pos, ImUiSize size )
+static void imuiWidgetLayoutRect( ImuiWidget* widget, ImuiPos pos, ImuiSize size )
 {
 	//widget->rect.pos = pos;
 	//widget->rect.size = size;
@@ -1217,23 +1217,23 @@ static void ImUiWidgetLayoutRect( ImUiWidget* widget, ImUiPos pos, ImUiSize size
 	IMUI_ASSERT( widget->rect.size.height >= 0.0f );
 }
 
-ImUiWidget* ImUiWidgetBegin( ImUiWindow* window )
+ImuiWidget* imuiWidgetBegin( ImuiWindow* window )
 {
 	IMUI_ASSERT( window );
-	return ImUiWidgetBeginId( window, IMUI_ID_DEFAULT );
+	return imuiWidgetBeginId( window, IMUI_ID_DEFAULT );
 }
 
-ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
+ImuiWidget* imuiWidgetBeginId( ImuiWindow* window, ImuiId id )
 {
 	IMUI_ASSERT( window );
 
-	ImUiWidget* widget = ImUiWidgetAlloc( window->context );
+	ImuiWidget* widget = imuiWidgetAlloc( window->context );
 	if( widget == NULL )
 	{
 		return NULL;
 	}
 
-	ImUiWidget* parent = window->currentWidget;
+	ImuiWidget* parent = window->currentWidget;
 	if( id == IMUI_ID_DEFAULT )
 	{
 		id = parent->id + 1;
@@ -1266,7 +1266,7 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 
 	if( window->lastFrameCurrentWidget )
 	{
-		ImUiWidget* lastFrameWidget = window->lastFrameCurrentWidget->firstChild;
+		ImuiWidget* lastFrameWidget = window->lastFrameCurrentWidget->firstChild;
 		for( ; lastFrameWidget != NULL; lastFrameWidget = lastFrameWidget->nextSibling )
 		{
 			if( lastFrameWidget->id != widget->id )
@@ -1298,32 +1298,32 @@ ImUiWidget* ImUiWidgetBeginId( ImUiWindow* window, ImUiId id )
 	return widget;
 }
 
-ImUiWidget* ImUiWidgetBeginNamed( ImUiWindow* window, const char* name )
+ImuiWidget* imuiWidgetBeginNamed( ImuiWindow* window, const char* name )
 {
-	const ImUiStringView nameView = ImUiStringViewCreate( name );
+	const ImuiStringView nameView = imuiStringViewCreate( name );
 
-	ImUiWidget* widget = ImUiWidgetBeginId( window, ImUiHashString( nameView ) );
+	ImuiWidget* widget = imuiWidgetBeginId( window, imuiHashString( nameView ) );
 	if( widget == NULL )
 	{
 		return NULL;
 	}
 
-	widget->name = ImUiStringPoolAdd( &window->context->strings, nameView );
+	widget->name = imuiStringPoolAdd( &window->context->strings, nameView );
 
 	return widget;
 }
 
-void ImUiWidgetEnd( ImUiWidget* widget )
+void imuiWidgetEnd( ImuiWidget* widget )
 {
 	IMUI_ASSERT( widget == widget->window->currentWidget );
 
-	widget->hash = ImUiHashMix( widget->hash, ImUiHashCreate( &widget->id, IMUI_OFFSETOF( ImUiWidget, rect ) - IMUI_OFFSETOF( ImUiWidget, id ) ) );
+	widget->hash = imuiHashMix( widget->hash, imuiHashCreate( &widget->id, IMUI_OFFSETOF( ImuiWidget, rect ) - IMUI_OFFSETOF( ImuiWidget, id ) ) );
 
 	//IMUI_ASSERT( !widget->lastFrameWidget || widget->hash == widget->lastFrameWidget->hash );
 
 	if( widget->parent )
 	{
-		widget->parent->hash = ImUiHashMix( widget->parent->hash, widget->hash );
+		widget->parent->hash = imuiHashMix( widget->parent->hash, widget->hash );
 	}
 
 	widget->window->currentWidget = widget->parent;
@@ -1334,75 +1334,75 @@ void ImUiWidgetEnd( ImUiWidget* widget )
 	}
 }
 
-ImUiContext* ImUiWidgetGetContext( const ImUiWidget* widget )
+ImuiContext* imuiWidgetGetContext( const ImuiWidget* widget )
 {
 	return widget->window->context;
 }
 
-ImUiSurface* ImUiWidgetGetSurface( const ImUiWidget* widget )
+ImuiSurface* imuiWidgetGetSurface( const ImuiWidget* widget )
 {
 	return widget->window->surface;
 }
 
-const ImUiInputState* ImUiWidgetGetInput( const ImUiWidget* widget )
+const ImuiInputState* imuiWidgetGetInput( const ImuiWidget* widget )
 {
 	return widget->window->surface->input;
 }
 
-ImUiWindow* ImUiWidgetGetWindow( const ImUiWidget* widget )
+ImuiWindow* imuiWidgetGetWindow( const ImuiWidget* widget )
 {
 	return widget->window;
 }
 
-ImUiWidget* ImUiWidgetGetParent( const ImUiWidget* widget )
+ImuiWidget* imuiWidgetGetParent( const ImuiWidget* widget )
 {
 	IMUI_ASSERT( widget->parent != widget->window->rootWidget );
 	return widget->parent;
 }
 
-ImUiWidget* ImUiWidgetGetFirstChild( const ImUiWidget* widget )
+ImuiWidget* imuiWidgetGetFirstChild( const ImuiWidget* widget )
 {
 	return widget->firstChild;
 }
 
-ImUiWidget* ImUiWidgetGetLastChild( const ImUiWidget* widget )
+ImuiWidget* imuiWidgetGetLastChild( const ImuiWidget* widget )
 {
 	return widget->lastChild;
 }
 
-ImUiWidget* ImUiWidgetGetPrevSibling( const ImUiWidget* widget )
+ImuiWidget* imuiWidgetGetPrevSibling( const ImuiWidget* widget )
 {
 	return widget->prevSibling;
 }
 
-ImUiWidget* ImUiWidgetGetNextSibling( const ImUiWidget* widget )
+ImuiWidget* imuiWidgetGetNextSibling( const ImuiWidget* widget )
 {
 	return widget->nextSibling;
 }
 
-double ImUiWidgetGetTime( const ImUiWidget* widget )
+double imuiWidgetGetTime( const ImuiWidget* widget )
 {
 	return widget->window->context->frame.timeInSeconds;
 }
 
-float ImUiWidgetGetDpiScale( const ImUiWidget* widget )
+float imuiWidgetGetDpiScale( const ImuiWidget* widget )
 {
 	return widget->window->surface->dpiScale;
 }
 
-void* ImUiWidgetAllocState( ImUiWidget* widget, size_t size, ImUiId stateId )
+void* imuiWidgetAllocState( ImuiWidget* widget, size_t size, ImuiId stateId )
 {
-	return ImUiWidgetAllocStateNewDestruct( widget, size, stateId, NULL, NULL );
+	return imuiWidgetAllocStateNewDestruct( widget, size, stateId, NULL, NULL );
 }
 
-void* ImUiWidgetAllocStateNew( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew )
+void* imuiWidgetAllocStateNew( ImuiWidget* widget, size_t size, ImuiId stateId, bool* isNew )
 {
-	return ImUiWidgetAllocStateNewDestruct( widget, size, stateId, isNew, NULL );
+	return imuiWidgetAllocStateNewDestruct( widget, size, stateId, isNew, NULL );
 }
 
-void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId stateId, bool* isNew, ImUiStateDestructFunc destructFunc )
+void* imuiWidgetAllocStateNewDestruct( ImuiWidget* widget, size_t size, ImuiId stateId, bool* isNew, ImuiStateDestructFunc destructFunc )
 {
-	for( ImUiWidgetState* state = widget->firstState; state; state = state->nextWidgetState )
+	for( ImuiWidgetState* state = widget->firstState; state; state = state->nextWidgetState )
 	{
 		if( state->id != stateId )
 		{
@@ -1420,10 +1420,10 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 		return state->data;
 	}
 
-	ImUiContext* imui = widget->window->context;
+	ImuiContext* imui = widget->window->context;
 	if( widget->lastFrameWidget )
 	{
-		for( ImUiWidgetState* lastFrameState = widget->lastFrameWidget->firstState; lastFrameState; lastFrameState = lastFrameState->nextWidgetState )
+		for( ImuiWidgetState* lastFrameState = widget->lastFrameWidget->firstState; lastFrameState; lastFrameState = lastFrameState->nextWidgetState )
 		{
 			if( lastFrameState->id != stateId )
 			{
@@ -1496,7 +1496,7 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 		}
 	}
 
-	ImUiWidgetState* newState = (ImUiWidgetState*)ImUiMemoryAllocZero( &widget->window->context->allocator, IMUI_OFFSETOF( ImUiWidgetState, data ) + size );
+	ImuiWidgetState* newState = (ImuiWidgetState*)imuiMemoryAllocZero( &widget->window->context->allocator, IMUI_OFFSETOF( ImuiWidgetState, data ) + size );
 	if( !newState )
 	{
 		return NULL;
@@ -1538,251 +1538,251 @@ void* ImUiWidgetAllocStateNewDestruct( ImUiWidget* widget, size_t size, ImUiId s
 	return newState->data;
 }
 
-ImUiLayout ImUiWidgetGetLayout( const ImUiWidget* widget )
+ImuiLayout imuiWidgetGetLayout( const ImuiWidget* widget )
 {
 	return widget->layout;
 }
 
-void ImUiWidgetSetLayoutStack( ImUiWidget* widget )
+void imuiWidgetSetLayoutStack( ImuiWidget* widget )
 {
-	widget->layout = ImUiLayout_Stack;
+	widget->layout = ImuiLayout_Stack;
 }
 
-void ImUiWidgetSetLayoutScroll( ImUiWidget* widget, float offsetX, float offsetY )
+void imuiWidgetSetLayoutScroll( ImuiWidget* widget, float offsetX, float offsetY )
 {
-	widget->layout						= ImUiLayout_Scroll;
-	widget->layoutData.scroll.offset	= ImUiPosCreate( offsetX, offsetY );
+	widget->layout						= ImuiLayout_Scroll;
+	widget->layoutData.scroll.offset	= imuiPosCreate( offsetX, offsetY );
 }
 
-void ImUiWidgetSetLayoutHorizontal( ImUiWidget* widget )
+void imuiWidgetSetLayoutHorizontal( ImuiWidget* widget )
 {
-	widget->layout									= ImUiLayout_Horizontal;
+	widget->layout									= ImuiLayout_Horizontal;
 	widget->layoutData.horizintalVertical.spacing	= 0.0f;
 }
 
-void ImUiWidgetSetLayoutHorizontalSpacing( ImUiWidget* widget, float spacing )
+void imuiWidgetSetLayoutHorizontalSpacing( ImuiWidget* widget, float spacing )
 {
 	IMUI_ASSERT( spacing >= 0.0f );
 
-	widget->layout									= ImUiLayout_Horizontal;
+	widget->layout									= ImuiLayout_Horizontal;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
 }
 
-void ImUiWidgetSetLayoutVertical( ImUiWidget* widget )
+void imuiWidgetSetLayoutVertical( ImuiWidget* widget )
 {
-	widget->layout									= ImUiLayout_Vertical;
+	widget->layout									= ImuiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= 0.0f;
 }
 
-void ImUiWidgetSetLayoutVerticalSpacing( ImUiWidget* widget, float spacing )
+void imuiWidgetSetLayoutVerticalSpacing( ImuiWidget* widget, float spacing )
 {
 	IMUI_ASSERT( spacing >= 0.0f );
 
-	widget->layout									= ImUiLayout_Vertical;
+	widget->layout									= ImuiLayout_Vertical;
 	widget->layoutData.horizintalVertical.spacing	= spacing;
 }
 
-void ImUiWidgetSetLayoutGrid( ImUiWidget* widget, uint32_t columnCount, float colSpacing, float rowSpacing )
+void imuiWidgetSetLayoutGrid( ImuiWidget* widget, uint32_t columnCount, float colSpacing, float rowSpacing )
 {
 	IMUI_ASSERT( columnCount > 0u );
 
-	widget->layout									= ImUiLayout_Grid;
+	widget->layout									= ImuiLayout_Grid;
 	widget->layoutData.grid.columnCount				= columnCount;
 	widget->layoutData.grid.colSpacing				= colSpacing;
 	widget->layoutData.grid.rowSpacing				= rowSpacing;
 }
 
-ImUiBorder ImUiWidgetGetMargin( const ImUiWidget* widget )
+ImuiBorder imuiWidgetGetMargin( const ImuiWidget* widget )
 {
 	return widget->margin;
 }
 
-void ImUiWidgetSetMargin( ImUiWidget* widget, ImUiBorder margin )
+void imuiWidgetSetMargin( ImuiWidget* widget, ImuiBorder margin )
 {
 	IMUI_ASSERT( margin.top >= 0.0f && margin.left >= 0.0f && margin.bottom >= 0.0f && margin.right >= 0.0f );
 	widget->margin = margin;
 }
 
-ImUiBorder ImUiWidgetGetPadding( const ImUiWidget* widget )
+ImuiBorder imuiWidgetGetPadding( const ImuiWidget* widget )
 {
 	return widget->padding;
 }
 
-void ImUiWidgetSetPadding( ImUiWidget* widget, ImUiBorder padding )
+void imuiWidgetSetPadding( ImuiWidget* widget, ImuiBorder padding )
 {
 	IMUI_ASSERT( padding.top >= 0.0f && padding.left >= 0.0f && padding.bottom >= 0.0f && padding.right >= 0.0f );
 	widget->padding = padding;
 }
 
-ImUiSize ImUiWidgetGetMinSize( const ImUiWidget* widget )
+ImuiSize imuiWidgetGetMinSize( const ImuiWidget* widget )
 {
 	return widget->minSize;
 }
 
-void ImUiWidgetSetMinWidth( ImUiWidget* widget, float value )
+void imuiWidgetSetMinWidth( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->minSize.width = value;
 }
 
-void ImUiWidgetSetMinHeight( ImUiWidget* widget, float value )
+void imuiWidgetSetMinHeight( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->minSize.height = value;
 }
 
-void ImUiWidgetSetMinSize( ImUiWidget* widget, ImUiSize size )
+void imuiWidgetSetMinSize( ImuiWidget* widget, ImuiSize size )
 {
 	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
 	widget->minSize = size;
 }
 
-void ImUiWidgetSetMinSizeFloat( ImUiWidget* widget, float width, float height )
+void imuiWidgetSetMinSizeFloat( ImuiWidget* widget, float width, float height )
 {
 	IMUI_ASSERT( width >= 0.0f && height >= 0.0f );
-	widget->minSize = ImUiSizeCreate( width, height );
+	widget->minSize = imuiSizeCreate( width, height );
 }
 
-ImUiSize ImUiWidgetGetMaxSize( const ImUiWidget* widget )
+ImuiSize imuiWidgetGetMaxSize( const ImuiWidget* widget )
 {
 	return widget->maxSize;
 }
 
-void ImUiWidgetSetMaxWidth( ImUiWidget* widget, float value )
+void imuiWidgetSetMaxWidth( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->maxSize.width = value;
 }
 
-void ImUiWidgetSetMaxHeight( ImUiWidget* widget, float value )
+void imuiWidgetSetMaxHeight( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->maxSize.height = value;
 }
 
-void ImUiWidgetSetMaxSize( ImUiWidget* widget, ImUiSize size )
+void imuiWidgetSetMaxSize( ImuiWidget* widget, ImuiSize size )
 {
 	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
 	widget->maxSize = size;
 }
 
-void ImUiWidgetSetMaxSizeFloat( ImUiWidget* widget, float width, float height )
+void imuiWidgetSetMaxSizeFloat( ImuiWidget* widget, float width, float height )
 {
 	IMUI_ASSERT( width >= 0.0f && height >= 0.0f );
-	widget->maxSize = ImUiSizeCreate( width, height );
+	widget->maxSize = imuiSizeCreate( width, height );
 }
 
-void ImUiWidgetSetFixedWidth( ImUiWidget* widget, float value )
+void imuiWidgetSetFixedWidth( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->minSize.width = value;
 	widget->maxSize.width = value;
 }
 
-void ImUiWidgetSetFixedHeight( ImUiWidget* widget, float value )
+void imuiWidgetSetFixedHeight( ImuiWidget* widget, float value )
 {
 	IMUI_ASSERT( value >= 0.0f );
 	widget->minSize.height = value;
 	widget->maxSize.height = value;
 }
 
-void ImUiWidgetSetFixedSize( ImUiWidget* widget, ImUiSize size )
+void imuiWidgetSetFixedSize( ImuiWidget* widget, ImuiSize size )
 {
 	IMUI_ASSERT( size.width >= 0.0f && size.height >= 0.0f );
 	widget->minSize = size;
 	widget->maxSize = size;
 }
 
-void ImUiWidgetSetFixedSizeFloat( ImUiWidget* widget, float width, float height )
+void imuiWidgetSetFixedSizeFloat( ImuiWidget* widget, float width, float height )
 {
 	IMUI_ASSERT( width >= 0.0f && height >= 0.0f );
-	widget->minSize = ImUiSizeCreate( width, height );
-	widget->maxSize = ImUiSizeCreate( width, height );
+	widget->minSize = imuiSizeCreate( width, height );
+	widget->maxSize = imuiSizeCreate( width, height );
 }
 
-void ImUiWidgetSetStretch( ImUiWidget* widget, float horizontal, float vertical )
+void imuiWidgetSetStretch( ImuiWidget* widget, float horizontal, float vertical )
 {
 	IMUI_ASSERT( horizontal >= 0.0f && vertical >= 0.0f );
 	widget->stretchH = horizontal;
 	widget->stretchV = vertical;
 }
 
-void ImUiWidgetSetStretchOne( ImUiWidget* widget )
+void imuiWidgetSetStretchOne( ImuiWidget* widget )
 {
 	widget->stretchH = 1.0f;
 	widget->stretchV = 1.0f;
 }
 
-float ImUiWidgetGetHStretch( const ImUiWidget* widget )
+float imuiWidgetGetHStretch( const ImuiWidget* widget )
 {
 	return widget->stretchH;
 }
 
-void ImUiWidgetSetHStretch( ImUiWidget* widget, float stretch )
+void imuiWidgetSetHStretch( ImuiWidget* widget, float stretch )
 {
 	IMUI_ASSERT( stretch >= 0.0f );
 	widget->stretchH = stretch;
 }
 
-float ImUiWidgetGetVStretch( const ImUiWidget* widget )
+float imuiWidgetGetVStretch( const ImuiWidget* widget )
 {
 	return widget->stretchV;
 }
 
-void ImUiWidgetSetVStretch( ImUiWidget* widget, float stretch )
+void imuiWidgetSetVStretch( ImuiWidget* widget, float stretch )
 {
 	IMUI_ASSERT( stretch >= 0.0f );
 	widget->stretchV = stretch;
 }
 
-void ImUiWidgetSetAlign( ImUiWidget* widget, float horizontal, float vertical )
+void imuiWidgetSetAlign( ImuiWidget* widget, float horizontal, float vertical )
 {
 	widget->alignH = horizontal;
 	widget->alignV = vertical;
 }
 
-float ImUiWidgetGetHAlign( const ImUiWidget* widget )
+float imuiWidgetGetHAlign( const ImuiWidget* widget )
 {
 	return widget->alignH;
 }
 
-void ImUiWidgetSetHAlign( ImUiWidget* widget, float align )
+void imuiWidgetSetHAlign( ImuiWidget* widget, float align )
 {
 	widget->alignH = align;
 }
 
-float ImUiWidgetGetVAlign( const ImUiWidget* widget )
+float imuiWidgetGetVAlign( const ImuiWidget* widget )
 {
 	return widget->alignV;
 }
 
-void ImUiWidgetSetVAlign( ImUiWidget* widget, float align )
+void imuiWidgetSetVAlign( ImuiWidget* widget, float align )
 {
 	widget->alignV = align;
 }
 
-bool ImUiWidgetHasFocus( const ImUiWidget* widget )
+bool imuiWidgetHasFocus( const ImuiWidget* widget )
 {
 	return widget->window->hasFocus && widget->window->focusWidget == widget;
 }
 
-void ImUiWidgetSetFocus( ImUiWidget* widget )
+void imuiWidgetSetFocus( ImuiWidget* widget )
 {
 	widget->window->focusWidget = widget;
 }
 
-bool ImUiWidgetGetCanHaveFocus( const ImUiWidget* widget )
+bool imuiWidgetGetCanHaveFocus( const ImuiWidget* widget )
 {
 	return widget->canHaveFocus;
 }
 
-void ImUiWidgetSetCanHaveFocus( ImUiWidget* widget )
+void imuiWidgetSetCanHaveFocus( ImuiWidget* widget )
 {
 	widget->canHaveFocus	= true;
 	widget->focusIndex		= ++widget->window->lastFocusIndex;
 }
 
-void ImUiWidgetSetCanHaveFocusIndex( ImUiWidget* widget, uint32_t focusIndex )
+void imuiWidgetSetCanHaveFocusIndex( ImuiWidget* widget, uint32_t focusIndex )
 {
 	widget->canHaveFocus			= true;
 	widget->focusIndex				= focusIndex;
@@ -1790,86 +1790,86 @@ void ImUiWidgetSetCanHaveFocusIndex( ImUiWidget* widget, uint32_t focusIndex )
 	widget->window->lastFocusIndex	= focusIndex;
 }
 
-ImUiPos ImUiWidgetGetPos( const ImUiWidget* widget )
+ImuiPos imuiWidgetGetPos( const ImuiWidget* widget )
 {
 	return widget->rect.pos;
 }
 
-float ImUiWidgetGetPosX( const ImUiWidget* widget )
+float imuiWidgetGetPosX( const ImuiWidget* widget )
 {
 	return widget->rect.pos.x;
 }
 
-float ImUiWidgetGetPosY( const ImUiWidget* widget )
+float imuiWidgetGetPosY( const ImuiWidget* widget )
 {
 	return widget->rect.pos.y;
 }
 
-ImUiSize ImUiWidgetGetSize( const ImUiWidget* widget )
+ImuiSize imuiWidgetGetSize( const ImuiWidget* widget )
 {
 	return widget->rect.size;
 }
 
-float ImUiWidgetGetSizeWidth( const ImUiWidget* widget )
+float imuiWidgetGetSizeWidth( const ImuiWidget* widget )
 {
 	return widget->rect.size.width;
 }
 
-float ImUiWidgetGetSizeHeight( const ImUiWidget* widget )
+float imuiWidgetGetSizeHeight( const ImuiWidget* widget )
 {
 	return widget->rect.size.height;
 }
 
-ImUiRect ImUiWidgetGetRect( const ImUiWidget* widget )
+ImuiRect imuiWidgetGetRect( const ImuiWidget* widget )
 {
 	return widget->rect;
 }
 
-ImUiSize ImUiWidgetGetInnerSize( const ImUiWidget* widget )
+ImuiSize imuiWidgetGetInnerSize( const ImuiWidget* widget )
 {
-	return ImUiSizeShrinkBorder( widget->rect.size, widget->padding );
+	return imuiSizeShrinkBorder( widget->rect.size, widget->padding );
 }
 
-ImUiRect ImUiWidgetGetInnerRect( const ImUiWidget* widget )
+ImuiRect imuiWidgetGetInnerRect( const ImuiWidget* widget )
 {
-	return ImUiRectShrinkBorder( widget->rect, widget->padding );
+	return imuiRectShrinkBorder( widget->rect, widget->padding );
 }
 
-void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
+void imuiWidgetGetInputState( ImuiWidget* widget, ImuiWidgetInputState* target )
 {
-	ImUiWindow* window = widget->window;
-	ImUiSurface* surface = window->surface;
-	ImUiContext* imui = window->context;
-	const ImUiInputState* input = surface->input;
+	ImuiWindow* window = widget->window;
+	ImuiSurface* surface = window->surface;
+	ImuiContext* imui = window->context;
+	const ImuiInputState* input = surface->input;
 
 	bool hasOverlappingWindow = false;
 	if( surface->windowCount > 1u )
 	{
 		for( uintsize i = 0; i < surface->windowCount && !hasOverlappingWindow; ++i )
 		{
-			const ImUiWindow* testWindow = &surface->windows[ i ];
+			const ImuiWindow* testWindow = &surface->windows[ i ];
 			if( testWindow == window ||
 				testWindow->zOrder < window->zOrder )
 			{
 				continue;
 			}
 
-			hasOverlappingWindow |= ImUiRectIncludesPos( testWindow->rect, input->current.mousePos );
+			hasOverlappingWindow |= imuiRectIncludesPos( testWindow->rect, input->current.mousePos );
 		}
 	}
 
-	target->relativeMousePos	= ImUiPosSubPos( input->current.mousePos, widget->rect.pos );
+	target->relativeMousePos	= imuiPosSubPos( input->current.mousePos, widget->rect.pos );
 
 	target->hasFocus			= window->focusWidget == widget;
-	target->isMouseOver			= !hasOverlappingWindow && ImUiRectIncludesPos( widget->clipRect, input->current.mousePos );
-	target->isMouseDown			= target->isMouseOver && input->current.mouseButtons[ ImUiInputMouseButton_Left ];
-	target->hasMousePressed		= target->isMouseOver && ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left );
-	target->hasMouseReleased	= target->isMouseOver && ImUiInputHasMouseButtonReleased( input, ImUiInputMouseButton_Left );
+	target->isMouseOver			= !hasOverlappingWindow && imuiRectIncludesPos( widget->clipRect, input->current.mousePos );
+	target->isMouseDown			= target->isMouseOver && input->current.mouseButtons[ ImuiInputMouseButton_Left ];
+	target->hasMousePressed		= target->isMouseOver && imuiInputHasMouseButtonPressed( input, ImuiInputMouseButton_Left );
+	target->hasMouseReleased	= target->isMouseOver && imuiInputHasMouseButtonReleased( input, ImuiInputMouseButton_Left );
 
-	if( (input->current.mouseButtons[ ImUiInputMouseButton_Left ] || input->last.mouseButtons[ ImUiInputMouseButton_Left ]) &&
+	if( (input->current.mouseButtons[ ImuiInputMouseButton_Left ] || input->last.mouseButtons[ ImuiInputMouseButton_Left ]) &&
 		widget->inputContext.lastFrameIndex >= imui->frame.index - 1u )
 	{
-		widget->inputContext.wasPressed	|= target->isMouseOver && ImUiInputHasMouseButtonPressed( input, ImUiInputMouseButton_Left );
+		widget->inputContext.wasPressed	|= target->isMouseOver && imuiInputHasMouseButtonPressed( input, ImuiInputMouseButton_Left );
 		widget->inputContext.wasMouseOver	|= target->isMouseOver;
 	}
 	else
@@ -1884,142 +1884,142 @@ void ImUiWidgetGetInputState( ImUiWidget* widget, ImUiWidgetInputState* target )
 	widget->inputContext.lastFrameIndex = imui->frame.index;
 }
 
-void ImUiWidgetDrawColor( ImUiWidget* widget, ImUiColor color )
+void imuiWidgetDrawColor( ImuiWidget* widget, ImuiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, IMUI_TEXTURE_HANDLE_INVALID );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Rect, IMUI_TEXTURE_HANDLE_INVALID );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->color = color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiWidgetDrawImage( ImUiWidget* widget, const ImUiImage* image )
+void imuiWidgetDrawImage( ImuiWidget* widget, const ImuiImage* image )
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureHandle );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
-	rectData->color		= ImUiColorCreateWhite();
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Rect, image->textureHandle );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
+	rectData->color		= imuiColorCreateWhite();
 	rectData->uv		= image->uv;
 }
 
-void ImUiWidgetDrawImageColor( ImUiWidget* widget, const ImUiImage* image, ImUiColor color )
+void imuiWidgetDrawImageColor( ImuiWidget* widget, const ImuiImage* image, ImuiColor color )
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Rect, image->textureHandle );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Rect, image->textureHandle );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->color		= color;
 	rectData->uv		= image->uv;
 }
 
-void ImUiWidgetDrawSkin( ImUiWidget* widget, const ImUiSkin* skin, ImUiColor color )
+void imuiWidgetDrawSkin( ImuiWidget* widget, const ImuiSkin* skin, ImuiColor color )
 {
 	IMUI_ASSERT( skin );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Skin, skin->textureHandle );
-	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Skin, skin->textureHandle );
+	struct ImuiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->border	= skin->border;
 	skinData->uv		= skin->uv;
-	skinData->texSize	= ImUiSizeCreateSkin( skin );
+	skinData->texSize	= imuiSizeCreateSkin( skin );
 	skinData->color		= color;
 }
 
-void ImUiWidgetDrawText( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color )
+void imuiWidgetDrawText( ImuiWidget* widget, ImuiTextLayout* layout, ImuiColor color )
 {
-	ImUiWidgetDrawTextSize( widget, layout, color, layout->font->fontSize );
+	imuiWidgetDrawTextSize( widget, layout, color, layout->font->fontSize );
 }
 
-void ImUiWidgetDrawTextSize( ImUiWidget* widget, ImUiTextLayout* layout, ImUiColor color, float size )
+void imuiWidgetDrawTextSize( ImuiWidget* widget, ImuiTextLayout* layout, ImuiColor color, float size )
 {
-	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_Text, layout );
-	struct ImUiDrawElementDataText* textData = &element->data.text;
+	ImuiDrawElement* element = imuiDrawPushElementText( widget, ImuiDrawElementType_Text, layout );
+	struct ImuiDrawElementDataText* textData = &element->data.text;
 	textData->color		= color;
 	textData->layout	= layout;
 	textData->size		= size * widget->window->surface->dpiScale;
 }
 
-void ImUiWidgetDrawPartialColor( ImUiWidget* widget, ImUiRect relativRect, ImUiColor color )
+void imuiWidgetDrawPartialColor( ImuiWidget* widget, ImuiRect relativRect, ImuiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, IMUI_TEXTURE_HANDLE_INVALID );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_RectPartial, IMUI_TEXTURE_HANDLE_INVALID );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
 	rectData->color			= color;
 	memset( &rectData->uv, 0, sizeof( rectData->uv ) );
 }
 
-void ImUiWidgetDrawPartialImage( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image )
+void imuiWidgetDrawPartialImage( ImuiWidget* widget, ImuiRect relativRect, const ImuiImage* image )
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureHandle );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_RectPartial, image->textureHandle );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
-	rectData->color			= ImUiColorCreateWhite();
+	rectData->color			= imuiColorCreateWhite();
 	rectData->uv			= image->uv;
 }
 
-void ImUiWidgetDrawPartialImageColor( ImUiWidget* widget, ImUiRect relativRect, const ImUiImage* image, ImUiColor color )
+void imuiWidgetDrawPartialImageColor( ImuiWidget* widget, ImuiRect relativRect, const ImuiImage* image, ImuiColor color )
 {
 	IMUI_ASSERT( image );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_RectPartial, image->textureHandle );
-	ImUiDrawElementDataRect* rectData = &element->data.rect;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_RectPartial, image->textureHandle );
+	ImuiDrawElementDataRect* rectData = &element->data.rect;
 	rectData->relativRect	= relativRect;
 	rectData->color			= color;
 	rectData->uv			= image->uv;
 }
 
-void ImUiWidgetDrawPartialSkin( ImUiWidget* widget, ImUiRect relativRect, const ImUiSkin* skin, ImUiColor color )
+void imuiWidgetDrawPartialSkin( ImuiWidget* widget, ImuiRect relativRect, const ImuiSkin* skin, ImuiColor color )
 {
 	IMUI_ASSERT( skin );
 
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_SkinPartial, skin->textureHandle );
-	struct ImUiDrawElementDataSkin* skinData = &element->data.skin;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_SkinPartial, skin->textureHandle );
+	struct ImuiDrawElementDataSkin* skinData = &element->data.skin;
 	skinData->relativRect	= relativRect;
 	skinData->border		= skin->border;
 	skinData->uv			= skin->uv;
-	skinData->texSize		= ImUiSizeCreateSkin( skin );
+	skinData->texSize		= imuiSizeCreateSkin( skin );
 	skinData->color			= color;
 }
 
-void ImUiWidgetDrawPositionText( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color )
+void imuiWidgetDrawPositionText( ImuiWidget* widget, ImuiPos offset, ImuiTextLayout* layout, ImuiColor color )
 {
-	ImUiWidgetDrawPositionTextSize( widget, offset, layout, color, layout->font->fontSize );
+	imuiWidgetDrawPositionTextSize( widget, offset, layout, color, layout->font->fontSize );
 }
 
-void ImUiWidgetDrawPositionTextSize( ImUiWidget* widget, ImUiPos offset, ImUiTextLayout* layout, ImUiColor color, float size )
+void imuiWidgetDrawPositionTextSize( ImuiWidget* widget, ImuiPos offset, ImuiTextLayout* layout, ImuiColor color, float size )
 {
-	ImUiDrawElement* element = ImUiDrawPushElementText( widget, ImUiDrawElementType_TextOffset, layout );
-	struct ImUiDrawElementDataText* textData = &element->data.text;
+	ImuiDrawElement* element = imuiDrawPushElementText( widget, ImuiDrawElementType_TextOffset, layout );
+	struct ImuiDrawElementDataText* textData = &element->data.text;
 	textData->relativPos	= offset;
 	textData->color			= color;
 	textData->layout		= layout;
 	textData->size			= size * widget->window->surface->dpiScale;
 }
 
-void ImUiWidgetDrawLine( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiColor color )
+void imuiWidgetDrawLine( ImuiWidget* widget, ImuiPos p0, ImuiPos p1, ImuiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Line, IMUI_TEXTURE_HANDLE_INVALID );
-	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Line, IMUI_TEXTURE_HANDLE_INVALID );
+	ImuiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
 	primitiveData->p0		= p0;
 	primitiveData->p1		= p1;
 	primitiveData->color	= color;
 }
 
-void ImUiWidgetDrawTriangle( ImUiWidget* widget, ImUiPos p0, ImUiPos p1, ImUiPos p2, ImUiColor color )
+void imuiWidgetDrawTriangle( ImuiWidget* widget, ImuiPos p0, ImuiPos p1, ImuiPos p2, ImuiColor color )
 {
-	ImUiDrawElement* element = ImUiDrawPushElement( widget, ImUiDrawElementType_Triangle, IMUI_TEXTURE_HANDLE_INVALID );
-	ImUiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
+	ImuiDrawElement* element = imuiDrawPushElement( widget, ImuiDrawElementType_Triangle, IMUI_TEXTURE_HANDLE_INVALID );
+	ImuiDrawElementDataPrimitive* primitiveData = &element->data.primitive;
 	primitiveData->p0		= p0;
 	primitiveData->p1		= p1;
 	primitiveData->p2		= p2;
 	primitiveData->color	= color;
 }
 
-static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* firstState )
+static void imuiWidgetStateFreeList( ImuiAllocator* allocator, ImuiWidgetState* firstState )
 {
-	ImUiWidgetState* state = firstState;
-	ImUiWidgetState* nextState = NULL;
+	ImuiWidgetState* state = firstState;
+	ImuiWidgetState* nextState = NULL;
 	while( state )
 	{
 		nextState = state->nextUsageState;
@@ -2028,19 +2028,19 @@ static void ImUiWidgetStateFreeList( ImUiAllocator* allocator, ImUiWidgetState* 
 		{
 			state->destructFunc( state );
 		}
-		ImUiMemoryFree( allocator, state );
+		imuiMemoryFree( allocator, state );
 		state = nextState;
 	}
 }
 
-static void ImUiLayoutGridContextFreeList( ImUiAllocator* allocator, ImUiLayoutGridContext* firstContext )
+static void imuiLayoutGridContextFreeList( ImuiAllocator* allocator, ImuiLayoutGridContext* firstContext )
 {
-	ImUiLayoutGridContext* gridContext = firstContext;
-	ImUiLayoutGridContext* nextGridContext = NULL;
+	ImuiLayoutGridContext* gridContext = firstContext;
+	ImuiLayoutGridContext* nextGridContext = NULL;
 	while( gridContext )
 	{
 		nextGridContext = gridContext->nextContext;
-		ImUiMemoryFree( allocator, gridContext );
+		imuiMemoryFree( allocator, gridContext );
 		gridContext = nextGridContext;
 	}
 }

@@ -4,53 +4,53 @@
 
 #include "imui_helpers.h"
 
-typedef struct ImUiTextLayoutCache
+typedef struct ImuiTextLayoutCache
 {
-	ImUiAllocator*			allocator;
+	ImuiAllocator*			allocator;
 
-	ImUiHashMap				layoutMap;
+	ImuiHashMap				layoutMap;
 
-	ImUiTextLayout*			firstLayout;
-	ImUiTextLayout*			firstUnusedLayout;
+	ImuiTextLayout*			firstLayout;
+	ImuiTextLayout*			firstUnusedLayout;
 
 	uint32					frameIndex;
-} ImUiTextLayoutCache;
+} ImuiTextLayoutCache;
 
-typedef struct ImUiTextGlyph
+typedef struct ImuiTextGlyph
 {
 	uint32					charIndex;
 	uint32					codepoint;
-	ImUiPos					pos;
-	ImUiSize				size;
-	ImUiTexCoord			uv;
-} ImUiTextGlyph;
+	ImuiPos					pos;
+	ImuiSize				size;
+	ImuiTexCoord			uv;
+} ImuiTextGlyph;
 
-typedef struct ImUiTextLayoutParameters
+typedef struct ImuiTextLayoutParameters
 {
-	ImUiFont*				font;
-	ImUiStringView			text;
-} ImUiTextLayoutParameters;
+	ImuiFont*				font;
+	ImuiStringView			text;
+} ImuiTextLayoutParameters;
 
-struct ImUiTextLayout
+struct ImuiTextLayout
 {
-	ImUiFont*				font;
-	ImUiStringView			text;
+	ImuiFont*				font;
+	ImuiStringView			text;
 
-	ImUiTextLayout*			prevLayout;
-	ImUiTextLayout*			nextLayout;
+	ImuiTextLayout*			prevLayout;
+	ImuiTextLayout*			nextLayout;
 
-	const ImUiTextGlyph*	glyphs;
+	const ImuiTextGlyph*	glyphs;
 	uintsize				glyphCount;
 
 	uint32					frameIndex;
 
-	ImUiSize				size;
+	ImuiSize				size;
 };
 
-bool						ImUiTextLayoutCacheConstruct( ImUiTextLayoutCache* cache, ImUiAllocator* allocator );
-void						ImUiTextLayoutCacheDestruct( ImUiTextLayoutCache* cache );
+bool						imuiTextLayoutCacheConstruct( ImuiTextLayoutCache* cache, ImuiAllocator* allocator );
+void						imuiTextLayoutCacheDestruct( ImuiTextLayoutCache* cache );
 
-void						ImUiTextLayoutCacheEndFrame( ImUiTextLayoutCache* cachce );
+void						imuiTextLayoutCacheEndFrame( ImuiTextLayoutCache* cachce );
 
-ImUiTextLayout*				ImUiTextLayoutCacheCreateLayout( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
-ImUiSize					ImUiTextLayoutCacheMesureTextSize( ImUiTextLayoutCache* cache, const ImUiTextLayoutParameters* parameters );
+ImuiTextLayout*				imuiTextLayoutCacheCreateLayout( ImuiTextLayoutCache* cache, const ImuiTextLayoutParameters* parameters );
+ImuiSize					imuiTextLayoutCacheMesureTextSize( ImuiTextLayoutCache* cache, const ImuiTextLayoutParameters* parameters );

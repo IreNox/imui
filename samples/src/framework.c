@@ -26,14 +26,13 @@
 
 #include "../../src/imui_types.h"
 
-struct ImUiFrameworkTexture
+struct ImuiFrameworkTexture
 {
 	GLuint						handle;
 	bool						isFont;
 };
 
-typedef struct ImUiFrameworkContext ImUiFrameworkContext;
-struct ImUiFrameworkContext
+typedef struct ImuiFrameworkContext
 {
 	SDL_Window*					window;
 	int							windowWidth;
@@ -53,32 +52,32 @@ struct ImUiFrameworkContext
 	GLuint						vertexBuffer;
 	GLuint						elementBuffer;
 
-	ImUiFrameworkTexture		whiteTexture;
+	ImuiFrameworkTexture		whiteTexture;
 
 	float						dpiScale;
-	ImUiContext*				imui;
-	const ImUiInputState*		inputState;
-};
+	ImuiContext*				imui;
+	const ImuiInputState*		inputState;
+} ImuiFrameworkContext;
 
-static ImUiFrameworkContext s_context;
+static ImuiFrameworkContext s_context;
 static bool s_running;
 
-static ImUiInputKey s_inputKeyMapping[ SDL_NUM_SCANCODES ];
-static const ImUiInputMouseButton s_inputMouseButtonMapping[] =
+static ImuiInputKey s_inputKeyMapping[ SDL_NUM_SCANCODES ];
+static const ImuiInputMouseButton s_inputMouseButtonMapping[] =
 {
-	ImUiInputMouseButton_MAX,		// Invalid 0
-	ImUiInputMouseButton_Left,		// SDL_BUTTON_LEFT     1
-	ImUiInputMouseButton_Middle,	// SDL_BUTTON_MIDDLE   2
-	ImUiInputMouseButton_Right,		// SDL_BUTTON_RIGHT    3
-	ImUiInputMouseButton_X1,		// SDL_BUTTON_X1       4
-	ImUiInputMouseButton_X2			// SDL_BUTTON_X2       5
+	ImuiInputMouseButton_MAX,		// Invalid 0
+	ImuiInputMouseButton_Left,		// SDL_BUTTON_LEFT     1
+	ImuiInputMouseButton_Middle,	// SDL_BUTTON_MIDDLE   2
+	ImuiInputMouseButton_Right,		// SDL_BUTTON_RIGHT    3
+	ImuiInputMouseButton_X1,		// SDL_BUTTON_X1       4
+	ImuiInputMouseButton_X2			// SDL_BUTTON_X2       5
 };
 
 static void ImFrameworkLoop();
-static bool ImFrameworkRendererInitialize( ImUiFrameworkContext* context );
+static bool ImFrameworkRendererInitialize( ImuiFrameworkContext* context );
 static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShaderCode );
-static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context );
-static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface* surface );
+static void ImFrameworkRendererShutdown( ImuiFrameworkContext* context );
+static void ImFrameworkRendererDraw( ImuiFrameworkContext* context, ImuiSurface* surface );
 
 int main( int argc, char* argv[] )
 {
@@ -103,113 +102,113 @@ int main( int argc, char* argv[] )
 	}
 
 
-	for( size_t i = 0u; i < ImUiInputKey_MAX; ++i )
+	for( size_t i = 0u; i < ImuiInputKey_MAX; ++i )
 	{
-		const ImUiInputKey keyValue = (ImUiInputKey)i;
+		const ImuiInputKey keyValue = (ImuiInputKey)i;
 
 		SDL_Scancode scanCode = SDL_SCANCODE_UNKNOWN;
 		switch( keyValue )
 		{
-		case ImUiInputKey_None:				scanCode = SDL_SCANCODE_UNKNOWN; break;
-		case ImUiInputKey_A:				scanCode = SDL_SCANCODE_A; break;
-		case ImUiInputKey_B:				scanCode = SDL_SCANCODE_B; break;
-		case ImUiInputKey_C:				scanCode = SDL_SCANCODE_C; break;
-		case ImUiInputKey_D:				scanCode = SDL_SCANCODE_D; break;
-		case ImUiInputKey_E:				scanCode = SDL_SCANCODE_E; break;
-		case ImUiInputKey_F:				scanCode = SDL_SCANCODE_F; break;
-		case ImUiInputKey_G:				scanCode = SDL_SCANCODE_G; break;
-		case ImUiInputKey_H:				scanCode = SDL_SCANCODE_H; break;
-		case ImUiInputKey_I:				scanCode = SDL_SCANCODE_I; break;
-		case ImUiInputKey_J:				scanCode = SDL_SCANCODE_J; break;
-		case ImUiInputKey_K:				scanCode = SDL_SCANCODE_K; break;
-		case ImUiInputKey_L:				scanCode = SDL_SCANCODE_L; break;
-		case ImUiInputKey_M:				scanCode = SDL_SCANCODE_M; break;
-		case ImUiInputKey_N:				scanCode = SDL_SCANCODE_N; break;
-		case ImUiInputKey_O:				scanCode = SDL_SCANCODE_O; break;
-		case ImUiInputKey_P:				scanCode = SDL_SCANCODE_P; break;
-		case ImUiInputKey_Q:				scanCode = SDL_SCANCODE_Q; break;
-		case ImUiInputKey_R:				scanCode = SDL_SCANCODE_R; break;
-		case ImUiInputKey_S:				scanCode = SDL_SCANCODE_S; break;
-		case ImUiInputKey_T:				scanCode = SDL_SCANCODE_T; break;
-		case ImUiInputKey_U:				scanCode = SDL_SCANCODE_U; break;
-		case ImUiInputKey_V:				scanCode = SDL_SCANCODE_V; break;
-		case ImUiInputKey_W:				scanCode = SDL_SCANCODE_W; break;
-		case ImUiInputKey_X:				scanCode = SDL_SCANCODE_X; break;
-		case ImUiInputKey_Y:				scanCode = SDL_SCANCODE_Y; break;
-		case ImUiInputKey_Z:				scanCode = SDL_SCANCODE_Z; break;
-		case ImUiInputKey_1:				scanCode = SDL_SCANCODE_1; break;
-		case ImUiInputKey_2:				scanCode = SDL_SCANCODE_2; break;
-		case ImUiInputKey_3:				scanCode = SDL_SCANCODE_3; break;
-		case ImUiInputKey_4:				scanCode = SDL_SCANCODE_4; break;
-		case ImUiInputKey_5:				scanCode = SDL_SCANCODE_5; break;
-		case ImUiInputKey_6:				scanCode = SDL_SCANCODE_6; break;
-		case ImUiInputKey_7:				scanCode = SDL_SCANCODE_7; break;
-		case ImUiInputKey_8:				scanCode = SDL_SCANCODE_8; break;
-		case ImUiInputKey_9:				scanCode = SDL_SCANCODE_9; break;
-		case ImUiInputKey_0:				scanCode = SDL_SCANCODE_0; break;
-		case ImUiInputKey_Enter:			scanCode = SDL_SCANCODE_RETURN; break;
-		case ImUiInputKey_Escape:			scanCode = SDL_SCANCODE_ESCAPE; break;
-		case ImUiInputKey_Backspace:		scanCode = SDL_SCANCODE_BACKSPACE; break;
-		case ImUiInputKey_Tab:				scanCode = SDL_SCANCODE_TAB; break;
-		case ImUiInputKey_Space:			scanCode = SDL_SCANCODE_SPACE; break;
-		case ImUiInputKey_LeftShift:		scanCode = SDL_SCANCODE_LSHIFT; break;
-		case ImUiInputKey_RightShift:		scanCode = SDL_SCANCODE_RSHIFT; break;
-		case ImUiInputKey_LeftControl:		scanCode = SDL_SCANCODE_LCTRL; break;
-		case ImUiInputKey_RightControl:		scanCode = SDL_SCANCODE_RCTRL; break;
-		case ImUiInputKey_LeftAlt:			scanCode = SDL_SCANCODE_LALT; break;
-		case ImUiInputKey_RightAlt:			scanCode = SDL_SCANCODE_RALT; break;
-		case ImUiInputKey_Minus:			scanCode = SDL_SCANCODE_MINUS; break;
-		case ImUiInputKey_Equals:			scanCode = SDL_SCANCODE_EQUALS; break;
-		case ImUiInputKey_LeftBracket:		scanCode = SDL_SCANCODE_LEFTBRACKET; break;
-		case ImUiInputKey_RightBracket:		scanCode = SDL_SCANCODE_RIGHTBRACKET; break;
-		case ImUiInputKey_Backslash:		scanCode = SDL_SCANCODE_BACKSLASH; break;
-		case ImUiInputKey_Semicolon:		scanCode = SDL_SCANCODE_SEMICOLON; break;
-		case ImUiInputKey_Apostrophe:		scanCode = SDL_SCANCODE_APOSTROPHE; break;
-		case ImUiInputKey_Grave:			scanCode = SDL_SCANCODE_GRAVE; break;
-		case ImUiInputKey_Comma:			scanCode = SDL_SCANCODE_COMMA; break;
-		case ImUiInputKey_Period:			scanCode = SDL_SCANCODE_PERIOD; break;
-		case ImUiInputKey_Slash:			scanCode = SDL_SCANCODE_SLASH; break;
-		case ImUiInputKey_F1:				scanCode = SDL_SCANCODE_F1; break;
-		case ImUiInputKey_F2:				scanCode = SDL_SCANCODE_F2; break;
-		case ImUiInputKey_F3:				scanCode = SDL_SCANCODE_F3; break;
-		case ImUiInputKey_F4:				scanCode = SDL_SCANCODE_F4; break;
-		case ImUiInputKey_F5:				scanCode = SDL_SCANCODE_F5; break;
-		case ImUiInputKey_F6:				scanCode = SDL_SCANCODE_F6; break;
-		case ImUiInputKey_F7:				scanCode = SDL_SCANCODE_F7; break;
-		case ImUiInputKey_F8:				scanCode = SDL_SCANCODE_F8; break;
-		case ImUiInputKey_F9:				scanCode = SDL_SCANCODE_F9; break;
-		case ImUiInputKey_F10:				scanCode = SDL_SCANCODE_F10; break;
-		case ImUiInputKey_F11:				scanCode = SDL_SCANCODE_F11; break;
-		case ImUiInputKey_F12:				scanCode = SDL_SCANCODE_F12; break;
-		case ImUiInputKey_Print:			scanCode = SDL_SCANCODE_PRINTSCREEN; break;
-		case ImUiInputKey_Pause:			scanCode = SDL_SCANCODE_PAUSE; break;
-		case ImUiInputKey_Insert:			scanCode = SDL_SCANCODE_INSERT; break;
-		case ImUiInputKey_Delete:			scanCode = SDL_SCANCODE_DELETE; break;
-		case ImUiInputKey_Home:				scanCode = SDL_SCANCODE_HOME; break;
-		case ImUiInputKey_End:				scanCode = SDL_SCANCODE_END; break;
-		case ImUiInputKey_PageUp:			scanCode = SDL_SCANCODE_PAGEUP; break;
-		case ImUiInputKey_PageDown:			scanCode = SDL_SCANCODE_PAGEDOWN; break;
-		case ImUiInputKey_Up:				scanCode = SDL_SCANCODE_UP; break;
-		case ImUiInputKey_Left:				scanCode = SDL_SCANCODE_LEFT; break;
-		case ImUiInputKey_Down:				scanCode = SDL_SCANCODE_DOWN; break;
-		case ImUiInputKey_Right:			scanCode = SDL_SCANCODE_RIGHT; break;
-		case ImUiInputKey_Numpad_Divide:	scanCode = SDL_SCANCODE_KP_DIVIDE; break;
-		case ImUiInputKey_Numpad_Multiply:	scanCode = SDL_SCANCODE_KP_MULTIPLY; break;
-		case ImUiInputKey_Numpad_Minus:		scanCode = SDL_SCANCODE_KP_MINUS; break;
-		case ImUiInputKey_Numpad_Plus:		scanCode = SDL_SCANCODE_KP_PLUS; break;
-		case ImUiInputKey_Numpad_Enter:		scanCode = SDL_SCANCODE_KP_ENTER; break;
-		case ImUiInputKey_Numpad_1:			scanCode = SDL_SCANCODE_KP_1; break;
-		case ImUiInputKey_Numpad_2:			scanCode = SDL_SCANCODE_KP_2; break;
-		case ImUiInputKey_Numpad_3:			scanCode = SDL_SCANCODE_KP_3; break;
-		case ImUiInputKey_Numpad_4:			scanCode = SDL_SCANCODE_KP_4; break;
-		case ImUiInputKey_Numpad_5:			scanCode = SDL_SCANCODE_KP_5; break;
-		case ImUiInputKey_Numpad_6:			scanCode = SDL_SCANCODE_KP_6; break;
-		case ImUiInputKey_Numpad_7:			scanCode = SDL_SCANCODE_KP_7; break;
-		case ImUiInputKey_Numpad_8:			scanCode = SDL_SCANCODE_KP_8; break;
-		case ImUiInputKey_Numpad_9:			scanCode = SDL_SCANCODE_KP_9; break;
-		case ImUiInputKey_Numpad_0:			scanCode = SDL_SCANCODE_KP_0; break;
-		case ImUiInputKey_Numpad_Period:	scanCode = SDL_SCANCODE_KP_PERIOD; break;
-		case ImUiInputKey_MAX:				break;
+		case ImuiInputKey_None:				scanCode = SDL_SCANCODE_UNKNOWN; break;
+		case ImuiInputKey_A:				scanCode = SDL_SCANCODE_A; break;
+		case ImuiInputKey_B:				scanCode = SDL_SCANCODE_B; break;
+		case ImuiInputKey_C:				scanCode = SDL_SCANCODE_C; break;
+		case ImuiInputKey_D:				scanCode = SDL_SCANCODE_D; break;
+		case ImuiInputKey_E:				scanCode = SDL_SCANCODE_E; break;
+		case ImuiInputKey_F:				scanCode = SDL_SCANCODE_F; break;
+		case ImuiInputKey_G:				scanCode = SDL_SCANCODE_G; break;
+		case ImuiInputKey_H:				scanCode = SDL_SCANCODE_H; break;
+		case ImuiInputKey_I:				scanCode = SDL_SCANCODE_I; break;
+		case ImuiInputKey_J:				scanCode = SDL_SCANCODE_J; break;
+		case ImuiInputKey_K:				scanCode = SDL_SCANCODE_K; break;
+		case ImuiInputKey_L:				scanCode = SDL_SCANCODE_L; break;
+		case ImuiInputKey_M:				scanCode = SDL_SCANCODE_M; break;
+		case ImuiInputKey_N:				scanCode = SDL_SCANCODE_N; break;
+		case ImuiInputKey_O:				scanCode = SDL_SCANCODE_O; break;
+		case ImuiInputKey_P:				scanCode = SDL_SCANCODE_P; break;
+		case ImuiInputKey_Q:				scanCode = SDL_SCANCODE_Q; break;
+		case ImuiInputKey_R:				scanCode = SDL_SCANCODE_R; break;
+		case ImuiInputKey_S:				scanCode = SDL_SCANCODE_S; break;
+		case ImuiInputKey_T:				scanCode = SDL_SCANCODE_T; break;
+		case ImuiInputKey_U:				scanCode = SDL_SCANCODE_U; break;
+		case ImuiInputKey_V:				scanCode = SDL_SCANCODE_V; break;
+		case ImuiInputKey_W:				scanCode = SDL_SCANCODE_W; break;
+		case ImuiInputKey_X:				scanCode = SDL_SCANCODE_X; break;
+		case ImuiInputKey_Y:				scanCode = SDL_SCANCODE_Y; break;
+		case ImuiInputKey_Z:				scanCode = SDL_SCANCODE_Z; break;
+		case ImuiInputKey_1:				scanCode = SDL_SCANCODE_1; break;
+		case ImuiInputKey_2:				scanCode = SDL_SCANCODE_2; break;
+		case ImuiInputKey_3:				scanCode = SDL_SCANCODE_3; break;
+		case ImuiInputKey_4:				scanCode = SDL_SCANCODE_4; break;
+		case ImuiInputKey_5:				scanCode = SDL_SCANCODE_5; break;
+		case ImuiInputKey_6:				scanCode = SDL_SCANCODE_6; break;
+		case ImuiInputKey_7:				scanCode = SDL_SCANCODE_7; break;
+		case ImuiInputKey_8:				scanCode = SDL_SCANCODE_8; break;
+		case ImuiInputKey_9:				scanCode = SDL_SCANCODE_9; break;
+		case ImuiInputKey_0:				scanCode = SDL_SCANCODE_0; break;
+		case ImuiInputKey_Enter:			scanCode = SDL_SCANCODE_RETURN; break;
+		case ImuiInputKey_Escape:			scanCode = SDL_SCANCODE_ESCAPE; break;
+		case ImuiInputKey_Backspace:		scanCode = SDL_SCANCODE_BACKSPACE; break;
+		case ImuiInputKey_Tab:				scanCode = SDL_SCANCODE_TAB; break;
+		case ImuiInputKey_Space:			scanCode = SDL_SCANCODE_SPACE; break;
+		case ImuiInputKey_LeftShift:		scanCode = SDL_SCANCODE_LSHIFT; break;
+		case ImuiInputKey_RightShift:		scanCode = SDL_SCANCODE_RSHIFT; break;
+		case ImuiInputKey_LeftControl:		scanCode = SDL_SCANCODE_LCTRL; break;
+		case ImuiInputKey_RightControl:		scanCode = SDL_SCANCODE_RCTRL; break;
+		case ImuiInputKey_LeftAlt:			scanCode = SDL_SCANCODE_LALT; break;
+		case ImuiInputKey_RightAlt:			scanCode = SDL_SCANCODE_RALT; break;
+		case ImuiInputKey_Minus:			scanCode = SDL_SCANCODE_MINUS; break;
+		case ImuiInputKey_Equals:			scanCode = SDL_SCANCODE_EQUALS; break;
+		case ImuiInputKey_LeftBracket:		scanCode = SDL_SCANCODE_LEFTBRACKET; break;
+		case ImuiInputKey_RightBracket:		scanCode = SDL_SCANCODE_RIGHTBRACKET; break;
+		case ImuiInputKey_Backslash:		scanCode = SDL_SCANCODE_BACKSLASH; break;
+		case ImuiInputKey_Semicolon:		scanCode = SDL_SCANCODE_SEMICOLON; break;
+		case ImuiInputKey_Apostrophe:		scanCode = SDL_SCANCODE_APOSTROPHE; break;
+		case ImuiInputKey_Grave:			scanCode = SDL_SCANCODE_GRAVE; break;
+		case ImuiInputKey_Comma:			scanCode = SDL_SCANCODE_COMMA; break;
+		case ImuiInputKey_Period:			scanCode = SDL_SCANCODE_PERIOD; break;
+		case ImuiInputKey_Slash:			scanCode = SDL_SCANCODE_SLASH; break;
+		case ImuiInputKey_F1:				scanCode = SDL_SCANCODE_F1; break;
+		case ImuiInputKey_F2:				scanCode = SDL_SCANCODE_F2; break;
+		case ImuiInputKey_F3:				scanCode = SDL_SCANCODE_F3; break;
+		case ImuiInputKey_F4:				scanCode = SDL_SCANCODE_F4; break;
+		case ImuiInputKey_F5:				scanCode = SDL_SCANCODE_F5; break;
+		case ImuiInputKey_F6:				scanCode = SDL_SCANCODE_F6; break;
+		case ImuiInputKey_F7:				scanCode = SDL_SCANCODE_F7; break;
+		case ImuiInputKey_F8:				scanCode = SDL_SCANCODE_F8; break;
+		case ImuiInputKey_F9:				scanCode = SDL_SCANCODE_F9; break;
+		case ImuiInputKey_F10:				scanCode = SDL_SCANCODE_F10; break;
+		case ImuiInputKey_F11:				scanCode = SDL_SCANCODE_F11; break;
+		case ImuiInputKey_F12:				scanCode = SDL_SCANCODE_F12; break;
+		case ImuiInputKey_Print:			scanCode = SDL_SCANCODE_PRINTSCREEN; break;
+		case ImuiInputKey_Pause:			scanCode = SDL_SCANCODE_PAUSE; break;
+		case ImuiInputKey_Insert:			scanCode = SDL_SCANCODE_INSERT; break;
+		case ImuiInputKey_Delete:			scanCode = SDL_SCANCODE_DELETE; break;
+		case ImuiInputKey_Home:				scanCode = SDL_SCANCODE_HOME; break;
+		case ImuiInputKey_End:				scanCode = SDL_SCANCODE_END; break;
+		case ImuiInputKey_PageUp:			scanCode = SDL_SCANCODE_PAGEUP; break;
+		case ImuiInputKey_PageDown:			scanCode = SDL_SCANCODE_PAGEDOWN; break;
+		case ImuiInputKey_Up:				scanCode = SDL_SCANCODE_UP; break;
+		case ImuiInputKey_Left:				scanCode = SDL_SCANCODE_LEFT; break;
+		case ImuiInputKey_Down:				scanCode = SDL_SCANCODE_DOWN; break;
+		case ImuiInputKey_Right:			scanCode = SDL_SCANCODE_RIGHT; break;
+		case ImuiInputKey_Numpad_Divide:	scanCode = SDL_SCANCODE_KP_DIVIDE; break;
+		case ImuiInputKey_Numpad_Multiply:	scanCode = SDL_SCANCODE_KP_MULTIPLY; break;
+		case ImuiInputKey_Numpad_Minus:		scanCode = SDL_SCANCODE_KP_MINUS; break;
+		case ImuiInputKey_Numpad_Plus:		scanCode = SDL_SCANCODE_KP_PLUS; break;
+		case ImuiInputKey_Numpad_Enter:		scanCode = SDL_SCANCODE_KP_ENTER; break;
+		case ImuiInputKey_Numpad_1:			scanCode = SDL_SCANCODE_KP_1; break;
+		case ImuiInputKey_Numpad_2:			scanCode = SDL_SCANCODE_KP_2; break;
+		case ImuiInputKey_Numpad_3:			scanCode = SDL_SCANCODE_KP_3; break;
+		case ImuiInputKey_Numpad_4:			scanCode = SDL_SCANCODE_KP_4; break;
+		case ImuiInputKey_Numpad_5:			scanCode = SDL_SCANCODE_KP_5; break;
+		case ImuiInputKey_Numpad_6:			scanCode = SDL_SCANCODE_KP_6; break;
+		case ImuiInputKey_Numpad_7:			scanCode = SDL_SCANCODE_KP_7; break;
+		case ImuiInputKey_Numpad_8:			scanCode = SDL_SCANCODE_KP_8; break;
+		case ImuiInputKey_Numpad_9:			scanCode = SDL_SCANCODE_KP_9; break;
+		case ImuiInputKey_Numpad_0:			scanCode = SDL_SCANCODE_KP_0; break;
+		case ImuiInputKey_Numpad_Period:	scanCode = SDL_SCANCODE_KP_PERIOD; break;
+		case ImuiInputKey_MAX:				break;
 		}
 
 		s_inputKeyMapping[ scanCode ] = keyValue;
@@ -253,11 +252,11 @@ int main( int argc, char* argv[] )
 		return 1;
 	}
 
-	ImUiParameters parameters = { 0 };
+	ImuiParameters parameters = { 0 };
 	s_context.dpiScale	= 1.0f;
-	s_context.imui		= ImUiCreate( &parameters );
+	s_context.imui		= imuiCreate( &parameters );
 
-	const bool init = ImUiFrameworkInitialize( s_context.imui );
+	const bool init = imuiFrameworkInitialize( s_context.imui );
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop( ImFrameworkLoop, 0, 1 );
@@ -271,10 +270,10 @@ int main( int argc, char* argv[] )
 
 	if( init )
 	{
-		ImUiFrameworkShutdown( s_context.imui );
+		imuiFrameworkShutdown( s_context.imui );
 	}
 
-	ImUiDestroy( s_context.imui );
+	imuiDestroy( s_context.imui );
 	s_context.imui = NULL;
 
 	ImFrameworkRendererShutdown( &s_context );
@@ -289,7 +288,7 @@ static void ImFrameworkLoop()
 {
 	SDL_GL_SetSwapInterval( 1 );
 
-	ImUiInput* input = ImUiInputBegin( s_context.imui, s_context.inputState );
+	ImuiInput* input = imuiInputBegin( s_context.imui, s_context.inputState );
 	SDL_Event sdlEvent;
 	while( SDL_PollEvent( &sdlEvent ) )
 	{
@@ -300,15 +299,15 @@ static void ImFrameworkLoop()
 			{
 				const SDL_KeyboardEvent* keyEvent = &sdlEvent.key;
 
-				const ImUiInputKey mappedKey = s_inputKeyMapping[ keyEvent->keysym.scancode ];
-				if( mappedKey != ImUiInputKey_None )
+				const ImuiInputKey mappedKey = s_inputKeyMapping[ keyEvent->keysym.scancode ];
+				if( mappedKey != ImuiInputKey_None )
 				{
-					(keyEvent->type == SDL_KEYDOWN ? ImUiInputPushKeyDown : ImUiInputPushKeyUp)(input, mappedKey);
+					(keyEvent->type == SDL_KEYDOWN ? imuiInputPushKeyDown : imuiInputPushKeyUp)(input, mappedKey);
 				}
 
 				if( keyEvent->repeat )
 				{
-					ImUiInputPushKeyRepeat( input, mappedKey );
+					imuiInputPushKeyRepeat( input, mappedKey );
 				}
 			}
 			break;
@@ -316,14 +315,14 @@ static void ImFrameworkLoop()
 		case SDL_TEXTINPUT:
 			{
 				const SDL_TextInputEvent* textEvent = &sdlEvent.text;
-				ImUiInputPushText( input, textEvent->text );
+				imuiInputPushText( input, textEvent->text );
 			}
 			break;
 
 		case SDL_MOUSEMOTION:
 			{
 				const SDL_MouseMotionEvent* mouseEvent = &sdlEvent.motion;
-				ImUiInputPushMouseMove( input, (float)mouseEvent->x, (float)mouseEvent->y );
+				imuiInputPushMouseMove( input, (float)mouseEvent->x, (float)mouseEvent->y );
 			}
 			break;
 
@@ -331,14 +330,14 @@ static void ImFrameworkLoop()
 		case SDL_MOUSEBUTTONDOWN:
 			{
 				const SDL_MouseButtonEvent* pMouseEvent = &sdlEvent.button;
-				(pMouseEvent->type == SDL_MOUSEBUTTONDOWN ? ImUiInputPushMouseDown : ImUiInputPushMouseUp)(input, s_inputMouseButtonMapping[ pMouseEvent->button ]);
+				(pMouseEvent->type == SDL_MOUSEBUTTONDOWN ? imuiInputPushMouseDown : imuiInputPushMouseUp)(input, s_inputMouseButtonMapping[ pMouseEvent->button ]);
 			}
 			break;
 
 		case SDL_MOUSEWHEEL:
 			{
 				const SDL_MouseWheelEvent* pMouseEvent = &sdlEvent.wheel;
-				ImUiInputPushMouseScroll( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
+				imuiInputPushMouseScroll( input, (float)pMouseEvent->x, (float)pMouseEvent->y );
 			}
 			break;
 
@@ -354,20 +353,20 @@ static void ImFrameworkLoop()
 			break;
 		}
 	}
-	s_context.inputState = ImUiInputEnd( s_context.imui );
+	s_context.inputState = imuiInputEnd( s_context.imui );
 
 	SDL_GetWindowSize( s_context.window, &s_context.windowWidth, &s_context.windowHeight );
 
-	ImUiFrame* frame = ImUiBegin( s_context.imui, SDL_GetTicks64() / 1000.0f );
-	ImUiSurface* surface = ImUiSurfaceBegin( frame, "main", ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), s_context.inputState, s_context.dpiScale );
+	ImuiFrame* frame = imuiBegin( s_context.imui, SDL_GetTicks64() / 1000.0f );
+	ImuiSurface* surface = imuiSurfaceBegin( frame, "main", imuiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), s_context.inputState, s_context.dpiScale );
 
-	ImUiFrameworkTick( surface );
+	imuiFrameworkTick( surface );
 
-	ImUiSurfaceEnd( surface );
+	imuiSurfaceEnd( surface );
 
 	ImFrameworkRendererDraw( &s_context, surface );
 
-	ImUiEnd( frame );
+	imuiEnd( frame );
 
 	SDL_GL_SwapWindow( s_context.window );
 }
@@ -412,7 +411,7 @@ static const char s_fragmentShaderFont[] =
 	"	gl_FragColor = vtfColor * fontChar;\n"
 	"}\n";
 
-static bool ImFrameworkRendererInitialize( ImUiFrameworkContext* context )
+static bool ImFrameworkRendererInitialize( ImuiFrameworkContext* context )
 {
 	// Shader
 	context->vertexShader		= glCreateShader( GL_VERTEX_SHADER );
@@ -524,7 +523,7 @@ static bool ImFrameworkRendererCompileShader( GLuint shader, const char* pShader
 	return true;
 }
 
-static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context )
+static void ImFrameworkRendererShutdown( ImuiFrameworkContext* context )
 {
 	if( context->whiteTexture.handle != 0u )
 	{
@@ -587,7 +586,7 @@ static void ImFrameworkRendererShutdown( ImUiFrameworkContext* context )
 	}
 }
 
-static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface* surface )
+static void ImFrameworkRendererDraw( ImuiFrameworkContext* context, ImuiSurface* surface )
 {
 	glViewport( 0, 0, context->windowWidth, context->windowHeight );
 
@@ -618,16 +617,16 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface*
 	glBindBuffer( GL_ARRAY_BUFFER, context->vertexBuffer );
 
 	uintsize vertexDataSize = 0u;
-	ImUiSurfaceGetMaxBufferSizes( surface, &vertexDataSize, NULL );
+	imuiSurfaceGetMaxBufferSizes( surface, &vertexDataSize, NULL );
 
 	glBufferData( GL_ARRAY_BUFFER, vertexDataSize, NULL, GL_STREAM_DRAW );
 
 	// upload
-	const ImUiDrawData* drawData;
+	const ImuiDrawData* drawData;
 	{
 		void* vertexData = glMapBufferRange( GL_ARRAY_BUFFER, 0, vertexDataSize, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT );
 
-		drawData = ImUiSurfaceGenerateDrawData( surface, vertexData, &vertexDataSize, NULL, NULL );
+		drawData = imuiSurfaceGenerateDrawData( surface, vertexData, &vertexDataSize, NULL, NULL );
 
 		glUnmapBuffer( GL_ARRAY_BUFFER );
 	}
@@ -635,10 +634,10 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface*
 	GLint offset = 0;
 	for( size_t i = 0u; i < drawData->commandCount; ++i )
 	{
-		const ImUiDrawCommand* command = &drawData->commands[ i ];
+		const ImuiDrawCommand* command = &drawData->commands[ i ];
 		IMUI_ASSERT( command->count >= 0u );
 
-		ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)command->textureHandle;
+		ImuiFrameworkTexture* texture = (ImuiFrameworkTexture*)command->textureHandle;
 		if( !texture )
 		{
 			texture = &context->whiteTexture;
@@ -668,7 +667,7 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface*
 			(GLint)(command->clipRect.size.height)
 		);
 
-		const GLenum topology = (command->topology == ImUiDrawTopology_LineList ? GL_LINES : GL_TRIANGLES);
+		const GLenum topology = (command->topology == ImuiDrawTopology_LineList ? GL_LINES : GL_TRIANGLES);
 		glDrawArrays( topology, offset, (GLsizei)command->count );
 		//glDrawElements( GL_TRIANGLES, (GLsizei)pCommand->count, GL_UNSIGNED_SHORT, &pCommand->offset );
 		offset += (GLint)command->count;
@@ -683,14 +682,14 @@ static void ImFrameworkRendererDraw( ImUiFrameworkContext* context, ImUiSurface*
 	glDisable( GL_SCISSOR_TEST );
 }
 
-void ImUiFrameworkSetDpiScale( float dpiScale )
+void imuiFrameworkSetDpiScale( float dpiScale )
 {
 	s_context.dpiScale = dpiScale;
 }
 
-ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont )
+ImuiFrameworkTexture* imuiFrameworkTextureCreate( void* textureData, uint32_t width, uint32_t height, bool isFont )
 {
-	ImUiFrameworkTexture* texture = (ImUiFrameworkTexture*)malloc( sizeof( ImUiFrameworkTexture ) );
+	ImuiFrameworkTexture* texture = (ImuiFrameworkTexture*)malloc( sizeof( ImuiFrameworkTexture ) );
 	if( !texture )
 	{
 		return NULL;
@@ -708,13 +707,13 @@ ImUiFrameworkTexture* ImUiFrameworkTextureCreate( void* textureData, uint32_t wi
 	return texture;
 }
 
-void ImUiFrameworkTextureDestroy( ImUiFrameworkTexture* texture )
+void imuiFrameworkTextureDestroy( ImuiFrameworkTexture* texture )
 {
 	glDeleteTextures( 1u, &texture->handle );
 	free( texture );
 }
 
-bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiImage* image, const char* fontFilename, float fontSize )
+bool imuiFrameworkFontCreate( ImuiFont** font, ImuiImage* image, const char* fontFilename, float fontSize )
 {
 	uint8_t* fileData;
 	size_t fileSize;
@@ -740,40 +739,40 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiImage* image, const char* fon
 		fclose( file );
 	}
 
-	ImUiFontTrueTypeData* ttf = ImUiFontTrueTypeDataCreate( s_context.imui, fileData, fileSize );
+	ImuiFontTrueTypeData* ttf = imuiFontTrueTypeDataCreate( s_context.imui, fileData, fileSize );
 	if( !ttf )
 	{
 		free( fileData );
 		return false;
 	}
 
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
-	ImUiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
+	imuiFontTrueTypeDataAddCodepointRange( ttf, 0x20, 0x7e );
+	imuiFontTrueTypeDataAddCodepointRange( ttf, 0x370, 0x3ff );
+	imuiFontTrueTypeDataAddCodepointRange( ttf, 0xfffd, 0xfffd );
 
 	uint32_t width;
 	uint32_t height;
-	ImUiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
+	imuiFontTrueTypeDataCalculateMinTextureSize( ttf, fontSize, &width, &height );
 	width = (width + 4u - 1u) & (0 - 4);
 	height = (height + 4u - 1u) & (0 - 4);
 
 	void* textureData = malloc( width * height );
 	if( !textureData )
 	{
-		ImUiFontTrueTypeDataDestroy( ttf );
+		imuiFontTrueTypeDataDestroy( ttf );
 		free( fileData );
 		return false;
 	}
 
-	ImUiFontTrueTypeImage* ttfImage = ImUiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
+	ImuiFontTrueTypeImage* ttfImage = imuiFontTrueTypeDataGenerateTextureData( ttf, fontSize, textureData, width * height, width, height );
 	if( !ttfImage )
 	{
-		ImUiFontTrueTypeDataDestroy( ttf );
+		imuiFontTrueTypeDataDestroy( ttf );
 		free( fileData );
 		return false;
 	}
 
-	image->textureHandle	= (uintsize)ImUiFrameworkTextureCreate( textureData, width, height, true );
+	image->textureHandle	= (uintsize)imuiFrameworkTextureCreate( textureData, width, height, true );
 	image->width			= width;
 	image->height			= height;
 	image->uv.u0			= 0.0f;
@@ -785,29 +784,29 @@ bool ImUiFrameworkFontCreate( ImUiFont** font, ImUiImage* image, const char* fon
 
 	if( !image->textureHandle )
 	{
-		ImUiFontTrueTypeDataDestroy( ttf );
+		imuiFontTrueTypeDataDestroy( ttf );
 		free( fileData );
 		return false;
 	}
 
-	*font = ImUiFontCreateTrueType( s_context.imui, ttfImage, *image );
+	*font = imuiFontCreateTrueType( s_context.imui, ttfImage, *image );
 
-	ImUiFontTrueTypeDataDestroy( ttf );
+	imuiFontTrueTypeDataDestroy( ttf );
 	free( fileData );
 
 	return *font != NULL;
 }
 
-void ImUiFrameworkFontDestroy( ImUiFont** font, ImUiImage* image )
+void imuiFrameworkFontDestroy( ImuiFont** font, ImuiImage* image )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)image->textureHandle );
-	ImUiFontDestroy( s_context.imui, *font );
+	imuiFrameworkTextureDestroy( (ImuiFrameworkTexture*)image->textureHandle );
+	imuiFontDestroy( s_context.imui, *font );
 
 	image->textureHandle = 0;
 	*font = NULL;
 }
 
-bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiImage* image, uint32_t size, float radius, float factor, bool horizontal )
+bool imuiFrameworkSkinCreate( ImuiSkin* skin, ImuiImage* image, uint32_t size, float radius, float factor, bool horizontal )
 {
 	uint8_t* skinData = malloc( size * size * 4u );
 	if( !skinData )
@@ -889,7 +888,7 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiImage* image, uint32_t size, f
 		}
 	}
 
-	image->textureHandle	= (uintsize)ImUiFrameworkTextureCreate( skinData, size, size, false );
+	image->textureHandle	= (uintsize)imuiFrameworkTextureCreate( skinData, size, size, false );
 	image->width			= size;
 	image->height			= size;
 	image->uv.u0			= 0.0f;
@@ -906,140 +905,140 @@ bool ImUiFrameworkSkinCreate( ImUiSkin* skin, ImUiImage* image, uint32_t size, f
 
 	if( horizontal )
 	{
-		skin->border	= ImUiBorderCreateHorizontalVertical( radius, 0.0f );
+		skin->border	= imuiBorderCreateHorizontalVertical( radius, 0.0f );
 	}
 	else
 	{
-		skin->border	= ImUiBorderCreateAll( radius );
+		skin->border	= imuiBorderCreateAll( radius );
 	}
 
 	return image->textureHandle != 0;
 }
 
-void ImUiFrameworkSkinDestroy( ImUiSkin* skin, ImUiImage* image )
+void imuiFrameworkSkinDestroy( ImuiSkin* skin, ImuiImage* image )
 {
-	ImUiFrameworkTextureDestroy( (ImUiFrameworkTexture*)image->textureHandle );
+	imuiFrameworkTextureDestroy( (ImuiFrameworkTexture*)image->textureHandle );
 	image->textureHandle = 0;
 }
 
-bool ImUiFrameworkToolboxConfigDataInitialize( ImUiFrameworkToolboxConfigData* data, ImUiContext* imui )
+bool imuiFrameworkToolboxConfigDataInitialize( ImuiFrameworkToolboxConfigData* data, ImuiContext* imui )
 {
-	if( !ImUiFrameworkFontCreate( &data->font, &data->fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
+	if( !imuiFrameworkFontCreate( &data->font, &data->fontTexture, "c:/windows/fonts/arial.ttf", 15.0f ) )
 	{
 		return false;
 	}
 
-	if( !ImUiFrameworkSkinCreate( &data->skinRect, &data->skinRectTexture, 32u, 8.0f, 128.0f, false ) )
+	if( !imuiFrameworkSkinCreate( &data->skinRect, &data->skinRectTexture, 32u, 8.0f, 128.0f, false ) )
 	{
 		return false;
 	}
 
-	if( !ImUiFrameworkSkinCreate( &data->skinLine, &data->skinLineTexture, 32u, 6.0f, 64.0f, true ) )
+	if( !imuiFrameworkSkinCreate( &data->skinLine, &data->skinLineTexture, 32u, 6.0f, 64.0f, true ) )
 	{
 		return false;
 	}
 
-	ImUiFrameworkToolboxConfigDataApply( data );
+	imuiFrameworkToolboxConfigDataApply( data );
 
 	return true;
 }
 
-void ImUiFrameworkToolboxConfigDataShutdown( ImUiFrameworkToolboxConfigData* data, ImUiContext* imui )
+void imuiFrameworkToolboxConfigDataShutdown( ImuiFrameworkToolboxConfigData* data, ImuiContext* imui )
 {
-	ImUiFrameworkFontDestroy( &data->font, &data->fontTexture );
-	ImUiFrameworkSkinDestroy( &data->skinRect, &data->skinRectTexture );
-	ImUiFrameworkSkinDestroy( &data->skinLine, &data->skinLineTexture );
+	imuiFrameworkFontDestroy( &data->font, &data->fontTexture );
+	imuiFrameworkSkinDestroy( &data->skinRect, &data->skinRectTexture );
+	imuiFrameworkSkinDestroy( &data->skinLine, &data->skinLineTexture );
 }
 
-void ImUiFrameworkToolboxConfigDataApply( const ImUiFrameworkToolboxConfigData* data )
+void imuiFrameworkToolboxConfigDataApply( const ImuiFrameworkToolboxConfigData* data )
 {
-	const ImUiColor textColor			= ImUiColorCreateWhite();
-	const ImUiColor elementColor		= ImUiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor elementHoverColor	= ImUiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
-	const ImUiColor elementClickedColor	= ImUiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
-	const ImUiColor backgroundColor		= ImUiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
-	const ImUiColor checkedColor		= ImUiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
-	const ImUiColor textEditCursorColor	= ImUiColorCreateWhite();
+	const ImuiColor textColor			= imuiColorCreateWhite();
+	const ImuiColor elementColor		= imuiColorCreateFloat( 0.1f, 0.5f, 0.7f, 1.0f );
+	const ImuiColor elementHoverColor	= imuiColorCreateFloat( 0.3f, 0.7f, 0.9f, 1.0f );
+	const ImuiColor elementClickedColor	= imuiColorCreateFloat( 0.0f, 0.4f, 0.6f, 1.0f );
+	const ImuiColor backgroundColor		= imuiColorCreateFloat( 0.0f, 0.3f, 0.5f, 1.0f );
+	const ImuiColor checkedColor		= imuiColorCreateFloat( 1.0f, 0.5f, 0.7f, 1.0f );
+	const ImuiColor textEditCursorColor	= imuiColorCreateWhite();
 
-	ImUiToolboxTheme theme;
-	ImUiToolboxThemeFillDefault( &theme, data->font );
+	ImuiToolboxTheme theme;
+	imuiToolboxThemeFillDefault( &theme, data->font );
 
-	theme.colors[ ImUiToolboxColor_Text ]						= ImUiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
-	theme.colors[ ImUiToolboxColor_Button ]						= elementColor;
-	theme.colors[ ImUiToolboxColor_ButtonHover ]				= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_ButtonClicked ]				= elementClickedColor;
-	theme.colors[ ImUiToolboxColor_ButtonText ]					= textColor;
-	theme.colors[ ImUiToolboxColor_CheckBox ]					= elementColor;
-	theme.colors[ ImUiToolboxColor_CheckBoxHover ]				= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	theme.colors[ ImUiToolboxColor_CheckBoxUnchecked ]			= ImUiColorCreateTransparentBlack();
-	theme.colors[ ImUiToolboxColor_CheckBoxChecked ]			= textColor;
-	theme.colors[ ImUiToolboxColor_SliderBackground ]			= backgroundColor;
-	theme.colors[ ImUiToolboxColor_SliderPivot ]				= elementColor;
-	theme.colors[ ImUiToolboxColor_SliderPivotHover ]			= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_SliderPivotClicked ]			= checkedColor;
-	theme.colors[ ImUiToolboxColor_TextEditBackground ]			= backgroundColor;
-	theme.colors[ ImUiToolboxColor_TextEditText ]				= textColor;
-	theme.colors[ ImUiToolboxColor_TextEditCursor ]				= textEditCursorColor;
-	theme.colors[ ImUiToolboxColor_TextEditSelection ]			= elementColor;
-	theme.colors[ ImUiToolboxColor_ProgressBarBackground ]		= backgroundColor;
-	theme.colors[ ImUiToolboxColor_ProgressBarProgress ]		= elementColor;
-	theme.colors[ ImUiToolboxColor_ScrollAreaBarBackground ]	= backgroundColor;
-	theme.colors[ ImUiToolboxColor_ScrollAreaBarPivot ]			= elementColor;
-	theme.colors[ ImUiToolboxColor_ListItemHover ]				= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_ListItemClicked ]			= elementClickedColor;
-	theme.colors[ ImUiToolboxColor_ListItemSelected ]			= elementColor;
-	theme.colors[ ImUiToolboxColor_DropDown ]					= backgroundColor;
-	theme.colors[ ImUiToolboxColor_DropDownText ]				= textColor;
-	theme.colors[ ImUiToolboxColor_DropDownIcon ]				= textColor;
-	theme.colors[ ImUiToolboxColor_DropDownHover ]				= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_DropDownClicked ]			= elementClickedColor;
-	theme.colors[ ImUiToolboxColor_DropDownOpen ]				= elementColor;
-	theme.colors[ ImUiToolboxColor_DropDownList ]				= backgroundColor;
-	theme.colors[ ImUiToolboxColor_DropDownItemText ]			= textColor;
-	theme.colors[ ImUiToolboxColor_DropDownItemHover ]			= elementHoverColor;
-	theme.colors[ ImUiToolboxColor_DropDownItemClicked ]		= elementClickedColor;
-	theme.colors[ ImUiToolboxColor_DropDownItemSelected ]		= elementColor;
-	theme.colors[ ImUiToolboxColor_PopupBackground ]			= ImUiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
-	theme.colors[ ImUiToolboxColor_Popup ]						= backgroundColor;
-	theme.colors[ ImUiToolboxColor_TabViewHeadBackground ]		= backgroundColor;
-	theme.colors[ ImUiToolboxColor_TabViewHeaderActive ]		= elementColor;
-	theme.colors[ ImUiToolboxColor_TabViewHeaderInactive ]		= backgroundColor;
-	theme.colors[ ImUiToolboxColor_TabViewBody ]				= backgroundColor;
-	static_assert( ImUiToolboxColor_MAX == 42, "more colors" );
+	theme.colors[ ImuiToolboxColor_Text ]						= imuiColorCreateFloat( 1.0f, 1.0f, 1.0f, 1.0f );
+	theme.colors[ ImuiToolboxColor_Button ]						= elementColor;
+	theme.colors[ ImuiToolboxColor_ButtonHover ]				= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_ButtonClicked ]				= elementClickedColor;
+	theme.colors[ ImuiToolboxColor_ButtonText ]					= textColor;
+	theme.colors[ ImuiToolboxColor_CheckBox ]					= elementColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxHover ]				= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxUnchecked ]			= imuiColorCreateTransparentBlack();
+	theme.colors[ ImuiToolboxColor_CheckBoxChecked ]			= textColor;
+	theme.colors[ ImuiToolboxColor_SliderBackground ]			= backgroundColor;
+	theme.colors[ ImuiToolboxColor_SliderPivot ]				= elementColor;
+	theme.colors[ ImuiToolboxColor_SliderPivotHover ]			= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_SliderPivotClicked ]			= checkedColor;
+	theme.colors[ ImuiToolboxColor_TextEditBackground ]			= backgroundColor;
+	theme.colors[ ImuiToolboxColor_TextEditText ]				= textColor;
+	theme.colors[ ImuiToolboxColor_TextEditCursor ]				= textEditCursorColor;
+	theme.colors[ ImuiToolboxColor_TextEditSelection ]			= elementColor;
+	theme.colors[ ImuiToolboxColor_ProgressBarBackground ]		= backgroundColor;
+	theme.colors[ ImuiToolboxColor_ProgressBarProgress ]		= elementColor;
+	theme.colors[ ImuiToolboxColor_ScrollAreaBarBackground ]	= backgroundColor;
+	theme.colors[ ImuiToolboxColor_ScrollAreaBarPivot ]			= elementColor;
+	theme.colors[ ImuiToolboxColor_ListItemHover ]				= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_ListItemClicked ]			= elementClickedColor;
+	theme.colors[ ImuiToolboxColor_ListItemSelected ]			= elementColor;
+	theme.colors[ ImuiToolboxColor_DropDown ]					= backgroundColor;
+	theme.colors[ ImuiToolboxColor_DropDownText ]				= textColor;
+	theme.colors[ ImuiToolboxColor_DropDownIcon ]				= textColor;
+	theme.colors[ ImuiToolboxColor_DropDownHover ]				= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_DropDownClicked ]			= elementClickedColor;
+	theme.colors[ ImuiToolboxColor_DropDownOpen ]				= elementColor;
+	theme.colors[ ImuiToolboxColor_DropDownList ]				= backgroundColor;
+	theme.colors[ ImuiToolboxColor_DropDownItemText ]			= textColor;
+	theme.colors[ ImuiToolboxColor_DropDownItemHover ]			= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_DropDownItemClicked ]		= elementClickedColor;
+	theme.colors[ ImuiToolboxColor_DropDownItemSelected ]		= elementColor;
+	theme.colors[ ImuiToolboxColor_PopupBackground ]			= imuiColorCreateFloat( 0.0f, 0.0f, 0.0f, 0.4f );
+	theme.colors[ ImuiToolboxColor_Popup ]						= backgroundColor;
+	theme.colors[ ImuiToolboxColor_TabViewHeadBackground ]		= backgroundColor;
+	theme.colors[ ImuiToolboxColor_TabViewHeaderActive ]		= elementColor;
+	theme.colors[ ImuiToolboxColor_TabViewHeaderInactive ]		= backgroundColor;
+	theme.colors[ ImuiToolboxColor_TabViewBody ]				= backgroundColor;
+	static_assert( ImuiToolboxColor_MAX == 42, "more colors" );
 
-	theme.skins[ ImUiToolboxSkin_Button ]						= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ButtonHover ]					= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ButtonClicked ]				= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_CheckBox ]						= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_CheckBoxChecked ]				= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_SliderBackground ]				= data->skinLine;
-	theme.skins[ ImUiToolboxSkin_SliderPivot ]					= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_TextEditBackground ]			= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ProgressBarBackground ]		= data->skinLine;
-	theme.skins[ ImUiToolboxSkin_ProgressBarProgress ]			= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ScrollAreaBarBackground ]		= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ScrollAreaBarPivot ]			= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ListItem ]						= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_ItemSelected ]					= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_DropDown ]						= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_DropDownList ]					= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_DropDownItem ]					= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_Popup ]						= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_TabViewHeadBackground ]		= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_TabViewHeaderActive ]			= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_TabViewHeaderInactive ]		= data->skinRect;
-	theme.skins[ ImUiToolboxSkin_TabViewBody ]					= data->skinRect;
-	static_assert( ImUiToolboxSkin_MAX == 22, "more skins" );
+	theme.skins[ ImuiToolboxSkin_Button ]						= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ButtonHover ]					= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ButtonClicked ]				= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_CheckBox ]						= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_CheckBoxChecked ]				= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_SliderBackground ]				= data->skinLine;
+	theme.skins[ ImuiToolboxSkin_SliderPivot ]					= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TextEditBackground ]			= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ProgressBarBackground ]		= data->skinLine;
+	theme.skins[ ImuiToolboxSkin_ProgressBarProgress ]			= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ScrollAreaBarBackground ]		= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ScrollAreaBarPivot ]			= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ListItem ]						= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_ItemSelected ]					= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_DropDown ]						= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_DropDownList ]					= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_DropDownItem ]					= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_Popup ]						= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TabViewHeadBackground ]		= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TabViewHeaderActive ]			= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TabViewHeaderInactive ]		= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TabViewBody ]					= data->skinRect;
+	static_assert( ImuiToolboxSkin_MAX == 22, "more skins" );
 
-	const ImUiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 16u, 16u };
+	const ImuiImage image = { IMUI_TEXTURE_HANDLE_INVALID, 16u, 16u };
 
-	theme.icons[ ImUiToolboxIcon_CheckBoxUnchecked ]			= image;
-	theme.icons[ ImUiToolboxIcon_CheckBoxChecked ]				= image;
-	theme.icons[ ImUiToolboxIcon_DropDownOpen ]					= image;
-	theme.icons[ ImUiToolboxIcon_DropDownClose ]				= image;
+	theme.icons[ ImuiToolboxIcon_CheckBoxUnchecked ]			= image;
+	theme.icons[ ImuiToolboxIcon_CheckBoxChecked ]				= image;
+	theme.icons[ ImuiToolboxIcon_DropDownOpen ]					= image;
+	theme.icons[ ImuiToolboxIcon_DropDownClose ]				= image;
 
-	static_assert( ImUiToolboxIcon_MAX == 4, "more icons" );
+	static_assert( ImuiToolboxIcon_MAX == 4, "more icons" );
 
-	ImUiToolboxThemeSet( &theme );
+	imuiToolboxThemeSet( &theme );
 }
