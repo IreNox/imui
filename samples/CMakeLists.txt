@@ -22,9 +22,6 @@ FetchContent_Declare(
 set(SDL_SHARED OFF CACHE BOOL "" FORCE)
 set(SDL_STATIC ON CACHE BOOL "" FORCE)
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-set(GLAD_PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-
 FetchContent_MakeAvailable(
 	SDL2
 	glad
