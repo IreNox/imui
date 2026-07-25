@@ -14,6 +14,7 @@
 #	include <SDL.h>
 #endif
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -732,11 +733,17 @@ bool imuiFrameworkFontCreate( ImuiFont** font, ImuiImage* image, const char* fon
 		if( !fileData )
 		{
 			fclose( file );
+			free( fileData );
 			return false;
 		}
 
-		fread( fileData, fileSize, 1, file );
+		const size_t readResult = fread( fileData, fileSize, 1, file );
 		fclose( file );
+		if( readResult != 1 )
+		{
+			free( fileData );
+			return false;
+		}
 	}
 
 	ImuiFontTrueTypeData* ttf = imuiFontTrueTypeDataCreate( s_context.imui, fileData, fileSize );

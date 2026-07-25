@@ -1,40 +1,44 @@
 name: Build Samples
 
-on: workflow_dispatch
-#  push:
-#    branches: [ "master" ]
-#  pull_request:
-#    branches: [ "master" ]
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    runs-on: windows-latest
     strategy:
       matrix:
-        PROJECT: [01_hello_world, 02_layout, 03_input, 05_widgets, 06_cpp]
-        CONFIG: [Debug, Release]
-        PLATFORM: [x86, x64]
+        config: [ Debug, Release ]
+        platform: [ windows-latest, ubuntu-latest ]
+    runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.3.1
-
-    - name: Run tiki_build
-      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}
-      run: ${{github.workspace}}/premake_tb.exe --to=build/vs2022 vs2022
-
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt update
+        sudo apt install -y \
+          cmake \
+          libgl1-mesa-dev \
+          libglu1-mesa-dev \
+          libx11-dev \
+          python3-jinja2
+          
+           #xorg-dev
+        
+    - name: Configure
+      run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+        
     - name: Build
-      working-directory: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022
-      env:
-        MSBUILD_PLATFORM: ${{matrix.PLATFORM == 'x86' && 'Win32' || 'x64'}}
-      run: msbuild /m /p:Configuration=${{matrix.CONFIG}} /p:Platform=${{env.MSBUILD_PLATFORM}} ${{matrix.PROJECT}}.sln
-      
-    - uses: actions/upload-artifact@v3
+      run: cmake --build build-samples --config ${{ matrix.config }}
+
+    - uses: actions/cache@v4
       with:
-        name: ${{matrix.PROJECT}}_${{matrix.CONFIG}}_${{matrix.PLATFORM}}.exe
-        path: ${{github.workspace}}/samples/${{matrix.PROJECT}}/build/vs2022/${{matrix.PLATFORM}}/${{matrix.CONFIG}}/${{matrix.PROJECT}}.exe
-        retention-days: 2
+        path: build-samples/_deps
+        key: ${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}

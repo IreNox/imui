@@ -56,7 +56,7 @@ bool imuiTextLayoutCacheConstruct( ImuiTextLayoutCache* cache, ImuiAllocator* al
 	return true;
 }
 
-static void imuiTextLayoutCacheDestruct( ImuiTextLayoutCache* cache )
+void imuiTextLayoutCacheDestruct( ImuiTextLayoutCache* cache )
 {
 	ImuiTextLayout* layout = cache->firstLayout;
 	ImuiTextLayout* nextLayout = NULL;
