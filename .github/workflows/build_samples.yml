@@ -32,11 +32,11 @@ jobs:
           python3-jinja2
            
     - name: Configure
-      run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DPython3_EXECUTABLE=$(python -c "import sys; print(sys.executable)")
+      run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }}
 
     - name: Install Windows dependencies
       if: runner.os == 'Windows'
-      run: python -m pip install -r build-samples/_deps/glad-src/requirements.txt
+      run: cmake -P samples/install_python_requirements.cmake
         
     - name: Build
       run: cmake --build build-samples --config ${{ matrix.config }}
