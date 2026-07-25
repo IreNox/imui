@@ -1,5 +1,7 @@
 # I'm UI
 
+[![Build Samples](https://github.com/IreNox/imui/actions/workflows/build_samples.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build_samples.yml)
+
 A simple to use Immediate Mode UI library written in C. This is in an early state and all APIs may change.
 
 ## Features
