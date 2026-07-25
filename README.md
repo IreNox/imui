@@ -19,36 +19,39 @@ A simple to use Immediate Mode UI library written in C. This is in an early stat
 ## Example
 
 ```c++
-void doUi( ImUiContext* imui, float time )
+void doUi( ImuiContext* imui, float time )
 {
-	ImUiFrame* frame = ImUiBegin( imui, time );
-	ImUiSurface* surface = ImUiSurfaceBegin( frame, IMUI_STR( "main" ), ImUiSizeCreate( (float)s_context.windowWidth, (float)s_context.windowHeight ), 1.0f );
-	ImUiWindow* window = ImUiWindowBegin( surface, IMUI_STR( "main" ), ImUiRectCreateSize( 0.0f, 0.0f, surfaceSize ), 1 );
+	ImuiInput* input = imuiInputBegin( imui, NULL );
+	// write input state
+	const ImuiInputState* inputState = imuiInputEnd( imui );
 
-	ImUiWidget* buttonsLayout = ImUiWidgetBeginNamed( window, IMUI_STR( "buttons" ) );
-	ImUiWidgetSetStretch( buttonsLayout, ImUiSizeCreateZero() );
-	ImUiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
+	ImuiFrame* frame = imuiBegin( imui, time );
+	ImuiSurface* surface = imuiSurfaceBegin( frame, "main", imuiSizeCreate( (float)windowWidth, (float)windowHeight ), inputState, 1.0f );
+	ImuiWindow* window = imuiWindowBegin( surface, "main", imuiRectCreateSize( 0.0f, 0.0f, imuiSurfaceGetSize( surface ) ), 1 );
 
-	if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 1" ) ) )
+	ImuiWidget* buttonsLayout = imuiWidgetBeginNamed( window, "buttons" );
+	imuiWidgetSetLayoutHorizontalSpacing( buttonsLayout, 10.0f );
+
+	if( imuiToolboxButtonLabel( window, "Button 1" ) )
 	{
 		// do stuff
 	}
 
-	if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 2" ) ) )
+	if( imuiToolboxButtonLabel( window, "Button 2" ) )
 	{
 		// do stuff
 	}
 
-	if( ImUiToolboxButtonLabel( window, IMUI_STR( "Button 3" ) ) )
+	if( imuiToolboxButtonLabel( window, "Button 3" ) )
 	{
 		// do stuff
 	}
 
-	ImUiWidgetEnd( buttonsLayout );
-	
-	ImUiWindowEnd( window );
-	ImUiSurfaceEnd( surface );
-	ImUiEnd( imui );	
+	imuiWidgetEnd( buttonsLayout );
+
+	imuiWindowEnd( window );
+	imuiSurfaceEnd( surface );
+	imuiEnd( frame );
 }
 ```
 
