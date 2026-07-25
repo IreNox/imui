@@ -30,11 +30,9 @@ jobs:
           libx11-dev \
           libxext-dev \
           python3-jinja2
-          
-           #xorg-dev
            
     - name: Configure
-      run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+      run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }} -DPython3_EXECUTABLE=$(python -c "import sys; print(sys.executable)")
 
     - name: Install Windows dependencies
       if: runner.os == 'Windows'
