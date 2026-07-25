@@ -28,6 +28,7 @@ jobs:
           libgl1-mesa-dev \
           libglu1-mesa-dev \
           libx11-dev \
+          libxext-dev \
           python3-jinja2
           
            #xorg-dev
