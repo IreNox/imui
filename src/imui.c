@@ -13,7 +13,7 @@ static void			imuiWindowLayout( ImuiWindow* window );
 static ImuiWidget*	imuiWidgetAlloc( ImuiContext* imui );
 static void			imuiWidgetUpdateLayoutContext( ImuiWidget* widget, uintsize widgetIndex, float dpiScale, bool update );
 static void			imuiWidgetUpdateLayoutContextCheckGridContextSize( ImuiWidget* widget );
-static void			imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget );
+static void			imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget, float dpiScale );
 static void			imuiWidgetLayout( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale, uintsize widgetIndex, bool update );
 static void			imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
 static void			imuiWidgetLayoutStack( ImuiWidget* widget, const ImuiRect* parentInnerRect, float dpiScale );
@@ -683,7 +683,7 @@ static void imuiWidgetUpdateLayoutContext( ImuiWidget* widget, uintsize widgetIn
 
 	if( widget->layout == ImuiLayout_Grid )
 	{
-		imuiWidgetUpdateLayoutContextGrid( widget );
+		imuiWidgetUpdateLayoutContextGrid( widget, dpiScale );
 	}
 
 	const ImuiSize marginPaddingSize	= imuiSizeScale( imuiSizeAddSize( imuiBorderGetMinSize( widget->margin ), imuiBorderGetMinSize( widget->padding ) ), dpiScale );
@@ -800,7 +800,7 @@ static void imuiWidgetUpdateLayoutContextCheckGridContextSize( ImuiWidget* widge
 	}
 }
 
-static void imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget )
+static void imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget, float dpiScale )
 {
 	ImuiLayoutContext* context = &widget->layoutContext;
 	ImuiLayoutGridContext* gridContext = widget->gridContext;
@@ -815,7 +815,7 @@ static void imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget )
 		context->childrenMaxStretch.width += colElement->childrenMaxStretch;
 		context->childrenMinSize.width += colElement->childrenMinSize;
 	}
-	context->childrenMinSize.width += widget->layoutData.grid.colSpacing * (gridContext->columnCount - 1u);
+	context->childrenMinSize.width += widget->layoutData.grid.colSpacing * dpiScale * (gridContext->columnCount - 1u);
 
 	for( uintsize row = 0u; row < gridContext->rowCount; ++row )
 	{
@@ -824,7 +824,7 @@ static void imuiWidgetUpdateLayoutContextGrid( ImuiWidget* widget )
 		context->childrenMaxStretch.height += rowElement->childrenMaxStretch;
 		context->childrenMinSize.height += rowElement->childrenMinSize;
 	}
-	context->childrenMinSize.height += widget->layoutData.grid.rowSpacing * (gridContext->rowCount - 1u);
+	context->childrenMinSize.height += widget->layoutData.grid.rowSpacing * dpiScale * (gridContext->rowCount - 1u);
 
 	context->childrenMaxStretch.width	= IMUI_MAX( 1.0f, context->childrenMaxStretch.width );
 	context->childrenMaxStretch.height	= IMUI_MAX( 1.0f, context->childrenMaxStretch.height );
@@ -974,7 +974,7 @@ static void imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* par
 		colElement->pos = pos;
 
 		const float strechSize	= ((maxFreeWidth / context->childrenMaxStretch.width) * colElement->childrenMaxStretch) + colElement->childrenMinSize;
-		const float size		= IMUI_MAX( strechSize, colElement->childrenMinSize );
+		const float size		= floorf( IMUI_MAX( strechSize, colElement->childrenMinSize ) );
 		pos += size;
 		colElement->size = size;
 		pos += widget->layoutData.grid.colSpacing * dpiScale;
@@ -988,7 +988,7 @@ static void imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* par
 		rowElement->pos = pos;
 
 		const float strechSize	= ((maxFreeHeight / context->childrenMaxStretch.height) * rowElement->childrenMaxStretch) + rowElement->childrenMinSize;
-		const float size		= IMUI_MAX( strechSize, rowElement->childrenMinSize );
+		const float size		= ceilf( IMUI_MAX( strechSize, rowElement->childrenMinSize ) );
 		pos += size;
 		rowElement->size = size;
 		pos += widget->layoutData.grid.rowSpacing * dpiScale;
@@ -1000,7 +1000,7 @@ static void imuiWidgetLayoutStack( ImuiWidget* widget, const ImuiRect* parentInn
 	const float factorWidth			= IMUI_MIN( widget->stretchH, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretchV, widget->parent->layoutContext.childrenMaxStretch.height );
 	const ImuiSize minSize			= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
-	const ImuiSize maxSize			= imuiSizeMin( widget->maxSize, parentInnerRect->size );
+	const ImuiSize maxSize			= imuiSizeMin( imuiSizeScale( widget->maxSize, dpiScale ), parentInnerRect->size );
 	ImuiSize size					= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
 	ImuiPos pos;
