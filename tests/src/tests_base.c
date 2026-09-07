@@ -1,11 +1,5 @@
 ﻿#include "tests.h"
 
-#include "imui/imui.h"
-#include "imui/imui_toolbox.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-
 typedef void(*ImuiTestSetLayoutFunc)( ImuiWidget* widget );
 typedef void(*ImuiTestSetSizeFunc)( ImuiWidget* widget, float size );
 typedef float(*ImuiTestGetSizeFunc)( const ImuiWidget* widget );

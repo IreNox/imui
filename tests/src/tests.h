@@ -2,6 +2,8 @@
 
 #include "imui/imui.h"
 
+#include <stdio.h>
+
 #define IMUI_CHECK( expr )															\
 	do {																			\
 		if (!(expr))																\
@@ -17,3 +19,9 @@ typedef void(*ImuiTestCheckCallback)(ImuiFrame* frame);
 extern ImuiContext* g_imuiContext;
 
 int					runBaseTests( ImuiFrame* frame );
+int					runDataTypeTests( ImuiFrame* frame );
+int					runInputTests( ImuiFrame* frame );
+int					runSurfaceTests( ImuiFrame* frame );
+int					runWindowTests( ImuiFrame* frame );
+int					runWidgetTests( ImuiFrame* frame );
+int					runLayoutTests( ImuiFrame* frame );
