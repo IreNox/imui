@@ -1000,7 +1000,7 @@ static void imuiWidgetLayoutStack( ImuiWidget* widget, const ImuiRect* parentInn
 	const float factorWidth			= IMUI_MIN( widget->stretchH, widget->parent->layoutContext.childrenMaxStretch.width );
 	const float factorHeight		= IMUI_MIN( widget->stretchV, widget->parent->layoutContext.childrenMaxStretch.height );
 	const ImuiSize minSize			= imuiWidgetLayoutMinSize( widget, parentInnerRect, dpiScale );
-	const ImuiSize maxSize			= parentInnerRect->size;
+	const ImuiSize maxSize			= imuiSizeMin( widget->maxSize, parentInnerRect->size );
 	ImuiSize size					= imuiWidgetCalculateSize( widget, minSize, maxSize, factorWidth, factorHeight, dpiScale );
 
 	ImuiPos pos;
