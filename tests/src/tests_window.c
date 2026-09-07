@@ -1,5 +1,7 @@
 #include "tests.h"
 
+// DISCLAIMER: This tests are written by AI.
+
 static int runWindowPropertiesTest( ImuiFrame* frame )
 {
 	ImuiContext* context = imuiFrameGetContext( frame );

@@ -988,7 +988,7 @@ static void imuiWidgetLayoutPrepareGrid( ImuiWidget* widget, const ImuiRect* par
 		rowElement->pos = pos;
 
 		const float strechSize	= ((maxFreeHeight / context->childrenMaxStretch.height) * rowElement->childrenMaxStretch) + rowElement->childrenMinSize;
-		const float size		= ceilf( IMUI_MAX( strechSize, rowElement->childrenMinSize ) );
+		const float size		= floorf( IMUI_MAX( strechSize, rowElement->childrenMinSize ) );
 		pos += size;
 		rowElement->size = size;
 		pos += widget->layoutData.grid.rowSpacing * dpiScale;

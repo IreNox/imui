@@ -1,5 +1,7 @@
 #include "tests.h"
 
+// DISCLAIMER: This tests are written by AI.
+
 static int runPositionTest( void )
 {
 	const ImuiPos pos = imuiPosCreate( -4.0f, 8.0f );

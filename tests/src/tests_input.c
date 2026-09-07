@@ -1,5 +1,7 @@
 #include "tests.h"
 
+// DISCLAIMER: This tests are written by AI.
+
 #include <string.h>
 
 static int runKeyboardTest( ImuiContext* context )

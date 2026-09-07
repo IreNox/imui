@@ -1,5 +1,7 @@
 #include "tests.h"
 
+// DISCLAIMER: This tests are written by AI.
+
 #include <math.h>
 
 // Window coordinates are physical pixels; widget sizes, borders and spacing
@@ -336,8 +338,9 @@ static int runGridHierarchyTest( ImuiFrame* frame, float dpiScale )
 	// Three equal columns and rows, including an incomplete final row.
 	// Remove 24 logical units of padding and two 4-unit gaps from the
 	// fixed window size before distributing the remaining physical pixels.
-	const float cellWidth = (320.0f - 32.0f * dpiScale) / 3.0f;
-	const float cellHeight = (272.0f - 32.0f * dpiScale) / 3.0f;
+	// Floor each cell size before accumulating subsequent row/column positions.
+	const float cellWidth = floorf( (320.0f - 32.0f * dpiScale) / 3.0f );
+	const float cellHeight = floorf( (272.0f - 32.0f * dpiScale) / 3.0f );
 	int failed = checkPixelLayoutRect( grid, scenario, "grid", dpiScale, 8.0f * dpiScale, 8.0f * dpiScale, 320.0f - 16.0f * dpiScale, 272.0f - 16.0f * dpiScale );
 	for( size_t i = 0u; i < 7u; ++i )
 	{
@@ -348,8 +351,8 @@ static int runGridHierarchyTest( ImuiFrame* frame, float dpiScale )
 		failed += checkPixelLayoutRect( cells[ i ], scenario, name, dpiScale, x, y, cellWidth, cellHeight );
 		snprintf( name, sizeof( name ), "leaf_%u", (unsigned)i );
 		failed += checkPixelLayoutRect( leaves[ i ], scenario, name, dpiScale,
-			floorf( x ) + floorf( cellWidth ) - 20.0f * dpiScale,
-			floorf( y ) + floorf( cellHeight ) - 16.0f * dpiScale, 16.0f * dpiScale, 12.0f * dpiScale );
+			floorf( x ) + cellWidth - 20.0f * dpiScale,
+			floorf( y ) + cellHeight - 16.0f * dpiScale, 16.0f * dpiScale, 12.0f * dpiScale );
 	}
 	return failed;
 }
