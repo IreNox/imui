@@ -560,7 +560,6 @@ static void imuiWindowLayout( ImuiWindow* window )
 
 				if( uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1 )
 				{
-
 					const float intersectionX = dirStart.x + (uA * (dirEnd.x-dirStart.x));
 					const float intersectionY = dirStart.y + (uA * (dirEnd.y-dirStart.y));
 
@@ -585,23 +584,26 @@ static void imuiWindowLayout( ImuiWindow* window )
 		childIndex++;
 	}
 
-	const ImuiInputShortcut shortcut = imuiInputGetShortcut( window->surface->input );
-	if( window->surface->input->current.focusExecute )
+	if( window->surface->input )
 	{
-		if( window->closesFocusWidget )
+		const ImuiInputShortcut shortcut = imuiInputGetShortcut( window->surface->input );
+		if( window->surface->input->current.focusExecute )
 		{
-			window->focusWidget = window->closesFocusWidget;
+			if( window->closesFocusWidget )
+			{
+				window->focusWidget = window->closesFocusWidget;
+			}
+			else if( window->focusWrap && window->wrapFocusWidget )
+			{
+				window->focusWidget = window->wrapFocusWidget;
+			}
 		}
-		else if( window->focusWrap && window->wrapFocusWidget )
+		else if( shortcut == ImuiInputShortcut_FocusNext ||
+			shortcut == ImuiInputShortcut_FocusPrevious )
 		{
-			window->focusWidget = window->wrapFocusWidget;
+			IMUI_ASSERT( !window->focusWidget || window->focusWidget != window->closesFocusIndexWidget );
+			window->focusWidget = window->closesFocusIndexWidget ? window->closesFocusIndexWidget : window->wrapFocusIndexWidget;
 		}
-	}
-	else if( shortcut == ImuiInputShortcut_FocusNext ||
-			 shortcut == ImuiInputShortcut_FocusPrevious )
-	{
-		IMUI_ASSERT( !window->focusWidget || window->focusWidget != window->closesFocusIndexWidget );
-		window->focusWidget = window->closesFocusIndexWidget ? window->closesFocusIndexWidget : window->wrapFocusIndexWidget;
 	}
 }
 
