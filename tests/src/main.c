@@ -2,6 +2,11 @@
 
 #include <stdio.h>
 
+#ifdef IMUI_BREAK_ENABLED
+#include <Windows.h>
+#include <DbgHelp.h>
+#endif
+
 ImuiContext* g_imuiContext = NULL;
 
 static int runTests( ImuiFrame* frame )
@@ -37,3 +42,10 @@ int main()
 	g_imuiContext = NULL;
 	return failed ? 1 : 0;
 }
+
+#ifdef IMUI_BREAK_ENABLED
+void imuiTestDebugBreak()
+{
+	__debugbreak();
+}
+#endif

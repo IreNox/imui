@@ -4,11 +4,20 @@
 
 #include <stdio.h>
 
+#if !defined( NDEBUG ) && defined( WIN32 )
+void imuiTestDebugBreak();
+#define IMUI_BREAK imuiTestDebugBreak()
+#define IMUI_BREAK_ENABLED
+#else
+#define IMUI_BREAK
+#endif
+
 #define IMUI_CHECK( expr )															\
 	do {																			\
 		if (!(expr))																\
 		{																			\
 			fprintf( stderr, "%s:%d: failed: %s\n", __FILE__, __LINE__, #expr );	\
+			IMUI_BREAK;																\
 			return 1;																\
 		}																			\
 	} while (0)
