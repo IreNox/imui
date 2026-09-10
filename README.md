@@ -61,12 +61,6 @@ Just import all files in `include` and `src` in your project and add `include` a
 
 To build the samples with cmake run `cmake -B build` or tiki_build use the provided batch files to generate Visual Studio files.
 
-## TODO
-
-- multiline text
-- fix: use pool for surface and window(broken pointer on resize)
-- more
-
 ## Used Libraries
 
 - [stb_truetype](https://github.com/nothings/stb)

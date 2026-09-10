@@ -37,11 +37,10 @@ static void			imuiToolboxSampleScrollAndList( ImuiWindow* window );
 static void			imuiToolboxSampleTabView( ImuiWindow* window );
 static void			imuiToolboxSampleTextView( ImuiWindow* window );
 
-typedef struct ImuiTestPopupState ImuiTestPopupState;
-struct ImuiTestPopupState
+typedef struct ImuiTestPopupState
 {
 	bool isOpen;
-};
+} ImuiTestPopupState;
 
 void imuiToolboxSampleTick( ImuiWindow* window )
 {

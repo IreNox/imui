@@ -27,6 +27,10 @@ bool					imuiToolboxCppSampleInitialize( ImuiContext* imui );
 void					imuiToolboxCppSampleShutdown( ImuiContext* imui );
 void					imuiToolboxCppSampleTick( ImuiWindow* window );
 
+bool					imuiMultilineTextSampleInitialize( ImuiContext* imui );
+void					imuiMultilineTextSampleShutdown( ImuiContext* imui );
+void					imuiMultilineTextSampleTick( ImuiWindow* window );
+
 #ifdef __cplusplus
 }
 #endif

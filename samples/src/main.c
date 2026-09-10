@@ -17,7 +17,8 @@ static const ImuiSample s_samples[] =
 	{ imuiLayoutSampleInitialize, imuiLayoutSampleShutdown, imuiLayoutSampleTick },
 	{ imuiInputSampleInitialize, imuiInputSampleShutdown, imuiInputSampleTick },
 	{ imuiToolboxSampleInitialize, imuiToolboxSampleShutdown, imuiToolboxSampleTick },
-	{ imuiToolboxCppSampleInitialize, imuiToolboxCppSampleShutdown, imuiToolboxCppSampleTick }
+	{ imuiToolboxCppSampleInitialize, imuiToolboxCppSampleShutdown, imuiToolboxCppSampleTick },
+	{ imuiMultilineTextSampleInitialize, imuiMultilineTextSampleShutdown, imuiMultilineTextSampleTick }
 };
 
 #define IMUI_SAMPLES_DEFAULT_INDEX 3

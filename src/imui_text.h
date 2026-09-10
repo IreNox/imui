@@ -29,12 +29,14 @@ typedef struct ImuiTextLayoutParameters
 {
 	ImuiFont*				font;
 	ImuiStringView			text;
+	ImuiSize				maxSize;
 } ImuiTextLayoutParameters;
 
 struct ImuiTextLayout
 {
 	ImuiFont*				font;
 	ImuiStringView			text;
+	ImuiSize				maxSize;
 
 	ImuiTextLayout*			prevLayout;
 	ImuiTextLayout*			nextLayout;

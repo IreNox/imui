@@ -623,7 +623,7 @@ ImuiWidget* imuiToolboxLabelBeginLengthColor( ImuiWindow* window, const char* te
 {
 	ImuiWidget* label = imuiWidgetBegin( window );
 
-	ImuiTextLayout* layout = imuiTextLayoutCreateWidgetLength( label, s_theme.font, text,length );
+	ImuiTextLayout* layout = imuiTextLayoutCreateWidgetLength( label, s_theme.font, text, length );
 	const ImuiSize textSize = imuiTextLayoutGetSize( layout );
 	imuiWidgetSetMinSize( label, textSize );
 	imuiWidgetSetVAlign( label, 0.5f );
@@ -634,7 +634,6 @@ ImuiWidget* imuiToolboxLabelBeginLengthColor( ImuiWindow* window, const char* te
 	}
 
 	return label;
-
 }
 
 ImuiWidget* imuiToolboxLabelBeginFormat( ImuiWindow* window, const char* format, ... )

@@ -702,8 +702,10 @@ void							imuiFontTrueTypeImageDestroy( ImuiFontTrueTypeImage* ttfImage );
 
 ImuiTextLayout*					imuiTextLayoutCreate( ImuiContext* imui, ImuiFont* font, const char* text );
 ImuiTextLayout*					imuiTextLayoutCreateLength( ImuiContext* imui, ImuiFont* font, const char* text, size_t length );
+ImuiTextLayout*					imuiTextLayoutCreateLengthSize( ImuiContext* imui, ImuiFont* font, const char* text, size_t length, ImuiSize maxSize );
 ImuiTextLayout*					imuiTextLayoutCreateWidget( ImuiWidget* widget, ImuiFont* font, const char* text );
 ImuiTextLayout*					imuiTextLayoutCreateWidgetLength( ImuiWidget* widget, ImuiFont* font, const char* text, size_t length );
+ImuiTextLayout*					imuiTextLayoutCreateWidgetLengthSize( ImuiWidget* widget, ImuiFont* font, const char* text, size_t length, ImuiSize maxSize );
 
 size_t							imuiTextLayoutCalculateGlyphCount( const char* text, size_t length );
 ImuiSize						imuiTextLayoutCalculateSize( ImuiContext* imui, ImuiFont* font, const char* text, size_t length );
