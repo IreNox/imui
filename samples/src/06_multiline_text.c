@@ -33,7 +33,7 @@ static const char s_multilineText[] = "Lorem ipsum dolor sit amet, consectetuer 
 void imuiMultilineTextSampleTick( ImuiWindow* window )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	imuiFrameworkToolboxConfigDataApply( &s_toolboxContext.configData );
+	imuiFrameworkToolboxConfigDataApply( &s_multilineTextContext.configData );
 #endif
 
 	ImuiWidget* hLayout = imuiWidgetBeginNamed( window, "hMain" );
@@ -58,7 +58,7 @@ void imuiMultilineTextSampleTick( ImuiWindow* window )
 bool imuiMultilineTextSampleInitialize( ImuiContext* imui )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	return imuiFrameworkToolboxConfigDataInitialize( &s_toolboxContext.configData, imui );
+	return imuiFrameworkToolboxConfigDataInitialize( &s_multilineTextContext.configData, imui );
 #else
 	return true;
 #endif
@@ -67,6 +67,6 @@ bool imuiMultilineTextSampleInitialize( ImuiContext* imui )
 void imuiMultilineTextSampleShutdown( ImuiContext* imui )
 {
 #ifndef IMUI_NO_SAMPLE_FRAMEWORK
-	imuiFrameworkToolboxConfigDataShutdown( &s_toolboxContext.configData, imui );
+	imuiFrameworkToolboxConfigDataShutdown( &s_multilineTextContext.configData, imui );
 #endif
 }

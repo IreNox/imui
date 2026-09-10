@@ -41,6 +41,7 @@ add_executable(imui_samples
 	src/03_input.c
 	src/04_widgets.c
 	src/05_cpp.cpp
+	src/06_multiline_text.c
 	src/framework.c
 	src/framework.h
 	src/main.c
