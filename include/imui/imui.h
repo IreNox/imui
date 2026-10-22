@@ -27,32 +27,17 @@ typedef struct ImuiWindow ImuiWindow;
 typedef uint32_t ImuiId;
 typedef uint32_t ImuiHash;
 
-#if !defined( IMUI_DEBUG )
-#	if defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )
-#		define IMUI_DEBUG 1
-#	else
-#		define IMUI_DEBUG 0
-#	endif
-#endif
-
 typedef void*(*ImuiAllocatorMallocFunc)(size_t size, void* userData);
 typedef void*(*ImuiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
 typedef void( *ImuiAllocatorFreeFunc )(void* memory, void* userData);
 
-typedef struct ImuiAllocator
+typedef struct ImuiAllocatorParameters
 {
 	ImuiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
 	ImuiAllocatorReallocFunc	reallocFunc;	// can be NULL
 	ImuiAllocatorFreeFunc		freeFunc;
 	void*						userData;
-	void*						internalData;	// internal use only
-#if IMUI_DEBUG
-	size_t						allocationCount;
-	size_t						allocationSize;
-	size_t						maxAllocationCount;
-	size_t						maxAllocationSize;
-#endif
-} ImuiAllocator;
+} ImuiAllocatorParameters;
 
 typedef void(*ImuiStateDestructFunc)(void* state);
 
@@ -110,7 +95,7 @@ typedef enum ImuiVertexType
 
 typedef struct ImuiParameters					// Fill with zero for default parameters
 {
-	ImuiAllocator					allocator;			// Override memory Allocator. Default use malloc/free
+	ImuiAllocatorParameters			allocator;			// Override memory Allocator. Default use malloc/free
 	const ImuiInputShortcutConfig*	shortcuts;			// Define keyboard shortcuts
 	size_t							shortcutCount;
 	ImuiVertexFormat				vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color

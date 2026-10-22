@@ -8,9 +8,12 @@ static void*	imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsi
 static void*	imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
 static void		imuiMemoryDefaultFree( void* memory, void* userData );
 
-void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator )
+void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocatorParameters* allocatorParameters )
 {
-	*targetAllocator = *sourceAllocator;
+	targetAllocator->mallocFunc		= allocatorParameters->mallocFunc;
+	targetAllocator->reallocFunc	= allocatorParameters->reallocFunc;
+	targetAllocator->freeFunc		= allocatorParameters->freeFunc;
+	targetAllocator->userData		= allocatorParameters->userData;
 
 	if( targetAllocator->mallocFunc == NULL ||
 		targetAllocator->freeFunc == NULL )
@@ -23,7 +26,7 @@ void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAlloc
 	}
 	else
 	{
-		targetAllocator->internalData	= sourceAllocator->userData;
+		targetAllocator->internalData	= allocatorParameters->userData;
 	}
 }
 
@@ -228,7 +231,8 @@ static void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsiz
 		return NULL;
 	}
 
-	memcpy( newMemory, oldMemory, oldSize );
+	const uintsize copySize = IMUI_MIN( oldSize, newSize );
+	memcpy( newMemory, oldMemory, copySize );
 	imuiMemoryFree( allocator, oldMemory );
 
 	return newMemory;
