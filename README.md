@@ -2,12 +2,15 @@
 
 [![Build CI](https://github.com/IreNox/imui/actions/workflows/build.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build.yml)
 
-A simple to use Immediate Mode UI library written in C. This is in an early state and all APIs may change.
+I'm UI is an immediate mode graphical user interface library written in C, with a C++ wrapper.
+It is designed for embedding into applications, tools, and engines that provide their own windows,
+input handling, and rendering.
 
 ## Features
 
 - Five different layout methods(Stack, Scroll, Horizintal, Vertical, Grid)
 - Toolbox with a lot of generic widgets like: Button, Check Box, List etc
+- Customizable colors, skins, and widget styling
 - Bitmap/SDF font generation
 - C++ API wrapper included
 - a lot more

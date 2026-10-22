@@ -1,9 +1,11 @@
 #pragma once
 
-// I'm UI - Immediate Mode UI library written in C.
+// I'm UI
 //
-// The application provides input events, fonts/textures and a renderer. ImUi
-// builds the layout and generates vertex/index buffers and draw commands.
+// About:
+// I'm UI is an immediate mode graphical user interface library written in C,
+// with a C++ wrapper. It is designed for embedding into applications, tools
+// and engines that provide their own windows, input handling and rendering.
 //
 // Minimal example:
 //	ImuiParameters parameters = { 0 };
