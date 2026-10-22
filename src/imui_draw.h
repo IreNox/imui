@@ -4,6 +4,7 @@
 
 #include "imui_types.h"
 
+typedef struct ImuiAllocator ImuiAllocator;
 typedef struct ImuiDrawSurfaceData ImuiDrawSurfaceData;
 typedef struct ImuiDrawWindowData ImuiDrawWindowData;
 
