@@ -86,9 +86,10 @@ void* imuiMemoryRealloc( ImuiAllocator* allocator, void* oldMemory, uintsize old
 	if( oldSizeMem )
 	{
 		oldSizeMem--;
+		oldSize += sizeof( uintsize );
 	}
 
-	uintsize* mem = (uintsize*)allocator->reallocFunc( oldSizeMem, oldSize + sizeof( uintsize ), newSize + sizeof(uintsize), allocator->internalData );
+	uintsize* mem = (uintsize*)allocator->reallocFunc( oldSizeMem, oldSize, newSize + sizeof(uintsize), allocator->internalData );
 	if( !mem )
 	{
 		return NULL;
@@ -224,7 +225,7 @@ static void* imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsi
 static void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
 	ImuiAllocator* allocator = (ImuiAllocator*)userData;
-	void* newMemory = imuiMemoryAlloc( allocator, newSize );
+	void* newMemory = allocator->mallocFunc( newSize, allocator->userData );
 	if( newMemory == NULL )
 	{
 		imuiMemoryFree( allocator, oldMemory );
@@ -233,7 +234,7 @@ static void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsiz
 
 	const uintsize copySize = IMUI_MIN( oldSize, newSize );
 	memcpy( newMemory, oldMemory, copySize );
-	imuiMemoryFree( allocator, oldMemory );
+	allocator->freeFunc( oldMemory, allocator->userData );
 
 	return newMemory;
 }
