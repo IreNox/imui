@@ -1,4 +1,4 @@
-name: Build Samples
+name: Build Samples and Tests
 
 on:
   push:
@@ -46,6 +46,9 @@ jobs:
 
     - name: Build Tests
       run: cmake --build build-tests --config ${{ matrix.config }}
+
+    - name: Run Tests
+      run: ctest --test-dir build-tests --output-on-failure
 
     - uses: actions/cache@v4
       with:
