@@ -10,7 +10,7 @@
 static const uint32 ImuiTextInvalidCodepoint = 0xfffd;
 
 static ImuiTextLayout*	imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, const ImuiTextLayoutParameters* parameters, ImuiTextLayout** mapLayout );
-static bool				imuiTextLayoutNextLine( float* x, float* y, uintsize* lineCount, const ImuiTextLayoutParameters* parameters );
+static bool				imuiTextLayoutNextLine( float* x, float* y, float* maxX, uintsize* lineCount, const ImuiTextLayoutParameters* parameters );
 
 static ImuiHash ImuiTextLayoutCacheHash( const void* entry )
 {
@@ -241,7 +241,7 @@ ImuiSize imuiTextLayoutCalculateSize( ImuiContext* imui, ImuiFont* font, const c
 static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, const ImuiTextLayoutParameters* parameters, ImuiTextLayout** mapLayout )
 {
 	const uintsize maxGlyphCount = imuiTextLayoutCalculateGlyphCount( parameters->text.data, parameters->text.length );
-	const uintsize memorySize = sizeof( ImuiTextLayout ) + parameters->text.length + 1u + (sizeof( ImuiTextGlyph ) * maxGlyphCount);
+	const uintsize memorySize = sizeof( ImuiTextLayout ) + (parameters->text.length + 1u) + (sizeof( ImuiTextGlyph ) * maxGlyphCount);
 	ImuiTextLayout* layout = (ImuiTextLayout*)imuiMemoryAlloc( cache->allocator, memorySize );
 	if( !layout )
 	{
@@ -251,7 +251,8 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 
 	ImuiTextGlyph* glyphs = (ImuiTextGlyph*)&layout[ 1u ];
 	char* textData = (char*)&glyphs[ maxGlyphCount ];
-	memcpy( textData, parameters->text.data, parameters->text.length + 1u );
+	memcpy( textData, parameters->text.data, parameters->text.length );
+	textData[ parameters->text.length ] = '\0';
 
 	uintsize lineCount = 1u;
 	uintsize glyphIndex = 0u;
@@ -260,13 +261,9 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 	uintsize afterBreakGlyphIndex = IMUI_SIZE_MAX;
 	float x = 0.0f;
 	float y = 0.0f;
+	float maxX = 0.0f;
 	for( uintsize charIndex = 0; charIndex < parameters->text.length; ++charIndex )
 	{
-		ImuiTextGlyph* glyph = &glyphs[ glyphIndex ];
-		IMUI_ASSERT( glyphIndex < maxGlyphCount );
-
-		glyph->charIndex = (uint32)charIndex;
-
 		if( lastBreakableChar )
 		{
 			afterBreakCharIndex = charIndex;
@@ -280,13 +277,18 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 		const char c = parameters->text.data[ charIndex ];
 		if( c == '\n' )
 		{
-			if( !imuiTextLayoutNextLine( &x, &y, &lineCount, parameters ) )
+			if( !imuiTextLayoutNextLine( &x, &y, &maxX, &lineCount, parameters ) )
 			{
 				break;
 			}
 
 			continue;
 		}
+
+		ImuiTextGlyph* glyph = &glyphs[ glyphIndex ];
+		IMUI_ASSERT( glyphIndex < maxGlyphCount );
+
+		glyph->charIndex = (uint32)charIndex;
 
 		const uint32 codepointByteCount = IMUI_COUNT_LEADING_ZEROS32( ~((uint32)c << 24u) );
 
@@ -347,7 +349,7 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 		if( parameters->maxSize.width > 0.0f &&
 			x + codepointInfo->xOffset + codepointInfo->width > parameters->maxSize.width )
 		{
-			if( !imuiTextLayoutNextLine( &x, &y, &lineCount, parameters ) )
+			if( !imuiTextLayoutNextLine( &x, &y, &maxX, &lineCount, parameters ) )
 			{
 				break;
 			}
@@ -371,13 +373,15 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 		x += codepointInfo->advance;
 	}
 
+	maxX = IMUI_MAX( x, maxX );
+
 	layout->font		= parameters->font;
 	layout->text.data	= textData;
 	layout->text.length	= parameters->text.length;
 	layout->maxSize		= parameters->maxSize;
 	layout->glyphs		= glyphs;
 	layout->glyphCount	= glyphIndex;
-	layout->size		= imuiSizeCreate( ceilf( x ), lineCount * parameters->font->fontSize );
+	layout->size		= imuiSizeCreate( ceilf( maxX ), lineCount * parameters->font->fontSize );
 	layout->frameIndex	= cache->frameIndex;
 
 	layout->prevLayout	= NULL;
@@ -393,8 +397,9 @@ static ImuiTextLayout* imuiTextLayoutCreateNew( ImuiTextLayoutCache* cache, cons
 	return layout;
 }
 
-static bool imuiTextLayoutNextLine( float* x, float* y, uintsize* lineCount, const ImuiTextLayoutParameters* parameters )
+static bool imuiTextLayoutNextLine( float* x, float* y, float* maxX, uintsize* lineCount, const ImuiTextLayoutParameters* parameters )
 {
+	*maxX = IMUI_MAX( *maxX, *x );
 	*x = 0.0f;
 	*y += parameters->font->fontSize; // parameters->font->lineGap * parameters->font->fontSize
 	*y = ceilf( *y );
