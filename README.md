@@ -78,6 +78,10 @@ Unit test can be found in `tests` sub directory and built via CMake.
 > **Disclaimer**
 > Most of the the tests are written by AI. Don't trust them.
 
+## AI usage
+
+The library it self contains no vipe coded source code. For CMake configuration and unit tests AI has been used.
+
 ## Used Libraries
 
 - [stb_truetype](https://github.com/nothings/stb)
