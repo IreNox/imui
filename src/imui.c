@@ -8,6 +8,8 @@
 #include <string.h>
 #include <math.h>
 
+static ImuiWindow*	imuiWindowAllocate( ImuiContext* imui );
+static void			imuiWindowFree( ImuiContext* imui, ImuiWindow* window );
 static void			imuiWindowLayout( ImuiWindow* window );
 
 static ImuiWidget*	imuiWidgetAlloc( ImuiContext* imui );
@@ -87,10 +89,11 @@ ImuiContext* imuiCreate( const ImuiParameters* parameters )
 
 void imuiDestroy( ImuiContext* imui )
 {
-	for( uintsize i = 0u; i < imui->surfaceCapacity; ++i )
+	for( uintsize i = 0u; i < imui->surfaceCount; ++i )
 	{
-		ImuiSurface* surface = &imui->surfaces[ i ];
+		ImuiSurface* surface = imui->surfaces[ i ];
 		imuiMemoryFree( &imui->allocator, surface->windows );
+		imuiMemoryFree( &imui->allocator, surface );
 	}
 	imuiMemoryFree( &imui->allocator, imui->surfaces );
 
@@ -117,6 +120,13 @@ void imuiDestroy( ImuiContext* imui )
 	for( ImuiWidgetChunk* pChunk = imui->firstFreeChunk; pChunk != NULL; )
 	{
 		ImuiWidgetChunk* pNextChunk = pChunk->nextChunk;
+		imuiMemoryFree( &imui->allocator, pChunk );
+		pChunk = pNextChunk;
+	}
+
+	for( ImuiWindowChunk* pChunk = imui->firstWindowChunk; pChunk != NULL; )
+	{
+		ImuiWindowChunk* pNextChunk = pChunk->nextChunk;
 		imuiMemoryFree( &imui->allocator, pChunk );
 		pChunk = pNextChunk;
 	}
@@ -148,11 +158,11 @@ void imuiEnd( ImuiFrame* frame )
 	// deleted unused surfaces and windows
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		ImuiSurface* surface = &imui->surfaces[ surfaceIndex ];
+		ImuiSurface* surface = imui->surfaces[ surfaceIndex ];
 		if( !surface->inUse )
 		{
 			imuiMemoryFree( &imui->allocator, surface->windows );
-
+			imuiMemoryFree( &imui->allocator, surface );
 			IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( imui->surfaces, imui->surfaceCount, surfaceIndex );
 
 			surfaceIndex--;
@@ -161,9 +171,10 @@ void imuiEnd( ImuiFrame* frame )
 
 		for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 		{
-			ImuiWindow* window = &surface->windows[ windowIndex ];
+			ImuiWindow* window = surface->windows[ windowIndex ];
 			if( !window->inUse )
 			{
+				imuiWindowFree( imui, window );
 				IMUI_MEMORY_ARRAY_REMOVE_UNSORTED_ZERO( surface->windows, surface->windowCount, windowIndex );
 
 				windowIndex--;
@@ -248,12 +259,12 @@ ImuiSurface* imuiSurfaceBeginId( ImuiFrame* frame, const char* name, ImuiId id, 
 	ImuiSurface* surface = NULL;
 	for( uintsize surfaceIndex = 0u; surfaceIndex < imui->surfaceCount; ++surfaceIndex )
 	{
-		if( imui->surfaces[ surfaceIndex ].id != id )
+		if( imui->surfaces[ surfaceIndex ]->id != id )
 		{
 			continue;
 		}
 
-		surface = &imui->surfaces[ surfaceIndex ];
+		surface = imui->surfaces[ surfaceIndex ];
 		IMUI_ASSERT( !surface->inUse && "Surface name must be unique" );
 
 		break;
@@ -266,10 +277,8 @@ ImuiSurface* imuiSurfaceBeginId( ImuiFrame* frame, const char* name, ImuiId id, 
 			return NULL;
 		}
 
-		surface = &imui->surfaces[ imui->surfaceCount ];
-		imui->surfaceCount++;
-
-		memset( surface, 0, sizeof( *surface ) );
+		surface = IMUI_MEMORY_NEW_ZERO( &imui->allocator, ImuiSurface );
+		imui->surfaces[ imui->surfaceCount++ ] = surface;
 
 		surface->id			= id;
 		surface->context	= imui;
@@ -345,12 +354,12 @@ ImuiWindow* imuiWindowBeginId( ImuiSurface* surface, const char* name, ImuiId id
 	ImuiWindow* window = NULL;
 	for( uintsize windowIndex = 0u; windowIndex < surface->windowCount; ++windowIndex )
 	{
-		if( surface->windows[ windowIndex ].id != id )
+		if( surface->windows[ windowIndex ]->id != id )
 		{
 			continue;
 		}
 
-		window = &surface->windows[ windowIndex ];
+		window = surface->windows[ windowIndex ];
 		IMUI_ASSERT( !window->inUse && "Window name must be unique" );
 		break;
 	}
@@ -362,10 +371,13 @@ ImuiWindow* imuiWindowBeginId( ImuiSurface* surface, const char* name, ImuiId id
 			return NULL;
 		}
 
-		window = &surface->windows[ surface->windowCount ];
-		surface->windowCount++;
+		window = imuiWindowAllocate( imui );
+		if( !window )
+		{
+			return NULL;
+		}
 
-		memset( window, 0, sizeof( *window ) );
+		surface->windows[ surface->windowCount++ ] = window;
 	}
 
 	window->inUse						= true;
@@ -506,9 +518,48 @@ ImuiWidget* imuiWindowGetLastChild( const ImuiWindow* window )
 	return window->rootWidget->lastChild;
 }
 
+static ImuiWindow* imuiWindowAllocate( ImuiContext* imui )
+{
+	if( imui->firstFreeWindow )
+	{
+		ImuiWindow* window = (ImuiWindow*)imui->firstFreeWindow;
+		imui->firstFreeWindow = imui->firstFreeWindow->nextFree;
+
+		memset( window, 0, sizeof( *window ) );
+		return window;
+	}
+
+	if( !imui->firstWindowChunk || imui->firstWindowChunk->usedCount >= IMUI_DEFAULT_WINDOW_CHUNK_SIZE )
+	{
+		ImuiWindowChunk* windowChunk = IMUI_MEMORY_NEW( &imui->allocator, ImuiWindowChunk );
+		if( !windowChunk )
+		{
+			return NULL;
+		}
+
+		windowChunk->nextChunk	= imui->firstWindowChunk;
+		windowChunk->usedCount	= 0u;
+
+		imui->firstWindowChunk = windowChunk;
+	}
+
+	ImuiWindow* window = &imui->firstWindowChunk->data[ imui->firstWindowChunk->usedCount ];
+	imui->firstWindowChunk->usedCount++;
+
+	memset( window, 0, sizeof( *window ) );
+	return window;
+}
+
+static void imuiWindowFree( ImuiContext* imui, ImuiWindow* window )
+{
+	ImuiWindowFree* freeWindow = (ImuiWindowFree*)window;
+	freeWindow->nextFree = imui->firstFreeWindow;
+	imui->firstFreeWindow = freeWindow;
+}
+
 static void imuiWindowLayout( ImuiWindow* window )
 {
-	const bool update = true; // !window->rootWidget->lastFrameWidget || (window->rootWidget->hash != window->rootWidget->lastFrameWidget->hash);
+	const bool update = true; // TODO: only update changed layouts: !window->rootWidget->lastFrameWidget || (window->rootWidget->hash != window->rootWidget->lastFrameWidget->hash);
 
 	window->hasFocus &= !window->focusLocked;
 
@@ -1849,7 +1900,7 @@ void imuiWidgetGetInputState( ImuiWidget* widget, ImuiWidgetInputState* target )
 	{
 		for( uintsize i = 0; i < surface->windowCount && !hasOverlappingWindow; ++i )
 		{
-			const ImuiWindow* testWindow = &surface->windows[ i ];
+			const ImuiWindow* testWindow = surface->windows[ i ];
 			if( testWindow == window ||
 				testWindow->zOrder < window->zOrder )
 			{

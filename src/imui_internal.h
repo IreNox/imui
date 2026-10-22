@@ -3,10 +3,11 @@
 #include "imui/imui.h"
 
 #include "imui_draw.h"
-#include "imui_input.h"
 #include "imui_helpers.h"
-#include "imui_types.h"
+#include "imui_input.h"
+#include "imui_memory.h"
 #include "imui_text.h"
+#include "imui_types.h"
 
 struct ImuiSurface
 {
@@ -22,7 +23,7 @@ struct ImuiSurface
 
 	uintsize				drawIndex;
 
-	ImuiWindow*				windows;
+	ImuiWindow**			windows;
 	uintsize				windowCapacity;
 	uintsize				windowCount;
 };
@@ -63,6 +64,20 @@ struct ImuiWindow
 	uint32			lastFocusIndex;
 	ImuiWidget*		closesFocusIndexWidget;
 	ImuiWidget*		wrapFocusIndexWidget;
+};
+
+typedef struct ImuiWindowFree ImuiWindowFree;
+struct ImuiWindowFree
+{
+	ImuiWindowFree*			nextFree;
+};
+
+typedef struct ImuiWindowChunk ImuiWindowChunk;
+struct ImuiWindowChunk
+{
+	ImuiWindowChunk*		nextChunk;
+	ImuiWindow				data[ IMUI_DEFAULT_WINDOW_CHUNK_SIZE ];
+	uintsize				usedCount;
 };
 
 typedef struct ImuiWidgetState ImuiWidgetState;
@@ -216,9 +231,12 @@ struct ImuiContext
 
 	ImuiFrame				frame;
 
-	ImuiSurface*			surfaces;
+	ImuiSurface**			surfaces;
 	uintsize				surfaceCapacity;
 	uintsize				surfaceCount;
+
+	ImuiWindowChunk*		firstWindowChunk;
+	ImuiWindowFree*			firstFreeWindow;
 
 	ImuiWidgetChunk*		firstChunk;
 	ImuiWidgetChunk*		firstLastFrameChunk;
