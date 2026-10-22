@@ -1,6 +1,6 @@
 # I'm UI
 
-[![Build CI](https://github.com/IreNox/imui/actions/workflows/build_samples.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build.yml)
+[![Build CI](https://github.com/IreNox/imui/actions/workflows/build.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build.yml)
 
 A simple to use Immediate Mode UI library written in C. This is in an early state and all APIs may change.
 
