@@ -24,6 +24,7 @@ typedef struct ImuiFrameworkToolboxConfigData
 	ImuiImage	fontTexture;
 
 	ImuiSkin	skinRect;
+	ImuiSkin	skinTab;
 	ImuiImage	skinRectTexture;
 	ImuiSkin	skinLine;
 	ImuiImage	skinLineTexture;

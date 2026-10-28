@@ -15,9 +15,10 @@ input handling, and rendering.
 - C++ API wrapper included
 - a lot more
 
-## Sample
+## Screenshots
 
 ![samples](samples/screen_shot.png)
+![imapp](samples/imapp_tool.png)
 
 ## Example
 

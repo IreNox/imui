@@ -33,7 +33,8 @@ static void			imuiToolboxSampleSlidersAndProgressBars( ImuiWindow* window );
 static void			imuiToolboxSampleTextEdit( ImuiWindow* window );
 static void			imuiToolboxSampleDropDown( ImuiWindow* window );
 static void			imuiToolboxSamplePopup( ImuiWindow* window );
-static void			imuiToolboxSampleScrollAndList( ImuiWindow* window );
+static void			imuiToolboxSampleScroll( ImuiWindow* window );
+static void			imuiToolboxSampleList( ImuiWindow* window );
 static void			imuiToolboxSampleTabView( ImuiWindow* window );
 static void			imuiToolboxSampleTextView( ImuiWindow* window );
 
@@ -72,9 +73,7 @@ void imuiToolboxSampleTick( ImuiWindow* window )
 		imuiWidgetSetHStretch( vLayout, 1.0f );
 		imuiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-		imuiToolboxSampleScrollAndList( window );
 		imuiToolboxSampleTabView( window );
-		imuiToolboxSampleTextView( window );
 
 		imuiWidgetEnd( vLayout );
 	}
@@ -161,82 +160,83 @@ static void imuiToolboxSampleTextEdit( ImuiWindow* window )
 	imuiToolboxTextEditStateBuffer( window, 128u );
 }
 
-static void imuiToolboxSampleScrollAndList( ImuiWindow* window )
+static void imuiToolboxSampleScroll( ImuiWindow* window )
 {
 	imuiToolboxLabel( window, "Item count:" );
 	const float itemCount = imuiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
-	const bool useList = imuiToolboxCheckBoxStateDefault( window, "List", false );
+	const size_t count = (size_t)itemCount;
+
+	ImuiToolboxScrollAreaContext scrollArea;
+	imuiToolboxScrollAreaBegin( &scrollArea, window );
+	imuiWidgetSetMinSizeFloat( scrollArea.area, 200.0f, 200.0f );
+
+	ImuiWidget* scrollLayout = imuiWidgetBeginNamed( window, "scroll" );
+	imuiWidgetSetHStretch( scrollLayout, 1.0f );
+	imuiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
+
+	size_t scrollIndices[ 3 ];
+	ImuiWidget* scrollWidgets[ 3 ];
+	scrollIndices[ 0 ] = 0;
+	scrollIndices[ 1 ] = count / 2;
+	scrollIndices[ 2 ] = count - 1;
+
+	for( size_t i = 0; i < count; ++i )
+	{
+		ImuiWidget* itemWidget = imuiToolboxLabelBeginFormat( window, "Scroll Label %i", i );
+		imuiToolboxLabelEnd( itemWidget );
+
+		for( size_t j = 0; j < IMUI_ARRAY_COUNT( scrollIndices ); ++j )
+		{
+			if( i == scrollIndices[ j ] )
+			{
+				scrollWidgets[ j ] = itemWidget;
+			}
+		}
+	}
+
+	imuiWidgetEnd( scrollLayout );
+	imuiToolboxScrollAreaEnd( &scrollArea );
+
+	if( count > 0 )
+	{
+		ImuiWidget* scrollToLayout = imuiWidgetBegin( window );
+		imuiWidgetSetHStretch( scrollToLayout, 1.0f );
+		imuiWidgetSetLayoutHorizontalSpacing( scrollToLayout, 4.0f );
+
+		for( size_t i = 0; i < IMUI_ARRAY_COUNT( scrollWidgets ); ++i )
+		{
+			if( imuiToolboxButtonLabelFormat( window, "Scroll to %d", scrollIndices[ i ] ) )
+			{
+				imuiToolboxScrollAreaOffsetTo( &scrollArea, scrollWidgets[ i ] );
+			}
+		}
+
+		imuiWidgetEnd( scrollToLayout );
+	}
+}
+
+static void imuiToolboxSampleList( ImuiWindow* window )
+{
+	imuiToolboxLabel( window, "Item count:" );
+	const float itemCount = imuiToolboxSliderStateMinMaxDefault( window, 0.0f, 128.0f, 32.0f );
 
 	const size_t count = (size_t)itemCount;
-	if( useList )
+	ImuiToolboxListContext list;
+	imuiToolboxListBegin( &list, window, 25.0f, count, true );
+	imuiWidgetSetMinSizeFloat( list.list, 200.0f, 200.0f );
+
+	for( size_t i = imuiToolboxListGetBeginIndex( &list ); i < imuiToolboxListGetEndIndex( &list ); ++i )
 	{
-		ImuiToolboxListContext list;
-		imuiToolboxListBegin( &list, window, 25.0f, count, true );
-		imuiWidgetSetMinSizeFloat( list.list, 200.0f, 200.0f );
+		ImuiWidget* item = imuiToolboxListNextItem( &list );
+		imuiWidgetSetPadding( item, imuiBorderCreateAll( 4.0f ) );
 
-		for( size_t i = imuiToolboxListGetBeginIndex( &list ); i < imuiToolboxListGetEndIndex( &list ); ++i )
-		{
-			ImuiWidget* item = imuiToolboxListNextItem( &list );
-			imuiWidgetSetPadding( item, imuiBorderCreateAll( 4.0f ) );
-
-			ImuiWidget* label = imuiToolboxLabelBeginFormat( window, "List Label %i", i );
-			imuiWidgetSetVAlign( label, 0.5f );
-			imuiToolboxLabelEnd( label );
-		}
-
-		imuiToolboxListEnd( &list );
+		ImuiWidget* label = imuiToolboxLabelBeginFormat( window, "List Label %i", i );
+		imuiWidgetSetVAlign( label, 0.5f );
+		imuiToolboxLabelEnd( label );
 	}
-	else
-	{
-		ImuiToolboxScrollAreaContext scrollArea;
-		imuiToolboxScrollAreaBegin( &scrollArea, window );
-		imuiWidgetSetMinSizeFloat( scrollArea.area, 200.0f, 200.0f );
 
-		ImuiWidget* scrollLayout = imuiWidgetBeginNamed( window, "scroll" );
-		imuiWidgetSetHStretch( scrollLayout, 1.0f );
-		imuiWidgetSetLayoutVerticalSpacing( scrollLayout, 4.0f );
-
-		size_t scrollIndices[ 3 ];
-		ImuiWidget* scrollWidgets[ 3 ];
-		scrollIndices[ 0 ] = 0;
-		scrollIndices[ 1 ] = count / 2;
-		scrollIndices[ 2 ] = count - 1;
-
-		for( size_t i = 0; i < count; ++i )
-		{
-			ImuiWidget* itemWidget = imuiToolboxLabelBeginFormat( window, "Scroll Label %i", i );
-			imuiToolboxLabelEnd( itemWidget );
-
-			for( size_t j = 0; j < IMUI_ARRAY_COUNT( scrollIndices ); ++j )
-			{
-				if( i == scrollIndices[ j ] )
-				{
-					scrollWidgets[ j ] = itemWidget;
-				}
-			}
-		}
-
-		imuiWidgetEnd( scrollLayout );
-		imuiToolboxScrollAreaEnd( &scrollArea );
-
-		if( count > 0 )
-		{
-			ImuiWidget* scrollToLayout = imuiWidgetBegin( window );
-			imuiWidgetSetHStretch( scrollToLayout, 1.0f );
-			imuiWidgetSetLayoutHorizontalSpacing( scrollToLayout, 4.0f );
-
-			for( size_t i = 0; i < IMUI_ARRAY_COUNT( scrollWidgets ); ++i )
-			{
-				if( imuiToolboxButtonLabelFormat( window, "Scroll to %d", scrollIndices[ i ] ) )
-				{
-					imuiToolboxScrollAreaOffsetTo( &scrollArea, scrollWidgets[ i ] );
-				}
-			}
-
-			imuiWidgetEnd( scrollToLayout );
-		}
-	}
+	imuiToolboxListEnd( &list );
 }
 
 static void imuiToolboxSampleDropDown( ImuiWindow* window )
@@ -299,24 +299,47 @@ static void imuiToolboxSampleTabView( ImuiWindow* window )
 	imuiToolboxTabViewBegin( &tabView, window );
 	imuiWidgetSetHStretch( tabView.view, 1.0f );
 
-	char buffer[ 32u ];
+	const char* tabTitle[] =
+	{
+		"Scroll",
+		"List",
+		"Text View",
+		"Tab 4"
+	};
 
 	size_t selectedTab = 0u;
 	for( size_t i = 0u; i < 4u; ++i )
 	{
-		snprintf( buffer, sizeof( buffer ), "Tab %zu", i + 1u );
-
-		if( imuiToolboxTabViewHeader( &tabView, buffer ) )
+		if( imuiToolboxTabViewHeader( &tabView, tabTitle[ i ] ) )
 		{
 			selectedTab = i;
 		}
 	}
 
 	imuiToolboxTabViewBodyBegin( &tabView );
+	ImuiWidget* vLayout = imuiWidgetBegin( window );
+	imuiWidgetSetLayoutVerticalSpacing( vLayout, 10.0f );
 
-	snprintf( buffer, sizeof( buffer ), "Hello from Tab %zu", selectedTab + 1u );
-	imuiToolboxLabel( window, buffer );
+	switch( selectedTab )
+	{
+	case 0:
+		imuiToolboxSampleScroll( window );
+		break;
 
+	case 1:
+		imuiToolboxSampleList( window );
+		break;
+
+	case 2:
+		imuiToolboxSampleTextView( window );
+		break;
+
+	default:
+		imuiToolboxLabelFormat( window, "Hello from Tab %zu", selectedTab + 1u );
+		break;
+	}
+
+	imuiWidgetEnd( vLayout );
 	imuiToolboxTabViewBodyEnd( &tabView );
 	imuiToolboxTabViewEnd( &tabView );
 }

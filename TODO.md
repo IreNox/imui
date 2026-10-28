@@ -6,3 +6,4 @@
 - multiline text select
 - multiline text editing
 - more?
+- Tooltips

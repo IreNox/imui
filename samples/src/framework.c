@@ -940,6 +940,11 @@ bool imuiFrameworkToolboxConfigDataInitialize( ImuiFrameworkToolboxConfigData* d
 		return false;
 	}
 
+	data->skinTab = data->skinRect;
+	data->skinTab.uv.v1 -= data->skinTab.border.bottom / data->skinTab.height;
+	data->skinTab.height -= (uint32_t)data->skinTab.border.bottom;
+	data->skinTab.border.bottom = 0.0f;
+
 	if( !imuiFrameworkSkinCreate( &data->skinLine, &data->skinLineTexture, 32u, 6.0f, 64.0f, true ) )
 	{
 		return false;
@@ -1032,9 +1037,9 @@ void imuiFrameworkToolboxConfigDataApply( const ImuiFrameworkToolboxConfigData* 
 	theme.skins[ ImuiToolboxSkin_DropDownList ]					= data->skinRect;
 	theme.skins[ ImuiToolboxSkin_DropDownItem ]					= data->skinRect;
 	theme.skins[ ImuiToolboxSkin_Popup ]						= data->skinRect;
-	theme.skins[ ImuiToolboxSkin_TabViewHeadBackground ]		= data->skinRect;
-	theme.skins[ ImuiToolboxSkin_TabViewHeaderActive ]			= data->skinRect;
-	theme.skins[ ImuiToolboxSkin_TabViewHeaderInactive ]		= data->skinRect;
+	theme.skins[ ImuiToolboxSkin_TabViewHeadBackground ]		= data->skinTab;
+	theme.skins[ ImuiToolboxSkin_TabViewHeaderActive ]			= data->skinTab;
+	theme.skins[ ImuiToolboxSkin_TabViewHeaderInactive ]		= data->skinTab;
 	theme.skins[ ImuiToolboxSkin_TabViewBody ]					= data->skinRect;
 	static_assert( ImuiToolboxSkin_MAX == 22, "more skins" );
 
