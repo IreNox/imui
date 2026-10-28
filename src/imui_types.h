@@ -74,7 +74,9 @@ typedef struct ImuiStringView
 #endif
 
 #if defined( _M_X64 ) || defined( __amd64__ ) || defined( _M_ARM64 ) || defined( __aarch64__ )
+#	define IMUI_ARCH_64BIT
 #	define IMUI_NEXT_POWER_OF_TWO( val )	(1ll << (64 - IMUI_COUNT_LEADING_ZEROS64( val -1 )))
 #else
+#	define IMUI_ARCH_32BIT
 #	define IMUI_NEXT_POWER_OF_TWO( val )	(1 << (32 - IMUI_COUNT_LEADING_ZEROS32( val -1 )))
 #endif
