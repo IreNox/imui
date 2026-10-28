@@ -3,6 +3,8 @@
 #include "imui/imui.h"
 #include "imui_types.h"
 
+typedef struct ImuiAllocator ImuiAllocator;
+
 typedef ImuiHash(*imuiHashMapEntryHashFunc)( const void* entry );
 typedef bool(*imuiHashMapIsKeyEqualsFunc)( const void* lhs, const void* rhs );
 

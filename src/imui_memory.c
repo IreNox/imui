@@ -8,9 +8,12 @@ static void*	imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsi
 static void*	imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData );
 static void		imuiMemoryDefaultFree( void* memory, void* userData );
 
-void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator )
+void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocatorParameters* allocatorParameters )
 {
-	*targetAllocator = *sourceAllocator;
+	targetAllocator->mallocFunc		= allocatorParameters->mallocFunc;
+	targetAllocator->reallocFunc	= allocatorParameters->reallocFunc;
+	targetAllocator->freeFunc		= allocatorParameters->freeFunc;
+	targetAllocator->userData		= allocatorParameters->userData;
 
 	if( targetAllocator->mallocFunc == NULL ||
 		targetAllocator->freeFunc == NULL )
@@ -23,7 +26,7 @@ void imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAlloc
 	}
 	else
 	{
-		targetAllocator->internalData	= sourceAllocator->userData;
+		targetAllocator->internalData	= allocatorParameters->userData;
 	}
 }
 
@@ -83,9 +86,10 @@ void* imuiMemoryRealloc( ImuiAllocator* allocator, void* oldMemory, uintsize old
 	if( oldSizeMem )
 	{
 		oldSizeMem--;
+		oldSize += sizeof( uintsize );
 	}
 
-	uintsize* mem = (uintsize*)allocator->reallocFunc( oldSizeMem, oldSize + sizeof( uintsize ), newSize + sizeof(uintsize), allocator->internalData );
+	uintsize* mem = (uintsize*)allocator->reallocFunc( oldSizeMem, oldSize, newSize + sizeof(uintsize), allocator->internalData );
 	if( !mem )
 	{
 		return NULL;
@@ -221,15 +225,16 @@ static void* imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsi
 static void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
 	ImuiAllocator* allocator = (ImuiAllocator*)userData;
-	void* newMemory = imuiMemoryAlloc( allocator, newSize );
+	void* newMemory = allocator->mallocFunc( newSize, allocator->userData );
 	if( newMemory == NULL )
 	{
 		imuiMemoryFree( allocator, oldMemory );
 		return NULL;
 	}
 
-	memcpy( newMemory, oldMemory, oldSize );
-	imuiMemoryFree( allocator, oldMemory );
+	const uintsize copySize = IMUI_MIN( oldSize, newSize );
+	memcpy( newMemory, oldMemory, copySize );
+	allocator->freeFunc( oldMemory, allocator->userData );
 
 	return newMemory;
 }

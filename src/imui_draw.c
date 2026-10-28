@@ -834,8 +834,8 @@ static uint32 imuiDrawSurfacePushVertex( ImuiDraw* draw, ImuiDrawSurfaceData* su
 		case ImuiVertexElementSemantic_PositionClipSpace:
 			{
 				const ImuiPos clipSpacePosition = imuiPosCreate(
-					-1.0f + (x / surface->size.width),
-					1.0f - (y / surface->size.height)
+					-1.0f + (2.0f * x / surface->size.width),
+					1.0f - (2.0f * y / surface->size.height)
 				);
 
 				switch( vertexElement->type )

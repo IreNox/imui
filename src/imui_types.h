@@ -5,7 +5,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef _DEBUG
+#if !defined( IMUI_DEBUG )
+#	if (defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )) && !defined( NDEBUG )
+#		define IMUI_DEBUG 1
+#	else
+#		define IMUI_DEBUG 0
+#	endif
+#endif
+
+#if IMUI_DEBUG
 #	include <assert.h>
 #endif
 
@@ -39,6 +47,9 @@ typedef struct ImuiStringView
 #ifndef IMUI_DEFAULT_ARRAY_CAPACITY
 #	define IMUI_DEFAULT_ARRAY_CAPACITY				16u
 #endif
+#ifndef IMUI_DEFAULT_WINDOW_CHUNK_SIZE
+#	define IMUI_DEFAULT_WINDOW_CHUNK_SIZE			16u
+#endif
 #ifndef IMUI_DEFAULT_WIDGET_CHUNK_SIZE
 #	define IMUI_DEFAULT_WIDGET_CHUNK_SIZE			256u
 #endif
@@ -52,7 +63,7 @@ typedef struct ImuiStringView
 #define IMUI_FLOAT_INF (FLT_MAX / 100.0f)
 #define IMUI_SIZE_MAX ((uintsize)-1)
 
-#ifdef _DEBUG
+#if IMUI_DEBUG
 #	define IMUI_ASSERT( exp ) assert( exp )
 #else
 #	define IMUI_ASSERT( exp )

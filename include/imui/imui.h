@@ -1,5 +1,57 @@
 #pragma once
 
+// I'm UI
+//
+// About:
+// I'm UI is an immediate mode graphical user interface library written in C,
+// with a C++ wrapper. It is designed for embedding into applications, tools
+// and engines that provide their own windows, input handling and rendering.
+//
+// Minimal example:
+//	ImuiParameters parameters = { 0 };
+//	ImuiContext* imui = imuiCreate( &parameters );
+//
+//	ImuiInput* input = imuiInputBegin( ui, NULL );
+//	Set input via imuiInputPushKeyDown/MouseMove/Text etc.
+//	const ImuiInputState* inputState = imuiInputEnd( ui );
+//
+//	ImuiFrame* frame = imuiBegin( ui, timeInSeconds );
+//	ImuiSurface* surface = imuiSurfaceBegin( frame, "main", imuiSizeCreate( windowWidth, windowHeight ), inputState, 1.0f );
+//	ImuiWindow* window = imuiWindowBegin( surface, "content", imuiSurfaceGetRect( surface ), 0 );
+//
+//	ImuiWidget* box = imuiWidgetBeginNamed( window, "box" );
+//	imuiWidgetSetFixedSizeFloat( box, 100.0f, 40.0f );
+//	imuiWidgetDrawColor( box, imuiColorCreate( 60, 120, 200, 255 ) );
+//	imuiWidgetEnd( box );
+//
+//	imuiWindowEnd( window );
+//	imuiSurfaceEnd( surface );
+//
+//	imuiEnd( frame );
+//	imuiDestroy( ui );
+//
+// Lifetime and ownership:
+//
+// - The context owns and manage memory of frames, surfaces, windows, widgets,
+//   widget states, input states and text layouts. All pointers returned by a
+//   imui*Begin() call are valid until the corresponding imui*End() call.
+//
+// - ImuiInputState are freed automatically after the end of the next frame.
+//   Don't store the pointer for longer.
+//
+// - ImuiTextLayout are freed automatically when they are not used. The pointer
+//   should not be stored. Instead call imuiTextLayoutCreate to obtain the
+//   pointer every frame. The states are cached internally and a hash map is
+//   used for look up.
+//
+// - ImuiDrawData and its command array are reused every frame. The data should be
+//   copied into your own data structure.
+//
+// - Fonts and TrueType data have explicit lifetime via create and destroy functions.
+//   imuiFontTrueTypeDataCreate stores the given data pointer internally.
+//   The data must stay valid until destroy function is called.
+//   imuiFontCreateTrueType destroys the given ImuiTrueTypeImage.
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -27,32 +79,17 @@ typedef struct ImuiWindow ImuiWindow;
 typedef uint32_t ImuiId;
 typedef uint32_t ImuiHash;
 
-#if !defined( IMUI_DEBUG )
-#	if defined( DEBUG ) || defined( _DEBUG ) || defined( __DEBUG__ )
-#		define IMUI_DEBUG 1
-#	else
-#		define IMUI_DEBUG 0
-#	endif
-#endif
-
 typedef void*(*ImuiAllocatorMallocFunc)(size_t size, void* userData);
 typedef void*(*ImuiAllocatorReallocFunc)(void* memory, size_t oldSize, size_t newSize, void* userData);
 typedef void( *ImuiAllocatorFreeFunc )(void* memory, void* userData);
 
-typedef struct ImuiAllocator
+typedef struct ImuiAllocatorParameters
 {
 	ImuiAllocatorMallocFunc		mallocFunc;		// set to NULL to use default malloc/free
 	ImuiAllocatorReallocFunc	reallocFunc;	// can be NULL
 	ImuiAllocatorFreeFunc		freeFunc;
 	void*						userData;
-	void*						internalData;	// internal use only
-#if IMUI_DEBUG
-	size_t						allocationCount;
-	size_t						allocationSize;
-	size_t						maxAllocationCount;
-	size_t						maxAllocationSize;
-#endif
-} ImuiAllocator;
+} ImuiAllocatorParameters;
 
 typedef void(*ImuiStateDestructFunc)(void* state);
 
@@ -110,7 +147,7 @@ typedef enum ImuiVertexType
 
 typedef struct ImuiParameters					// Fill with zero for default parameters
 {
-	ImuiAllocator					allocator;			// Override memory Allocator. Default use malloc/free
+	ImuiAllocatorParameters			allocator;			// Override memory Allocator. Default use malloc/free
 	const ImuiInputShortcutConfig*	shortcuts;			// Define keyboard shortcuts
 	size_t							shortcutCount;
 	ImuiVertexFormat				vertexFormat;		// Override vertex format. Default: float2 pos screen-space, float2 uv, float4 color

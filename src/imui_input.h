@@ -4,6 +4,8 @@
 
 #include "imui_types.h"
 
+typedef struct ImuiAllocator ImuiAllocator;
+
 typedef struct ImuiInputText
 {
 	union imuiInputTextData

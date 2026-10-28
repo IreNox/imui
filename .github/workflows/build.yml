@@ -1,13 +1,10 @@
-name: Build Samples
+name: Build Samples and Tests
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -31,17 +28,31 @@ jobs:
           libxext-dev \
           python3-jinja2
            
-    - name: Configure
+    - name: Configure Samples
       run: cmake -S samples -B build-samples -DCMAKE_BUILD_TYPE=${{ matrix.config }}
 
-    - name: Install Windows dependencies
+    - name: Install Samples Windows dependencies
       if: runner.os == 'Windows'
       run: cmake -P samples/install_python_requirements.cmake
         
-    - name: Build
+    - name: Build Samples
       run: cmake --build build-samples --config ${{ matrix.config }}
+
+    - name: Configure Tests
+      run: cmake -S tests -B build-tests -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+
+    - name: Build Tests
+      run: cmake --build build-tests --config ${{ matrix.config }}
+
+    - name: Run Tests
+      run: ctest --test-dir build-tests -C ${{ matrix.config }} --output-on-failure
 
     - uses: actions/cache@v4
       with:
         path: build-samples/_deps
+        key: ${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}
+
+    - uses: actions/cache@v4
+      with:
+        path: build-tests/_deps
         key: ${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt') }}

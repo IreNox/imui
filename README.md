@@ -1,14 +1,17 @@
 # I'm UI
 
-[![Build Samples](https://github.com/IreNox/imui/actions/workflows/build_samples.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build_samples.yml)
+[![Build CI](https://github.com/IreNox/imui/actions/workflows/build.yml/badge.svg)](https://github.com/IreNox/imui/actions/workflows/build.yml)
 
-A simple to use Immediate Mode UI library written in C. This is in an early state and all APIs may change.
+I'm UI is an immediate mode graphical user interface library written in C, with a C++ wrapper.
+It is designed for embedding into applications, tools, and engines that provide their own windows,
+input handling, and rendering.
 
 ## Features
 
 - Five different layout methods(Stack, Scroll, Horizintal, Vertical, Grid)
 - Toolbox with a lot of generic widgets like: Button, Check Box, List etc
-- Bitmap font generation
+- Customizable colors, skins, and widget styling
+- Bitmap/SDF font generation
 - C++ API wrapper included
 - a lot more
 
@@ -55,11 +58,32 @@ void doUi( ImuiContext* imui, float time )
 }
 ```
 
-## Building
+## Import into you Project
 
-Just import all files in `include` and `src` in your project and add `include` as include directory.
+Just import all files in `include` and `src` into your project and add `include` as include directory.
 
-To build the samples with cmake run `cmake -B build` or tiki_build use the provided batch files to generate Visual Studio files.
+## Interactive Samples
+
+The samples can be found in the `samples` sub directory. To build it with cmake run `cmake -B build` or tiki_build use the provided batch files to generate Visual Studio files.
+
+There 6 different modes you can seletect by pressing 1-6:
+1. Basic dynamic layouting
+2. Complex static layouting
+3. Input
+4. Toolbox C
+5. Toolbox C++
+6. Multiline Text
+
+## Tests
+
+Unit test can be found in `tests` sub directory and built via CMake.
+
+> **Disclaimer**
+> Most of the the tests are written by AI. Don't trust them.
+
+## AI usage
+
+The library it self contains no vipe coded source code. For CMake configuration and unit tests AI has been used.
 
 ## Used Libraries
 

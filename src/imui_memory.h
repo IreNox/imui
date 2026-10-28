@@ -4,6 +4,21 @@
 
 #include "imui_types.h"
 
+typedef struct ImuiAllocator
+{
+	ImuiAllocatorMallocFunc		mallocFunc;
+	ImuiAllocatorReallocFunc	reallocFunc;
+	ImuiAllocatorFreeFunc		freeFunc;
+	void*						userData;
+	void*						internalData;
+#if IMUI_DEBUG
+	size_t						allocationCount;
+	size_t						allocationSize;
+	size_t						maxAllocationCount;
+	size_t						maxAllocationSize;
+#endif
+} ImuiAllocator;
+
 #define IMUI_MEMORY_NEW( ALLOCATOR, TYPE )		(TYPE*)imuiMemoryAlloc( ALLOCATOR, sizeof( TYPE ) )
 #define IMUI_MEMORY_NEW_ZERO( ALLOCATOR, TYPE )	(TYPE*)imuiMemoryAllocZero( ALLOCATOR, sizeof( TYPE ) )
 
@@ -20,7 +35,7 @@
 
 #define IMUI_MEMORY_ARRAY_FREE( ALLOCATOR, ARRAY, CAPACITY )			imuiMemoryArrayFree( ALLOCATOR, (void**)&ARRAY, &CAPACITY )
 
-void	imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
+void	imuiMemoryAllocatorPrepare( ImuiAllocator* targetAllocator, const ImuiAllocatorParameters* allocatorParameters );
 void	imuiMemoryAllocatorFinalize( ImuiAllocator* targetAllocator, const ImuiAllocator* sourceAllocator );
 
 void*	imuiMemoryAlloc( ImuiAllocator* allocator, uintsize size );
