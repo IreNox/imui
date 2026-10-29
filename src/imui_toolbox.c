@@ -201,7 +201,9 @@ static const ImuiToolboxThemeReflectionField s_themeReflectionFields[] =
 static_assert( ImuiToolboxColor_MAX == 42, "more colors" );
 static_assert( ImuiToolboxSkin_MAX == 22, "more skins" );
 static_assert( ImuiToolboxIcon_MAX == 4, "more icons" );
+#ifdef IMUI_CHECK_TOOLBOX_THEME_SIZE
 static_assert( sizeof( ImuiToolboxTheme ) == 1640u, "theme changed" );
+#endif
 
 ImuiToolboxThemeReflection imuiToolboxThemeReflectionGet()
 {

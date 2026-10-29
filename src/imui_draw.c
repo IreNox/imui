@@ -82,7 +82,7 @@ static void					imuiDrawSurfacePushIndices( ImuiDrawSurfaceBuffers* buffers, con
 static uintsize				imuiDrawSurfacePushRect( ImuiDraw* draw, ImuiDrawSurfaceData* surface, ImuiPos posTl, ImuiPos posBr, ImuiTexCoord uv, ImuiColor color );
 static uintsize				imuiVertexElementTypeGetSize( ImuiVertexElementType type );
 
-#ifdef _DEBUG
+#ifdef IMUI_DEBUG
 static const bool s_supportedVertexElementSemanicFormats[][ ImuiVertexElementType_MAX ] =
 {
 	{ true,		true,	true,	true,	true,	true,	true,	true,	true,	true,	true,	true },		// ImuiVertexElementSemantic_None
