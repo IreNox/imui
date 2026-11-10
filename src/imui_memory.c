@@ -214,11 +214,14 @@ void imuiMemoryArrayFree( ImuiAllocator* allocator, void** memory, uintsize* cap
 
 static void* imuiMemoryDefaultAlloc( uintsize size, void* userData )
 {
+	(void)userData;
 	return malloc( size );
 }
 
 static void* imuiMemoryDefaultRealloc( void* oldMemory, uintsize oldSize, uintsize newSize, void* userData )
 {
+	(void)oldSize;
+	(void)userData;
 	return realloc( oldMemory, newSize );
 }
 
@@ -241,5 +244,6 @@ static void* imuiMemoryPseudoRealloc( void* oldMemory, uintsize oldSize, uintsiz
 
 static void imuiMemoryDefaultFree( void* memory, void* userData )
 {
+	(void)userData;
 	free( memory );
 }
