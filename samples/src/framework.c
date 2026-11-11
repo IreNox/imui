@@ -983,8 +983,10 @@ void imuiFrameworkToolboxConfigDataApply( const ImuiFrameworkToolboxConfigData* 
 	theme.colors[ ImuiToolboxColor_CheckBox ]					= elementColor;
 	theme.colors[ ImuiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	theme.colors[ ImuiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	theme.colors[ ImuiToolboxColor_CheckBoxUnchecked ]			= imuiColorCreateTransparentBlack();
-	theme.colors[ ImuiToolboxColor_CheckBoxChecked ]			= textColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxIconUnchecked ]		= imuiColorCreateTransparentBlack();
+	theme.colors[ ImuiToolboxColor_CheckBoxIconChecked ]		= textColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxIconHover ]			= elementHoverColor;
+	theme.colors[ ImuiToolboxColor_CheckBoxIconClicked ]		= elementClickedColor;
 	theme.colors[ ImuiToolboxColor_SliderBackground ]			= backgroundColor;
 	theme.colors[ ImuiToolboxColor_SliderPivot ]				= elementColor;
 	theme.colors[ ImuiToolboxColor_SliderPivotHover ]			= elementHoverColor;
@@ -1017,7 +1019,7 @@ void imuiFrameworkToolboxConfigDataApply( const ImuiFrameworkToolboxConfigData* 
 	theme.colors[ ImuiToolboxColor_TabViewHeaderActive ]		= elementColor;
 	theme.colors[ ImuiToolboxColor_TabViewHeaderInactive ]		= backgroundColor;
 	theme.colors[ ImuiToolboxColor_TabViewBody ]				= backgroundColor;
-	static_assert( ImuiToolboxColor_MAX == 42, "more colors" );
+	static_assert( ImuiToolboxColor_MAX == 44, "more colors" );
 
 	theme.skins[ ImuiToolboxSkin_Button ]						= data->skinRect;
 	theme.skins[ ImuiToolboxSkin_ButtonHover ]					= data->skinRect;
