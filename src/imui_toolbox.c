@@ -90,8 +90,10 @@ static const ImuiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Check Box/Color",					ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBox ] ) },
 	{ "Check Box/Hover Color",				ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxHover ] ) },
 	{ "Check Box/Clicked Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxClicked ] ) },
-	{ "Check Box/Unchecked Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxUnchecked ] ) },
-	{ "Check Box/Checked Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxChecked ] ) },
+	{ "Check Box/Icon Unchecked Color",		ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxIconUnchecked ] ) },
+	{ "Check Box/Icon Checked Color",		ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxIconChecked ] ) },
+	{ "Check Box/Icon Hover Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxIconHover ] ) },
+	{ "Check Box/Icon Clicked Color",		ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_CheckBoxIconClicked ] ) },
 	{ "Slider/Background Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_SliderBackground ] ) },
 	{ "Slider/Pivot Color",					ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_SliderPivot ] ) },
 	{ "Slider/Pivot Hover Color",			ImuiToolboxThemeReflectionType_Color,	offsetof( ImuiToolboxTheme, colors[ ImuiToolboxColor_SliderPivotHover ] ) },
@@ -198,7 +200,7 @@ static const ImuiToolboxThemeReflectionField s_themeReflectionFields[] =
 	{ "Tab View/Header Padding",			ImuiToolboxThemeReflectionType_Border,	offsetof( ImuiToolboxTheme, tabView.headerPadding ) },
 	{ "Tab View/Body Padding",				ImuiToolboxThemeReflectionType_Border,	offsetof( ImuiToolboxTheme, tabView.bodyPadding ) },
 };
-static_assert( ImuiToolboxColor_MAX == 42, "more colors" );
+static_assert( ImuiToolboxColor_MAX == 44, "more colors" );
 static_assert( ImuiToolboxSkin_MAX == 22, "more skins" );
 static_assert( ImuiToolboxIcon_MAX == 4, "more icons" );
 #ifdef IMUI_CHECK_TOOLBOX_THEME_SIZE
@@ -235,8 +237,10 @@ void imuiToolboxThemeFillDefault( ImuiToolboxTheme* theme, ImuiFont* font )
 	theme->colors[ ImuiToolboxColor_CheckBox ]					= elementColor;
 	theme->colors[ ImuiToolboxColor_CheckBoxHover ]				= elementHoverColor;
 	theme->colors[ ImuiToolboxColor_CheckBoxClicked ]			= elementClickedColor;
-	theme->colors[ ImuiToolboxColor_CheckBoxUnchecked ]			= imuiColorCreateTransparentBlack();
-	theme->colors[ ImuiToolboxColor_CheckBoxChecked ]			= textColor;
+	theme->colors[ ImuiToolboxColor_CheckBoxIconUnchecked ]		= imuiColorCreateTransparentBlack();
+	theme->colors[ ImuiToolboxColor_CheckBoxIconChecked ]		= textColor;
+	theme->colors[ ImuiToolboxColor_CheckBoxIconHover ]			= elementHoverColor;
+	theme->colors[ ImuiToolboxColor_CheckBoxIconClicked ]		= elementClickedColor;
 	theme->colors[ ImuiToolboxColor_SliderBackground ]			= backgroundColor;
 	theme->colors[ ImuiToolboxColor_SliderPivot ]				= elementColor;
 	theme->colors[ ImuiToolboxColor_SliderPivotHover ]			= elementHoverColor;
@@ -269,7 +273,7 @@ void imuiToolboxThemeFillDefault( ImuiToolboxTheme* theme, ImuiFont* font )
 	theme->colors[ ImuiToolboxColor_TabViewHeaderActive ]		= elementColor;
 	theme->colors[ ImuiToolboxColor_TabViewHeaderInactive ]		= elementClickedColor;
 	theme->colors[ ImuiToolboxColor_TabViewBody ]				= backgroundColor;
-	static_assert( ImuiToolboxColor_MAX == 42, "more colors" );
+	static_assert( ImuiToolboxColor_MAX == 44, "more colors" );
 
 	const ImuiSkin skin = { IMUI_TEXTURE_HANDLE_INVALID };
 
@@ -533,13 +537,16 @@ bool imuiToolboxCheckBoxEnd( ImuiWidget* checkBox, bool* checked, const char* te
 	imuiWidgetGetInputState( checkBox, &inputState );
 
 	ImuiColor color = s_theme.colors[ ImuiToolboxColor_CheckBox ];
+	ImuiColor iconColor = s_theme.colors[ *checked ? ImuiToolboxColor_CheckBoxIconChecked : ImuiToolboxColor_CheckBoxIconUnchecked ];
 	if( inputState.wasPressed && inputState.isMouseDown )
 	{
 		color = s_theme.colors[ ImuiToolboxColor_CheckBoxClicked ];
+		iconColor = s_theme.colors[ ImuiToolboxColor_CheckBoxIconClicked ];
 	}
 	else if( inputState.isMouseOver )
 	{
 		color = s_theme.colors[ ImuiToolboxColor_CheckBoxHover ];
+		iconColor = s_theme.colors[ ImuiToolboxColor_CheckBoxIconHover ];
 	}
 
 	const float dpiScale = imuiWidgetGetDpiScale( checkBox );
@@ -549,8 +556,7 @@ bool imuiToolboxCheckBoxEnd( ImuiWidget* checkBox, bool* checked, const char* te
 
 	const ImuiImage* icon = &s_theme.icons[ *checked ? ImuiToolboxIcon_CheckBoxChecked : ImuiToolboxIcon_CheckBoxUnchecked ];
 	const ImuiRect checkIconRect = imuiRectCreateCenterPosSize( imuiRectGetCenter( checkBackgroundRect ), imuiSizeScale( imuiSizeCreateImage( icon ), dpiScale ) );
-	const ImuiColor checkIconColor = s_theme.colors[ *checked ? ImuiToolboxColor_CheckBoxChecked : ImuiToolboxColor_CheckBoxUnchecked ];
-	imuiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, checkIconColor );
+	imuiWidgetDrawPartialImageColor( checkBox, checkIconRect, icon, iconColor );
 
 	if( text )
 	{

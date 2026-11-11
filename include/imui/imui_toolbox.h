@@ -21,8 +21,10 @@ typedef enum ImuiToolboxColor
 	ImuiToolboxColor_CheckBox,
 	ImuiToolboxColor_CheckBoxHover,
 	ImuiToolboxColor_CheckBoxClicked,
-	ImuiToolboxColor_CheckBoxUnchecked,
-	ImuiToolboxColor_CheckBoxChecked,
+	ImuiToolboxColor_CheckBoxIconUnchecked,
+	ImuiToolboxColor_CheckBoxIconChecked,
+	ImuiToolboxColor_CheckBoxIconHover,
+	ImuiToolboxColor_CheckBoxIconClicked,
 
 	ImuiToolboxColor_SliderBackground,
 	ImuiToolboxColor_SliderPivot,
